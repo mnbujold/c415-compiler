@@ -1,0 +1,7 @@
+// This is a comment!
+program example(input, output);
+{}
+type str = array[1..7] of char;
+
+begin {main-program}
+end.
