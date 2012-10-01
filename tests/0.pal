@@ -1,7 +1,39 @@
-// This is a comment!
-program example(input, output);
-{}
-type str = array[1..7] of char;
+{
+        0.pal
+        Tests lexical errors. Expected output:
+        9:1 unrecognized chararcter '/'
+        9:2 unrecognized chararcter '''
+        true
+        
+}
+program lexical(input, output);
+// Does some stuff with words and sentences.
+/' This comment should break!
 
-begin {main-program}
+        const BOB = 'bob';
+              SENTENCE_LENGTH = 3;
+              WORD_LENGTH = 10;
+              GOOD = true;
+              BAD = false;
+
+
+        type string = array[1..10] of char;
+             sentence = (str, str, str);
+
+        var sent1, sent2, sent3 : sentence;
+            worked : boolean;
+
+        function set_word(index : integer, new_word : string)
+                        : boolean;
+        begin
+                if index <= SENTENCE_LENGTH then
+                        sent[index] := new_word;
+                        set_word := GOOD;
+                else
+                        set_word := BAD;
+        end;
+begin
+sent1 := sentence();
+worked := set_word(1, 'bob');
+writeln(worked);
 end.
