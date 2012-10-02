@@ -15,6 +15,7 @@ int 		last_column;
 char 		errortext[4096];
 int 		looperrordetection;
 
+
 void yyerror(const char *str)
 {
 	eList = addError(eList, str, NULL, last_column, lineno);
@@ -75,7 +76,7 @@ main()
 %token <string> Left_Perentheses Right_Perentheses Comma Semi_Colon Equals Colon
 %token <string> Left_Token Right_Token Double_Period Period Less_Than Greater_Than Assign
 %token <string> Plus Multiply Minus Divide
-%token <string> ID
+%token <string> ID RETURNN
 
 %type <string> expr simple_expr term factor var subscripted_var unsigned_const
 %type <string> func_invok unsigned_num plist_finvok
@@ -84,7 +85,20 @@ main()
 
 %%
 program : program_head decls compound_stat Period
+		| error {
+			iserror = 1;
+			yyerrok;
+			looperrordetection++;
+			if(looperrordetection == 300) {
+				printf("loop error detected!(%d)\n",looperrordetection);
+				looperrordetection = 0;
+				yyclearin;
+				/*yylex();*/
+				return 0;
+			} /* if */
+		}
 ;
+
 program_head : PROGRAM ID Left_Perentheses ID Comma ID Right_Perentheses Semi_Colon
 {
 	printf("End of program head\n");
@@ -92,9 +106,10 @@ program_head : PROGRAM ID Left_Perentheses ID Comma ID Right_Perentheses Semi_Co
 ;
 
 decls : 		const_decl_part type_decl_part var_decl_part proc_decl_part
-			{ 
-				show_error(); 
-			}
+		| error var {
+			iserror = 1;
+			yyerrok;
+		}
 			;
 				
 const_decl_part : CONSTT const_decl_list Semi_Colon
@@ -200,6 +215,14 @@ compound_stat: 			BEGINN stat_list END
 
 stat_list: 				stat
 						| stat_list Semi_Colon stat
+		| IF error {
+			iserror = 1;
+			yyerrok;
+		}
+		| error var{
+			iserror = 1;
+			yyerrok;
+		}
 						;
 
 stat: 					simple_stat

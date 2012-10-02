@@ -2,9 +2,22 @@
 #include <stdio.h>
 #include <string.h>
 #include "yacc.tab.h"
+#include "myerror.h"
 extern char errortext[4096];
 extern int last_column;
 extern int lineno;
+extern int oldlineno;
+extern myerror *eList;
+
+void updateError(void) {
+        	if(lineno != oldlineno) {
+        		updateErrorText(eList, errortext);
+        		showAllErrors(eList);
+	        	eList = deleteAllErrors(eList);
+	        	oldlineno = lineno;
+		        memset(errortext, '\0', 4096);
+	        } /* if */
+} /* if */
 
 %}
 
@@ -57,6 +70,6 @@ while 						last_column += strlen(yytext); strcat(errortext, yytext); return WHI
 int_const 					last_column += strlen(yytext); strcat(errortext, yytext); return INT_CONST;
 real_const					return REAL_CONST;
 [a-zA-Z0-9]+ 				last_column += strlen(yytext); strcat(errortext, yytext); return ID;
-\n                      	lineno++; /* ignore end of line */;
+\n                      	lineno++; updateError(); last_column=0;/*return RETURNN;/* ignore end of line */;
 [ \t]+                  	last_column += strlen(yytext); strcat(errortext, yytext); /* ignore whitespace */;
 %%
