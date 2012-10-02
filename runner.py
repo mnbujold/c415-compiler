@@ -1,3 +1,15 @@
+"""
+Call with a list of integers representing .pal files to test those files
+using the lex program. Appends results to the tests.log file.
+
+Example usage:
+$> python runner.py 0 1 2
+# Runs the 0.pal, 1.pal, and 2.pal files located in the tests/ directory.
+$> python runner.py --all
+# Runs all the .pal test files in the tests/ directory (not implemented yet).
+
+"""
+
 from argparse import ArgumentParser
 from subprocess import call
 from datetime import datetime
