@@ -1,0 +1,26 @@
+{
+    5.pal
+    Tests syntactical errors.
+    Expected output:
+    #:6 expecting ID but found RESERVED_WORD_STRING 
+    #:21 expecting SCALAR_LIST but found FUNC_INVOK
+}
+program syntactical(input, output);
+// Does some stuff with words and sentences.
+/' This comment should break!
+
+type string = array[a_function(true)..5] of integer;
+
+var bob : str;
+
+function a_function(question : boolean) : integer;
+begin
+    a_function := 3;
+    writeln(question);
+end;
+
+begin
+
+bob[3] := 3;
+
+end.

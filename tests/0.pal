@@ -1,11 +1,11 @@
 {
-        0.pal
-        Tests lexical errors.
-        Expected output:
-        #:1 unrecognized chararcter '/'
-        #:2 unrecognized chararcter '''
-        true
-        10.0
+    0.pal
+    Tests lexical errors.
+    Expected output:
+    #:1 unrecognized chararcter '/'
+    #:2 unrecognized chararcter '''
+    true
+    10.0
 }
 program lexical(input, output);
 // Does some stuff with words and sentences.
@@ -18,14 +18,14 @@ const BOB = 'bob';
       BAD = false;
       FORCE_CONST : real = 10;
 
-type string = array[1..10] of char;
-     terms = (lexical, semantic, syntactical)
+type str = array[1..10] of char;
+     terms = (lexical, semantic, syntactical);
 
 var sent1, sent2, sent3 : array[1..3];
     a_term : terms;
     worked : boolean;
 
-function set_word(index : integer, new_word : string)
+function set_word(index : integer, new_word : str)
                 : boolean;
 begin
     a_term := lexical;

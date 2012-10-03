@@ -77,6 +77,7 @@ void updateError(void) {
 \]	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Right_Token;
 \>	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Greater_Than;
 \<	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Less_Than;
+
 ;	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Semi_Colon;
 :	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Colon;
 :=	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Assign;
@@ -91,7 +92,8 @@ and 						last_column += strlen(yytext); strcat(errortext, yytext);  return AND;
 array 						last_column += strlen(yytext); strcat(errortext, yytext); return ARRAY;
 begin 						last_column += strlen(yytext); strcat(errortext, yytext); return BEGINN;
 bool 						last_column += strlen(yytext); strcat(errortext, yytext); return BOOL;
-char 						last_column += strlen(yytext); strcat(errortext, yytext); return ID;
+char 						last_column += strlen(yytext); strcat(errortext, yytext); return CHAR;
+string 						last_column += strlen(yytext); strcat(errortext, yytext); return STRING;
 const 						last_column += strlen(yytext); strcat(errortext, yytext); return CONSTT;
 continue 					last_column += strlen(yytext); strcat(errortext, yytext); return CONTINUE;
 div 						last_column += strlen(yytext); strcat(errortext, yytext); return DIV;
