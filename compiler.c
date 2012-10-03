@@ -6,6 +6,7 @@
 #include "myerror.h"
 #include "yacc.tab.h"
 
+
 symbol 		*sList;  
 myerror 	*eList;  
 int 		iserror;

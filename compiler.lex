@@ -29,6 +29,7 @@ void updateError(void) {
 \]	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Right_Token;
 \>	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Greater_Than;
 \<	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Less_Than;
+
 ;	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Semi_Colon;
 :	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Colon;
 :=	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Assign;

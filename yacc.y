@@ -101,6 +101,7 @@ const_decl_list : const_decl
 const_decl : ID Equals expr { printf("const_decl\n"); }
 ;
 
+
 type_decl_part : TYPE type_decl_list Semi_Colon { printf("type_decl_part\n"); }
 |
 ;
