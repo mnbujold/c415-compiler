@@ -4,8 +4,8 @@ Fall 2012
 Mike Bujold, Dan Chui, James Osgood, Paul Vandermeer
 
 PAL Compiler
-      Compiles programs in the PAL language - a subset of Pascal.
-      Into ASC assembly language
+      Compiles programs in the PAL language - a subset of Pascal,
+      into ASC assembly language.
 
 Disclaimer
 This code is for use by the above named individuals. Any use of this code by unauthorized individuals will be viewed as plagiarism as per the U of A Code of Student Behaviour (Section 30.3.2[1]) and will be reported to the appropriate University representatives accordingly.

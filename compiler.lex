@@ -1,3 +1,8 @@
+/**
+* Lex file for parsing input into tokens for
+* PAL language
+* made by Daniel Chui
+**/
 %{
 #include <stdio.h>
 #include <string.h>
@@ -20,8 +25,51 @@ void updateError(void) {
 } /* if */
 
 %}
-
 %%
+
+"and"
+"array"
+"begin"
+"const"
+"continue"
+"div"
+"do"
+"else"
+"end"
+"exit"
+"function"
+"if"
+"mod"
+"not"
+"of"
+"or"
+"procedure"
+"program"
+"record"
+"then"
+"type"
+"var"
+"while"
+"="
+"<>"
+"<"
+"<="
+">="
+"+"
+"-"
+"/"
+"div"
+"mod"
+":="
+"("
+")"
+"."
+";"
+":"
+"["
+"]"
+","
+
 ,	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Comma;
 \(	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Left_Perentheses;
 \)	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Right_Perentheses;
