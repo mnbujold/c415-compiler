@@ -20,6 +20,9 @@ SOURCE = myerror.c symbol.c
 
 all: clean pal
 
+man:
+	groff -man -T ascii doc/pal.1
+
 pal:
 	bison -d -v yacc.y 
 	flex compiler.lex
