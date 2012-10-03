@@ -6,14 +6,14 @@
 #include "symbol.h"
 #include "myerror.h"
 
-symbol 		*sList;  
-myerror 	*eList;  
-symbol 		*sSelected;  
-int 		iserror;
-int 		lineno, oldlineno;
-int 		last_column;
-char 		errortext[4096];
-int 		looperrordetection;
+extern symbol 		*sList;  
+extern myerror 		*eList;  
+extern symbol 		*sSelected;  
+extern int 			iserror;
+extern int 			lineno, oldlineno;
+extern int 			last_column;
+extern char 		errortext[4096];
+extern int 			looperrordetection;
 
 
 void yyerror(const char *str)
@@ -35,28 +35,6 @@ show_error() {
 		        memset(errortext, '\0', 4096);
 	        } /* if */
 } /*show_error*/
-
-main()
-{
-		sList = NULL;
-		eList = NULL;
-		sSelected = NULL;
-        iserror = 0;
-        last_column = 0;
-        lineno = 1;
-        oldlineno = 1;
-        looperrordetection = 0;
-        memset(errortext, '\0', 4096);
-        yyparse();
-        sList = deleteAllSymbols(sList);
-        if(eList != NULL) {
-        	printf("Major errors encountered in input file.  Most likely due to messed up '(' or ')'\n");
-        	printf("Below is a screen dump of errors caught before crash:\n");
-   			updateErrorText(eList, errortext);
-  			showAllErrors(eList);
-  		} //if
-        eList = deleteAllErrors(eList);
-} 
 
 %}
 
@@ -148,6 +126,7 @@ scalar_type:		Left_Perentheses scalar_list Right_Perentheses { printf("scalar_ty
 					| INT { printf("scalar_type\n"); }
 					| BOOL { printf("scalar_type\n"); }
 					| CHAR { printf("scalar_type\n"); }
+					| STRING { printf("scalar_type\n"); }
 					;
 
 scalar_list:			ID { printf("scalar_list\n"); }
@@ -159,7 +138,7 @@ structured_type:		ARRAY Left_Token array_type Right_Token OF type  { printf("str
 						;
 
 array_type:				simple_type { printf("array_type\n"); }
-						| expr Double_Period expr { printf("array_type\n"); }
+						| simple_type Double_Period simple_type { printf("array_type\n"); }
 						;
 
 field_list:				field { printf("field_list\n"); }
@@ -230,7 +209,6 @@ stat: 					simple_stat
 						;
 
 simple_stat:		var Assign expr
-					/*| var Assign expr Semi_Colon*/
 					| proc_invok
 					| compound_stat
 					;
@@ -278,7 +256,6 @@ factor : var
 ;
 
 unsigned_const : 		unsigned_num
-						| ID
 						| STRING
 						;
 
