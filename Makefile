@@ -16,19 +16,20 @@ GRAMMAR = yacc.y
 GRAMMAR_C = yacc.tab.c
 LEXER = compiler.lex
 LEXER_C = lex.yy.c
-SOURCE = myerror.c symbol.c
+SOURCE = myerror.c symbol.c compiler.c
 
 all: clean pal
 
 man:
 	groff -man -T ascii doc/pal.1
 
-pal:
-	bison -d -v yacc.y 
-	flex compiler.lex
-	gcc  myerror.c lex.yy.c yacc.tab.c symbol.c -o lex
+pal: ${GRAMMAR} ${LEXER} ${SOURCE}
+	flex ${LEXER}
+	bison -d -v ${GRAMMAR}
+	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -o pal
 
 clean:
 	rm -f pal
 	rm -f lex.yy.c yacc.tab.c yacc.tab.h
+	rm -rf *~
 
