@@ -24,7 +24,7 @@ man:
 	groff -man -T ascii doc/pal.1
 
 pal: ${GRAMMAR} ${LEXER} ${SOURCE}
-	flex ${LEXER}
+	flex -i ${LEXER}
 	bison -d -v ${GRAMMAR}
 	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -o pal
 
