@@ -17,7 +17,7 @@ from subprocess import call
 from datetime import datetime
 
 LOG_NAME = 'tests.log'
-PAL_PATH = '../lex'
+PAL_PATH = '../pal'
 
 def _all_tests(test_list):
     print 'not implemented yet ...'
@@ -28,13 +28,10 @@ def _run_tests(test_list):
                  'TIME: %s\n'\
                  'TEST: %d.pal\n'\
                  '----------------------\n'
-    run_cmds = [PAL_PATH]
     test_path = '%d.pal'
-    
     output_log = open(LOG_NAME, 'a+')
     
     for test_index in test_list:
-        test_file = open(test_path % test_index, 'r')
         start_datetime = datetime.today()
         start_date = start_datetime.date().isoformat()
         start_time = start_datetime.time().isoformat()
@@ -44,8 +41,7 @@ def _run_tests(test_list):
         output_log.close() # so the file is written to in the correct order
         
         output_log = open(LOG_NAME, 'a+')
-        call(run_cmds, stdin = test_file, stdout = output_log)
-        test_file.close()
+        call([PAL_PATH, test_path % test_index], stdout = output_log)
         output_log.close()
 
 def _get_cmdline_args():
@@ -69,6 +65,13 @@ def _get_cmdline_args():
     return parser
     
 if __name__ == '__main__':
+    valid_indices = range(0, 10)
     test_runner = _get_cmdline_args().parse_args()
+    test_indices = test_runner.test_names
+    
+    for test_index in test_indices:
+        if test_index not in valid_indices:
+            print 'Test index %d not at valid index [0-9]' % test_index
+            exit()
     
     test_runner.do_tests(test_runner.test_names)
