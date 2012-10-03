@@ -1,39 +1,45 @@
 {
         0.pal
-        Tests lexical errors. Expected output:
-        9:1 unrecognized chararcter '/'
-        9:2 unrecognized chararcter '''
+        Tests lexical errors.
+        Expected output:
+        #:1 unrecognized chararcter '/'
+        #:2 unrecognized chararcter '''
         true
-        
+        10.0
 }
 program lexical(input, output);
 // Does some stuff with words and sentences.
 /' This comment should break!
 
-        const BOB = 'bob';
-              SENTENCE_LENGTH = 3;
-              WORD_LENGTH = 10;
-              GOOD = true;
-              BAD = false;
+const BOB = 'bob';
+      SENTENCE_LENGTH = 3;
+      WORD_LENGTH = 10;
+      GOOD = true;
+      BAD = false;
+      FORCE_CONST : real = 10;
 
+type string = array[1..10] of char;
+     terms = (lexical, semantic, syntactical);
 
-        type string = array[1..10] of char;
-             sentence = (str, str, str);
+var sent1, sent2, sent3 : array[1..3];
+    a_term : terms;
+    worked : boolean;
 
-        var sent1, sent2, sent3 : sentence;
-            worked : boolean;
-
-        function set_word(index : integer, new_word : string)
-                        : boolean;
-        begin
-                if index <= SENTENCE_LENGTH then
-                        sent[index] := new_word;
-                        set_word := GOOD;
-                else
-                        set_word := BAD;
-        end;
+function set_word(index : integer, new_word : string)
+                : boolean;
 begin
+    a_term := lexical;
+    if index <= SENTENCE_LENGTH then
+        sent[index] := new_word;
+        set_word := GOOD;
+    else
+        set_word := BAD;
+end;
+begin
+
 sent1 := sentence();
 worked := set_word(1, 'bob');
 writeln(worked);
+writeln(FORCE_CONST);
+
 end.
