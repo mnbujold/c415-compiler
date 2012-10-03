@@ -230,7 +230,6 @@ stat: 					simple_stat
 						;
 
 simple_stat:		var Assign expr
-					/*| var Assign expr Semi_Colon*/
 					| proc_invok
 					| compound_stat
 					;
@@ -278,7 +277,6 @@ factor : var
 ;
 
 unsigned_const : 		unsigned_num
-						| ID
 						| STRING
 						;
 
