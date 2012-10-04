@@ -8,10 +8,11 @@ Example usage:
 $> python runner.py 0 1 2
 # Runs the 0.pal, 1.pal, and 2.pal files.
 $> python runner.py --all
-# Runs all the .pal test files (not implemented yet).
+# Runs all the *.pal test files.
 
 """
 
+from os import getcwd, listdir
 from argparse import ArgumentParser
 from subprocess import call
 from datetime import datetime
@@ -19,10 +20,9 @@ from datetime import datetime
 LOG_NAME = 'tests.log'
 PAL_PATH = '../pal'
 
-def _all_tests(test_list):
-    print 'not implemented yet ...'
-
 def _run_tests(test_list):
+    # TODO: use 'with' syntax to open/close files
+    # TODO: check if pal is compiled yet - print message if it isn't
     output_msg = '----------------------\n'\
                  'DATE: %s\n'\
                  'TIME: %s\n'\
@@ -40,14 +40,15 @@ def _run_tests(test_list):
         output_log.write(output_msg % (start_date, start_time, test_index))
         output_log.close() # so the file is written to in the correct order
         
-        output_log = open(LOG_NAME, 'a+')
+        output_log = open(LOG_NAME, 'a+')        
         call([PAL_PATH, test_path % test_index], stdout = output_log)
         output_log.close()
 
 def _get_cmdline_args():
-    dscrp_txt = 'run *.pal test programs'
-    help_name_txt = 'a name of an [0-9].pal test'
-    help_all_txt = 'run all *.pal tests (default: false) (NOT YET IMPLEMENTED)'
+    dscrp_txt = 'Runs .pal test programs and pipes the tests\' output to '\
+                'the test.log file. Does not run duplicate tests.'
+    help_name_txt = 'the name of a T.pal test program to run'
+    help_all_txt = 'run all *.pal tests'
     
     parser = ArgumentParser(description = dscrp_txt)
     parser.add_argument('test_names',
@@ -55,23 +56,35 @@ def _get_cmdline_args():
                         type = int,
                         nargs = '*',
                         help = help_name_txt)
-    parser.add_argument('--all',
-                        dest = 'do_tests',
-                        const = _all_tests,
-                        default = _run_tests,
-                        nargs = '?',
+    parser.add_argument('-a',
+                        '--all_tests',
+                        action = 'store_true',
                         help = help_all_txt)
     
     return parser
     
+def _get_valid_indices():
+    return [int(test_file.rsplit('.pal')[0]) for test_file in listdir(getcwd())
+            if test_file.endswith('.pal')]
+    
+def _valid_index(test_index, valid_indices):
+    if test_index not in valid_indices:
+        print 'test index %d ignored since not a valid index' % test_index
+        return False
+    return True
+    
 if __name__ == '__main__':
     valid_indices = range(0, 10)
     test_runner = _get_cmdline_args().parse_args()
-    test_indices = test_runner.test_names
+    test_indices = list(set(test_runner.test_names))
+    valid_indices = _get_valid_indices()
     
-    for test_index in test_indices:
-        if test_index not in valid_indices:
-            print 'Test index %d not at valid index [0-9]' % test_index
-            exit()
+    if test_runner.all_tests:
+        if test_indices:
+            print 'disregarding given test names since running all tests'
+        test_indices = valid_indices
+    else:
+        test_indices = [test_index for test_index in test_indices
+                        if _valid_index(test_index, valid_indices)]
     
-    test_runner.do_tests(test_runner.test_names)
+    _run_tests(test_indices)
