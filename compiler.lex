@@ -61,43 +61,44 @@ strcat (errortext, yytext);
 "while"						{ return WHILE;}
 
 /* relational operators in PAL */
-"="							{ return ISEQUAL;}
+"="						{ return ISEQUAL;}
 "<>"						{ return NOTEQUAL;}
-"<"							{ return LESSTHAN;}
-">"							{ return GREATERTHAN;}
+"<"						{ return LESSTHAN;}
+">"						{ return GREATERTHAN;}
 "<="						{ return LESSTHANEQUALS;}
 ">="						{ return GREATERTHANEQUALS;}
 
 /* arithmetic operators in PAL */
-"+"							{ return PLUS;}
-"-"							{ return MINUS;}
-"*"							{ return MULTIPLY;}
-"/"							{ return DIVIDE;}
+"+"						{ return PLUS;}
+"-"						{ return MINUS;}
+"*"						{ return MULTIPLY;}
+"/"						{ return DIVIDE;}
 "div"						{ return DIV;}
 "mod"						{ return MOD;}
 
 /* other lexical characters */
 ":="						{ return ASSIGN;}
-"("							{ return LEFTPAREN;}
-")"							{ return RIGHTPAREN;}
-"."							{ return PERIOD;}
-";"							{ return SEMICOLON;}
-":"							{ return COLON;}
-"["							{ return LEFTBRACKET;}
-"]"							{ return RIGHTBRACKET;}
-","							{ return COMMA;}
+"("						{ return LEFTPAREN;}
+")"						{ return RIGHTPAREN;}
+"."						{ return PERIOD;}
+";"						{ return SEMICOLON;}
+":"						{ return COLON;}
+"["						{ return LEFTBRACKET;}
+"]"						{ return RIGHTBRACKET;}
+","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
 /* comments */
-"//"[^\n]*""        		{ /* do nothing, one line comment */              	     }
-"{"[\^{}}]*"}"				{ /* do nothing, a block comment }
+"//"[^\n]*""		        		{ /* do nothing, one line comment */              	     }
+"{"[\^{}}]*"}"					{ /* do nothing, a block comment }
 
 /* other */
-\'[a-zA-Z+ \t]+\'[;]* 	 	{ return ID;}
+\'[a-zA-Z+ \t]+\'[;]* 	 			{ return ID;}
 int_const 					{ return INT_CONST;}
 real_const					{ return REAL_CONST;}
-[a-zA-Z0-9]+ 				{ return ID;}
-\n                      	lineno++; updateError(); last_column=0;/*return RETURNN;/* ignore end of line */;
-[ \t]+                  	add(); strcat(errortext, yytext); /* ignore whitespace */;
+[a-zA-Z0-9]+ 					{ return ID;}
+\n                      			{ lineno++; updateError(); last_column=0;
+						/*return RETURNN;/* ignore end of line */;}
+[ \t]+                  			{ add(); strcat(errortext, yytext); /* ignore whitespace */;}
 
 %%
 
