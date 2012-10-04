@@ -13,7 +13,7 @@ CC = gcc
 FLAGS = -g
 
 GRAMMAR = compiler.y
-GRAMMAR_C = yacc.tab.c
+GRAMMAR_C = compiler.tab.c
 LEXER = compiler.lex
 LEXER_C = lex.yy.c
 SOURCE = myerror.c symbol.c compiler.c
@@ -30,6 +30,6 @@ pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 
 clean:
 	rm -f pal
-	rm -f lex.yy.c yacc.tab.c yacc.tab.h
+	rm -f lex.yy.c compiler.tab.c compiler.tab.h
 	find . -name \*~ -type f -delete
 
