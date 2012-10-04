@@ -47,10 +47,11 @@ show_error() {
         char string[4096];
 }
 /* Reserved word tokens */
+/* note: MOD and DIV are under operator tokens */
 %token <string> AND ARRAY BEGIN CONST 
-%token <string> CONTINUE DIV DO ELSE
+%token <string> CONTINUE DO ELSE
 %token <string> END EXIT FUNCTION IF  
-%token <string> MOD NOT OF OR 
+%token <string> NOT OF OR 
 %token <string> PROCEDURE PROGRAM RECORD THEN
 %token <string> TYPE VAR WHILE 
 
@@ -64,7 +65,7 @@ show_error() {
 
 /* Miscellaneous tokens */
 %token <string> ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
-%token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD  LESSTHAN GREATERTHAN 
+%token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD  
 
 %token <string> ID RETURN
 
@@ -260,7 +261,7 @@ simple_expr: term
 ;
 term : factor
 | term MULTIPLY factor
-| term Divide factor
+| term DIVIDE factor
 | term DIV factor
 | term MOD factor
 | term AND factor
