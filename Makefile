@@ -18,6 +18,10 @@ LEXER = compiler.lex
 LEXER_C = lex.yy.c
 SOURCE = myerror.c symbol.c compiler.c
 
+# Stops bison from overwriting compiler.c
+%.c: %.y
+%.c: %.l
+
 all: clean pal
 
 man:
