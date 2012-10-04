@@ -31,5 +31,5 @@ pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 clean:
 	rm -f pal
 	rm -f lex.yy.c yacc.tab.c yacc.tab.h
-	rm -rf *~
+	find . -name \*~ -type f -delete
 
