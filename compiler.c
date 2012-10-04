@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "symbol.h"
 #include "myerror.h"
-#include "yacc.tab.h"
+#include "compiler.tab.h"
 
 
 symbol 		*sList;  
