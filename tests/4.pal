@@ -1,0 +1,8 @@
+{ 
+    4.pal
+    Tests for acceptance of comments and a program without anything but a comment.
+    No Errors.
+    {
+        {
+            
+        }

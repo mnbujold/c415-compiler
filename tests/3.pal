@@ -1,0 +1,17 @@
+{
+    3.pal
+    Tests identifier and comment/brace errors.
+    Errors:
+    10:12: 
+    #:# some record error
+    #:34 invalid comment / unexpected brace error
+}
+
+program bob>syouruncle(doesthis, work); { lexical error here }
+
+begin
+
+while 
+begin {{{{ Not a valid comment! }}}} end; { lexical error here }
+
+end.
