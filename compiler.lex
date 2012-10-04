@@ -33,12 +33,12 @@ void updateError(void) {
 **/
 add();
 strcat (errortext, yytext);
-}%
+%}
 
-/* reserved keywords in PAL */
+    /* reserved keywords in PAL */
 "and"						{ return AND;}
 "array"						{ return ARRAY;}
-"begin"						{ return BEGIN;}
+"begin"						{ return BEGIN_; /* BEGIN causes compilation errors */}
 "const"						{ return CONST;}
 "continue"					{ /* note: not in PASCAL */ return CONTINUE;}
 "div"						{ return DIV;}
@@ -60,7 +60,7 @@ strcat (errortext, yytext);
 "var"						{ return VAR;}
 "while"						{ return WHILE;}
 
-/* relational operators in PAL */
+    /* relational operators in PAL */
 "="						{ return ISEQUAL;}
 "<>"						{ return NOTEQUAL;}
 "<"						{ return LESSTHAN;}
@@ -68,7 +68,7 @@ strcat (errortext, yytext);
 "<="						{ return LESSTHANEQUALS;}
 ">="						{ return GREATERTHANEQUALS;}
 
-/* arithmetic operators in PAL */
+    /* arithmetic operators in PAL */
 "+"						{ return PLUS;}
 "-"						{ return MINUS;}
 "*"						{ return MULTIPLY;}
@@ -76,7 +76,7 @@ strcat (errortext, yytext);
 "div"						{ return DIV;}
 "mod"						{ return MOD;}
 
-/* other lexical characters */
+    /* other lexical characters */
 ":="						{ return ASSIGN;}
 "("						{ return LEFTPAREN;}
 ")"						{ return RIGHTPAREN;}
@@ -87,11 +87,11 @@ strcat (errortext, yytext);
 "]"						{ return RIGHTBRACKET;}
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
-/* comments */
+    /* comments */
 "//"[^\n]*""		        		{ /* do nothing, one line comment */              	     }
-"{"[\^{}}]*"}"					{ /* do nothing, a block comment }
+"{"[\^{}}]*"}"					{ /* do nothing, a block comment */ }
 
-/* other */
+    /* other */
 \'[a-zA-Z+ \t]+\'[;]* 	 			{ return ID;}
 int_const 					{ return INT_CONST;}
 real_const					{ return REAL_CONST;}

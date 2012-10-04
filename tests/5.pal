@@ -9,7 +9,7 @@ program syntactical(input, output);
 // Does some stuff with words and sentences.
 /' This comment should break!
 
-type string = array[a_function(true)..5] of integer;
+type string = array[a_function(true)..5] of integer; { 2 syntax errors here }
 
 var bob : str;
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     0.pal
     Tests lexical errors.
@@ -43,3 +44,50 @@ writeln(worked);
 writeln(FORCE_CONST);
 
 end.
+=======
+{
+    0.pal
+    Tests comment and identifier lexical errors.
+    Errors:
+    11:1 incorrect comment
+    21:6 incorrect identifier
+    28:21 incorrect identifier
+}
+program lexical(input, output);
+// Does some stuff with words and sentences.
+/' This comment should break!
+// lexical error above
+
+const BOB = 'bob';
+      SENTENCE_LENGTH = 3;
+      WORD_LENGTH = 10;
+      GOOD = true;
+      BAD = false;
+      FORCE_CONST : real = 10;
+
+type 3str = array[1..10] of char;   { lexical error here }
+     terms = (lexical, semantic, syntactical);
+
+var sent1, sent2, sent3 : array[1..3];
+    a_term : terms;
+    worked : boolean;
+
+function set_word(in#dex : integer, new_word : str) { lexical error here }
+                : boolean;
+begin
+    a_term := lexical;
+    if index <= SENTENCE_LENGTH then
+        sent[index] := new_word;
+        set_word := GOOD;
+    else
+        set_word := BAD;
+end;
+begin
+
+sent1 := sentence();
+worked := set_word(1, 'bob');
+writeln(worked);
+writeln(FORCE_CONST);
+
+end.
+>>>>>>> 728cca984355fed9371eae7bbad633e25ac9e37a

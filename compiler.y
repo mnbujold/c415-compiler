@@ -51,7 +51,7 @@ show_error() {
 }
 /* Reserved word tokens */
 /* note: MOD and DIV are under operator tokens */
-%token <string> AND ARRAY BEGIN CONST 
+%token <string> AND ARRAY BEGIN_ CONST 
 %token <string> CONTINUE DO ELSE
 %token <string> END EXIT FUNCTION IF  
 %token <string> NOT OF OR 
@@ -211,7 +211,7 @@ f_parm: 				ID COLON ID
 						| VAR ID COLON ID
 						;
 
-compound_stat: 			BEGIN stat_list END
+compound_stat: 			BEGIN_ stat_list END
 						;
 
 stat_list: 				stat
