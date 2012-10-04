@@ -27,6 +27,7 @@ else:
 
 def _run_tests(test_list):
     # TODO: use 'with' syntax to open/close files
+    # TODO: check if pal is compiled yet - print message if it isn't
     output_msg = '----------------------\n'\
                  'DATE: %s\n'\
                  'TIME: %s\n'\
@@ -52,8 +53,7 @@ def _run_tests(test_list):
 
 def _get_cmdline_args():
     dscrp_txt = 'Runs .pal test programs and pipes the tests\' output to '\
-                'the test.log file. Does not run duplicate tests. Order of '\
-                'tests may not be preserved.'
+                'the test.log file. Does not run duplicate tests.'
     help_name_txt = 'the name of a T.pal test program to run'
     help_all_txt = 'run all *.pal tests'
     
