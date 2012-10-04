@@ -12,13 +12,18 @@ $> python runner.py --all
 
 """
 
-from os import getcwd, listdir
+from os import getcwd, listdir, path
+import platform
 from argparse import ArgumentParser
 from subprocess import call
 from datetime import datetime
 
 LOG_NAME = 'tests.log'
-PAL_PATH = '../pal'
+
+if platform.system() == 'Windows':
+    PAL_PATH = '../pal.exe'
+else:
+    PAL_PATH = '../pal'
 
 def _run_tests(test_list):
     # TODO: use 'with' syntax to open/close files
@@ -40,8 +45,10 @@ def _run_tests(test_list):
         output_log.write(output_msg % (start_date, start_time, test_index))
         output_log.close() # so the file is written to in the correct order
         
-        output_log = open(LOG_NAME, 'a+')        
-        call([PAL_PATH, test_path % test_index], stdout = output_log)
+        output_log = open(LOG_NAME, 'a+')
+        test_name = test_path % test_index
+        print 'running test program ' + test_name
+        call([PAL_PATH, test_name], stdout = output_log)
         output_log.close()
 
 def _get_cmdline_args():
@@ -62,22 +69,26 @@ def _get_cmdline_args():
                         help = help_all_txt)
     
     return parser
-    
+
 def _get_valid_indices():
     return [int(test_file.rsplit('.pal')[0]) for test_file in listdir(getcwd())
             if test_file.endswith('.pal')]
-    
+
 def _valid_index(test_index, valid_indices):
     if test_index not in valid_indices:
         print 'test index %d ignored since not a valid index' % test_index
         return False
     return True
-    
+
 if __name__ == '__main__':
     valid_indices = range(0, 10)
     test_runner = _get_cmdline_args().parse_args()
     test_indices = list(set(test_runner.test_names))
     valid_indices = _get_valid_indices()
+    
+    if not path.isfile(PAL_PATH):
+        print 'cannot find pal compiler at ../'
+        exit()
     
     if test_runner.all_tests:
         if test_indices:
