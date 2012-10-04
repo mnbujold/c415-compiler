@@ -46,23 +46,40 @@ show_error() {
         int number;
         char string[4096];
 }
+/* Reserved word tokens */
+%token <string> AND ARRAY BEGIN CONST 
+%token <string> CONTINUE DIV DO ELSE
+%token <string> END EXIT FUNCTION IF  
+%token <string> MOD NOT OF OR 
+%token <string> PROCEDURE PROGRAM RECORD THEN
+%token <string> TYPE VAR WHILE 
 
-%token <string> AND ARRAY BEGINN BOOL CHAR CONSTT CONTINUE DIV
-%token <string> DO ELSE END EXIT FUNCTION IF INT MOD End_of_Line
-%token <string> NOT OF OR PROCEDURE PROGRAM REAL RECORD
-%token <string> STRING THEN TYPE VAR WHILE INT_CONST REAL_CONST
-%token <string> Left_Perentheses Right_Perentheses Comma Semi_Colon Equals Colon
-%token <string> Left_Token Right_Token Double_Period Period Less_Than Greater_Than Assign
-%token <string> Plus Multiply Minus Divide
-%token <string> ID RETURNN
+/* Relational tokens */
+%token <string> ISEQUAL NOTEQUAL LESSTHAN GREATERTHAN 
+%token <string> LESSTHANEQUALS GREATERTHANEQUALS
 
+/* Operator tokens */
+/* note: DIVIDE is for reals, div is for integer */
+%token <string> PLUS MINUS MULTIPLY DIVIDE DIV MOD
+
+/* Miscellaneous tokens */
+%token <string> ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
+%token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD  LESSTHAN GREATERTHAN 
+
+%token <string> ID RETURN
+
+/* type tokens */
+%token <string> BOOL CHAR INT REAL STRING
+%token <string> INT_CONST REAL_CONST
+
+%token <string> End_of_Line //eh...is this even used?
 %type <string> expr simple_expr term factor var subscripted_var unsigned_const
 %type <string> func_invok unsigned_num plist_finvok
 
-%left Left_Token Equals
+%left LEFTBRACKET ISEQUAL
 
 %%
-program : program_head decls compound_stat Period
+program : program_head decls compound_stat PERIOD
 		| error {
 			iserror = 1;
 			yyerrok;
@@ -77,7 +94,7 @@ program : program_head decls compound_stat Period
 		}
 ;
 
-program_head : PROGRAM ID Left_Perentheses ID Comma ID Right_Perentheses Semi_Colon
+program_head : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
 {
 	printf("End of program head\n");
 }
@@ -90,28 +107,28 @@ decls : 		const_decl_part type_decl_part var_decl_part proc_decl_part
 		}
 			;
 				
-const_decl_part : CONSTT const_decl_list Semi_Colon
+const_decl_part : CONST const_decl_list SEMICOLON
 |
 ;
 
 const_decl_list : const_decl
-| const_decl_list Semi_Colon const_decl
+| const_decl_list SEMICOLON const_decl
 ;
 
-const_decl : ID Equals expr { printf("const_decl\n"); }
+const_decl : ID ISEQUAL expr { printf("const_decl\n"); }
 ;
 
 
-type_decl_part : TYPE type_decl_list Semi_Colon { printf("type_decl_part\n"); }
+type_decl_part : TYPE type_decl_list SEMICOLON { printf("type_decl_part\n"); }
 |
 ;
 
-type_decl_list : 			type_decl_list Semi_Colon type_decl { printf("type_decl_list\n"); }
+type_decl_list : 			type_decl_list SEMICOLON type_decl { printf("type_decl_list\n"); }
 							|
 							type_decl { printf("type_decl_list\n"); }
 							;
 
-type_decl : ID Equals type { printf("type_decl\n"); }
+type_decl : ID ISEQUAL type { printf("type_decl\n"); }
 ;
 
 type : simple_type { printf("type\n"); }
@@ -123,7 +140,7 @@ simple_type:		scalar_type
 					| ID  { printf("simple_type\n"); }
 					;
 
-scalar_type:		Left_Perentheses scalar_list Right_Perentheses { printf("scalar_type\n"); }
+scalar_type:		LEFTPAREN scalar_list RIGHTPAREN { printf("scalar_type\n"); }
 					| INT { printf("scalar_type\n"); }
 					| BOOL { printf("scalar_type\n"); }
 					| CHAR { printf("scalar_type\n"); }
@@ -131,35 +148,35 @@ scalar_type:		Left_Perentheses scalar_list Right_Perentheses { printf("scalar_ty
 					;
 
 scalar_list:			ID { printf("scalar_list\n"); }
-						| scalar_list Comma ID { printf("scalar_list\n"); }
+						| scalar_list COMMA ID { printf("scalar_list\n"); }
 						;
 
-structured_type:		ARRAY Left_Token array_type Right_Token OF type  { printf("structured_type\n"); }
+structured_type:		ARRAY LEFTBRACKET array_type RIGHTBRACKET OF type  { printf("structured_type\n"); }
 						| RECORD field_list END { printf("structured_type\n"); }
 						;
 
 array_type:				simple_type { printf("array_type\n"); }
-						| simple_type Double_Period simple_type { printf("array_type\n"); }
+						| simple_type DOUBLEPERIOD simple_type { printf("array_type\n"); }
 						;
 
 field_list:				field { printf("field_list\n"); }
-						| field_list Semi_Colon field { printf("field_list\n"); }
+						| field_list SEMICOLON field { printf("field_list\n"); }
 						;
 
-field : ID Colon type { printf("field\n"); }
+field : ID COLON type { printf("field\n"); }
 ;
 
-var_decl_part : VAR var_decl_list Semi_Colon { printf("var_decl_part\n"); }
+var_decl_part : VAR var_decl_list SEMICOLON { printf("var_decl_part\n"); }
 |
 ;
 
 var_decl_list:					var_decl  { printf("var non-recursive\n"); }
 								|
-								var_decl_list Semi_Colon var_decl { printf("var recursive\n"); }
+								var_decl_list SEMICOLON var_decl { printf("var recursive\n"); }
 								;
 
-var_decl:						ID Colon type
-								| ID Comma var_decl
+var_decl:						ID COLON type
+								| ID COMMA var_decl
 								;
 
 proc_decl_part : proc_decl_list
@@ -170,31 +187,31 @@ proc_decl_list:			proc_decl
 						| proc_decl_list proc_decl
 						;
 
-proc_decl : proc_heading decls compound_stat Semi_Colon
+proc_decl : proc_heading decls compound_stat SEMICOLON
 ;
 
-proc_heading : 			PROCEDURE ID f_parm_decl Semi_Colon
-						| PROCEDURE ID Semi_Colon
-						| FUNCTION ID f_parm_decl Colon ID Semi_Colon
+proc_heading : 			PROCEDURE ID f_parm_decl SEMICOLON
+						| PROCEDURE ID SEMICOLON
+						| FUNCTION ID f_parm_decl COLON ID SEMICOLON
 						;
 
-f_parm_decl:			Left_Perentheses f_parm_list Right_Perentheses
-						| Left_Perentheses Right_Perentheses
+f_parm_decl:			LEFTPAREN f_parm_list RIGHTPAREN
+						| LEFTPAREN RIGHTPAREN
 						;
 
 f_parm_list:			f_parm
-						| f_parm_list Semi_Colon f_parm
+						| f_parm_list SEMICOLON f_parm
 						;
 
-f_parm: 				ID Colon ID
-						| VAR ID Colon ID
+f_parm: 				ID COLON ID
+						| VAR ID COLON ID
 						;
 
-compound_stat: 			BEGINN stat_list END
+compound_stat: 			BEGIN stat_list END
 						;
 
 stat_list: 				stat
-						| stat_list Semi_Colon stat
+						| stat_list SEMICOLON stat
 		| IF error {
 			iserror = 1;
 			yyerrok;
@@ -209,40 +226,40 @@ stat: 					simple_stat
 						| struct_stat
 						;
 
-simple_stat:		var Assign expr
+simple_stat:		var ASSIGN expr
 					| proc_invok
 					| compound_stat
 					;
 
-proc_invok : plist_finvok Right_Perentheses
-| ID Left_Perentheses Right_Perentheses
+proc_invok : plist_finvok RIGHTPAREN
+| ID LEFTPAREN RIGHTPAREN
 ;
 
 var : ID
-| var Period ID
-| subscripted_var Right_Token
+| var PERIOD ID
+| subscripted_var RIGHTBRACKET
 ;
 
-subscripted_var : var Left_Token expr
-| subscripted_var Comma expr
+subscripted_var : var LEFTBRACKET expr
+| subscripted_var COMMA expr
 ;
 expr : simple_expr
-| expr Equals simple_expr
-| expr Less_Than Greater_Than simple_expr
-| expr Less_Than Equals simple_expr
-| expr Less_Than simple_expr
-| expr Greater_Than Equals simple_expr
-| expr Greater_Than simple_expr
+| expr ISEQUAL simple_expr
+| expr LESSTHAN GREATERTHAN simple_expr
+| expr LESSTHAN ISEQUAL simple_expr
+| expr LESSTHAN simple_expr
+| expr GREATERTHAN ISEQUAL simple_expr
+| expr GREATERTHAN simple_expr
 ;
 simple_expr: term
-| Plus term
-| Minus term
-| simple_expr Plus term
-| simple_expr Minus term
+| PLUS term
+| MINUS term
+| simple_expr PLUS term
+| simple_expr MINUS term
 | simple_expr OR term
 ;
 term : factor
-| term Multiply factor
+| term MULTIPLY factor
 | term Divide factor
 | term DIV factor
 | term MOD factor
@@ -251,7 +268,7 @@ term : factor
 
 factor : var
 | unsigned_const
-| Left_Perentheses expr Right_Perentheses
+| LEFTPAREN expr RIGHTPAREN
 | func_invok
 | NOT factor
 ;
@@ -264,12 +281,12 @@ unsigned_num : 			INT_CONST
 						| REAL_CONST
 						;
 
-func_invok : plist_finvok Right_Perentheses
-| ID Left_Perentheses Right_Perentheses
+func_invok : plist_finvok RIGHTPAREN
+| ID LEFTPAREN RIGHTPAREN
 ;
 
-plist_finvok : ID Left_Perentheses parm
-| plist_finvok Comma parm
+plist_finvok : ID LEFTPAREN parm
+| plist_finvok COMMA parm
 ;
 
 parm: 			expr

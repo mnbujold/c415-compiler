@@ -15,111 +15,92 @@ extern int oldlineno;
 extern myerror *eList;
 
 void updateError(void) {
-        	if(lineno != oldlineno) {
-        		updateErrorText(eList, errortext);
-        		showAllErrors(eList);
-	        	eList = deleteAllErrors(eList);
-	        	oldlineno = lineno;
-		        memset(errortext, '\0', 4096);
-	        } /* if */
-} /* if */
+    if(lineno != oldlineno) {
+        updateErrorText(eList, errortext);
+        showAllErrors(eList);
+    	eList = deleteAllErrors(eList);
+	    oldlineno = lineno;
+		memset(errortext, '\0', 4096);
+	} 
+} 
 
 %}
 %%
 
-"and"
-"array"
-"begin"
-"const"
-"continue"
-"div"
-"do"
-"else"
-"end"
-"exit"
-"function"
-"if"
-"mod"
-"not"
-"of"
-"or"
-"procedure"
-"program"
-"record"
-"then"
-"type"
-"var"
-"while"
-"="
-"<>"
-"<"
-"<="
-">="
-"+"
-"-"
-"/"
-"div"
-"mod"
-":="
-"("
-")"
-"."
-";"
-":"
-"["
-"]"
-","
+%{
+/**
+* Do the adding here, instead of putting it in every line
+**/
+add();
+strcat (errortext, yytext);
+}%
 
-,	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Comma;
-\(	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Left_Perentheses;
-\)	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Right_Perentheses;
-\[	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Left_Token;
-\]	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Right_Token;
-\>	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Greater_Than;
-\<	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Less_Than;
+/* reserved keywords in PAL */
+"and"						{ return AND;}
+"array"						{ return ARRAY;}
+"begin"						{ return BEGIN;}
+"const"						{ return CONST;}
+"continue"					{ /* note: not in PASCAL */ return CONTINUE;}
+"div"						{ return DIV;}
+"do"						{ return DO;}
+"else"						{ return ELSE;}
+"end"						{ return END;}
+"exit"						{ /* note: not in PASCAL */ return EXIT;}
+"function"					{ return FUNCTION;}
+"if"						{ return IF;}
+"mod"						{ return MOD;}
+"not"						{ return NOT;}
+"of"						{ return OF;}
+"or"						{ return OR;}
+"procedure"					{ return PROCEDURE;}
+"program"					{ return PROGRAM;}
+"record"					{ return RECORD;}
+"then"						{ return THEN;}
+"type"						{ return TYPE;}
+"var"						{ return VAR;}
+"while"						{ return WHILE;}
 
-;	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Semi_Colon;
-:	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Colon;
-:=	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Assign;
-=	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Equals;
-\-	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Minus;
-\*	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Multiply;
-\+	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Plus;
-\.\. 						last_column += strlen(yytext); strcat(errortext, yytext);  return Double_Period;
-\. 							last_column += strlen(yytext); strcat(errortext, yytext);  return Period;
-and 						last_column += strlen(yytext); strcat(errortext, yytext);  return AND;
-\/	 						last_column += strlen(yytext); strcat(errortext, yytext);  return Divide;
-array 						last_column += strlen(yytext); strcat(errortext, yytext); return ARRAY;
-begin 						last_column += strlen(yytext); strcat(errortext, yytext); return BEGINN;
-bool 						last_column += strlen(yytext); strcat(errortext, yytext); return BOOL;
-char 						last_column += strlen(yytext); strcat(errortext, yytext); return CHAR;
-string 						last_column += strlen(yytext); strcat(errortext, yytext); return STRING;
-const 						last_column += strlen(yytext); strcat(errortext, yytext); return CONSTT;
-continue 					last_column += strlen(yytext); strcat(errortext, yytext); return CONTINUE;
-div 						last_column += strlen(yytext); strcat(errortext, yytext); return DIV;
-do 							last_column += strlen(yytext); strcat(errortext, yytext); return DO;
-else 						last_column += strlen(yytext); strcat(errortext, yytext); return ELSE;
-end 						last_column += strlen(yytext); strcat(errortext, yytext); return END;
-exit 						last_column += strlen(yytext); strcat(errortext, yytext); return EXIT;
-function 					last_column += strlen(yytext); strcat(errortext, yytext); return FUNCTION;
-if 							last_column += strlen(yytext); strcat(errortext, yytext); return IF;
-int 						last_column += strlen(yytext); strcat(errortext, yytext); return INT;
-mod 						last_column += strlen(yytext); strcat(errortext, yytext); return MOD;
-not							last_column += strlen(yytext); strcat(errortext, yytext); return NOT;
-of 							last_column += strlen(yytext); strcat(errortext, yytext); return OF;
-or 							last_column += strlen(yytext); strcat(errortext, yytext); return OR;
-procedure 					last_column += strlen(yytext); strcat(errortext, yytext); return PROCEDURE;
-program 					last_column += strlen(yytext); strcat(errortext, yytext); return PROGRAM;
-real 						last_column += strlen(yytext); strcat(errortext, yytext); return REAL;
-record 						last_column += strlen(yytext); strcat(errortext, yytext); return RECORD;
-\'[a-zA-Z+ \t]+\'[;]* 						last_column += strlen(yytext); strcat(errortext, yytext); return ID;
-then 						last_column += strlen(yytext); strcat(errortext, yytext); return THEN;
-type 						last_column += strlen(yytext); strcat(errortext, yytext); return TYPE;
-var 						last_column += strlen(yytext); strcat(errortext, yytext); return VAR;
-while 						last_column += strlen(yytext); strcat(errortext, yytext); return WHILE;
-int_const 					last_column += strlen(yytext); strcat(errortext, yytext); return INT_CONST;
-real_const					return REAL_CONST;
-[a-zA-Z0-9]+ 				last_column += strlen(yytext); strcat(errortext, yytext); return ID;
+/* relational operators in PAL */
+"="							{ return ISEQUAL;}
+"<>"						{ return NOTEQUAL;}
+"<"							{ return LESSTHAN;}
+">"							{ return GREATERTHAN;}
+"<="						{ return LESSTHANEQUALS;}
+">="						{ return GREATERTHANEQUALS;}
+
+/* arithmetic operators in PAL */
+"+"							{ return PLUS;}
+"-"							{ return MINUS;}
+"*"							{ return MULTIPLY;}
+"/"							{ return DIVIDE;}
+"div"						{ return DIV;}
+"mod"						{ return MOD;}
+
+/* other lexical characters */
+":="						{ return ASSIGN;}
+"("							{ return LEFTPAREN;}
+")"							{ return RIGHTPAREN;}
+"."							{ return PERIOD;}
+";"							{ return SEMICOLON;}
+":"							{ return COLON;}
+"["							{ return LEFTBRACKET;}
+"]"							{ return RIGHTBRACKET;}
+","							{ return COMMA;}
+".."						{ return DOUBLEPERIOD;}
+/* comments */
+"//"[^\n]*""        		{ /* do nothing, one line comment */              	     }
+"{"[\^{}}]*"}"				{ /* do nothing, a block comment }
+
+/* other */
+\'[a-zA-Z+ \t]+\'[;]* 	 	{ return ID;}
+int_const 					{ return INT_CONST;}
+real_const					{ return REAL_CONST;}
+[a-zA-Z0-9]+ 				{ return ID;}
 \n                      	lineno++; updateError(); last_column=0;/*return RETURNN;/* ignore end of line */;
-[ \t]+                  	last_column += strlen(yytext); strcat(errortext, yytext); /* ignore whitespace */;
+[ \t]+                  	add(); strcat(errortext, yytext); /* ignore whitespace */;
+
 %%
+
+void add() {
+last_column += yyleng;
+}
