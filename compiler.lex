@@ -6,7 +6,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#include "yacc.tab.h"
+#include "compiler.tab.h"
 #include "myerror.h"
 extern char errortext[4096];
 extern int last_column;
