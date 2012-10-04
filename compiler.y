@@ -1,3 +1,6 @@
+/**
+* Bison file for PAL compiler
+**/
 %{
 #include <stdio.h>
 #include <memory.h>
