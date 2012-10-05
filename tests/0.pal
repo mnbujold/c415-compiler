@@ -2,7 +2,7 @@
     0.pal
     Tests comment and real constant lexical errors.
     Errors:
-    17:30 incorrect real constant
+    17:30 incorrect real constant <-- replace w/ something
     19:6 incorrect identifier
     26:21 incorrect identifier
 }
@@ -14,7 +14,7 @@ const BOB = 'bob';
       WORDLENGTH = 10;
       GOOD = true;
       BAD = false;
-      FORCECONST = 10e; { lexical error here }
+      FORCECONST = 10; { LEXICAL ERROR USED TO BE HERE }
 
 type 3str = array[1..10] of char;   { lexical error here }
      terms = (lexical, semantic, syntactical);

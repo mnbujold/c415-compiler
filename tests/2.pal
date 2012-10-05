@@ -8,7 +8,7 @@
 }
 program foobar35 (io, oi);
 
-const barry = '{doe: a deer, a female deer}'; ; ; ; ; ; ; ;
+const barry = '{doe: a deer, a female deer}';
 
 type agora := greekness of friends;
      uhoh := what...can_this....be of oldness; { lexical error here }

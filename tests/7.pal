@@ -1,0 +1,17 @@
+{
+    7.pal
+    Errors:
+    #:23 unexpected paranthesis, missing identifier
+    #:21 unexpected identifier, expecting semicolon
+    #:33 unexpected ';'
+}
+program aTHINGY(fsdf, ); { syntax error here }
+
+const something = 54e; { syntax error here }
+
+begin
+
+thisIsCorrect := butThisWontBe; ; { syntax error here }
+
+end.
+// What does this do?
