@@ -1,17 +1,17 @@
 {
     5.pal
-    Tests syntactical errors.
+    Tests reserved words and comment syntactical errors.
     Expected output:
-    11:1
-    14:6 expecting ID but found RESERVED_WORD_STRING
-    14:21 expecting SCALAR_LIST but found FUNC_INVOK
+    11:1 unexpected string
+    14:6 expecting identifier but found 'begin' (reserved word)
+    14:21 expecting SCALAR_LIST but found FUNC_INVOK <- not actually an error!
 }
 program syntactical(input, output);
 // Does some stuff with words and sentences.
 /' This comment should break! { not a comment }
 { syntax error above}
 
-type string = array[a_function(true)..5] of integer; { 2 syntax errors here }
+type begin = array[a_function(true)..5] of integer; { syntax errors here }
 
 var bob : str;
 
