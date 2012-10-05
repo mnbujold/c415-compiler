@@ -1,0 +1,24 @@
+{
+    8.pal
+    Tests crazy array declarations, unexpected identifiers screwing with
+    loops, real numbers, and too much code.
+    Errors:
+    #:17: unexpected while loop / incorrect array range
+    #:77: unexpected identifier / incorrect real number
+    #:17: ...
+    #:13: ...
+    #:1: unexpected function definition, expected
+}
+program one_thousand (sda32, d);
+
+var bob : array[while gfgh begin not_broeken := 2 * sdf(yella, (32*23) == 2).gdfgdfgfdgdfgfd; end;]; { 2 syntax errors here }
+
+begin
+
+bad_real := 434.e; { syntax error here }
+bad_real := .434e; { syntax error here }
+
+end.
+
+function why_hello_ther(too : much) : code begin end; { syntax error here}
+// look at me
