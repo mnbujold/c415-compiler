@@ -1,12 +1,20 @@
+{
+    0.pal
+    Tests comment and real constant lexical errors.
+    Errors:
+    17:30 incorrect real constant
+    19:6 incorrect identifier
+    26:21 incorrect identifier
+}
 program lexical(input, output);
 // Does some stuff with words and sentences. {}}}}}}}}}}}}}}
 
 const BOB = 'bob';
       SENTENCELENGTH = 3;
       WORDLENGTH = 10;
-      GOOD = true;
+      GOOD : aTypeOrNot = true;
       BAD = false;
-      FORCECONST = 10e; { lexical error here }
+      FORCECONST : real = 10e; { lexical error here }
 
 type 3str = array[1..10] of char;   { lexical error here }
      terms = (lexical, semantic, syntactical);
