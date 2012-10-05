@@ -2,8 +2,8 @@
     3.pal
     Tests identifier and comment/brace errors.
     Errors:
-    9:12: invalid identifier
-    18:34: invalid comment / unexpected brace error
+    9:12 invalid identifier
+    18:34 invalid comment / unexpected brace error
 }
 
 program bob>syouruncle(doesthis, work); { lexical error here }
