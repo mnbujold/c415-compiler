@@ -35,7 +35,12 @@ main(int argc,char** argv)
     memset(errortext, '\0', 4096);
 
     parse_args(argc, argv);
-    
+#if DEBUG
+    printf("leave_asc: %d \n", leave_asc);
+    printf("prog_listing: %d \n", prog_listing);
+    printf("bounds_check: %d \n", bounds_check);
+    printf("execute: %d \n", execute);
+#endif
     yyparse();
     sList = deleteAllSymbols(sList);
     if(eList != NULL) {
@@ -58,6 +63,21 @@ void parse_args(int argc, char* argv[]){
   if(source_file == NULL){
     fprintf(stderr, "could not open %s \n", argv[argc-1]);
     exit(-1);
+  }
+  int i = 1;
+  
+  while(i < argc){
+    if(!strncmp(argv[i],"-S",2))
+      leave_asc = 1;
+    else if(!strncmp(argv[i],"-n",2))
+      prog_listing = 0;
+    else if(!strncmp(argv[i],"-a",2))
+      bounds_check = 0;
+    else if(!strncmp(argv[i],"-c",2)){
+      leave_asc = 1;
+      execute = 0;
+    }
+    i++;
   }
   
 }
