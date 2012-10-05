@@ -2,12 +2,12 @@
     3.pal
     Tests identifier and comment/brace errors.
     Errors:
-    9:12 invalid identifier
+    9:12 invalid identifier <-- REPLACE with something else!
     17:15 illegal character '_'
     19:34 invalid comment / unexpected brace error
 }
 
-program bob>syouruncle(doesthis, work); { lexical error here }
+program bobsyouruncle(doesthis, work);
 
 type aRecord=record id1 : boolean; bob : integer; sick : aType; end;
 
