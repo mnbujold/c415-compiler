@@ -109,10 +109,11 @@ if (yytext != NULL) {
 '[^']*'						{ return STRING; }
 \n                      			{ 
 						    if(lineno != oldlineno || 1) {
-							printf("%d.) %s\n",lineno, errortext);
+							printf("{%d} %s\n",lineno, errortext);
 						    } /* if */
 						    lineno++; last_column=1; updateError(); 
 						}
+.					{/* invalid character */}						
 
 
 %%
