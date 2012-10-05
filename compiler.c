@@ -35,6 +35,7 @@ main(int argc,char** argv)
     memset(errortext, '\0', 4096);
 
     parse_args(argc, argv);
+
 #if DEBUG
     printf("leave_asc: %d \n", leave_asc);
     printf("prog_listing: %d \n", prog_listing);
@@ -58,30 +59,31 @@ void parse_args(int argc, char* argv[]){
     usage();
   if(argc > 6)
     usage();
-
-  yyin = fopen(argv[argc-1], "r");
-  if(yyin == NULL){
-    fprintf(stderr, "could not open %s \n", argv[argc-1]);
-    exit(-1);
-  }
-  int i = 1;
   
-  while(i < argc){
-    if(!strncmp(argv[i],"-S",2))
-      leave_asc = 1;
-    else if(!strncmp(argv[i],"-n",2))
-      prog_listing = 0;
-    else if(!strncmp(argv[i],"-a",2))
-      bounds_check = 0;
-    else if(!strncmp(argv[i],"-c",2)){
-      leave_asc = 1;
-      execute = 0;
+  int i = 0;
+  int p = 0;
+  for(i=1; i<argc; i++){
+    if(argv[i][0] == '-')
+      for(p=1; p<strlen(argv[i]); p++)
+        switch(argv[i][p]){
+        case 'S': leave_asc = 1; break;
+        case 'n': prog_listing = 0; break;
+        case 'a': bounds_check = 0; break;
+        case 'c': leave_asc = 1; execute = 0; break;
+        }
+    else{
+      /* Apparrently source_file isn't a descriptive enough name, so we re-name it yyin */
+      yyin = fopen(argv[i], "r");
+      if(yyin == NULL){
+        fprintf(stderr, "could not open %s \n", argv[argc-1]);
+        exit(-1);
+      }
     }
-    i++;
   }
   
 }
 void usage(void){
+  printf("Usage: \n");
   printf("pal [options] [filename].asc\n");
   printf("Options: \n");
   printf("-S Leave ASC code in [filename].asc instead of removing it\n");
