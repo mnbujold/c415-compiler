@@ -108,10 +108,11 @@ if (yytext != NULL) {
 [0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
 '[^']*'						{ return STRING; }
 \n                      			{ 
+					  lineno++; last_column=1; updateError(); 
 						    if(lineno != oldlineno || 1) {
 							printf("{%d} %s\n",lineno, errortext);
 						    } /* if */
-						    lineno++; last_column=1; updateError(); 
+						    
 						}
 .					{/* invalid character */}						
 
