@@ -157,8 +157,8 @@ structured_type:		ARRAY LEFTBRACKET array_type RIGHTBRACKET OF type
 						| RECORD field_list END
 						;
 
-array_type:				simple_type
-						| simple_type DOUBLEPERIOD simple_type
+array_type:				expr
+						| expr DOUBLEPERIOD expr
 						;
 
 field_list:				field { printf("field_list\n"); }
@@ -194,7 +194,7 @@ proc_decl : proc_heading decls compound_stat SEMICOLON
 
 proc_heading : 			PROCEDURE ID f_parm_decl SEMICOLON
 						| PROCEDURE ID SEMICOLON
-						| FUNCTION ID f_parm_decl COLON ID SEMICOLON
+						| FUNCTION ID f_parm_decl COLON type SEMICOLON
 						;
 
 f_parm_decl:			LEFTPAREN f_parm_list RIGHTPAREN
@@ -205,8 +205,8 @@ f_parm_list:			f_parm
 						| f_parm_list SEMICOLON f_parm
 						;
 
-f_parm: 				ID COLON ID
-						| VAR ID COLON ID
+f_parm: 				type COLON type
+						| VAR type COLON type
 						;
 
 compound_stat: 			BEGIN_ stat_list END
