@@ -41,7 +41,7 @@ main(int argc,char** argv)
     printf("bounds_check: %d \n", bounds_check);
     printf("execute: %d \n", execute);
 #endif
-    while(yyparse()> 0) {
+    yyparse();
     sList = deleteAllSymbols(sList);
     if(eList != NULL) {
 		/*printf("Major errors encountered in input file.  Most likely due to messed up '(' or ')'\n");
@@ -50,7 +50,6 @@ main(int argc,char** argv)
 		showAllErrors(eList);
 	} //if
     eList = deleteAllErrors(eList);
-	} /* while */
 	return 0;
 }
 
