@@ -8,11 +8,11 @@
 
 program bob>syouruncle(doesthis, work); { lexical error here }
 
-type a_record=record id1 : boolean; bob : integer; sick : a_type; end;
+type aRecord=record id1 : boolean; bob : integer; sick : aType; end;
 
 begin
 
-arevord_inst.bob := fucntdkd(sdkl.gdf);
+arevordInst.bob := fucntdkd(sdkl.gdf);
 
 while 
 begin {{{{ Not a valid comment! }}}} end; { lexical error here }

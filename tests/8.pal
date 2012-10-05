@@ -12,41 +12,41 @@
     #:9 unexpected right parantheses
     #:1 unexpected function definition
 }
-program one_thousand (sda32, d);
+program oneThousand (sda32, d);
 
-var bob : array[while gfgh begin not_broeken := 2 * sdf(yella, (32*23) == 2).gdfgdfgfdgdfgfd; end;]; { 2 syntax errors here }
+var bob : array[while gfgh begin notBroeken := 2 * sdf(yella, (32*23) == 2).gdfgdfgfdgdfgfd; end;]; { 2 syntax errors here }
     bob = array[boolean] of r6r; { syntax error here }
 begin
 
 imnotacomment := '{';
 { // but I am}
 
-bad_real := 434.e; { syntax error here }
-bad_real := .434e; { syntax error here }
+bad1real := 434.e; { syntax error here }
+bad1real := .434e; { syntax error here }
 
 // Test invalid identifiers and illegal characters
-bad_lex := sd@ds; { lexical error here }
-good_lex := 'sd@ds';
-bad_lex := sd$ds; { lexical error here }
-good_lex := 'sd$ds';
-bad_lex := sd`ds; { lexical error here }
-good_lex := 'sd`ds';
-bad_lex := sd~ds; { lexical error here }
-good_lex := 'sd~ds';
-bad_lex := sd~ds; { lexical error here }
-good_lex := 'sd~ds';
-bad_lex := sd~ds; { lexical error here }
-good_lex := 'sd~ds';
-bad_lex := sd~ds; { lexical error here }
-good_lex := 'sd~ds';
-bad_lex := sd"ds; { lexical error here }
-good_lex := 'sd"ds';
-bad_lex = åäö√•§∂; { several lexical errors here }
-good_lex := 'åäö√•§∂'
+bad1lex := sd@ds; { lexical error here }
+good1lex := 'sd@ds';
+bad1lex := sd$ds; { lexical error here }
+good1lex := 'sd$ds';
+bad1lex := sd`ds; { lexical error here }
+good1lex := 'sd`ds';
+bad1lex := sd~ds; { lexical error here }
+good1lex := 'sd~ds';
+bad1lex := sd~ds; { lexical error here }
+good1lex := 'sd~ds';
+bad1lex := sd~ds; { lexical error here }
+good1lex := 'sd~ds';
+bad1lex := sd~ds; { lexical error here }
+good1lex := 'sd~ds';
+bad1lex := sd"ds; { lexical error here }
+good1lex := 'sd"ds';
+bad1lex = åäö√•§∂; { several lexical errors here }
+good1lex := 'åäö√•§∂'
 
 fkjfjfjg() := 'lol' + 53; { syntax error here }
 
 end.
 
-function why_hello_ther(too : much) : code begin end; { syntax error here }
+function whyHelloTher(too : much) : code begin end; { syntax error here }
 // look at me

@@ -11,17 +11,17 @@ program syntactical(input, output);
 /' This comment should break! { not a comment }
 { syntax error above}
 
-type begin = array[a_function(true)..5] of integer; { syntax error here }
+type begin = array[aFunction(true)..5] of integer; { syntax error here }
 
 var bob : str;
 
-function a_function(question : boolean) : integer;
+function aFunction(question : boolean) : integer;
 begin
-    a_function := 3;
+    aFunction := 3;
     if bob then bob else bob
     if (not bob or false) then begin french := boolean; bob17.gbg and why(); end;
-    else if if 'lol4567' then this_should_break begin { syntax error here }
-        another_thing := 234;
+    else if if 'lol4567' then thisShouldBreak begin { syntax error here }
+        anotherThing := 234;
     end;
     
     writeln(question);
