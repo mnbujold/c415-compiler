@@ -105,17 +105,13 @@ if (yytext != NULL) {
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
     /* comments */
-"//"[^\n]*""		        			{ /* do nothing, one line comment */              	     }
+"//"[^\n]*""		        			{ /* do nothing, one line comment */  }
 "{"[\^{}}]*"}"					{ /* do nothing, a block comment */ }
 
-    /* built ins */
-"bool"						{ return BOOL;}
-"char"						{ return CHAR;}
-"integer"					{ return INT;}
-"real"						{ return REAL;}
-"string"						{ return STRING;}
+    /* built ins  NO LONGER DEFINED*/
+
     /* other */
-[ \t]+                  				{ strcat(errortext, yytext); last_column += strlen(yytext); /* ignore whitespace */;}
+[ \t]+                  			{ /* ignore whitespace */;}
 [a-zA-Z][a-zA-Z0-9]*				{ return ID;}
 [0-9]+						{ return INT_CONST; }
 [0-9]+.[0-9]+					{ return REAL_CONST; } 
@@ -123,12 +119,12 @@ if (yytext != NULL) {
 [0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
 [0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
 '[^']*'						{ return STRING; }
-\n                      				{ 
-											if(lineno != oldlineno || 1) {
-												printf("%d.) %s\n",lineno, errortext);
-											} /* if */
-											lineno++; last_column=1; updateError(); 
-										}
+\n                      			{ 
+						    if(lineno != oldlineno || 1) {
+							printf("%d.) %s\n",lineno, errortext);
+						    } /* if */
+						    lineno++; last_column=1; updateError(); 
+						}
 
 
 %%
