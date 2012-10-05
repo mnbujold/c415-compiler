@@ -8,7 +8,7 @@
     #:77 unexpected identifier / incorrect real number
     #:17 incorrect real number
     #:13 incorrect real number
-    #-#(even):14 invalid identifier
+    #-#(even):14 illegal characters
     #:11 invalid identifier/characters?
     #:9 unexpected right parantheses
     #:1 unexpected function definition
@@ -44,6 +44,8 @@ bad1lex := sd~ds; { lexical error here }
 good1lex := 'sd~ds';
 bad1lex := sd"ds; { lexical error here }
 good1lex := 'sd"ds';
+bad1lex := sd!ds; { lexical error here }
+good1lex := 'sd!ds';
 bad1lex = åäö√•§∂; { several lexical errors here }
 good1lex := 'åäö√•§∂'
 
