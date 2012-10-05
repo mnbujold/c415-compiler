@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include "symbol.h"
 #include "myerror.h"
+#include "compiler.h"
 #include "compiler.tab.h"
 
+#define DEBUG 1
 
 symbol 		*sList;  
 myerror 	*eList;  
@@ -15,7 +17,8 @@ int 		last_column;
 int 		token_location;
 char 		errortext[4096];
 int 		looperrordetection;
-extern FILE *yyin;
+
+
 /*
  	Initialize all the variables used in the calculator program
 	Start the parser
@@ -30,11 +33,10 @@ main(int argc,char** argv)
     oldlineno = 1;
     looperrordetection = 0;
     memset(errortext, '\0', 4096);
-    if ( argc == 2 )
-    {
-        yyin = fopen( argv[1], "r" );
-	    yyparse();
-	}
+
+    parse_args(argc, argv);
+    
+    yyparse();
     sList = deleteAllSymbols(sList);
     if(eList != NULL) {
 		printf("Major errors encountered in input file.  Most likely due to messed up '(' or ')'\n");
@@ -45,5 +47,30 @@ main(int argc,char** argv)
     eList = deleteAllErrors(eList);
 	return 0;
 }
+
+void parse_args(int argc, char* argv[]){
+  if(argc < 2)
+    usage();
+  if(argc > 6)
+    usage();
+
+  source_file = fopen(argv[argc-1], "r");
+  if(source_file == NULL){
+    fprintf(stderr, "could not open %s \n", argv[argc-1]);
+    exit(-1);
+  }
+  
+}
+void usage(void){
+  printf("pal [options] [filename].asc\n");
+  printf("Options: \n");
+  printf("-S Leave ASC code in [filename].asc instead of removing it\n");
+  printf("-n Do not produce a program listing. Default is to produce one.\n");
+  printf("-a Do not generate run-time array subscript bounds checking. Default is to do the checking. \n");
+  printf("-c Compiles program into ASC code, but does not execute it.\n");
+  exit(-1);
+}
+
+  
 
 
