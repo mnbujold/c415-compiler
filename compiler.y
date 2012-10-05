@@ -86,7 +86,6 @@ show_error() {
 %%
 program : program_head decls compound_stat PERIOD { printf("The program has reached the end successfully!\n"); }
 		| error {
-			printf("error - main\n");
 			iserror = 1;
 			yyerrok;
 			looperrordetection++;
@@ -95,7 +94,7 @@ program : program_head decls compound_stat PERIOD { printf("The program has reac
 				looperrordetection = 0;
 				yyclearin;
 				/*yylex();*/
-				return 0;
+				return 1;
 			} /* if */
 		}
 ;
