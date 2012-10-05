@@ -4,20 +4,26 @@
     Expected output:
     11:1 unexpected string
     14:6 expecting identifier but found 'begin' (reserved word)
-    14:21 expecting SCALAR_LIST but found FUNC_INVOK <- not actually an error!
+    14:21 expecting expression but found 'if' (reserved word)
 }
 program syntactical(input, output);
 // Does some stuff with words and sentences.
 /' This comment should break! { not a comment }
 { syntax error above}
 
-type begin = array[a_function(true)..5] of integer; { syntax errors here }
+type begin = array[a_function(true)..5] of integer; { syntax error here }
 
 var bob : str;
 
 function a_function(question : boolean) : integer;
 begin
     a_function := 3;
+    if bob then bob else bob
+    if (not bob or false) then begin french := boolean; bob17.gbg and why(); end;
+    else if if 'lol4567' then this_should_break begin { syntax error here }
+        another_thing := 234;
+    end;
+    
     writeln(question);
 end;
 
