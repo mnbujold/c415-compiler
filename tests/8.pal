@@ -3,6 +3,7 @@
     Tests crazy array declarations, unexpected identifiers screwing with
     loops, real numbers, lots of illegal characters, and too much more.
     Errors:
+    #:12 unexpected colon, expected '='
     #:17 unexpected while loop / incorrect array range
     #:77 unexpected identifier / incorrect real number
     #:17 incorrect real number
@@ -13,6 +14,8 @@
     #:1 unexpected function definition
 }
 program oneThousand (sda32, d);
+
+const char : string = 564 * functionation(42); { syntax error here }
 
 var bob : array[while gfgh begin notBroeken := 2 * sdf(yella, (32*23) == 2).gdfgdfgfdgdfgfd; end;]; { 2 syntax errors here }
     bob = array[boolean] of r6r; { syntax error here }
