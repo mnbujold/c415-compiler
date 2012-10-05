@@ -38,7 +38,7 @@ debug: ${GRAMMAR} ${LEXER} ${SOURCE}
 	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -D DEBUG=1 -o pal
 
 clean:
-	rm -f pal
+	rm -f pal core *.output
 	rm -f lex.yy.c *.tab.c *.tab.h 
 	find . -name \*~ -type f -delete
 
