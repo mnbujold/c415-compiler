@@ -27,6 +27,10 @@ void updateError(void) {
 } 
 
 %}
+
+
+%x COMMENT
+
 %%
 
 %{
@@ -41,8 +45,6 @@ if (yytext != NULL) {
 
 %}
 
-%x COMMENT
-%%
  /* Comments */
 ^[ \t]*"{"                                      BEGIN COMMENT;
 ^[ \t]*"{".*"}"[ \t]*\n                         /* Single line comment */
@@ -51,6 +53,7 @@ if (yytext != NULL) {
 <COMMENT>\n                                     /* Newline, still in comment */
 <COMMENT>.                                      ;
 "{".*"}"                                        ;
+
 
 
     /* reserved keywords in PAL */
