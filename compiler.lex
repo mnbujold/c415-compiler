@@ -94,7 +94,7 @@ if (yytext != NULL) {
 ".."						{ return DOUBLEPERIOD;}
     /* comments */
 "//"[^\n]*""		        		{ /* do nothing, one line comment */}
-"{"[\^{}]*"}"					{/* do nothing, a block comment */ }
+"{"[^}]*"}"					{/* do nothing, a block comment */ }
 
     /* built ins  NO LONGER DEFINED*/
 
