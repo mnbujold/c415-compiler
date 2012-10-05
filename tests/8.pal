@@ -1,0 +1,49 @@
+{
+    8.pal
+    Tests crazy array declarations, unexpected identifiers screwing with
+    loops, real numbers, lots of illegal characters, and too much more.
+    Errors:
+    #:17: unexpected while loop / incorrect array range
+    #:77: unexpected identifier / incorrect real number
+    #:17: incorrect real number
+    #:13: incorrect real number
+    #-#(even):14: invalid identifier
+    #:11: invalid identifier/characters?
+    #:1: unexpected function definition
+}
+program one_thousand (sda32, d);
+
+var bob : array[while gfgh begin not_broeken := 2 * sdf(yella, (32*23) == 2).gdfgdfgfdgdfgfd; end;]; { 2 syntax errors here }
+
+begin
+
+imnotacomment := '{';
+{ // but I am}
+
+bad_real := 434.e; { syntax error here }
+bad_real := .434e; { syntax error here }
+
+// Test invalid identifiers and illegal characters
+bad_lex := sd@ds; { lexical error here }
+good_lex := 'sd@ds';
+bad_lex := sd$ds; { lexical error here }
+good_lex := 'sd$ds';
+bad_lex := sd`ds; { lexical error here }
+good_lex := 'sd`ds';
+bad_lex := sd~ds; { lexical error here }
+good_lex := 'sd~ds';
+bad_lex := sd~ds; { lexical error here }
+good_lex := 'sd~ds';
+bad_lex := sd~ds; { lexical error here }
+good_lex := 'sd~ds';
+bad_lex := sd~ds; { lexical error here }
+good_lex := 'sd~ds';
+bad_lex := sd"ds; { lexical error here }
+good_lex := 'sd"ds';
+bad_lex = åäö√•§∂; { several lexical errors here }
+good_lex := 'åäö√•§∂'
+
+end.
+
+function why_hello_ther(too : much) : code begin end; { syntax error here }
+// look at me

@@ -7,7 +7,7 @@ using the pal compiler program. Appends results to the tests.log file.
 Example usage:
 $> python runner.py 0 1 2
 # Runs the 0.pal, 1.pal, and 2.pal files.
-$> python runner.py --all
+$> python runner.py -a
 # Runs all the *.pal test files.
 
 """
@@ -27,7 +27,6 @@ else:
 
 def _run_tests(test_list):
     # TODO: use 'with' syntax to open/close files
-    # TODO: check if pal is compiled yet - print message if it isn't
     output_msg = '----------------------\n'\
                  'DATE: %s\n'\
                  'TIME: %s\n'\
@@ -53,7 +52,8 @@ def _run_tests(test_list):
 
 def _get_cmdline_args():
     dscrp_txt = 'Runs .pal test programs and pipes the tests\' output to '\
-                'the test.log file. Does not run duplicate tests.'
+                'the test.log file. Does not run duplicate tests. Runs '\
+                'tests in numerical order.'
     help_name_txt = 'the name of a T.pal test program to run'
     help_all_txt = 'run all *.pal tests'
     
@@ -81,9 +81,9 @@ def _valid_index(test_index, valid_indices):
     return True
 
 if __name__ == '__main__':
-    valid_indices = range(0, 10)
     test_runner = _get_cmdline_args().parse_args()
     test_indices = list(set(test_runner.test_names))
+    test_indices.sort()
     valid_indices = _get_valid_indices()
     
     if not path.isfile(PAL_PATH):

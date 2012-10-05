@@ -84,7 +84,7 @@ show_error() {
 %left LEFTBRACKET ISEQUAL
 
 %%
-program : program_head decls compound_stat PERIOD { printf("The program has reached the end!\n"); }
+program : program_head decls compound_stat PERIOD { printf("The program has reached the end successfully!\n"); }
 		| error {
 			iserror = 1;
 			yyerrok;
@@ -94,7 +94,7 @@ program : program_head decls compound_stat PERIOD { printf("The program has reac
 				looperrordetection = 0;
 				yyclearin;
 				/*yylex();*/
-				return 0;
+				return 1;
 			} /* if */
 		}
 ;
@@ -103,10 +103,6 @@ program_head : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
 ;
 
 decls : 		const_decl_part type_decl_part var_decl_part proc_decl_part
-				| error var {
-					iserror = 1;
-					yyerrok;
-				}
 				;
 				
 const_decl_part : CONST const_decl_list SEMICOLON
@@ -209,8 +205,10 @@ f_parm: 				type COLON type
 						| VAR type COLON type
 						;
 
-compound_stat: 			BEGIN_ stat_list END
-						| error END { 
+compound_stat: 			BEGIN_ stat_list END { printf("begin found\n"); }
+						| error END
+						{ 
+							printf("BEGIN_ - error END\n");
 							iserror = 1;
 							yyerrok;
 						}
@@ -224,9 +222,10 @@ stat: 					simple_stat
 						| struct_stat
 						;
 
-simple_stat:		var ASSIGN expr
+simple_stat:		var ASSIGN expr  { printf("var ASSIGN expr found\n"); }
 					| proc_invok
 					| compound_stat
+					|
 					;
 
 proc_invok : plist_finvok RIGHTPAREN
@@ -291,7 +290,7 @@ plist_finvok : ID LEFTPAREN parm
 parm: 			expr
 				;
 struct_stat: IF expr THEN matched_stat ELSE stat
-| IF expr THEN stat
+| IF expr THEN stat { printf("if found\n"); }
 | WHILE expr DO stat
 | CONTINUE
 | EXIT
@@ -302,12 +301,6 @@ matched_stat : simple_stat
 | WHILE expr DO matched_stat
 | CONTINUE
 | EXIT
-| matched_stat error
-						{
-								printf("iferror\n");
-								iserror = 1;
-								yyerrok;
-						}
 ;
 
 %%
