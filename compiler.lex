@@ -27,10 +27,6 @@ void updateError(void) {
 } 
 
 %}
-
-
-%x COMMENT
-
 %%
 
 %{
@@ -44,17 +40,6 @@ if (yytext != NULL) {
 
 
 %}
-
- /* Comments */
-^[ \t]*"{"                                      BEGIN COMMENT;
-^[ \t]*"{".*"}"[ \t]*\n                         /* Single line comment */
-<COMMENT>"}"[ \t]*\n                            BEGIN 0; /* Single line comment */
-<COMMENT>"}"                                    BEGIN 0;
-<COMMENT>\n                                     /* Newline, still in comment */
-<COMMENT>.                                      ;
-"{".*"}"                                        ;
-
-
 
     /* reserved keywords in PAL */
 "and"						{ return AND;}
@@ -108,13 +93,13 @@ if (yytext != NULL) {
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
     /* comments */
-"//"[^\n]*""		        			{ /* do nothing, one line comment */  }
-"{"[\^{}}]*"}"					{ /* do nothing, a block comment */ }
+"//"[^\n]*""		        		{ /* do nothing, one line comment */}
+"{"[^}]*"}"				{ lineno += countlines(yytext);/* do nothing, a block comment */ }
 
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
-[ \t]+                  			{ /* ignore whitespace */;}
+[ \t]+                  			{strcat (errortext, yytext);/* ignore whitespace */;}
 [a-zA-Z][a-zA-Z0-9]*				{ return ID;}
 [0-9]+						{ return INT_CONST; }
 [0-9]+.[0-9]+					{ return REAL_CONST; } 
@@ -123,11 +108,13 @@ if (yytext != NULL) {
 [0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
 '[^']*'						{ return STRING; }
 \n                      			{ 
+					  lineno++; last_column=1; updateError(); 
 						    if(lineno != oldlineno || 1) {
-							printf("%d.) %s\n",lineno, errortext);
+							printf("{%d} %s\n",lineno, errortext);
 						    } /* if */
-						    lineno++; last_column=1; updateError(); 
+						    
 						}
+.					{/* invalid character */}						
 
 
 %%
@@ -135,3 +122,19 @@ void add() {
 last_column += yyleng;
 }
 
+/**
+*Count the number of lines in a block comment
+**/
+
+int countlines (char * comment) {
+  int count = 0;
+  char *charptr = comment;
+  while (*charptr != '}') {
+    if (*charptr == '\n') {
+      count++;
+    }
+    charptr++;      
+  }
+  return count;
+
+}

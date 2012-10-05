@@ -29,7 +29,7 @@ main(int argc,char** argv)
 	eList = NULL;
 	iserror = 0;
     token_location = 0;
-    lineno = 1;
+    lineno = 0;
     oldlineno = 1;
     looperrordetection = 0;
     memset(errortext, '\0', 4096);
