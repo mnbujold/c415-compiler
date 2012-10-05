@@ -3,13 +3,13 @@
     Tests crazy array declarations, unexpected identifiers screwing with
     loops, real numbers, lots of illegal characters, and too much more.
     Errors:
-    #:17: unexpected while loop / incorrect array range
-    #:77: unexpected identifier / incorrect real number
-    #:17: incorrect real number
-    #:13: incorrect real number
-    #-#(even):14: invalid identifier
-    #:11: invalid identifier/characters?
-    #:1: unexpected function definition
+    #:17 unexpected while loop / incorrect array range
+    #:77 unexpected identifier / incorrect real number
+    #:17 incorrect real number
+    #:13 incorrect real number
+    #-#(even):14 invalid identifier
+    #:11 invalid identifier/characters?
+    #:1 unexpected function definition
 }
 program one_thousand (sda32, d);
 

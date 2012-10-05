@@ -3,8 +3,8 @@
     Tests syntax of loops, real numbers and errors for records/functions.
     Errors:
     14:1 unexpected begin / missing end;
-    16:11: unexpected identifier / incorrect real number
-    17:1: unexpected identifier / incorrect begin loop
+    16:11 unexpected identifier / incorrect real number
+    17:1 unexpected identifier / incorrect begin loop
 }
 program loopy
 (asd, dsa);
