@@ -35,7 +35,7 @@ pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 debug: ${GRAMMAR} ${LEXER} ${SOURCE}
 	flex -i ${LEXER}
 	bison -d -v ${GRAMMAR}
-	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -DDEBUG -o pal
+	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -D DEBUG=1 -o pal
 
 clean:
 	rm -f pal
