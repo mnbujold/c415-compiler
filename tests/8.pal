@@ -9,12 +9,13 @@
     #:13 incorrect real number
     #-#(even):14 invalid identifier
     #:11 invalid identifier/characters?
+    #:9 unexpected right parantheses
     #:1 unexpected function definition
 }
 program one_thousand (sda32, d);
 
 var bob : array[while gfgh begin not_broeken := 2 * sdf(yella, (32*23) == 2).gdfgdfgfdgdfgfd; end;]; { 2 syntax errors here }
-
+    bob = array[boolean] of r6r; { syntax error here }
 begin
 
 imnotacomment := '{';
@@ -42,6 +43,8 @@ bad_lex := sd"ds; { lexical error here }
 good_lex := 'sd"ds';
 bad_lex = åäö√•§∂; { several lexical errors here }
 good_lex := 'åäö√•§∂'
+
+fkjfjfjg() := 'lol' + 53; { syntax error here }
 
 end.
 
