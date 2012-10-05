@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <memory.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "symbol.h"
 #include "myerror.h"
@@ -25,6 +26,8 @@ extern 		FILE *yyin;
 */
 main(int argc,char** argv)
 {
+    setvbuf(stdout, (char*) _IONBF, 0, 0);
+    setvbuf(stderr, (char*) _IONBF, 0, 0);
 	sList = NULL;
 	eList = NULL;
 	iserror = 0;

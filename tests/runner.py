@@ -15,7 +15,7 @@ $> python runner.py -a
 from os import getcwd, listdir, path
 import platform
 from argparse import ArgumentParser
-from subprocess import call
+from subprocess import call, STDOUT
 from datetime import datetime
 
 LOG_NAME = 'tests.log'
@@ -47,7 +47,7 @@ def _run_tests(test_list):
         output_log = open(LOG_NAME, 'a+')
         test_name = test_path % test_index
         print 'running test program ' + test_name
-        call([PAL_PATH, test_name], stdout = output_log)
+        call([PAL_PATH, test_name], stdout = output_log, stderr = STDOUT)
         output_log.close()
 
 def _get_cmdline_args():
