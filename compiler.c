@@ -59,25 +59,25 @@ void parse_args(int argc, char* argv[]){
   if(argc > 6)
     usage();
 
-  yyin = fopen(argv[argc-1], "r");
-  if(yyin == NULL){
-    fprintf(stderr, "could not open %s \n", argv[argc-1]);
-    exit(-1);
-  }
-  int i = 1;
-  
-  while(i < argc){
-    if(!strncmp(argv[i],"-S",2))
-      leave_asc = 1;
-    else if(!strncmp(argv[i],"-n",2))
-      prog_listing = 0;
-    else if(!strncmp(argv[i],"-a",2))
-      bounds_check = 0;
-    else if(!strncmp(argv[i],"-c",2)){
-      leave_asc = 1;
-      execute = 0;
+  int i = 0;
+  int p = 0;
+  for(i=1; i<argc; i++){
+    if(argv[i][0] == '-')
+      for(p=1; p<strlen(argv[i]); p++)
+        switch(argv[i][p]){
+        case 'S': leave_asc = 1; break;
+        case 'n': prog_listing = 0; break;
+        case 'a': bounds_check = 0; break;
+        case 'c': leave_asc = 1; execute = 0; break;
+        }
+    else{
+      /* Apparrently source_file isn't a descriptive enough name, so we re-name it yyin */
+      yyin = fopen(argv[i], "r");
+      if(yyin == NULL){
+        fprintf(stderr, "could not open %s \n", argv[argc-1]);
+        exit(-1);
+      }
     }
-    i++;
   }
   
 }
