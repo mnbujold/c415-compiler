@@ -108,14 +108,14 @@ if (yytext != NULL) {
 [0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
 [0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
 '[^']*'						{ return STRING; }
-\n                      			{ 
-					  						    					  lineno++;
+\n                      				{ 
+																			lineno++;
 						    if(lineno != oldlineno || 1) {
 							printf("{%d} %s\n",lineno, errortext);
 						    } /* if */
  last_column=1; updateError(); 
 						}
-[\]\[!"#$%&'()*,./:;<=>?@\^_`{|}~-]  { printf("\n\nwhat:>%s\n\n", yytext); return Invalid_Token;/*invalid character */}						
+[\]\[!"#$%&'()*,./:;<=>?@\^_`{|}~-]  		{ /*printf("\n\nwhat:>%s\n\n", yytext); */ return INVALIDTOKEN;/*invalid character */}						
 
 
 %%
