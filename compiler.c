@@ -17,7 +17,7 @@ int 		last_column;
 int 		token_location;
 char 		errortext[4096];
 int 		looperrordetection;
-
+extern 		FILE *yyin;
 
 /*
  	Initialize all the variables used in the calculator program
@@ -59,8 +59,8 @@ void parse_args(int argc, char* argv[]){
   if(argc > 6)
     usage();
 
-  source_file = fopen(argv[argc-1], "r");
-  if(source_file == NULL){
+  yyin = fopen(argv[argc-1], "r");
+  if(yyin == NULL){
     fprintf(stderr, "could not open %s \n", argv[argc-1]);
     exit(-1);
   }

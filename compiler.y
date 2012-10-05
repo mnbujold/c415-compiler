@@ -100,17 +100,14 @@ program : program_head decls compound_stat PERIOD
 ;
 
 program_head : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
-{
-	printf("End of program head\n");
-}
 ;
 
 decls : 		const_decl_part type_decl_part var_decl_part proc_decl_part
-		| error var {
-			iserror = 1;
-			yyerrok;
-		}
-			;
+				| error var {
+					iserror = 1;
+					yyerrok;
+				}
+				;
 				
 const_decl_part : CONST const_decl_list SEMICOLON
 |
@@ -120,64 +117,64 @@ const_decl_list : const_decl
 | const_decl_list SEMICOLON const_decl
 ;
 
-const_decl : ID ISEQUAL expr { printf("const_decl\n"); }
+const_decl : ID ISEQUAL expr
 ;
 
 
-type_decl_part : TYPE type_decl_list SEMICOLON { printf("type_decl_part\n"); }
+type_decl_part : TYPE type_decl_list SEMICOLON
 |
 ;
 
-type_decl_list : 			type_decl_list SEMICOLON type_decl { printf("type_decl_list\n"); }
+type_decl_list : 			type_decl_list SEMICOLON type_decl
 							|
-							type_decl { printf("type_decl_list\n"); }
+							type_decl
 							;
 
-type_decl : ID ISEQUAL type { printf("type_decl\n"); }
+type_decl : ID ISEQUAL type
 ;
 
-type : simple_type { printf("type\n"); }
-| structured_type { printf("type\n"); }
+type : simple_type
+| structured_type
 ;
 
 simple_type:		scalar_type
-					| REAL  { printf("simple_type\n"); }
-					| ID  { printf("simple_type\n"); }
+					| REAL
+					| ID
 					;
 
-scalar_type:		LEFTPAREN scalar_list RIGHTPAREN { printf("scalar_type\n"); }
-					| INT { printf("scalar_type\n"); }
-					| BOOL { printf("scalar_type\n"); }
-					| CHAR { printf("scalar_type\n"); }
-					| STRING { printf("scalar_type\n"); }
+scalar_type:		LEFTPAREN scalar_list RIGHTPAREN
+					| INT
+					| BOOL
+					| CHAR
+					| STRING
 					;
 
-scalar_list:			ID { printf("scalar_list\n"); }
-						| scalar_list COMMA ID { printf("scalar_list\n"); }
+scalar_list:			ID
+						| scalar_list COMMA ID
 						;
 
-structured_type:		ARRAY LEFTBRACKET array_type RIGHTBRACKET OF type  { printf("structured_type\n"); }
-						| RECORD field_list END { printf("structured_type\n"); }
+structured_type:		ARRAY LEFTBRACKET array_type RIGHTBRACKET OF type
+						| RECORD field_list END
 						;
 
-array_type:				simple_type { printf("array_type\n"); }
-						| simple_type DOUBLEPERIOD simple_type { printf("array_type\n"); }
+array_type:				simple_type
+						| simple_type DOUBLEPERIOD simple_type
 						;
 
 field_list:				field { printf("field_list\n"); }
-						| field_list SEMICOLON field { printf("field_list\n"); }
+						| field_list SEMICOLON field
 						;
 
-field : ID COLON type { printf("field\n"); }
+field : ID COLON type
 ;
 
-var_decl_part : VAR var_decl_list SEMICOLON { printf("var_decl_part\n"); }
+var_decl_part : VAR var_decl_list SEMICOLON
 |
 ;
 
-var_decl_list:					var_decl  { printf("var non-recursive\n"); }
+var_decl_list:					var_decl
 								|
-								var_decl_list SEMICOLON var_decl { printf("var recursive\n"); }
+								var_decl_list SEMICOLON var_decl
 								;
 
 var_decl:						ID COLON type
