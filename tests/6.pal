@@ -13,8 +13,8 @@ type hello = record world: wold; bob : integer; r5r, gg56gg: seddd;
 
 begin { syntax error here }
 
-while (16.is_not_a_record <> 43) {syntax error here}
-another_error begin {syntax error here}
+while (16.isNotARecord <> 43) {syntax error here}
+anotherError begin {syntax error here}
     
 end;
 
