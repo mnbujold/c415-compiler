@@ -34,6 +34,8 @@ void updateError(void) {
 * Do the adding here, instead of putting it in every line
 **/
 add();
+if (yytext == NULL)
+  return;
 strcat (errortext, yytext);
 %}
 
