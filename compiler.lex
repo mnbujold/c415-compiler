@@ -16,7 +16,7 @@ extern int oldlineno;
 extern myerror *eList;
 
 void updateError(void) {
-  printf ("Update error called\n");
+
     if(lineno != oldlineno) {
         updateErrorText(eList, errortext);
         showAllErrors(eList);
@@ -34,9 +34,11 @@ void updateError(void) {
 * Do the adding here, instead of putting it in every line
 **/
 add();
-if (yytext == NULL)
-  return;
-strcat (errortext, yytext);
+if (yytext != NULL) {
+  strcat (errortext, yytext);
+}
+
+
 %}
 
     /* reserved keywords in PAL */
@@ -58,7 +60,7 @@ strcat (errortext, yytext);
 "or"						{ return OR;}
 "procedure"					{ return PROCEDURE;}
 "program"					{ return PROGRAM;}
-"record"					{ return RECORD;}
+"record"						{ return RECORD;}
 "then"						{ return THEN;}
 "type"						{ return TYPE;}
 "var"						{ return VAR;}
@@ -91,24 +93,25 @@ strcat (errortext, yytext);
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
     /* comments */
-"//"[^\n]*""		        		{ /* do nothing, one line comment */              	     }
+"//"[^\n]*""		        			{ /* do nothing, one line comment */              	     }
 "{"[\^{}}]*"}"					{ /* do nothing, a block comment */ }
 
     /* built ins */
-"bool"					{ return BOOL;}
-"char"					{ return CHAR;}
-"integer"				{ return INT;}
-"real"					{ return REAL;}
-"string"					{ return STRING;}
+"bool"						{ return BOOL;}
+"char"						{ return CHAR;}
+"integer"					{ return INT;}
+"real"						{ return REAL;}
+"string"						{ return STRING;}
     /* other */
-[ \t]+                  			{ add(); strcat(errortext, yytext); /* ignore whitespace */;}
-[a-zA-Z][a-zA-Z0-9]+			{ return ID;}
-[0-9]+					{ return INT_CONST; }
-[0-9]+.[0-9]+				{ return REAL_CONST; } /*cheating: scan for decimal reals */
-[0-9]+.[0-9]+E[+|-]?[0-9]+		{ return REAL_CONST; }
-[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; } /*for exponents */
-'[^']'					{ return STRING; }
-\n                      			{ lineno++; updateError(); last_column=0;
+[ \t]+                  				{ /* ignore whitespace */;}
+[a-zA-Z]+[a-zA-Z0-9]				{ return ID;}
+[0-9]+						{ return INT_CONST; }
+[0-9]+.[0-9]+					{ return REAL_CONST; } 
+   /*cheating: scan for decimal reals */
+[0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
+[0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
+'[^']'						{ return STRING; }
+\n                      				{ lineno++; updateError(); last_column=0;
 						/*return RETURNN;/* ignore end of line */;}
 
 
