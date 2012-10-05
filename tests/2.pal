@@ -16,6 +16,6 @@ type agora := greekness of friends;
 
      var a_real_num : boolean;
 begin 
-should_work := .9403 * 4.;
+should_work := 0.9403 * 4.4;
 _what_now := 5..3; { lexical error here }
 end.

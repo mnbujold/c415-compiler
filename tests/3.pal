@@ -2,14 +2,17 @@
     3.pal
     Tests identifier and comment/brace errors.
     Errors:
-    10:12: 
-    #:# some record error
-    #:34 invalid comment / unexpected brace error
+    9:12: invalid identifier
+    18:34: invalid comment / unexpected brace error
 }
 
 program bob>syouruncle(doesthis, work); { lexical error here }
 
+type a_record=record id1 : boolean; bob : integer; sick : a_type; end;
+
 begin
+
+arevord_inst.bob := fucntdkd(sdkl.gdf);
 
 while 
 begin {{{{ Not a valid comment! }}}} end; { lexical error here }
