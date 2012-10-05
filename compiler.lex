@@ -96,6 +96,7 @@ if (yytext != NULL) {
 "//"[^\n]*""		        		{ /* do nothing, one line comment */}
 "{"[^}]*"}"				{ lineno += countlines(yytext); strcat (errortext, yytext);/* do nothing, a block comment */ }
 
+
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
