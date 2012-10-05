@@ -32,6 +32,11 @@ pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 	bison -d -v ${GRAMMAR}
 	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -o pal
 
+debug: ${GRAMMAR} ${LEXER} ${SOURCE}
+	flex -i ${LEXER}
+	bison -d -v ${GRAMMAR}
+	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -DDEBUG -o pal
+
 clean:
 	rm -f pal
 	rm -f lex.yy.c *.tab.c *.tab.h 

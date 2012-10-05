@@ -7,8 +7,6 @@
 #include "compiler.h"
 #include "compiler.tab.h"
 
-#define DEBUG 1
-
 symbol 		*sList;  
 myerror 	*eList;  
 int 		iserror;
