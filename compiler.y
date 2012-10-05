@@ -241,7 +241,8 @@ proc_invok : plist_finvok RIGHTPAREN
 ;
 
 var : ID
-| var PERIOD ID
+| var PERIOD ID		{ return OR;}
+"procedure"			
 | subscripted_var RIGHTBRACKET
 ;
 
@@ -250,10 +251,10 @@ subscripted_var : var LEFTBRACKET expr
 ;
 expr : simple_expr
 | expr ISEQUAL simple_expr
-| expr LESSTHAN GREATERTHAN simple_expr
-| expr LESSTHAN ISEQUAL simple_expr
+| expr NOTEQUAL simple_expr
+| expr LESSTHANEQUALS simple_expr
 | expr LESSTHAN simple_expr
-| expr GREATERTHAN ISEQUAL simple_expr
+| expr GREATERTHANEQUALS simple_expr
 | expr GREATERTHAN simple_expr
 ;
 simple_expr: term
