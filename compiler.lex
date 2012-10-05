@@ -16,6 +16,7 @@ extern int oldlineno;
 extern myerror *eList;
 
 void updateError(void) {
+  printf ("Update error called\n");
     if(lineno != oldlineno) {
         updateErrorText(eList, errortext);
         showAllErrors(eList);
