@@ -1,0 +1,13 @@
+{
+    9.pal
+    Tests ...
+    Errors:
+    #:12 unexpected greater than
+}
+program google(asd3, ds3);
+
+begin
+
+notACorrect>Identifier := 2==4+3 ; { syntax error here }
+
+end.

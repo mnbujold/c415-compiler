@@ -2,9 +2,9 @@
     0.pal
     Tests comment and real constant lexical errors.
     Errors:
-    17:30 incorrect real constant <-- replace w/ something
-    19:6 incorrect identifier
-    26:21 incorrect identifier
+    17:30 illegal character '!'
+    19:9 illegal character '|'
+    26:21 illegal character '#'
 }
 program lexical(input, output);
 // Does some stuff with words and sentences. {}}}}}}}}}}}}}}
@@ -14,12 +14,12 @@ const BOB = 'bob';
       WORDLENGTH = 10;
       GOOD = true;
       BAD = false;
-      FORCECONST = 10; { LEXICAL ERROR USED TO BE HERE }
+      FORCECONST = 10;! { lexical error here }
 
-type 3str = array[1..10] of char;   { lexical error here }
+type str| = array[1..10] of char;   { lexical error here }
      terms = (lexical, semantic, syntactical);
 
-var sent1, sent2, sent3 : array[1..3];
+var sent1, sent2, sent3 : array[1..3] of bolean;
     aterm : terms;
     worked : boolean;
 
@@ -27,11 +27,11 @@ function setWord(in#dex : integer; newWord : str) { lexical error here }
                 : boolean;
 begin
     aTerm := lexical;
-    if index <= SENTENCELENGTH then
+    if index <= SENTENCELENGTH then begin
         sent[index] := newWord;
-        setWord := GOOD;
+        setWord := GOOD; end;
     else
-        setWord := BAD;
+        setWord := BAD
 end;
 begin
 
