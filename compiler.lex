@@ -27,6 +27,10 @@ void updateError(void) {
 } 
 
 %}
+
+
+%x COMMENT
+
 %%
 
 %{
@@ -40,6 +44,17 @@ if (yytext != NULL) {
 
 
 %}
+
+ /* Comments */
+^[ \t]*"{"                                      BEGIN COMMENT;
+^[ \t]*"{".*"}"[ \t]*\n                         /* Single line comment */
+<COMMENT>"}"[ \t]*\n                            BEGIN 0; /* Single line comment */
+<COMMENT>"}"                                    BEGIN 0;
+<COMMENT>\n                                     /* Newline, still in comment */
+<COMMENT>.                                      ;
+"{".*"}"                                        ;
+
+
 
     /* reserved keywords in PAL */
 "and"						{ return AND;}
@@ -93,8 +108,8 @@ if (yytext != NULL) {
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
     /* comments */
-"//"[^\n]*""		        		{ /* do nothing, one line comment */}
-"{"[^}]*"}"					{/* do nothing, a block comment */ }
+"//"[^\n]*""		        			{ /* do nothing, one line comment */  }
+"{"[\^{}}]*"}"					{ /* do nothing, a block comment */ }
 
     /* built ins  NO LONGER DEFINED*/
 
