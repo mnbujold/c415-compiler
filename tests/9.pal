@@ -6,6 +6,9 @@
 }
 program google(asd3, ds3);
 
+type erronous, error : bob; { syntax error here }
+     correctous; correct: claudious;
+
 begin
 
 notACorrect>Identifier := 2==4+3 ; { syntax error here }
