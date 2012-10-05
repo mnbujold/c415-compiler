@@ -84,7 +84,7 @@ show_error() {
 %left LEFTBRACKET ISEQUAL
 
 %%
-program : program_head decls compound_stat PERIOD
+program : program_head decls compound_stat PERIOD { printf("The program has reached the end!\n"); }
 		| error {
 			iserror = 1;
 			yyerrok;
@@ -210,18 +210,25 @@ f_parm: 				type COLON type
 						;
 
 compound_stat: 			BEGIN_ stat_list END
+						|
+						error
+						{
+							iserror = 1;
+							yyerrok;
+						}
 						;
 
 stat_list: 				stat
 						| stat_list SEMICOLON stat
-		| IF error {
-			iserror = 1;
-			yyerrok;
-		}
-		| error var{
-			iserror = 1;
-			yyerrok;
-		}
+						| IF error {
+							iserror = 1;
+							yyerrok;
+						}
+						| error var
+						{
+							iserror = 1;
+							yyerrok;
+						}
 						;
 
 stat: 					simple_stat
