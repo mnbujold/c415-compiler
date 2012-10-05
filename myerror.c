@@ -80,6 +80,7 @@ void showAllErrors(myerror *in) {
 	int nTemp = 0;
 	if(in == NULL) return;
 	while(in != NULL) {
+		printf ("{\n");
 		printf("Error! line: %d char: %d - %s\n", in->line, in->location, in->message);
 		printf("%s\n", in->text);
 		nTemp = in->location;
@@ -90,7 +91,8 @@ void showAllErrors(myerror *in) {
 		printf("^\n");
 		in = in->next;
 	} /* while */
-	printf("\n");
+	printf("}\n");
+	
 } /*showAllErrors*/
 
 myerror *deleteAllErrors(myerror *in) {

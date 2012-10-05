@@ -99,7 +99,7 @@ if (yytext != NULL) {
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
-[ \t]+                  			{strcat (errortext, yytext);/* ignore whitespace */;}
+[ \t]+                  			{strcat (errortext, yytext); last_column += strlen (yytext); /* ignore whitespace */}
 [a-zA-Z][a-zA-Z0-9]*				{ return ID;}
 [0-9]+						{ return INT_CONST; }
 [0-9]+.[0-9]+					{ return REAL_CONST; } 
