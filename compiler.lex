@@ -91,14 +91,23 @@ strcat (errortext, yytext);
 "//"[^\n]*""		        		{ /* do nothing, one line comment */              	     }
 "{"[\^{}}]*"}"					{ /* do nothing, a block comment */ }
 
+    /* built ins */
+"bool"					{ return BOOL;}
+"char"					{ return CHAR;}
+"integer"				{ return INT;}
+"real"					{ return REAL;}
+"string"					{ return STRING;}
     /* other */
-\'[a-zA-Z+ \t]+\'[;]* 	 			{ return ID;}
-int_const 					{ return INT_CONST;}
-real_const					{ return REAL_CONST;}
-[a-zA-Z0-9]+ 					{ return ID;}
+[ \t]+                  			{ add(); strcat(errortext, yytext); /* ignore whitespace */;}
+[a-zA-Z][a-zA-Z0-9]+			{ return ID;}
+[0-9]+					{ return INT_CONST; }
+[0-9]+.[0-9]+				{ return REAL_CONST; } /*cheating: scan for decimal reals */
+[0-9]+.[0-9]+E[+|-]?[0-9]+		{ return REAL_CONST; }
+[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; } /*for exponents */
+'[^']'					{ return STRING; }
 \n                      			{ lineno++; updateError(); last_column=0;
 						/*return RETURNN;/* ignore end of line */;}
-[ \t]+                  			{ add(); strcat(errortext, yytext); /* ignore whitespace */;}
+
 
 %%
 void add() {

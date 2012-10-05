@@ -73,9 +73,10 @@ show_error() {
 %token <string> ID RETURN
 
 /* type tokens */
-%token <string> BOOL CHAR INT REAL STRING
+
 %token <string> INT_CONST REAL_CONST
 
+%token <string> BOOL CHAR INT REAL STRING
 %token <string> End_of_Line //eh...is this even used?
 %type <string> expr simple_expr term factor var subscripted_var unsigned_const
 %type <string> func_invok unsigned_num plist_finvok
