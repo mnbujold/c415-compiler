@@ -94,12 +94,12 @@ if (yytext != NULL) {
 ".."						{ return DOUBLEPERIOD;}
     /* comments */
 "//"[^\n]*""		        		{ /* do nothing, one line comment */}
-"{"[^}]*"}"					{/* do nothing, a block comment */ }
+"{"[^}]*"}"				{ lineno += countlines(yytext);/* do nothing, a block comment */ }
 
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
-[ \t]+                  			{ /* ignore whitespace */;}
+[ \t]+                  			{strcat (errortext, yytext);/* ignore whitespace */;}
 [a-zA-Z][a-zA-Z0-9]*				{ return ID;}
 [0-9]+						{ return INT_CONST; }
 [0-9]+.[0-9]+					{ return REAL_CONST; } 
@@ -120,3 +120,19 @@ void add() {
 last_column += yyleng;
 }
 
+/**
+*Count the number of lines in a block comment
+**/
+
+int countlines (char * comment) {
+  int count = 0;
+  char *charptr = comment;
+  while (*charptr != '}') {
+    if (*charptr == '\n') {
+      count++;
+    }
+    charptr++;      
+  }
+  return count;
+
+}

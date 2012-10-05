@@ -135,15 +135,10 @@ type : simple_type
 ;
 
 simple_type:		scalar_type
-					| REAL
 					| ID
 					;
 
 scalar_type:		LEFTPAREN scalar_list RIGHTPAREN
-					| INT
-					| BOOL
-					| CHAR
-					| STRING
 					;
 
 scalar_list:			ID
