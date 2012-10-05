@@ -93,8 +93,9 @@ if (yytext != NULL) {
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
     /* comments */
-"//"[^\n]*""		        			{ /* do nothing, one line comment */              	     }
+"//"[^\n]*""		        			{ /* do nothing, one line comment */  }
 "{"[\^{}}]*"}"					{ /* do nothing, a block comment */ }
+
 
     /* built ins */
 "bool"						{ return BOOL;}
