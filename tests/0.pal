@@ -12,9 +12,9 @@ program lexical(input, output);
 const BOB = 'bob';
       SENTENCELENGTH = 3;
       WORDLENGTH = 10;
-      GOOD : aTypeOrNot = true;
+      GOOD = true;
       BAD = false;
-      FORCECONST : real = 10e; { lexical error here }
+      FORCECONST = 10e; { lexical error here }
 
 type 3str = array[1..10] of char;   { lexical error here }
      terms = (lexical, semantic, syntactical);
