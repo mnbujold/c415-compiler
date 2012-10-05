@@ -34,6 +34,6 @@ pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 
 clean:
 	rm -f pal
-	rm -f lex.yy.c compiler.tab.c compiler.tab.h
+	rm -f lex.yy.c compiler.tab.c *.tab.h 
 	find . -name \*~ -type f -delete
 

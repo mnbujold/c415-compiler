@@ -73,9 +73,10 @@ show_error() {
 %token <string> ID RETURN
 
 /* type tokens */
-%token <string> BOOL CHAR INT REAL STRING
+
 %token <string> INT_CONST REAL_CONST
 
+%token <string> BOOL CHAR INT REAL STRING
 %token <string> End_of_Line //eh...is this even used?
 %type <string> expr simple_expr term factor var subscripted_var unsigned_const
 %type <string> func_invok unsigned_num plist_finvok
@@ -159,8 +160,8 @@ structured_type:		ARRAY LEFTBRACKET array_type RIGHTBRACKET OF type  { printf("s
 						| RECORD field_list END { printf("structured_type\n"); }
 						;
 
-array_type:				expr { printf("array_type\n"); }
-						| expr DOUBLEPERIOD expr { printf("array_type\n"); }
+array_type:				simple_type { printf("array_type\n"); }
+						| simple_type DOUBLEPERIOD simple_type { printf("array_type\n"); }
 						;
 
 field_list:				field { printf("field_list\n"); }
@@ -240,7 +241,8 @@ proc_invok : plist_finvok RIGHTPAREN
 ;
 
 var : ID
-| var PERIOD ID
+| var PERIOD ID		{ return OR;}
+"procedure"			
 | subscripted_var RIGHTBRACKET
 ;
 
@@ -249,10 +251,10 @@ subscripted_var : var LEFTBRACKET expr
 ;
 expr : simple_expr
 | expr ISEQUAL simple_expr
-| expr LESSTHAN GREATERTHAN simple_expr
-| expr LESSTHAN ISEQUAL simple_expr
+| expr NOTEQUAL simple_expr
+| expr LESSTHANEQUALS simple_expr
 | expr LESSTHAN simple_expr
-| expr GREATERTHAN ISEQUAL simple_expr
+| expr GREATERTHANEQUALS simple_expr
 | expr GREATERTHAN simple_expr
 ;
 simple_expr: term
