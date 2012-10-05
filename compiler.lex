@@ -111,7 +111,7 @@ if (yytext != NULL) {
 [0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
 [0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
 '[^']'						{ return STRING; }
-\n                      				{ lineno++; updateError(); last_column=0;
+\n                      				{ lineno++; updateError(); last_column=1;
 						/*return RETURNN;/* ignore end of line */;}
 
 
