@@ -210,7 +210,9 @@ f_parm: 				type COLON type
 						;
 
 compound_stat: 			BEGIN_ stat_list END
-						| error END { 
+						| error END SEMICOLON
+						{ 
+							printf("BEGIN_\n");
 							iserror = 1;
 							yyerrok;
 						}
@@ -302,12 +304,6 @@ matched_stat : simple_stat
 | WHILE expr DO matched_stat
 | CONTINUE
 | EXIT
-| matched_stat error
-						{
-								printf("iferror\n");
-								iserror = 1;
-								yyerrok;
-						}
 ;
 
 %%

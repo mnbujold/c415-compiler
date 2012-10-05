@@ -93,8 +93,8 @@ if (yytext != NULL) {
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
     /* comments */
-"//"[^\n]*""		        			{ /* do nothing, one line comment */              	     }
-"{"[\^{}}]*"}"					{ /* do nothing, a block comment */ }
+"//"[^\n]*""		        	{ strcat(errortext, yytext); last_column += strlen(yytext);/* do nothing, one line comment */              	     }
+"{"[\^{}]*"}"					{ strcat(errortext, yytext); last_column += strlen(yytext);/* do nothing, a block comment */ }
 
     /* built ins */
 "bool"						{ return BOOL;}
