@@ -18,5 +18,6 @@ myerror *updateErrorText(myerror *in, char* text);
 myerror *deleteError(myerror *in, char *message);
 myerror *deleteAllErrors(myerror *in);
 myerror *detectDupError(myerror *in, int location, int line);
+void add();
 
 #endif

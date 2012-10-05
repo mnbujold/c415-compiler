@@ -74,8 +74,7 @@ strcat (errortext, yytext);
 "-"						{ return MINUS;}
 "*"						{ return MULTIPLY;}
 "/"						{ return DIVIDE;}
-"div"						{ return DIV;}
-"mod"						{ return MOD;}
+    /* div and mod are under reserved words */
 
     /* other lexical characters */
 ":="						{ return ASSIGN;}
@@ -102,7 +101,7 @@ real_const					{ return REAL_CONST;}
 [ \t]+                  			{ add(); strcat(errortext, yytext); /* ignore whitespace */;}
 
 %%
-
 void add() {
 last_column += yyleng;
 }
+
