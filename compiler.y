@@ -160,8 +160,8 @@ structured_type:		ARRAY LEFTBRACKET array_type RIGHTBRACKET OF type  { printf("s
 						| RECORD field_list END { printf("structured_type\n"); }
 						;
 
-array_type:				simple_type { printf("array_type\n"); }
-						| simple_type DOUBLEPERIOD simple_type { printf("array_type\n"); }
+array_type:				expr { printf("array_type\n"); }
+						| expr DOUBLEPERIOD expr { printf("array_type\n"); }
 						;
 
 field_list:				field { printf("field_list\n"); }
