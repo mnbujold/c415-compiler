@@ -93,6 +93,7 @@ if __name__ == '__main__':
     if test_runner.all_tests:
         if test_indices:
             print 'disregarding given test names since running all tests'
+        valid_indices.sort()
         test_indices = valid_indices
     else:
         test_indices = [test_index for test_index in test_indices
