@@ -65,7 +65,6 @@ main(int argc,char** argv)
 
     
     eList = deleteAllErrors(eList);
-    printf("delete the last free\n");
 	free(errortext);
 	return 0;
 }
