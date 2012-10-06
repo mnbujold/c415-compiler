@@ -22,8 +22,7 @@ void updateError(void) {
     if(lineno != oldlineno) {
         updateErrorText(eList, errortext);
         showAllErrors(eList);
-        if(prog_listing)
-                writeAllErrors(eList,listing_file);
+        writeAllErrors(eList,listing_file);
     	eList = deleteAllErrors(eList);
 	    oldlineno = lineno;
 		memset(errortext, '\0', 4096);
