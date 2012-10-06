@@ -2,9 +2,9 @@
     7.pal
     Tests missing identifiers and bad real numbers.
     Errors:
-    #:23 unexpected paranthesis, missing identifier
-    #:17 incorrect real number
-    #:13 incorrect real number
+    9:23 unexpected paranthesis, missing identifier
+    13:16 incorrect real number (unexpecting period)
+    14:13 incorrect real number (unexpecting period)
 }
 program aTHINGY(fsdf, ); { syntax error here }
 

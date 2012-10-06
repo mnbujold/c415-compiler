@@ -1,21 +1,16 @@
 {
     2.pal
-    Tests range and real constant errors.
+    Tests underscores.
     Errors:
-    12:19 incorrect range
-    13:29 incorrect range / real constant
-    20:14 incorrect real constant
+    15:7 incorrect range
 }
 program foobar35 (io, oi);
 
 const barry = '{doe: a deer, a female deer}';
 
 type agora = array[greekness] of friends;
-     uhoh = what...canThis....be of oldness; { lexical error here }
-     whatdoesthisdo = array[3...] of question; {lexical error here }
 
      var aRealNum : boolean;
 begin 
-should_work := 0.9403 * 4.4;
-WhatNow := 5..3; { lexical error here }
+should_work := 0.9403 * 4.4; { lexical error here }
 end.

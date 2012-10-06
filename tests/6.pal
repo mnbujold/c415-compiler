@@ -1,20 +1,17 @@
 {
     6.pal
-    Tests syntax of loops, real numbers and errors for records/functions.
+    Tests records.
     Errors:
-    14:1 unexpected begin / missing end;
-    16:11 unexpected identifier / incorrect real number
-    17:1 unexpected identifier / incorrect begin loop
+    15:10 unexpected period.
 }
 program loopy
 (asd, dsa);
 
-type hello = record world: wold; bob : integer; gg56gg: seddd;
 
-begin { syntax error here }
+begin
 
-while (16.isNotARecord <> 43) {syntax error here}
-anotherError do begin {syntax error here}
+while (16.isNotARecord <> 43) { syntax error here }
+ do begin sdf:=34;
     
 end;
 

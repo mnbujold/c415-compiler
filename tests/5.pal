@@ -2,14 +2,12 @@
     5.pal
     Tests reserved words and comment syntactical errors.
     Expected output:
-    #:6 expecting identifier but found 'begin' (reserved word)
-    #:21 expecting expression but found 'if' (reserved word)
-    #:1 unexpected divide
+    18:5 unexpected if
+    19:5 unexpected else
+    26:1 unexpected divide
     
 }
 program syntactical(input, output);
-
-type begin = array[aFunction(true)..5] of integer; { syntax error here }
 
 var bob : str;
 
@@ -17,7 +15,7 @@ function aFunction(question : boolean) : integer;
 begin
     aFunction := 3;
     if bob then bob() else bob := 4
-    if (not bob or false) then begin french := boolean; ool:=bob17.gbg and why(); end;
+    if (not bob or false) then begin french := boolean; ool:=bob17.gbg and why(); end; { syntax error here }
     else if if 'lol4567' then thisShouldBreak begin { syntax error here }
         anotherThing := 234;
     end;

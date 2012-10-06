@@ -1,10 +1,8 @@
 {
     3.pal
-    Tests identifier and comment/brace errors.
+    Tests underscores.
     Errors:
-    9:12 invalid identifier <-- REPLACE with something else!
-    17:15 illegal character '_'
-    19:34 illegal character
+    15:6 illegal character '_'
 }
 
 program bobsyouruncle(doesthis, work);
@@ -15,7 +13,5 @@ begin
 
 arevordInst.bob := fucntdkd(sdkl.gdf);
 fff555fff := no_allowed; { lexical error here }
-while 
-begin {{{{ Not a valid comment! }} end; { lexical errors here }
 
 end.
