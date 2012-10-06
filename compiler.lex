@@ -109,7 +109,6 @@ if (yytext != NULL) {
 [0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
 [0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
 '[^']*'						{ return STRING; }
-<<<<<<< HEAD
 \n                      			{   lineno++;
 						    if(prog_listing) {
 							printf("{%d} %s\n",lineno, errortext);
