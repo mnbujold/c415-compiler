@@ -68,7 +68,8 @@ show_error() {
 
 /* Miscellaneous tokens */
 %token <string> ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
-%token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD  
+%token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD 
+%token <string> INVALIDTOKEN
 
 %token <string> ID RETURN
 

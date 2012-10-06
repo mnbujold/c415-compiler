@@ -36,16 +36,8 @@ bad1lex := sd`ds; { lexical error here }
 good1lex := 'sd`ds';
 bad1lex := sd~ds; { lexical error here }
 good1lex := 'sd~ds';
-bad1lex := sd~ds; { lexical error here }
-good1lex := 'sd~ds';
-bad1lex := sd~ds; { lexical error here }
-good1lex := 'sd~ds';
-bad1lex := sd~ds; { lexical error here }
-good1lex := 'sd~ds';
 bad1lex := sd"ds; { lexical error here }
 good1lex := 'sd"ds';
-bad1lex := sd!ds; { lexical error here }
-good1lex := 'sd!ds';
 bad1lex = åäö√•§∂; { several lexical errors here }
 good1lex := 'åäö√•§∂'
 
