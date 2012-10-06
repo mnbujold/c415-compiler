@@ -80,7 +80,6 @@ show_error() {
 %token <string> INT_CONST REAL_CONST
 
 %token <string> BOOL CHAR INT REAL STRING
-%token <string> End_of_Line //eh...is this even used?
 /* %type <string> expr simple_expr term factor var subscripted_var unsigned_const */
 /* %type <string> func_invok unsigned_num plist_finvok */
 
@@ -165,7 +164,7 @@ array_type              : expr
                         | expr DOUBLEPERIOD expr
                         ;
 
-field_list              : field { printf("field_list\n"); }
+field_list              : field
                         | field_list SEMICOLON field
                         | error SEMICOLON field_list
                         ;
@@ -230,7 +229,7 @@ stat                    : simple_stat
                         ;
 
 simple_stat             : /* empty */
-                        | var ASSIGN expr  { printf("var ASSIGN expr found\n"); }
+                        | var ASSIGN expr
                         | proc_invok
                         | compound_stat
                         ;
