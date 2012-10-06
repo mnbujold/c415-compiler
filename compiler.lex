@@ -126,7 +126,7 @@ if (yytext != NULL) {
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
-.                              { return UNKNOWN;}
+.                              { return UNKNOWN_CHARACTER;}
 
 %%
 void add() {

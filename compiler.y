@@ -67,7 +67,7 @@ int yywrap()
 
 %token <string> ID RETURN
 
-%token <string> UNKNOWN UNCLOSED_COMMENT UNCLOSED_QUOTE
+%token <string> UNKNOWN_CHARACTER
 
 /* type tokens */
 
