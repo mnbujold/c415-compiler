@@ -126,8 +126,7 @@ if (yytext != NULL) {
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
-
-.                              { printf("I don't like: %c\n", yytext[0]);}
+.                              { printf("I don't like: %c\n", yytext[0]); return UNKNOWN;}
 
 %%
 void add() {
