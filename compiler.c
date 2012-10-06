@@ -19,6 +19,8 @@ int 		looperrordetection;
 extern 		FILE *yyin;
 int prog_listing;
 FILE *listing_file;
+  
+char listing_filename[1024];
 
 /*
  	Initialize all the variables used in the calculator program
@@ -83,27 +85,31 @@ void parse_args(int argc, char* argv[]){
         case 'c': leave_asc = 1; execute = 0; break;
         }
     else{
-      /* Apparrently source_file isn't a descriptive enough name, so we re-name it yyin */
       yyin = fopen(argv[i], "r");
       if(yyin == NULL){
         fprintf(stderr, "could not open %s \n", argv[i]);
         exit(-1);
       }
+
       if(prog_listing){
-        char listing_filename[1024];
         int j=0;
         while(argv[i][j] != '.')
           listing_filename[j] = argv[i][j++];
         strcat(listing_filename,".lst");
-        listing_file = fopen(listing_filename, "w");
-        if(listing_file == NULL){
-          fprintf(stderr, "Could not open %s \n", listing_filename);
-          exit(-1);
-        }
+        
+       
       }
+      
     }
   }
-  
+
+  if(prog_listing){
+    listing_file = fopen(listing_filename, "w");
+    if(listing_file == NULL){
+      fprintf(stderr, "Could not open %s \n", listing_filename);
+      exit(-1);
+    }
+  }
 }
 void usage(void){
   printf("pal [options] [filename].asc\n");

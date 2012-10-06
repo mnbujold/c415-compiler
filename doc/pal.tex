@@ -30,7 +30,7 @@ The goals for this checkpoint are to have a functional compiler 'shell'. That is
 Our lexer parses tokens in the following order: first, all single and multi-line comments are parsed, followed by reserved \emph{pal} keywords, then numbers and variable names. Relational operators and other lexical units are parsed last. Any remaining unparsed tokens are presumed invalid, and the grammar handles reporting the error accordingly.
 
 \section*{Syntax Error Reporting \& Recovery}
-We created myerror.c to catch all the errors. When an error is found, it is added to a linked list. As soon as we finish parsing a line, we output that list, clear it, and move onto the next line. 
+We created myerror.c to catch all the errors. When an error is found, it is added to a linked list. As soon as we finish parsing a line, we output that list, clear it, and move onto the next line. The strategy that we used to 
 \lipsum[4-5]
 
 \section*{Problems}
