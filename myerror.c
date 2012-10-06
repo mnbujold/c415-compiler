@@ -6,6 +6,7 @@
 myerror *addError(myerror *in, const char *message, int location, int line) {
 	myerror *sNew = NULL;
 	int errorTextLength = 0;
+    line++;
 	if(detectDupError(in, location, line) != NULL) {
 		return in;
 	} /* if */

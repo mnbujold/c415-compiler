@@ -1,17 +1,16 @@
 {
     7.pal
+    Tests missing identifiers and bad real numbers.
     Errors:
     #:23 unexpected paranthesis, missing identifier
-    #:21 unexpected identifier, expecting semicolon
-    #:33 unexpected ';'
+    #:17 incorrect real number
+    #:13 incorrect real number
 }
 program aTHINGY(fsdf, ); { syntax error here }
 
-const something = 54e; { syntax error here }
-
 begin
 
-thisIsCorrect := butThisWontBe; ; { syntax error here }
+bad1real := 434.e; { syntax error here }
+bad1real := .434e; { syntax error here }
 
 end.
-// What does this do?

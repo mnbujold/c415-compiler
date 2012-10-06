@@ -22,6 +22,7 @@ extern int 			looperrordetection;
 
 void yyerror(const char *str)
 {
+    iserror = 1;
 	eList = addError(eList, str, last_column, lineno);
 
 }
@@ -80,13 +81,12 @@ int yywrap()
 %left LEFTBRACKET ISEQUAL
 
 %%
-program : program_head decls compound_stat PERIOD { printf("The program has reached the end successfully!\n"); }
+program : program_head decls compound_stat PERIOD
 		| error {
 			iserror = 1;
 			yyerrok;
 			looperrordetection++;
 			if(looperrordetection == 300) {
-				printf("loop error detected!(%d)\n",looperrordetection);
 				looperrordetection = 0;
 				yyclearin;
 				/*yylex();*/

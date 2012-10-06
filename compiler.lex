@@ -46,7 +46,7 @@ if (yytext != NULL) {
 
 %}
  /* comments */
-"//"[^\n]*""		{ /* do nothing, one line comment */}
+"//"[^\n]*""		{ errortext = appendErrorText(errortext, yytext, &errorTextLength);}
 "{"[^}]*"}"		{ lineno += countlines(yytext); 
                           errortext = appendErrorText(errortext, yytext, &errorTextLength);
                           /* do nothing, a block comment */ }

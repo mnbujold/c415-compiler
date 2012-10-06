@@ -48,23 +48,26 @@ main(int argc,char** argv)
     printf("bounds_check: %d \n", bounds_check);
     printf("execute: %d \n", execute);
 #endif
-    yyparse();
+    while (yyparse() > 0) {
+        yylex();
 
-    if(prog_listing){
-      close(listing_file);
+        if(prog_listing){
+        close(listing_file);
+        }
+        sList = deleteAllSymbols(sList);
+        if(eList != NULL) {
+            updateErrorText(eList, errortext);
+            showAllErrors(eList);
+
+                    
+        }
+        eList = deleteAllErrors(eList);
     }
-    sList = deleteAllSymbols(sList);
-    if(eList != NULL) {
-		/*printf("Major errors encountered in input file.  Most likely due to messed up '(' or ')'\n");
-		printf("Below is a screen dump of errors caught before the crash:\n");*/
-		updateErrorText(eList, errortext);
-		showAllErrors(eList);
-
-                
-	} //if
-
-    
-    eList = deleteAllErrors(eList);
+    if (iserror) {
+        printf("Errors exist. Compilation not successful.\n");
+    } else {
+        printf("Compilation successful.\n");
+    } 
 	free(errortext);
 	return 0;
 }

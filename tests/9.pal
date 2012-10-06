@@ -1,12 +1,10 @@
 {
     9.pal
-    Tests ...
+    Tests commas, reserved words, and unexpected symbols.
     Errors:
-    #:14 unexpected comma, expecting '='
-    #:8 unexpected 'end'
-    #:10 unexpected identifier 
-    #:12 unexpected greater than
-    #:1 unexpected identifier
+    11:14 unexpected comma, expecting '='
+    16:8 unexpected 'end'
+    24:12 unexpected greater than
 }
 program google(asd3, ds3);
 
@@ -17,16 +15,17 @@ begin
 
 while (end = 2) do begin { syntax error here }
     
-    Will you := see * this - error { syntax error here }
+    Will := 54*4;
     
     end;
 
-anExpr := lots = of3 and fun or (34 div ({ or 43? (}0 - esdedkayefef * 42 \) 42);
+anExpr := lots = of3 and fun or (34 { or 43? (} + 0 - esdedkayefef);
 
 notACorrect>Identifier := 2=4+3 ; { syntax error here }
 
-Iam := gonna; breakThis
-Iam := correct + (0 * 7 and bob); { syntax error here }
+eorking := gog;
+
+Iam := correct + (0 * 7 and bob);
 if (calhoun = 34 and 3) then dfghjhk := 23 else aFunc(pear, bodyes)
-{
+
 end.
