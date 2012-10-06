@@ -1,0 +1,16 @@
+{ 
+    4.pal
+    Tests for acceptance of comments.
+    No Errors.
+}
+program comments(i,o);
+begin
+
+
+
+{   Should not be an error
+    {
+        {
+        }
+
+end.

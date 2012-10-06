@@ -1,0 +1,23 @@
+{
+    9.pal
+    Tests ...
+    Errors:
+    #:12 unexpected greater than
+} 
+program google(asd3, ds3); 
+ 
+begin 
+ 
+notACorrect>Identifier := 2==4+3 ; { syntax error here } 
+{
+Error! line: 10 char: 12 - syntax error, unexpected GREATERTHAN, expecting ASSIGN or PERIOD or LEFTBRACKET
+notACorrect>Identifier := 2==4+3 ; { syntax error here }
+           ^
+}
+ 
+end. 
+{
+Error! line: 12 char: 4 - syntax error, unexpected PERIOD, expecting END or SEMICOLON
+end.
+   ^
+}
