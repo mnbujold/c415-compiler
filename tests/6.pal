@@ -14,7 +14,7 @@ type hello = record world: wold; bob : integer; gg56gg: seddd;
 begin { syntax error here }
 
 while (16.isNotARecord <> 43) {syntax error here}
-anotherError begin {syntax error here}
+anotherError do begin {syntax error here}
     
 end;
 
