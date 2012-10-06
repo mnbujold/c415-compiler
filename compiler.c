@@ -14,12 +14,14 @@ int 		iserror;
 int 		lineno, oldlineno;
 int 		last_column;
 int 		token_location;
-char 		errortext[4096];
+char *errortext;
 int 		looperrordetection;
 extern 		FILE *yyin;
+int errorTextLength;
 int prog_listing;
 FILE *listing_file;
 
+char listing_filename[1024];
 /*
  	Initialize all the variables used in the calculator program
 	Start the parser
@@ -36,7 +38,8 @@ main(int argc,char** argv)
     lineno = 0;
     oldlineno = 1;
     looperrordetection = 0;
-    memset(errortext, '\0', 4096);
+	errorTextLength = 0;
+	errortext = NULL;
 
     parse_args(argc, argv);
 #if DEBUG
@@ -62,6 +65,8 @@ main(int argc,char** argv)
 
     
     eList = deleteAllErrors(eList);
+    printf("delete the last free\n");
+	free(errortext);
 	return 0;
 }
 
@@ -90,17 +95,20 @@ void parse_args(int argc, char* argv[]){
         exit(-1);
       }
       if(prog_listing){
-        char listing_filename[1024];
         int j=0;
         while(argv[i][j] != '.')
           listing_filename[j] = argv[i][j++];
         strcat(listing_filename,".lst");
-        listing_file = fopen(listing_filename, "w");
-        if(listing_file == NULL){
-          fprintf(stderr, "Could not open %s \n", listing_filename);
-          exit(-1);
-        }
+
       }
+    }
+  }
+
+  if(prog_listing){
+    listing_file = fopen(listing_filename, "w");
+    if(listing_file == NULL){
+      fprintf(stderr, "Could not open %s \n", listing_filename);
+      exit(-1);
     }
   }
   

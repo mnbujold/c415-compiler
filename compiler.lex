@@ -9,11 +9,12 @@
 #include <string.h>
 #include "compiler.tab.h"
 #include "myerror.h"
-extern char errortext[4096];
+extern char *errortext;
 extern int last_column;
 extern int lineno;
 extern int oldlineno;
 extern myerror *eList;
+extern int errorTextLength;
 extern int prog_listing;
 extern FILE *listing_file;
 
@@ -22,10 +23,11 @@ void updateError(void) {
     if(lineno != oldlineno) {
         updateErrorText(eList, errortext);
         showAllErrors(eList);
-        writeAllErrors(eList,listing_file);
+        if(prog_listing)
+                writeAllErrors(eList,listing_file);
     	eList = deleteAllErrors(eList);
 	    oldlineno = lineno;
-		memset(errortext, '\0', 4096);
+		memset(errortext, '\0', errorTextLength);
 	} 
 } 
 
@@ -38,7 +40,7 @@ void updateError(void) {
 **/
 add();
 if (yytext != NULL) {
-  strcat (errortext, yytext);
+   errortext = appendErrorText(errortext, yytext, &errorTextLength);
 }
 
 
@@ -46,7 +48,7 @@ if (yytext != NULL) {
  /* comments */
 "//"[^\n]*""		{ /* do nothing, one line comment */}
 "{"[^}]*"}"		{ lineno += countlines(yytext); 
-                          strcat (errortext, yytext);
+                          errortext = appendErrorText(errortext, yytext, &errorTextLength);
                           /* do nothing, a block comment */ }
 
     /* reserved keywords in PAL */
@@ -75,7 +77,7 @@ if (yytext != NULL) {
 "while"						{ return WHILE;}
 
  /* Numbers and Vars */
-[ \t]                                           { strcat (errortext, yytext); 
+[ \t]                                           { errortext = appendErrorText(errortext, yytext, &errorTextLength); 
                                                   last_column += strlen (yytext); 
                                                   /* ignore whitespace */ }
 [a-zA-Z][a-zA-Z0-9]*				{ return ID;}
