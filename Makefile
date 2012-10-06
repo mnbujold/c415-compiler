@@ -41,4 +41,5 @@ clean:
 	rm -f pal core *.output
 	rm -f lex.yy.c *.tab.c *.tab.h 
 	find . -name \*~ -type f -delete
+	find . -name \*.lst -type f -delete
 
