@@ -4,7 +4,7 @@
     Errors:
     9:12 invalid identifier <-- REPLACE with something else!
     17:15 illegal character '_'
-    19:34 invalid comment / unexpected brace error
+    19:34 illegal characters '}'
 }
 
 program bobsyouruncle(doesthis, work);
@@ -16,6 +16,6 @@ begin
 arevordInst.bob := fucntdkd(sdkl.gdf);
 fff555fff = no_allowed; { lexical error here }
 while 
-begin {{{{ Not a valid comment! }}}} end; { lexical error here }
+begin {{{{ Not a valid comment! }}}} end; { lexical errors here }
 
 end.
