@@ -86,13 +86,13 @@ if (yytext != NULL) {
 [0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
 [0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
 '[^']*'						{ return STRING; }
-\n                      			{ lineno++;
-						  if(prog_listing) {
-                                                    fprintf(listing_file, "%s \n", errortext);
-                                                    printf("{%d} %s\n",lineno, errortext);
-						  } /* if */ 
-                                                  last_column=1; 
-                                                  updateError(); 
+[\n\r]                      			{ lineno++;
+                                    if (prog_listing) {
+                                        fprintf(listing_file, "%s \n", errortext);
+                                        printf("{%d} %s\n",lineno, errortext);
+                                    }
+                                    last_column=1; 
+                                    updateError(); 
 						}
                                               
     /* relational operators in PAL */
@@ -125,11 +125,7 @@ if (yytext != NULL) {
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
-
-[&!@#$%^{}"]                      		{ /*printf("\n\nwhat:>%s\n\n", yytext); */ 
-                                                  return INVALIDTOKEN; /*invalid character */ 
-                                                }
-.                                               { return INVALIDTOKEN; }						
+.                              { printf("I don't like: %c\n", yytext[0]);}
 
 %%
 void add() {
