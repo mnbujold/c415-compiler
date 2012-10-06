@@ -10,7 +10,7 @@ program foobar35 (io, oi);
 
 const barry = '{doe: a deer, a female deer}';
 
-type agora = greekness of friends;
+type agora = array[greekness] of friends;
      uhoh = what...can_this....be of oldness; { lexical error here }
      whatdoesthisdo = array[3...] of question; {lexical error here }
 
