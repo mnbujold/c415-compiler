@@ -2,6 +2,7 @@
     9.pal
     Tests ...
     Errors:
+    #:14 unexpected comma, expecting '='
     #:12 unexpected greater than
 }
 program google(asd3, ds3);
@@ -11,7 +12,7 @@ type erronous, error : bob; { syntax error here }
 
 begin
 
-anExpr := lots == of and fun or (34 ({ or 43? (}0 - esdedkayefef * 42 \) 42);
+anExpr := lots = of3 and fun or (34 div ({ or 43? (}0 - esdedkayefef * 42 \) 42);
 
 notACorrect>Identifier := 2==4+3 ; { syntax error here }
 
