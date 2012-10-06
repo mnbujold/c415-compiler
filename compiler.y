@@ -216,6 +216,7 @@ f_parm                  : type COLON type
                         ;
 
 compound_stat           : BEGIN_ stat_list END
+                        | error BEGIN_ stat_list END
                         | BEGIN_ error END
                         ;
 
