@@ -125,10 +125,9 @@ if (yytext != NULL) {
 
     /* other */
 
-[&!@#$%^{}"]                      		{ /*printf("\n\nwhat:>%s\n\n", yytext); */ 
+[\]\[!"#$%&'()*,./:;<=>?@\^_`{|}~-]             { /*printf("\n\nwhat:>%s\n\n", yytext); */ 
                                                   return INVALIDTOKEN; /*invalid character */ 
                                                 }
-.                                               { return INVALIDTOKEN; }						
 
 %%
 void add() {
