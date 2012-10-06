@@ -14,6 +14,7 @@ extern int last_column;
 extern int lineno;
 extern int oldlineno;
 extern myerror *eList;
+extern int prog_listing;
 
 void updateError(void) {
 
@@ -109,7 +110,7 @@ if (yytext != NULL) {
 '[^']*'						{ return STRING; }
 \n                      			{ 
 					  						    					  lineno++;
-						    if(lineno != oldlineno || 1) {
+						    if(prog_listing) {
 							printf("{%d} %s\n",lineno, errortext);
 						    } /* if */
  last_column=1; updateError(); 

@@ -17,13 +17,14 @@ int 		token_location;
 char 		errortext[4096];
 int 		looperrordetection;
 extern 		FILE *yyin;
-
+int prog_listing;
 /*
  	Initialize all the variables used in the calculator program
 	Start the parser
 */
 main(int argc,char** argv)
 {
+  prog_listing = 1;
     setvbuf(stdout, (char*) _IONBF, 0, 0);
     setvbuf(stderr, (char*) _IONBF, 0, 0);
 	sList = NULL;
@@ -44,8 +45,6 @@ main(int argc,char** argv)
 #endif
     yyparse();
 
-    showAllErrors(eList);
-    
     if(0){
       char buffer[4096];
 

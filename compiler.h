@@ -7,7 +7,7 @@ FILE *listing_file;
 
 /* Default options - switchable by command line options*/
 int leave_asc = 0;
-int prog_listing = 1;
+//extern int prog_listing = 1;
 int bounds_check = 1;
 int execute = 1;
 
