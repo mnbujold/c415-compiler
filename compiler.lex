@@ -41,6 +41,11 @@ if (yytext != NULL) {
 
 
 %}
+ /* comments */
+"//"[^\n]*""		{ /* do nothing, one line comment */}
+"{"[^}]*"}"		{ lineno += countlines(yytext); 
+                          strcat (errortext, yytext);
+                          /* do nothing, a block comment */ }
 
     /* reserved keywords in PAL */
 "and"						{ return AND;}
@@ -67,6 +72,25 @@ if (yytext != NULL) {
 "var"						{ return VAR;}
 "while"						{ return WHILE;}
 
+ /* Numbers and Vars */
+[ \t]                                           { strcat (errortext, yytext); 
+                                                  last_column += strlen (yytext); 
+                                                  /* ignore whitespace */ }
+[a-zA-Z][a-zA-Z0-9]*				{ return ID;}
+[0-9]+						{ return INT_CONST; }
+[0-9]+.[0-9]+					{ return REAL_CONST; } 
+   /*cheating: scan for decimal reals */
+[0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
+[0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
+'[^']*'						{ return STRING; }
+\n                      			{ lineno++;
+						  if(prog_listing) {
+                                                    printf("{%d} %s\n",lineno, errortext);
+						  } /* if */ 
+                                                  last_column=1; 
+                                                  updateError(); 
+						}
+                                              
     /* relational operators in PAL */
 "="						{ return ISEQUAL;}
 "<>"						{ return NOTEQUAL;}
@@ -93,30 +117,14 @@ if (yytext != NULL) {
 "]"						{ return RIGHTBRACKET;}
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
-    /* comments */
-"//"[^\n]*""		        		{ /* do nothing, one line comment */}
-"{"[^}]*"}"				{ lineno += countlines(yytext); strcat (errortext, yytext);/* do nothing, a block comment */ }
-
 
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
-[ \t]                  			{strcat (errortext, yytext); last_column += strlen (yytext); /* ignore whitespace */}
-[a-zA-Z][a-zA-Z0-9]*				{ return ID;}
-[0-9]+						{ return INT_CONST; }
-[0-9]+.[0-9]+					{ return REAL_CONST; } 
-   /*cheating: scan for decimal reals */
-[0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
-[0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
-'[^']*'						{ return STRING; }
-\n                      			{   lineno++;
-						    if(prog_listing) {
-							printf("{%d} %s\n",lineno, errortext);
-						    } /* if */
- last_column=1; updateError(); 
-						}
-[\]\[!"#$%&'()*,./:;<=>?@\^_`{|}~-]  		{ /*printf("\n\nwhat:>%s\n\n", yytext); */ return INVALIDTOKEN;/*invalid character */}						
 
+[\]\[!"#$%&'()*,./:;<=>?@\^_`{|}~-]  		{ /*printf("\n\nwhat:>%s\n\n", yytext); */ 
+                                                  return INVALIDTOKEN; /*invalid character */ 
+                                                }						
 
 %%
 void add() {
