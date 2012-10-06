@@ -95,6 +95,26 @@ void showAllErrors(myerror *in) {
 	
 } /*showAllErrors*/
 
+void writeAllErrors(myerror *in, FILE *outFile) {
+	int nTemp = 0;
+	if(in == NULL) return;
+	while(in != NULL) {
+          fprintf (outFile, "{\n");
+          fprintf(outFile, "Error! line: %d char: %d - %s\n", in->line, in->location, in->message);
+          fprintf(outFile, "%s\n", in->text);
+		nTemp = in->location;
+		while(nTemp > 1) {
+                  fprintf(outFile, " ");
+			nTemp--;
+		} /*while*/
+		fprintf(outFile,"^\n");
+		in = in->next;
+	} /* while */
+	fprintf(outFile,"}\n");
+	
+} /*showAllErrors*/
+
+
 myerror *deleteAllErrors(myerror *in) {
 	myerror *del;
 	int n = 0;

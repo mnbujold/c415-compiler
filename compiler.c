@@ -18,6 +18,8 @@ char 		errortext[4096];
 int 		looperrordetection;
 extern 		FILE *yyin;
 int prog_listing;
+FILE *listing_file;
+
 /*
  	Initialize all the variables used in the calculator program
 	Start the parser
@@ -45,17 +47,7 @@ main(int argc,char** argv)
 #endif
     yyparse();
 
-    if(0){
-      char buffer[4096];
-
-      while(feof(yyin)){
-        memset(buffer,'\0',4096);
-        
-//        fread(buffer, sizeof(buffer), 
-        fgets(buffer, sizeof(buffer), yyin);
-        fprintf(yyin, "%s", buffer);
-      }
-            
+    if(prog_listing){
       close(listing_file);
     }
     sList = deleteAllSymbols(sList);
@@ -64,7 +56,11 @@ main(int argc,char** argv)
 		printf("Below is a screen dump of errors caught before the crash:\n");*/
 		updateErrorText(eList, errortext);
 		showAllErrors(eList);
+
+                
 	} //if
+
+    
     eList = deleteAllErrors(eList);
 	return 0;
 }
@@ -90,11 +86,15 @@ void parse_args(int argc, char* argv[]){
       /* Apparrently source_file isn't a descriptive enough name, so we re-name it yyin */
       yyin = fopen(argv[i], "r");
       if(yyin == NULL){
-        fprintf(stderr, "could not open %s \n", argv[argc-1]);
+        fprintf(stderr, "could not open %s \n", argv[i]);
         exit(-1);
       }
       if(prog_listing){
-        char* listing_filename = ("output.lst");
+        char listing_filename[1024];
+        int j=0;
+        while(argv[i][j] != '.')
+          listing_filename[j] = argv[i][j++];
+        strcat(listing_filename,".lst");
         listing_file = fopen(listing_filename, "w");
         if(listing_file == NULL){
           fprintf(stderr, "Could not open %s \n", listing_filename);

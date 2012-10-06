@@ -15,12 +15,14 @@ extern int lineno;
 extern int oldlineno;
 extern myerror *eList;
 extern int prog_listing;
+extern FILE *listing_file;
 
 void updateError(void) {
 
     if(lineno != oldlineno) {
         updateErrorText(eList, errortext);
         showAllErrors(eList);
+        writeAllErrors(eList,listing_file);
     	eList = deleteAllErrors(eList);
 	    oldlineno = lineno;
 		memset(errortext, '\0', 4096);
@@ -85,6 +87,7 @@ if (yytext != NULL) {
 '[^']*'						{ return STRING; }
 \n                      			{ lineno++;
 						  if(prog_listing) {
+                                                    fprintf(listing_file, "%s \n", errortext);
                                                     printf("{%d} %s\n",lineno, errortext);
 						  } /* if */ 
                                                   last_column=1; 
