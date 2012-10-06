@@ -1,0 +1,58 @@
+// Syntactic errors
+//  line 22, else follows ;
+//  line 31, left hand side of := missing
+//  line 45, ; missing between statements
+
+
+program example( input, output );
+                                 { program takes input/output from terminal }
+type        string = array[1..7] of char;
+   
+var   x      : integer;
+      y      : integer;
+      answer : integer;
+      flag   : char;
+      str    : string;
+
+function gcd( a : integer; b : integer ) : integer;
+begin
+                { Note where semi-colons are legal! }
+   if b = 0 then
+      gcd := a; 
+   else
+##parser:22.8: syntax error, unexpected ELSE, expecting END or ';'
+      gcd := gcd( b, a mod b )
+end;
+
+function lcm( a : integer; b : integer ) : integer;
+begin
+   if (a = 0) or (b = 0) then
+      lcm := 0
+   else
+          := (a * b) div gcd( a, b )
+##parser:31.13: syntax error, unexpected ASSIGN, expecting END or ';'
+end;
+
+begin            { main-program }
+   read( flag );
+                { loop until an 's' (stop) is seen - remember no EOF
+                  tests are possible.                                }
+   while flag <> 's' do
+                { while stmnts are the only loop construct allowed }
+      begin
+         read( x, y );
+         readln();
+         if flag = 'g' then begin          { 'g' flag means compute gcd }
+               answer := gcd( x, y )
+               str := 'Gcd of ' 
+##parser:45.19: syntax error, unexpected ID, expecting END or ';'
+         end;
+         if flag = 'l' then begin          { 'l' flag means compute lcm }
+               answer := lcm( x, y );
+               str := 'Lcm of ';
+         end;
+         write(str, x, ' and', y, ' is', answer);
+         writeln( );
+         read( flag )
+      end
+end.
