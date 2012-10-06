@@ -33,7 +33,11 @@ Our lexer parses tokens in the following order: first, all single and multi-line
 We created myerror.c to catch all the errors. When an error is found, it is added to a linked list. As soon as we finish parsing a line, we output that list, clear it, and move onto the next line. 
 \lipsum[4-5]
 
+\section*{Testing}
+To facilitate large scale testing and efficient reading of listing files, we created a python script to run the compiler on multiple tests and pipe the resulting output to a testing log.
+
 \section*{Problems}
+Since we do not strip out comments when listing the parsed file, the listing file may not be further parsable (that is, the listing may cause additional errors if run through the compiler). This is because of block comments, in a line where an error occurred, whose closed brackets interrupt the block comment of the error message added to the listing.
 \lipsum[6]
 
 \end{document}
