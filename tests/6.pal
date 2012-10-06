@@ -9,7 +9,7 @@
 program loopy
 (asd, dsa);
 
-type hello = record world: wold; bob : integer; r5r, gg56gg: seddd;
+type hello = record world: wold; bob : integer; gg56gg: seddd;
 
 begin { syntax error here }
 

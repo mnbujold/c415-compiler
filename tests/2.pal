@@ -2,20 +2,20 @@
     2.pal
     Tests range and real constant errors.
     Errors:
-    12:20 incorrect range
-    13:30 incorrect range / real constant
+    12:19 incorrect range
+    13:29 incorrect range / real constant
     20:14 incorrect real constant
 }
 program foobar35 (io, oi);
 
 const barry = '{doe: a deer, a female deer}';
 
-type agora := greekness of friends;
-     uhoh := what...can_this....be of oldness; { lexical error here }
-     whatdoesthisdo := array[3...] of question; {lexical error here }
+type agora = array[greekness] of friends;
+     uhoh = what...canThis....be of oldness; { lexical error here }
+     whatdoesthisdo = array[3...] of question; {lexical error here }
 
-     var a_real_num : boolean;
+     var aRealNum : boolean;
 begin 
 should_work := 0.9403 * 4.4;
-_what_now := 5..3; { lexical error here }
+WhatNow := 5..3; { lexical error here }
 end.

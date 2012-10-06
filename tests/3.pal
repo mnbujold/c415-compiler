@@ -4,18 +4,18 @@
     Errors:
     9:12 invalid identifier <-- REPLACE with something else!
     17:15 illegal character '_'
-    19:34 invalid comment / unexpected brace error
+    19:34 illegal character
 }
 
 program bobsyouruncle(doesthis, work);
 
-type aRecord=record id1 : boolean; bob : integer; sick : aType; end;
+type aRecord=record id1 : boolean; bob : integer; sick : aType end;
 
 begin
 
 arevordInst.bob := fucntdkd(sdkl.gdf);
-fff555fff = no_allowed; { lexical error here }
+fff555fff := no_allowed; { lexical error here }
 while 
-begin {{{{ Not a valid comment! }}}} end; { lexical error here }
+begin {{{{ Not a valid comment! }} end; { lexical errors here }
 
 end.

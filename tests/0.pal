@@ -29,9 +29,10 @@ begin
     aTerm := lexical;
     if index <= SENTENCELENGTH then begin
         sent[index] := newWord;
-        setWord := GOOD; end;
+        setWord := GOOD; 
     else
         setWord := BAD
+        end;
 end;
 begin
 

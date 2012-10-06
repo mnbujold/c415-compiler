@@ -1,8 +1,16 @@
 { 
     4.pal
-    Tests for acceptance of comments and a program without anything but a comment.
+    Tests for acceptance of comments.
     No Errors.
+}
+program comments(i,o);
+begin
+
+
+
+{   Should not be an error
     {
         {
-            
         }
+
+end.
