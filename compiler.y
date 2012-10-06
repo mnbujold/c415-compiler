@@ -19,7 +19,6 @@ extern int 			last_column;
 extern char 		errortext[4096];
 extern int 			looperrordetection;
 
-
 void yyerror(const char *str)
 {
 	eList = addError(eList, str, NULL, last_column, lineno);
@@ -69,7 +68,8 @@ show_error() {
 
 /* Miscellaneous tokens */
 %token <string> ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
-%token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD  
+%token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD 
+%token <string> INVALIDTOKEN
 
 %token <string> ID RETURN
 

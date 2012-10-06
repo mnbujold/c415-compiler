@@ -1,0 +1,38 @@
+\documentclass{report}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{lipsum}
+\pagestyle{fancy}
+\lhead{CMPUT 415}
+\chead{pal Compiler}
+\rhead{Fall 2012}
+\lfoot{Group 5}
+\cfoot{}
+\rfoot{\thepage}
+\setlength{\parindent}{0pt}
+\doublespacing
+
+\title{CMPUT 415 - Project Checkpoint 1\\Program Documentation}
+\author{Mike Bujold \\
+Dan Chui \\ 
+James Osgood \\
+Paul Vandermeer}
+
+\begin{document}
+\maketitle
+\textbf{The man page is available by typing} \emph{make man}
+
+\section*{Introduction}
+The goals for this checkpoint are to have a functional compiler 'shell'. That is, it must be able to parse a program listing and report on any errors in the program in a way that is meaningful to the user so that corrective action may be taken. It must also recover from each error in such a manner that further reporting of errors is possible, up until the end of the program listing.
+
+
+\section*{Handling of Lexical Units}
+Our lexer parses tokens in the following order: first, all single and multi-line comments are parsed, followed by reserved \emph{pal} keywords, then numbers and variable names. Relational operators and other lexical units are parsed last. Any remaining unparsed tokens are presumed invalid, and the grammar handles reporting the error accordingly.
+
+\section*{Syntax Error Reporting \& Recovery}
+\lipsum[4-5]
+
+\section*{Problems}
+\lipsum[6]
+
+\end{document}
