@@ -14,9 +14,10 @@ int 		iserror;
 int 		lineno, oldlineno;
 int 		last_column;
 int 		token_location;
-char 		errortext[4096];
+char *errortext;
 int 		looperrordetection;
 extern 		FILE *yyin;
+int errorTextLength;
 int prog_listing;
 FILE *listing_file;
 
@@ -36,7 +37,8 @@ main(int argc,char** argv)
     lineno = 0;
     oldlineno = 1;
     looperrordetection = 0;
-    memset(errortext, '\0', 4096);
+	errorTextLength = 0;
+	errortext = NULL;
 
     parse_args(argc, argv);
 #if DEBUG
@@ -62,6 +64,8 @@ main(int argc,char** argv)
 
     
     eList = deleteAllErrors(eList);
+    printf("delete the last free\n");
+	free(errortext);
 	return 0;
 }
 

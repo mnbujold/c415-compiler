@@ -16,12 +16,14 @@ extern symbol 		*sSelected;
 extern int 			iserror;
 extern int 			lineno, oldlineno;
 extern int 			last_column;
-extern char 		errortext[4096];
+extern char 		*errortext;
+extern int              errorTextLength;
 extern int 			looperrordetection;
 
 void yyerror(const char *str)
 {
-	eList = addError(eList, str, NULL, last_column, lineno);
+	eList = addError(eList, str, last_column, lineno);
+
 }
 
 int yywrap()
@@ -29,15 +31,7 @@ int yywrap()
         return 1;
 } 
 
-show_error() {
-        	if(lineno != oldlineno) {
-        		updateErrorText(eList, errortext);
-        		showAllErrors(eList);
-	        	eList = deleteAllErrors(eList);
-	        	oldlineno = lineno;
-		        memset(errortext, '\0', 4096);
-	        } /* if */
-} /*show_error*/
+
 
 %}
 

@@ -3,23 +3,21 @@
 #include <memory.h>
 #include <string.h>
 #include "myerror.h"
-
-myerror *addError(myerror *in, const char *message, char *text, int location, int line) {
+myerror *addError(myerror *in, const char *message, int location, int line) {
 	myerror *sNew = NULL;
+	int errorTextLength = 0;
 	if(detectDupError(in, location, line) != NULL) {
 		return in;
 	} /* if */
 	sNew = (myerror*)malloc(sizeof(myerror));
 	memset(sNew->message, '\0', 256);
-	memset(sNew->text, '\0', 4096);
 	if(message != NULL) {
 		strcpy(sNew->message, message);
 	} else {
 		return NULL;
 	} /*if*/
-	if(text != NULL) {
-		strcpy(sNew->text, text);
-	} /*if*/
+	sNew->text = NULL;
+	sNew->errorTextLength = 0;
 	sNew->line = line;
 	sNew->location = location;
 	sNew->next = NULL;
@@ -32,6 +30,45 @@ myerror *addError(myerror *in, const char *message, char *text, int location, in
 	} /*if*/
 	return in;
 } /*addError*/
+
+char *createErrorText(int size, int *errorTextLength) {
+	char *temp;
+	
+	temp = (char*)malloc(size);
+	if(temp == NULL) {
+		printf("Error creating string!  Not enough memory!\n");
+	} /* if */
+	(*errorTextLength) = size;
+	return temp;
+} /* createErrorText */
+
+char *appendErrorText(char *oldString, char *newString, int *errorTextLength) {
+	char *temp, *realloctemp;
+	int oldStringLength, newStringLength;
+	int newmemsize = 200;
+	/* catch null string */
+	if(newString == NULL) return oldString;;
+	/* catch null string */
+	if(oldString == NULL) {
+		oldString = createErrorText(newmemsize, errorTextLength);	
+		memset(oldString, '\0', newmemsize);
+		(*errorTextLength) = newmemsize;
+	} /* if */
+	oldStringLength = strlen(oldString);
+	newStringLength = strlen(newString);
+	if(((oldStringLength + newStringLength)+2) > (*errorTextLength)) {
+		temp = (char*)malloc((*errorTextLength));
+		memset(temp, '\0', *errorTextLength);
+		strcpy(temp, oldString);
+		(*errorTextLength) = (*errorTextLength) + newStringLength + newmemsize;
+		oldString = (char*)realloc(oldString,(*errorTextLength));
+		strcpy(oldString, temp);
+		strcat(oldString, newString);
+	} else {
+		strcat(oldString,newString);
+	} /* if */
+	return oldString;
+} /* apendErrorText */
 
 myerror *detectDupError(myerror *in, int location, int line) {
 	myerror *find = NULL;
@@ -58,6 +95,7 @@ myerror *deleteError(myerror *in, char *message) {
 		} /* if */
 	} /* if */
 	if(find != NULL) {
+		free(find->text);
 		free(find);
 	} /* if */
 	return in;
@@ -69,9 +107,9 @@ myerror *findError(myerror *in, char *message) {
 	return find;
 } /*findError*/
 
-myerror *updateErrorText(myerror *in, char *text) {
+void updateErrorText(myerror *in, char *text) {
 	while(in != NULL&&text != NULL) {
-		strcpy(in->text, text);
+		in->text = appendErrorText(in->text, text, &(in->errorTextLength)); 
 		in = in->next;
 	} /* while */
 } /*showAllErrors*/
@@ -119,12 +157,13 @@ myerror *deleteAllErrors(myerror *in) {
 	myerror *del;
 	int n = 0;
 	while(in != NULL) {
-		/*printf("%d--%d\n", in->line, in->location);*/
 		del = in;
 		in = in->next;
+		if(del->text != NULL) {
+			free(del->text);
+		} /* if */
 		free(del);
 		n++;
 	} /*while*/
-	/*printf("# of errors deleted:>%d\n", n);*/
 	return in;
 } /*deleteAllErrors*/
