@@ -21,6 +21,7 @@ int errorTextLength;
 int prog_listing;
 FILE *listing_file;
 
+char listing_filename[1024];
 /*
  	Initialize all the variables used in the calculator program
 	Start the parser
@@ -94,17 +95,20 @@ void parse_args(int argc, char* argv[]){
         exit(-1);
       }
       if(prog_listing){
-        char listing_filename[1024];
         int j=0;
         while(argv[i][j] != '.')
           listing_filename[j] = argv[i][j++];
         strcat(listing_filename,".lst");
-        listing_file = fopen(listing_filename, "w");
-        if(listing_file == NULL){
-          fprintf(stderr, "Could not open %s \n", listing_filename);
-          exit(-1);
-        }
+
       }
+    }
+  }
+
+  if(prog_listing){
+    listing_file = fopen(listing_filename, "w");
+    if(listing_file == NULL){
+      fprintf(stderr, "Could not open %s \n", listing_filename);
+      exit(-1);
     }
   }
   
