@@ -73,14 +73,16 @@ show_error() {
 
 %token <string> ID RETURN
 
+%token <string> Invalid_Token
+
 /* type tokens */
 
 %token <string> INT_CONST REAL_CONST
 
 %token <string> BOOL CHAR INT REAL STRING
 %token <string> End_of_Line //eh...is this even used?
-%type <string> expr simple_expr term factor var subscripted_var unsigned_const
-%type <string> func_invok unsigned_num plist_finvok
+/* %type <string> expr simple_expr term factor var subscripted_var unsigned_const */
+/* %type <string> func_invok unsigned_num plist_finvok */
 
 %left LEFTBRACKET ISEQUAL
 
@@ -100,203 +102,216 @@ program : program_head decls compound_stat PERIOD { printf("The program has reac
 		}
 ;
 
-program_head : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
-;
+program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
+                        | PROGRAM ID LEFTPAREN error RIGHTPAREN SEMICOLON
+                        | error SEMICOLON
+                        ;
 
-decls : 		const_decl_part type_decl_part var_decl_part proc_decl_part
-				;
-				
-const_decl_part : CONST const_decl_list SEMICOLON
-|
-;
+decls                   :  const_decl_part type_decl_part var_decl_part proc_decl_part
+                        ;
 
-const_decl_list : const_decl
-| const_decl_list SEMICOLON const_decl
-;
+const_decl_part         : /* empty */
+                        | CONST const_decl_list SEMICOLON
+                        | error SEMICOLON
+                        ;
 
-const_decl : ID ISEQUAL expr
-;
+const_decl_list         : const_decl
+                        | const_decl_list SEMICOLON const_decl
+                        ;
+
+const_decl              : ID ISEQUAL expr
+                        ;
 
 
-type_decl_part : TYPE type_decl_list SEMICOLON
-|
-;
+type_decl_part          : /* empty */
+                        | TYPE type_decl_list SEMICOLON
+                        | error SEMICOLON
+                        ;
 
-type_decl_list : 			type_decl_list SEMICOLON type_decl
-							|
-							type_decl
-							;
+type_decl_list           :  /* empty */
+                        | type_decl
+                        | type_decl_list SEMICOLON type_decl
+                        ;
 
-type_decl : ID ISEQUAL type
-;
+type_decl               : ID ISEQUAL type
+                        ;
 
-type : simple_type
-| structured_type
-;
+type                    : simple_type
+                        | structured_type
+                        ;
 
-simple_type:		scalar_type
-					| ID
-					;
+simple_type             : scalar_type
+                        | ID
+                        ;
 
-scalar_type:		LEFTPAREN scalar_list RIGHTPAREN
-					;
+scalar_type             : LEFTPAREN scalar_list RIGHTPAREN
+                        | LEFTPAREN error RIGHTPAREN
+                        ;
 
-scalar_list:			ID
-						| scalar_list COMMA ID
-						;
+scalar_list             : ID
+                        | scalar_list COMMA ID
+                        ;
 
-structured_type:		ARRAY LEFTBRACKET array_type RIGHTBRACKET OF type
-						| RECORD field_list END
-						;
+structured_type         : ARRAY closed_array_type OF type
+                        | RECORD field_list END
+                        | error END
+                        ;
 
-array_type:				expr
-						| expr DOUBLEPERIOD expr
-						;
+closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
+                        | LEFTBRACKET error RIGHTBRACKET
+                        ;
 
-field_list:				field { printf("field_list\n"); }
-						| field_list SEMICOLON field
-						;
+array_type              : expr
+                        | expr DOUBLEPERIOD expr
+                        ;
 
-field : ID COLON type
-;
+field_list              : field { printf("field_list\n"); }
+                        | field_list SEMICOLON field
+                        | error SEMICOLON field_list
+                        ;
 
-var_decl_part : VAR var_decl_list SEMICOLON
-|
-;
+field                   : ID COLON type
+                        ;
 
-var_decl_list:					var_decl
-								|
-								var_decl_list SEMICOLON var_decl
-								;
+var_decl_part           : /* empty */
+                        | VAR var_decl_list SEMICOLON
+                        | error SEMICOLON
+                        ;
 
-var_decl:						ID COLON type
-								| ID COMMA var_decl
-								;
+var_decl_list           : var_decl
+                        | var_decl_list SEMICOLON var_decl
+                        ;
 
-proc_decl_part : proc_decl_list
-|
-;
+var_decl                : ID COLON type
+                        | ID COMMA var_decl
+                        ;
 
-proc_decl_list:			proc_decl
-						| proc_decl_list proc_decl
-						;
+proc_decl_part          : /* empty */
+                        | proc_decl_list
+                        ;
 
-proc_decl : proc_heading decls compound_stat SEMICOLON
-;
+proc_decl_list          : proc_decl
+                        | proc_decl_list proc_decl
+                        ;
 
-proc_heading : 			PROCEDURE ID f_parm_decl SEMICOLON
-						| PROCEDURE ID SEMICOLON
-						| FUNCTION ID f_parm_decl COLON type SEMICOLON
-						;
+proc_decl               : proc_heading decls compound_stat SEMICOLON
+                        ;
 
-f_parm_decl:			LEFTPAREN f_parm_list RIGHTPAREN
-						| LEFTPAREN RIGHTPAREN
-						;
+proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
+                        | FUNCTION ID f_parm_decl COLON ID SEMICOLON
+                        | error SEMICOLON
+                        ;
 
-f_parm_list:			f_parm
-						| f_parm_list SEMICOLON f_parm
-						;
+f_parm_decl             : LEFTPAREN f_parm_list RIGHTPAREN
+                        | LEFTPAREN error RIGHTPAREN
+                        | LEFTPAREN RIGHTPAREN
+                        ;
 
-f_parm: 				type COLON type
-						| VAR type COLON type
-						;
+f_parm_list             : f_parm
+                        | f_parm_list SEMICOLON f_parm
+                        | error SEMICOLON f_parm_list
+                        ;
 
-compound_stat: 			BEGIN_ stat_list END { printf("begin found\n"); }
-						| error END
-						{ 
-							printf("BEGIN_ - error END\n");
-							iserror = 1;
-							yyerrok;
-						}
-						;
+f_parm                  : type COLON type
+                        | VAR type COLON type
+                        ;
 
-stat_list: 				stat
-						| stat_list SEMICOLON stat
-						;
+compound_stat           : BEGIN_ stat_list END
+                        | BEGIN_ error END
+                        ;
 
-stat: 					simple_stat
-						| struct_stat
-						;
+stat_list               : stat
+                        | stat_list SEMICOLON stat
+                        | error SEMICOLON stat_list
+                        ;
 
-simple_stat:		var ASSIGN expr  { printf("var ASSIGN expr found\n"); }
-					| proc_invok
-					| compound_stat
-					|
-					;
+stat                    : simple_stat
+                        | struct_stat
+                        ;
 
-proc_invok : plist_finvok RIGHTPAREN
-| ID LEFTPAREN RIGHTPAREN
-;
+simple_stat             : /* empty */
+                        | var ASSIGN expr  { printf("var ASSIGN expr found\n"); }
+                        | proc_invok
+                        | compound_stat
+                        ;
 
-var : ID
-| var PERIOD ID		{ return OR;}
-"procedure"			
-| subscripted_var RIGHTBRACKET
-;
+proc_invok              : plist_finvok RIGHTPAREN
+                        | ID LEFTPAREN RIGHTPAREN
+                        ;
 
-subscripted_var : var LEFTBRACKET expr
-| subscripted_var COMMA expr
-;
-expr : simple_expr
-| expr ISEQUAL simple_expr
-| expr NOTEQUAL simple_expr
-| expr LESSTHANEQUALS simple_expr
-| expr LESSTHAN simple_expr
-| expr GREATERTHANEQUALS simple_expr
-| expr GREATERTHAN simple_expr
-;
-simple_expr: term
-| PLUS term
-| MINUS term
-| simple_expr PLUS term
-| simple_expr MINUS term
-| simple_expr OR term
-;
-term : factor
-| term MULTIPLY factor
-| term DIVIDE factor
-| term DIV factor
-| term MOD factor
-| term AND factor
-;
+var                     : ID
+                        | var PERIOD ID
+                        | subscripted_var RIGHTBRACKET
+                        | error RIGHTBRACKET
+                        ;
 
-factor : var
-| unsigned_const
-| LEFTPAREN expr RIGHTPAREN
-| func_invok
-| NOT factor
-;
+subscripted_var         : var LEFTBRACKET expr
+                        | subscripted_var COMMA expr
+                        ;
 
-unsigned_const : 		unsigned_num
-						| STRING
-						;
+expr                    : simple_expr
+                        | expr ISEQUAL simple_expr
+                        | expr NOTEQUAL simple_expr
+                        | expr LESSTHANEQUALS simple_expr
+                        | expr LESSTHAN simple_expr
+                        | expr GREATERTHANEQUALS simple_expr
+                        | expr GREATERTHAN simple_expr
+                        ;
 
-unsigned_num : 			INT_CONST
-						| REAL_CONST
-						;
+simple_expr             : term
+                        | PLUS term
+                        | MINUS term
+                        | simple_expr PLUS term
+                        | simple_expr MINUS term
+                        | simple_expr OR term
+                        ;
+term                    : factor
+                        | term MULTIPLY factor
+                        | term DIVIDE factor
+                        | term DIV factor
+                        | term MOD factor
+                        | term AND factor
+                        ;
 
-func_invok : plist_finvok RIGHTPAREN
-| ID LEFTPAREN RIGHTPAREN
-;
+factor                  : var
+                        | unsigned_const
+                        | LEFTPAREN expr RIGHTPAREN
+                        | LEFTPAREN error RIGHTPAREN
+                        | func_invok
+                        | NOT factor
+                        ;
 
-plist_finvok : ID LEFTPAREN parm
-| plist_finvok COMMA parm
-;
+unsigned_const          : unsigned_num
+                        | STRING
+                        ;
 
-parm: 			expr
-				;
-struct_stat: IF expr THEN matched_stat ELSE stat
-| IF expr THEN stat { printf("if found\n"); }
-| WHILE expr DO stat
-| CONTINUE
-| EXIT
-;
+unsigned_num            : INT_CONST
+                        | REAL_CONST
+                        ;
 
-matched_stat : simple_stat
-| IF expr THEN matched_stat ELSE matched_stat
-| WHILE expr DO matched_stat
-| CONTINUE
-| EXIT
-;
+func_invok              : plist_finvok RIGHTPAREN
+                        | ID LEFTPAREN RIGHTPAREN
+                        ;
+
+plist_finvok            : ID LEFTPAREN parm
+                        | plist_finvok COMMA parm
+                        ;
+
+parm                    : expr
+                        ;
+
+struct_stat             : IF expr THEN matched_stat ELSE stat
+                        | IF expr THEN stat
+                        | WHILE expr DO stat
+                        | CONTINUE
+                        | EXIT
+                        ;
+
+matched_stat            : simple_stat
+                        | IF expr THEN matched_stat ELSE matched_stat
+                        | WHILE expr DO matched_stat
+                        | CONTINUE
+                        | EXIT
+                        ;
 
 %%
