@@ -1,0 +1,36 @@
+\documentclass{report}
+\usepackage{fancyhdr}
+
+\usepackage{lipsum}
+\pagestyle{fancy}
+\lhead{CMPUT 415}
+\chead{pal Compiler}
+\rhead{Fall 2012}
+\lfoot{Group 5}
+\cfoot{}
+\rfoot{\thepage}
+\setlength{\parindent}{0pt}
+
+\title{CMPUT 415 - Project Checkpoint 1\\Program Documentation}
+\author{Mike Bujold \\
+Dan Chui \\ 
+James Osgood \\
+Paul Vandermeer}
+
+\begin{document}
+\maketitle
+\textbf{The man page is available by typing} \emph{make man}
+
+\section*{Introduction}
+\lipsum[1]
+
+\section*{Handling of Lexical Units}
+Our lexer parses tokens in the following order: first, reserved keywords are parsed, then arithmetic operators, followed by comments and finally indentifiers.
+
+\section*{Syntax Error Reporting \& Recovery}
+\lipsum[4-5]
+
+\section*{Problems}
+\lipsum[6]
+
+\end{document}

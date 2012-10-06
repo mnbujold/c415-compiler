@@ -19,7 +19,6 @@ extern int 			last_column;
 extern char 		errortext[4096];
 extern int 			looperrordetection;
 
-
 void yyerror(const char *str)
 {
 	eList = addError(eList, str, NULL, last_column, lineno);

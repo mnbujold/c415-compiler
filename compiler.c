@@ -43,6 +43,22 @@ main(int argc,char** argv)
     printf("execute: %d \n", execute);
 #endif
     yyparse();
+
+    showAllErrors(eList);
+    
+    if(0){
+      char buffer[4096];
+
+      while(feof(yyin)){
+        memset(buffer,'\0',4096);
+        
+//        fread(buffer, sizeof(buffer), 
+        fgets(buffer, sizeof(buffer), yyin);
+        fprintf(yyin, "%s", buffer);
+      }
+            
+      close(listing_file);
+    }
     sList = deleteAllSymbols(sList);
     if(eList != NULL) {
 		/*printf("Major errors encountered in input file.  Most likely due to messed up '(' or ')'\n");
@@ -77,6 +93,14 @@ void parse_args(int argc, char* argv[]){
       if(yyin == NULL){
         fprintf(stderr, "could not open %s \n", argv[argc-1]);
         exit(-1);
+      }
+      if(prog_listing){
+        char* listing_filename = ("output.lst");
+        listing_file = fopen(listing_filename, "w");
+        if(listing_file == NULL){
+          fprintf(stderr, "Could not open %s \n", listing_filename);
+          exit(-1);
+        }
       }
     }
   }
