@@ -120,7 +120,7 @@ void showAllErrors(myerror *in) {
 	if(in == NULL) return;
 	while(in != NULL) {
 		printf ("{\n");
-		printf("Error! line: %d char: %d - %s\n", in->line, in->location, in->message);
+		printf("Error! %d:%d - %s\n", in->line, in->location, in->message);
 		printf("%s\n", in->text);
 		nTemp = in->location;
 		while(nTemp > 1) {
@@ -139,7 +139,7 @@ void writeAllErrors(myerror *in, FILE *outFile) {
 	if(in == NULL) return;
 	while(in != NULL) {
           fprintf (outFile, "{\n");
-          fprintf(outFile, "Error! line: %d char: %d - %s\n", in->line, in->location, in->message);
+          fprintf(outFile, "Error! %d:%d - %s\n", in->line, in->location, in->message);
           fprintf(outFile, "%s\n", in->text);
 		nTemp = in->location;
 		while(nTemp > 1) {
