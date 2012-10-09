@@ -14,8 +14,9 @@ $> python runner.py -a
 
 from os import getcwd, listdir, path
 import platform
+import re
 from argparse import ArgumentParser
-from subprocess import call, STDOUT
+from subprocess import check_output
 from datetime import datetime
 import json
 
@@ -28,6 +29,8 @@ TEST_PATH = '%d.pal'
 ERR_TAG = '$ERR_DATA$'
 TAG_LENGTH = len(ERR_TAG)
 HEAD_BASE_LEN = 5
+#ERROR_REGEX = '\{[\d]+\}.\n\{\nError\! [\d]:[\d] \- .\n.\n[ ]*\^[  ]*\n\}'
+ERROR_REGEX = '\{[\d]+\}.\n\{[.\n]+\}'
 
 def _run_tests(test_list, test_data, log_file):
     """
@@ -45,6 +48,7 @@ def _run_tests(test_list, test_data, log_file):
         start_datetime = datetime.today()
         start_date = start_datetime.date().isoformat()
         start_time = start_datetime.time().isoformat()
+        error_results = ''
         test_name = TEST_PATH % test_index
 
         # So the file is written to in the correct order
@@ -53,8 +57,15 @@ def _run_tests(test_list, test_data, log_file):
 
         with open(log_file, 'a+') as output_log:
             print 'running test program ' + test_name
-            call([PAL_PATH, test_name], stdout = output_log, stderr = STDOUT)
-
+            file_str = check_output([PAL_PATH, test_name], stderr = output_log)
+            #output_log.write(file_str)
+            error_results = _parse_errors(file_str)
+            output_log.write(error_results)
+            
+def _parse_errors(file_listing):
+    file_errors = re.findall(ERROR_REGEX, file_listing)
+    return '\n'.join(file_errors)
+    
 def _get_test_files_data(test_list, update_tests):
     """ Returns the dictionary of error data for test lists. """
     test_data = {}
@@ -151,7 +162,7 @@ def _get_error_list(test_file):
     """ Returns the error dictionaries parsed from test_file. """
     line_num = 0
     error_list = []
-    
+
     for line in test_file:
         line_num += 1
         error_data = _get_error_data(line, line_num)
