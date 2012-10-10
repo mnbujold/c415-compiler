@@ -11,6 +11,8 @@ $> python runner.py -a
 # Runs all the *.pal test files.
 
 """
+# TODO: improve documentation!
+# TODO: allow custom log file name/path through command line args!
 
 from os import getcwd, listdir, path
 import platform
@@ -29,19 +31,18 @@ TEST_PATH = '%d.pal'
 ERR_TAG = '$ERR_DATA$'
 TAG_LENGTH = len(ERR_TAG)
 HEAD_BASE_LEN = 5
-#ERROR_REGEX = '\{[\d]+\}.\n\{\nError\! [\d]:[\d] \- .\n.\n[ ]*\^[  ]*\n\}'
-ERROR_REGEX = '\{[\d]+\}.\n\{[.\n]+\}'
+ERROR_REGEX = '\{[\d]+\}.*\n\{\nError\! [\d]+:[\d]+ \- .*\n.*\n[ ]*\^[ ]*\n\}'
 
 def _run_tests(test_list, test_data, log_file):
     """
     Runs the compiler on tests in test_list and appends the results of the
     comparison between with test_data to log_file.
     """
-    output_msg = '----------------------\n'\
-                 'DATE: %s\n'\
-                 'TIME: %s\n'\
-                 'TEST: %s\n'\
-                 '----------------------\n'
+    output_msg = '------------------------\n'\
+                 '| DATE: %s\n'\
+                 '| TIME: %s\n'\
+                 '| TEST: %s\n'\
+                 '------------------------\n'
     output_log = open(log_file, 'a+')
 
     for test_index in test_list:
@@ -58,13 +59,97 @@ def _run_tests(test_list, test_data, log_file):
         with open(log_file, 'a+') as output_log:
             print 'running test program ' + test_name
             file_str = check_output([PAL_PATH, test_name], stderr = output_log)
-            #output_log.write(file_str)
-            error_results = _parse_errors(file_str)
+            error_results = _parse_errors(file_str, test_data[test_name])
             output_log.write(error_results)
             
-def _parse_errors(file_listing):
+def _parse_errors(file_listing, correct_errors):
+    """
+    Returns a string of error comparisons between the errors found in
+    file_listing and the correct_errors.
+    """
+    # TODO: also check character number with caret
     file_errors = re.findall(ERROR_REGEX, file_listing)
-    return '\n'.join(file_errors)
+    error_results = []
+    
+    for error_msg in file_errors:
+        line_num1, line_num2, char_num, message = _get_error_info(error_msg)
+        line_buf = ' '*(len(str(line_num1)) + 3)
+        correct_error = _get_matching_error(correct_errors, line_num1)
+        
+        error_results.append('| %d: %s' % (line_num1, message))
+        
+        if correct_error:
+            error_correct = True
+            
+            if line_num1 != line_num2:
+                error_results.append(
+                    '|%sMismatching line numbers: %d =/= %d'
+                    % (line_buf, line_num1, line_num2)
+                    )
+                error_correct = False
+            
+            if char_num != correct_error['char_number']:
+                error_results.append(
+                    '|%sIncorrect character number: %d =/= %d'
+                    % (line_buf, char_num, correct_errors['char_number'])
+                    )
+                error_correct = False
+            
+            for keyword in correct_error['checklist']:
+                if keyword not in message:
+                    error_results.append(
+                        '|%sError message missing keyword: %s'
+                        % (line_buf, keyword)
+                        )
+                    error_correct = False
+            
+            if error_correct:
+                error_results.append('|%sError success!'% line_buf)
+            else:
+                error_results.append('|%s*ERROR FAILURE!'% line_buf)            
+            correct_errors.remove(correct_error)
+        else:
+            error_results.append('|%s*UNEXPECTED ERROR!' % line_buf)
+        
+        error_results.append('|')
+    
+    for missing_error in correct_errors:
+        line_num = missing_error['line_number']
+        line_buf = ' '*(len(str(line_num)) + 3)
+        error_results.append('| %d: %s' % (line_num, missing_error['message']))
+        error_results.append('|%s*MISSING ERROR!\n|' % line_buf)
+    
+    return '\n'.join(error_results)
+
+def _get_matching_error(correct_errors, line_num):
+    """
+    Returns the error in correct_errors which has a line_number equal to
+    line_num, or None if such an error cannot be found.
+    """
+    for error in correct_errors:
+        if error['line_number'] == line_num:
+            return error
+        
+    return None
+
+def _get_error_info(error_msg):
+    """
+    Returns the line number, the error line number, error character number, and
+    the error message from error_msg.
+    """
+    line, b0, error, line_copy, caret, b1 = error_msg.split('\n')
+    
+    # '{line_num1}'
+    b_end = line.index('}')
+    line_num1 = int(line[1:b_end])
+    
+    # 'Error! line_num2:chars_num'
+    colon = error.index(':')
+    line_num2 = int(error[7:colon])
+    nums_end = error.index(' ', colon+1)
+    char_num = int(error[colon+1:nums_end])
+    
+    return line_num1, line_num2, char_num, error[nums_end+3:]
     
 def _get_test_files_data(test_list, update_tests):
     """ Returns the dictionary of error data for test lists. """
