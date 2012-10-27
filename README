@@ -1,7 +1,10 @@
-CMPUT 415 Project Checkpoint 1
+CMPUT 415 Project Checkpoint 2
+Nov 9, 2012
 Fall 2012
 
-Mike Bujold, Dan Chui, James Osgood, Paul Vandermeer
+Mike Bujold, Dan Chui, James Osgood
+
+Formerly Paul Vandermeer
 
 PAL Compiler
       Compiles programs in the PAL language - a subset of Pascal,
