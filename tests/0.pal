@@ -1,6 +1,6 @@
 {
     0.pal
-    $DUMMY_SUMMARY$
+    is different
     Errors:
     17:23 illegal character '!'
     26:20 illegal character '#'

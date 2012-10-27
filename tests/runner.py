@@ -28,6 +28,8 @@ if platform.system() == 'Windows':
 else:
     PAL_PATH = '../pal'
 TEST_PATH = '%d.pal'
+HEADERS_PATH = 'headers.json'
+DUMMY_SUMMARY = '$DUMMY_SUMMARY$'
 ERR_TAG = '$ERR_DATA$'
 TAG_LENGTH = len(ERR_TAG)
 HEAD_BASE_LEN = 5
@@ -192,6 +194,11 @@ def _update_test_header(test_file, test_name, error_list, update_tests):
         if line_num > orig_header_size:
             orig_lines.append(line)
 
+    # FINISH!!
+    summary = DUMMY_SUMMARY
+    with open(HEADERS_PATH, 'r') as summary_file:
+        summary = json.load(summary_file).get(test_name[0], DUMMY_SUMMARY)
+    
     test_file.seek(0)
     if update_tests:
         print 'updating test program ' + test_name
@@ -202,7 +209,7 @@ def _update_test_header(test_file, test_name, error_list, update_tests):
                  '%s'\
                  '}\n'\
                  % (test_name,
-                    '$DUMMY_SUMMARY$',
+                    summary,
                     _get_header_errors(error_list, head_diff))
         
         
