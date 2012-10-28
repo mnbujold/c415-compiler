@@ -1,12 +1,12 @@
 {
-    "0": "Tests syntax of arithmetic expressions ...",
-    "1": "Syntax 1?",
-    "2": "Tests array bounds and assignments.",
-    "3": "Tests records and scalar assignments.",
+    "0": "Tests syntax of invalid arithmetic expressions and array definitions.",
+    "1": "Tests syntax of invalid function and procedure calls and definitions.",
+    "2": "Tests invalid array bounds and assignments.",
+    "3": "Tests invalid scalar assignments.",
     "4": "Tests invalid function and procedure calls.",
-    "5": "Tests scope.",
-    "6": "Semantics 6?",
-    "7": "Semantics 7?",
+    "5": "Tests scoping resulting in invalid calls.",
+    "6": "Tests invalid record definitions and calls.",
+    "7": "Tests invalid type and constant definitions.",
     "8": "Anything goes here!",
     "9": "Even more anything goes here."
 }
