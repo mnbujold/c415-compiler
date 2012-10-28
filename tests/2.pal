@@ -6,11 +6,23 @@
 }
 program foobar35 (io, oi);
 
-const barry = '{doe: a deer, a female deer}';
+type ohNo = (true, 1.0);
 
-type agora = array[greekness] of friends;
+var aRealNum : boolean;
+    incorrectArray : array[real] of type ohNo; // ILLEGAL - real!
+    anotherIncorrect : array[5] of array[boolean]; // ILLEGAL??? - not finished type definition of second array!
+    correctArray : array[integer] of type integer; // Legal, but warning.
+    a,b : array[1..10] of type char;
+    c : array[1..10] of type boolean;
+    d : array[1..10] of type boolean;
+    
 
-     var aRealNum : boolean;
-begin 
-should_work := 0.9403 * 4.4; { $ERR_DATA$ [7, "incorrect range", ["UNKNOWN_CHARACTER", "expecting ASSIGN", "PERIOD", "LEFTBRACKET"]] $ERR_DATA$ }
+begin
+
+a := b; // Legal.
+c := d; // Legal.
+c[1] := a = b; // Legal.
+a := 'not enough'; // ILLEGAL!
+
+//should_work := 0.9403 * 4.4; { $ERR_DATA$ [7, "incorrect range", ["UNKNOWN_CHARACTER", "expecting ASSIGN", "PERIOD", "LEFTBRACKET"]] $ERR_DATA$ }
 end.

@@ -7,11 +7,23 @@
 
 program bobsyouruncle(doesthis, work);
 
-type aRecord=record id1 : boolean; bob : integer; sick : aType end;
+var x : real;
+    i : integer;
 
 begin
 
-arevordInst.bob := fucntdkd(sdkl.gdf);
-fff555fff := no_allowed; { lexical error here }
+x := 1; // Legal.
+
+i := x; { $ERR_DATA$ [1, "illegal assignment of real to integer", ["..."]] $ERR_DATA$ }
+
+x := 1.0;
+
+i := x; { $ERR_DATA$ [1, "illegal assignment of real to integer", ["..."]] $ERR_DATA$ }
+
+i := 2;
+
+x := i; // Legal.
+
+// ...
 
 end.
