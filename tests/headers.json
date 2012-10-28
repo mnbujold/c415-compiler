@@ -1,12 +1,12 @@
 {
-    "0": "is different",
-    "1": "Tests program length, case, and an identifier lexical error.",
-    "2": "another different",
-    "3": "Tests underscores.",
-    "4": "Tests for acceptance of comments.",
-    "5": "Tests reserved words and comment syntactical errors.",
-    "6": "Tests records.",
-    "7": "Tests missing identifiers and bad real numbers.",
-    "8": "Tests unexpected characters, array declarations, and lots of illegal characters.",
-    "9": "Tests commas, reserved words, and unexpected symbols."
+    "0": "Tests syntax of arithmetic expressions ...",
+    "1": "Syntax 1?",
+    "2": "Tests array bounds and assignments.",
+    "3": "Tests records and scalar assignments.",
+    "4": "Tests invalid function and procedure calls.",
+    "5": "Tests scope.",
+    "6": "Semantics 6?",
+    "7": "Semantics 7?",
+    "8": "Anything goes here!",
+    "9": "Even more anything goes here."
 }
