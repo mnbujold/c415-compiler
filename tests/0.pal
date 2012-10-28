@@ -1,18 +1,24 @@
 {
     0.pal
-    Tests syntax of arithmetic expressions ...
+    Tests syntax of invalid arithmetic expressions and array definitions.
     Errors:
-    32:34 unexpected addition operator
+    19:42 unexpected real number in array definition
+    20:43 unfinished array definition, unexpected ]
+    39:34 unexpected addition operator
 }
-program (input, output);
-// Reads integer input and naively counts the number of even and odd numbers
+program correctNames (input, output);
+// Reads an integer input and naively counts the number of even and odd numbers
 // between that integer and zero.
 
 type tf = (true, false);
 
 var numOdd : integer;
+    numEven : integer;
     number : integer;
-
+    randArray : array[4..45] of tf; // Legal.
+    anotherArray : array[true..false] of 3.4; { $ERR_DATA$ [42, "unexpected real number in array definition", ["unexpected REAL_CONST"]] $ERR_DATA$ }
+    bob, joe : array[1] of array[boolean..{LOL}] of char; { $ERR_DATA$ [43, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ } // THIS ISN'T BEING CAUGHT!!!
+    
 function countEven() : integer;
     var counter : integer;
         numEven : integer;
@@ -22,28 +28,37 @@ function countEven() : integer;
             isEven := true
         else
             isEven := false
-    end;
+        end;
 begin
     counter := abs(number) + 1;
+    numEven := 0;
     while counter >= 0 do
     begin
-        counter := counter - (+1);  // Legal.    
+        counter := counter - (+1);  // Legal.
         if isEven(counter) then
-            numEven := numEven + +1 { $ERR_DATA$ [34, "unexpected addition operator", ["unexpected PLUS"]] $ERR_DATA$ }
-        
+            numEven := numEven + +1; { $ERR_DATA$ [34, "unexpected addition operator", ["unexpected PLUS"]] $ERR_DATA$ }
+    end
+    countEven := numEven;
+end;
+
+procedure countOdd(counter : integer);
+begin
+    counter := number*-1 + 1; // Legal.
+    counter := -number; // Legal.
+    while counter >= 0 do
+    begin
+        counter := counter - 1;
+        if (counter mod 2) = 1 then
+            numOdd := numOdd + 1;
     end
 end;
 
-procedure countOdd(counter : integer)
-// FINISH
 begin
-end;
 
-begin
-// FINISH
-sent1 := sentence();
-worked := setWord(1, 'bob');
-writeln(worked);
-writeln(FORCECONST);
+read(number);
+numOdd := 0;
+countOdd(number);
+numEven := countEven();
+writeln('n = ', number, ' o = ', numOdd, ' e = ', numEven);
 
 end.
