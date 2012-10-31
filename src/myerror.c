@@ -3,6 +3,7 @@
 #include <memory.h>
 #include <string.h>
 #include "myerror.h"
+
 myerror *addError(myerror *in, const char *message, int location, int line) {
 	myerror *sNew = NULL;
 	int errorTextLength = 0;
@@ -12,7 +13,12 @@ myerror *addError(myerror *in, const char *message, int location, int line) {
 	} /* if */
 	sNew = (myerror*)malloc(sizeof(myerror));
 	memset(sNew->message, '\0', 256);
-	if(message != NULL) {
+    if (illegalChar != 0) {
+        char illegalCharMsg[21];
+        sprintf(illegalCharMsg, "illegal character, %c", illegalChar);
+        strcpy(sNew->message, illegalCharMsg);
+        illegalChar = 0;
+    } else if(message != NULL) {
 		strcpy(sNew->message, message);
 	} else {
 		return NULL;
