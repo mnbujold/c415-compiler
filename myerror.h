@@ -12,6 +12,8 @@ typedef struct myerror {
 	struct myerror 	*last;
 } myerror;
 
+char illegalChar;
+
 myerror *addError(myerror *in, const char *message, int location, int line);
 myerror *findError(myerror *in, char *message);
 void showAllErrors(myerror *in);
