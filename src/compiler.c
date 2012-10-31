@@ -28,7 +28,7 @@ char listing_filename[1024];
 */
 main(int argc,char** argv)
 {
-  prog_listing = 1;
+    prog_listing = 1;
     setvbuf(stdout, (char*) _IONBF, 0, 0);
     setvbuf(stderr, (char*) _IONBF, 0, 0);
 	sList = NULL;
@@ -48,18 +48,17 @@ main(int argc,char** argv)
     printf("bounds_check: %d \n", bounds_check);
     printf("execute: %d \n", execute);
 #endif
+    init_table ();
     while (yyparse() > 0) {
         yylex();
 
         if(prog_listing){
-        close(listing_file);
+            close(listing_file);
         }
         sList = deleteAllSymbols(sList);
         if(eList != NULL) {
             updateErrorText(eList, errortext);
             showAllErrors(eList);
-
-                    
         }
         eList = deleteAllErrors(eList);
     }
