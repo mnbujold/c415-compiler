@@ -1,5 +1,8 @@
 /**
 * Bison file for PAL compiler
+* 
+* Authors: Paul, James
+* 
 **/
 
 %{
@@ -66,7 +69,6 @@ int yywrap()
 /* Miscellaneous tokens */
 %token <string> ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
 %token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD 
-%token <string> INVALIDTOKEN
 
 %token <string> ID RETURN
 
@@ -83,19 +85,20 @@ int yywrap()
 %left LEFTBRACKET ISEQUAL
 
 %%
-program : program_head decls compound_stat PERIOD
-		| error { /* ERROR */
-			iserror = 1;
-			yyerrok;
-			looperrordetection++;
-			if(looperrordetection == 300) {
-				looperrordetection = 0;
-				yyclearin;
-				/*yylex();*/
-				return 1;
-			} /* if */
-		}
-;
+program                 : program_head decls compound_stat PERIOD
+                        | error PERIOD /* ERROR */
+                        | error /* ERROR */ {
+                                                iserror = 1;
+                                                yyerrok;
+                                                looperrordetection++;
+                                                if(looperrordetection == 300) {
+                                                    looperrordetection = 0;
+                                                    yyclearin;
+                                                    /*yylex();*/
+                                                    return 1;
+                                                }
+                                            }
+                        ;
 
 program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
                         | PROGRAM ID LEFTPAREN error RIGHTPAREN SEMICOLON /* ERROR */
@@ -107,6 +110,7 @@ decls                   : const_decl_part type_decl_part var_decl_part proc_decl
 
 const_decl_part         : /* empty */
                         | CONST const_decl_list SEMICOLON
+                        | error SEMICOLON /* ERROR */
                         | error /* ERROR */
                         ;
 
@@ -121,6 +125,7 @@ const_decl              : ID ISEQUAL expr
 
 type_decl_part          : /* empty */
                         | TYPE type_decl_list SEMICOLON
+                        | error SEMICOLON /* ERROR */
                         | error /* ERROR */
                         ;
 
@@ -135,7 +140,7 @@ type_decl               : ID ISEQUAL type
 
 type                    : simple_type
                         | structured_type
-                        | error
+                        | error /* ERROR */
                         ;
 
 simple_type             : scalar_type
@@ -143,6 +148,9 @@ simple_type             : scalar_type
                         ;
 
 scalar_type             : LEFTPAREN scalar_list RIGHTPAREN
+                        | LEFTPAREN error RIGHTPAREN /* ERROR */
+                        | LEFTPAREN error /* ERROR */
+                        | error RIGHTPAREN /* ERROR */
                         ;
 
 scalar_list             : ID
@@ -154,6 +162,9 @@ structured_type         : ARRAY closed_array_type OF type
                         ;
 
 closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
+                        | LEFTBRACKET error RIGHTBRACKET /* ERROR */
+                        | LEFTBRACKET error /* ERROR */
+                        | error RIGHTBRACKET /* ERROR */
                         ;
 
 array_type              : expr
@@ -162,10 +173,10 @@ array_type              : expr
 
 field_list              : field
                         | field_list SEMICOLON field
-                        | error /* ERROR */
                         ;
 
 field                   : ID COLON type
+                        | error /* ERROR */
                         ;
 
 var_decl_part           : /* empty */
@@ -191,15 +202,19 @@ proc_decl_list          : proc_decl
                         ;
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
+//                        | error SEMICOLON /* ERROR */
                         ;
 
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
+                        | PROCEDURE error SEMICOLON /* ERROR */
+                        | FUNCTION error SEMICOLON /* ERROR */
                         | error /* ERROR */
                         ;
 
 f_parm_decl             : LEFTPAREN f_parm_list RIGHTPAREN
                         | LEFTPAREN RIGHTPAREN
+                        | error RIGHTPAREN /* ERROR */
                         | error /* ERROR */
                         ;
 
@@ -207,16 +222,17 @@ f_parm_list             : f_parm
                         | f_parm_list SEMICOLON f_parm
                         ;
 
-f_parm                  : type COLON type
-                        | VAR type COLON type
+f_parm                  : ID COLON type
+                        | VAR ID COLON type
+                        | error /* ERROR */
                         ;
 
 compound_stat           : BEGIN_ stat_list END
-                        | error /* ERROR */
                         ;
 
 stat_list               : stat
                         | stat_list SEMICOLON stat
+                        | error SEMICOLON stat /* ERROR */
                         ;
 
 stat                    : simple_stat
@@ -224,11 +240,15 @@ stat                    : simple_stat
                         ;
 
 simple_stat             : /* empty */
-                        | var ASSIGN expr
+                        | stat_assigment
                         | proc_invok
                         | compound_stat
                         ;
 
+stat_assigment          : var ASSIGN expr
+                        | error /* ERROR */
+                        ;
+                        
 proc_invok              : plist_finvok RIGHTPAREN
                         | ID LEFTPAREN RIGHTPAREN
                         ;
@@ -236,6 +256,7 @@ proc_invok              : plist_finvok RIGHTPAREN
 var                     : ID
                         | var PERIOD ID
                         | subscripted_var RIGHTBRACKET
+                        | error RIGHTBRACKET /* ERROR */
                         ;
 
 subscripted_var         : var LEFTBRACKET expr
@@ -249,7 +270,6 @@ expr                    : simple_expr
                         | expr LESSTHAN simple_expr
                         | expr GREATERTHANEQUALS simple_expr
                         | expr GREATERTHAN simple_expr
-                        | error /* ERROR */
                         ;
 
 simple_expr             : term
@@ -258,7 +278,9 @@ simple_expr             : term
                         | simple_expr PLUS term
                         | simple_expr MINUS term
                         | simple_expr OR term
+                        | error /* ERROR */
                         ;
+
 term                    : factor
                         | term MULTIPLY factor
                         | term DIVIDE factor
@@ -270,6 +292,7 @@ term                    : factor
 factor                  : var
                         | unsigned_const
                         | LEFTPAREN expr RIGHTPAREN
+                        | LEFTPAREN error RIGHTPAREN /* ERROR */
                         | func_invok
                         | NOT factor
                         ;
@@ -294,15 +317,20 @@ parm                    : expr
                         ;
 
 struct_stat             : IF expr THEN matched_stat ELSE stat
+                        | error ELSE stat /* ERROR */
                         | IF expr THEN stat
+                        | error THEN stat /* ERROR */
                         | WHILE expr DO stat
+                        | error DO stat /* ERROR */
                         | CONTINUE
                         | EXIT
                         ;
 
 matched_stat            : simple_stat
                         | IF expr THEN matched_stat ELSE matched_stat
+                        | error ELSE matched_stat /* ERROR */
                         | WHILE expr DO matched_stat
+                        | error DO matched_stat /* ERROR */
                         | CONTINUE
                         | EXIT
                         ;
