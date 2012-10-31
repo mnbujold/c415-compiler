@@ -43,7 +43,7 @@ end;
 
 procedure countOdd(counter : integer);
 begin
-    counter := number*-1 + 1; // Legal.
+    counter := number*-1 + 1; // Legal?????
     counter := -number; // Legal.
     while counter >= 0 do
     begin
