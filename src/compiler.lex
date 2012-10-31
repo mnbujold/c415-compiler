@@ -15,6 +15,7 @@ extern int lineno;
 extern int oldlineno;
 extern myerror *eList;
 extern int errorTextLength;
+extern char illegalChar;
 extern int prog_listing;
 extern FILE *listing_file;
 
@@ -126,7 +127,8 @@ if (yytext != NULL) {
     /* built ins  NO LONGER DEFINED*/
 
     /* other */
-.                              { return UNKNOWN_CHARACTER;}
+.                              { illegalChar = yytext[0];
+                                 return UNKNOWN_CHARACTER;}
 
 %%
 void add() {

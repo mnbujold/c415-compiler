@@ -7,6 +7,8 @@
 
 program bobsyouruncle(doesthis, work);
 
+type willCauseError = (lol0);
+
 var x : real;
     i : integer;
 
@@ -14,15 +16,21 @@ begin
 
 x := 1; // Legal.
 
-i := x; { $ERR_DATA$ [1, "illegal assignment of real to integer", ["..."]] $ERR_DATA$ }
+i := x; { $ERR_DATA$ [1, "illegal assignment of real to integer", ["illegal integer assignment"]] $ERR_DATA$ }
 
 x := 1.0;
 
-i := x; { $ERR_DATA$ [1, "illegal assignment of real to integer", ["..."]] $ERR_DATA$ }
+i := x; { $ERR_DATA$ [1, "illegal assignment of real to integer", ["illegal integer assignment"]] $ERR_DATA$ }
 
 i := 2;
 
 x := i; // Legal.
+
+i := i - 3;
+
+x := (x * i + 34) / 1.2; // Legal.
+
+i := lol0; // { $ERR_DATA$ [1, "illegal assignment of integer to enumerated type", ["illegal integer assignment"]] $ERR_DATA$ }
 
 // ...
 

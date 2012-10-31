@@ -15,6 +15,7 @@ int 		lineno, oldlineno;
 int 		last_column;
 int 		token_location;
 char *errortext;
+extern char illegalChar;
 int 		looperrordetection;
 extern 		FILE *yyin;
 int errorTextLength;
@@ -40,6 +41,7 @@ main(int argc,char** argv)
     looperrordetection = 0;
 	errorTextLength = 0;
 	errortext = NULL;
+    illegalChar = 0;
 
     parse_args(argc, argv);
 #if DEBUG
