@@ -1,18 +1,47 @@
 #ifndef _symbolh_
 #define _symbolh_
 
-typedef struct symbol {
-	int id;
-	char identifier[256];
-	char value[256];
-	struct symbol *next;
-	struct symbol *last;
-} symbol;
+struct symbol {
+  char* identifier;
+  int type;
+  int level;
+  union {
+    double real;
+    int integer;
+    char character;
+  }value;
+};
 
-symbol *addSymbol(symbol *in, char *identifier, char *formula);
-symbol *findSymbol(symbol *in, char *identifier);
-void showAllSymbols(symbol *in);
-symbol *deleteSymbol(symbol *in, char *identifier);
-symbol *deleteAllSymbols(symbol *in);
+enum types {
+  boolean,
+  integer,
+  real,
+  char,
+  string,
+  procedure,
+  function
+  
+};
+
+typedef struct symbol symbol;
+
+extern stack *symbol_table_stack;
+
+symbol *addSymbol(char const *, symbol *);
+symbol *getSymbol(char const *);
+void showAllSymbols();
+
+/**
+Create a symbol with parameters: identifier, int type, int level, 
+pointer * value
+*/
+symbol *createSymbol (char const *, int, int, void *);
+
+/**
+ Our symbol table will need multiple levels, so we will
+ need to 
+*/
+addNewLevel ();
+removeTopLevel ();
 
 #endif
