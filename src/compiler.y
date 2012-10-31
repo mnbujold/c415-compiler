@@ -103,7 +103,6 @@ program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
                         ;
 
 decls                   : const_decl_part type_decl_part var_decl_part proc_decl_part
-                        | error /* ERROR */
                         ;
 
 const_decl_part         : /* empty */
@@ -136,11 +135,11 @@ type_decl               : ID ISEQUAL type
 
 type                    : simple_type
                         | structured_type
+                        | error
                         ;
 
 simple_type             : scalar_type
                         | ID
-                        | error /* ERROR*/
                         ;
 
 scalar_type             : LEFTPAREN scalar_list RIGHTPAREN
@@ -152,7 +151,6 @@ scalar_list             : ID
 
 structured_type         : ARRAY closed_array_type OF type
                         | RECORD field_list END
-                        | error /* ERROR*/
                         ;
 
 closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
@@ -164,10 +162,10 @@ array_type              : expr
 
 field_list              : field
                         | field_list SEMICOLON field
+                        | error /* ERROR */
                         ;
 
 field                   : ID COLON type
-                        | error  /* ERROR*/
                         ;
 
 var_decl_part           : /* empty */
@@ -193,7 +191,6 @@ proc_decl_list          : proc_decl
                         ;
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
-                        | error /* ERROR */
                         ;
 
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
@@ -212,7 +209,6 @@ f_parm_list             : f_parm
 
 f_parm                  : type COLON type
                         | VAR type COLON type
-                        | error /* ERROR */
                         ;
 
 compound_stat           : BEGIN_ stat_list END
@@ -235,7 +231,6 @@ simple_stat             : /* empty */
 
 proc_invok              : plist_finvok RIGHTPAREN
                         | ID LEFTPAREN RIGHTPAREN
-                        | error /* ERROR */
                         ;
 
 var                     : ID
@@ -245,7 +240,6 @@ var                     : ID
 
 subscripted_var         : var LEFTBRACKET expr
                         | subscripted_var COMMA expr
-                        | error /* ERROR */
                         ;
 
 expr                    : simple_expr
@@ -290,12 +284,10 @@ unsigned_num            : INT_CONST
 
 func_invok              : plist_finvok RIGHTPAREN
                         | ID LEFTPAREN RIGHTPAREN
-                        | error /* ERROR */
                         ;
 
 plist_finvok            : ID LEFTPAREN parm
                         | plist_finvok COMMA parm
-                        | error /* ERROR */
                         ;
 
 parm                    : expr
@@ -306,7 +298,6 @@ struct_stat             : IF expr THEN matched_stat ELSE stat
                         | WHILE expr DO stat
                         | CONTINUE
                         | EXIT
-                        | error /* ERROR */
                         ;
 
 matched_stat            : simple_stat
@@ -314,7 +305,6 @@ matched_stat            : simple_stat
                         | WHILE expr DO matched_stat
                         | CONTINUE
                         | EXIT
-                        | error /* ERROR */
                         ;
 
 %%
