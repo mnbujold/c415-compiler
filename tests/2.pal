@@ -6,15 +6,16 @@
 }
 program foobar35 (io, oi);
 
-type ohNo = (true, 1.0);
+type ohNo = (element1, element2);
 
 var aRealNum : boolean;
-    incorrectArray : array[real] of type ohNo; // ILLEGAL - real!
-    anotherIncorrect : array[5] of array[boolean]; // ILLEGAL??? - not finished type definition of second array!
-    correctArray : array[integer] of type integer; // Legal, but warning.
-    a,b : array[1..10] of type char;
-    c : array[1..10] of type boolean;
-    d : array[1..10] of type boolean;
+    incorrectArray : array[real] of ohNo; { $ERR_DATA$ [28, "illegal array range", ["illegal array range", "real"]] $ERR_DATA$ }
+    anotherIncorrect : array[5] of array[boolean] of (element0, elementneg1); // ILLEGAL??? - can define enum type in array definition?
+    correctArray : array[integer] of integer; // Legal, but warning.
+    anothCorArray : array[5..14] of ohNo;
+    a,b : array[1..10] of char;
+    c : array[1..10] of boolean;
+    d : array[1..10] of boolean;
     
 
 begin
@@ -22,7 +23,10 @@ begin
 a := b; // Legal.
 c := d; // Legal.
 c[1] := a = b; // Legal.
-a := 'not enough'; // ILLEGAL!
 
-//should_work := 0.9403 * 4.4; { $ERR_DATA$ [7, "incorrect range", ["UNKNOWN_CHARACTER", "expecting ASSIGN", "PERIOD", "LEFTBRACKET"]] $ERR_DATA$ }
+anothCorArray[6] := element2;
+anothCorArray[10] := anothCorArray[6];
+
+b := 'justEnough'; // Legal.
+a := 'notEnough'; { $ERR_DATA$ [3, "incorrect string (char array) assignment", ["illegal array assignment"]] $ERR_DATA$ }
 end.
