@@ -3,6 +3,7 @@
 * PAL language
 * made by Daniel Chui
 * Mike was here
+* James was here
 **/
 %{
 #include <stdio.h>
@@ -128,7 +129,7 @@ if (yytext != NULL) {
 
     /* other */
 .                              { illegalChar = yytext[0];
-                                 return UNKNOWN_CHARACTER;}
+                                 return UNKNOWN_CHARACTER; }
 
 %%
 void add() {
