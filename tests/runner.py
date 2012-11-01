@@ -93,7 +93,7 @@ def _parse_errors(file_listing, correct_errors):
             if char_num != correct_error['char_number']:
                 error_results.append(
                     '|%sIncorrect character number: %d =/= %d'
-                    % (line_buf, char_num, correct_errors['char_number'])
+                    % (line_buf, char_num, correct_error['char_number'])
                     )
                 error_correct = False
             
