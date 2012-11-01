@@ -14,9 +14,9 @@ FLAGS = -g
 
 GRAMMAR = src/compiler.y
 GRAMMAR_C = compiler.tab.c
-LEXER = compiler.lex
+LEXER = src/compiler.lex
 LEXER_C = lex.yy.c
-SOURCE = myerror.c symbol.c compiler.c
+SOURCE = src/myerror.c src/symbol.c src/compiler.c
 
 # Stops bison from overwriting compiler.c
 %.c: %.y

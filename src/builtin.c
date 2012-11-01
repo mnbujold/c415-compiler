@@ -28,4 +28,5 @@ struct init_types types []
       "real",
       "char",
       "string",
+      "enum"
   }
