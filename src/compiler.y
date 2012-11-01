@@ -119,7 +119,7 @@ const_decl_list         : const_decl
                         ;
 
 const_decl              : ID ISEQUAL expr
-                        | error /* ERROR */
+                        | error /* ERROR */ 
                         ;
 
 
@@ -202,7 +202,7 @@ proc_decl_list          : proc_decl
                         ;
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
-//                        | error SEMICOLON /* ERROR */
+                        | error SEMICOLON /* ERROR */
                         ;
 
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
@@ -278,7 +278,6 @@ simple_expr             : term
                         | simple_expr PLUS term
                         | simple_expr MINUS term
                         | simple_expr OR term
-                        | error /* ERROR */
                         ;
 
 term                    : factor
@@ -287,6 +286,7 @@ term                    : factor
                         | term DIV factor
                         | term MOD factor
                         | term AND factor
+                        | error /* ERROR */
                         ;
 
 factor                  : var
