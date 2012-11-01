@@ -55,3 +55,8 @@ stack.pop
 void showAllSymbols(symbol *in) {
 
 }
+
+symbol *deleteAllSymbols(symbol *in) {
+
+    return NULL;
+}
