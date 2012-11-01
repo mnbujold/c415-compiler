@@ -1,8 +1,9 @@
 {
     2.pal
-    another different
+    Tests invalid array bounds and assignments.
     Errors:
-    15:7 incorrect range
+    13:28 illegal array range
+    32:3 incorrect string (char array) assignment
 }
 program foobar35 (io, oi);
 
