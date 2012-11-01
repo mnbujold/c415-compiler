@@ -12,7 +12,7 @@
 CC = gcc
 FLAGS = -g
 
-GRAMMAR = compiler.y
+GRAMMAR = src/compiler.y
 GRAMMAR_C = compiler.tab.c
 LEXER = compiler.lex
 LEXER_C = lex.yy.c
