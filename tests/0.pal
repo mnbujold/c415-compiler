@@ -17,7 +17,7 @@ var numOdd : integer;
     number : integer;
     randArray : array[4..45] of tf; // Legal.
     anotherArray : array[true..false] of 3.4; { $ERR_DATA$ [42, "unexpected real number in array definition", ["unexpected REAL_CONST"]] $ERR_DATA$ }
-    bob, joe : array[1] of array[boolean..{LOL}] of char; { $ERR_DATA$ [43, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ } // THIS ISN'T BEING CAUGHT!!!
+    bob, joe : array[1] of array[boolean..{LOL}] of char; { $ERR_DATA$ [43, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ }
     
 function countEven() : integer;
     var counter : integer;
@@ -28,7 +28,7 @@ function countEven() : integer;
             isEven := true
         else
             isEven := false
-        end;
+    end;
 begin
     counter := abs(number) + 1;
     numEven := 0;
@@ -37,11 +37,11 @@ begin
         counter := counter - (+1);  // Legal.
         if isEven(counter) then
             numEven := numEven + +1; { $ERR_DATA$ [34, "unexpected addition operator", ["unexpected PLUS"]] $ERR_DATA$ }
-    end
+    end;
     countEven := numEven;
 end;
 
-procedure countOdd(counter : integer);
+procedure countOdd(counter : integer; useless : char);
 begin
     counter := -1*number + 1; // Legal.
     counter := -number; // Legal.
@@ -50,14 +50,14 @@ begin
         counter := counter - 1;
         if (counter mod 2) = 1 then
             numOdd := numOdd + 1;
-    end
+    end;
 end;
 
 begin
 
 read(number);
 numOdd := 0;
-countOdd(number);
+countOdd(number, '?');
 numEven := countEven();
 writeln('n = ', number, ' o = ', numOdd, ' e = ', numEven);
 
