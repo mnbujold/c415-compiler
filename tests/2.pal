@@ -16,7 +16,8 @@ var aRealNum : boolean;
     anothCorArray : array[5..14] of ohNo;
     a,b : array[1..10] of char;
     c : array[1..10] of boolean;
-    d : array[1..10] of boolean; // Can arrays habe negative ranges??
+    d : array[1..10] of boolean;
+    neg : array[-3..true] of char; // Illegal? Can arrays have negative ranges??
     
 
 begin
