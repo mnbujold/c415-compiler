@@ -31,12 +31,12 @@ man:
 pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 	flex -i ${LEXER}
 	bison -d -v ${GRAMMAR}
-	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -o pal
+	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -o pal $(GLIB)
 
 debug: ${GRAMMAR} ${LEXER} ${SOURCE}
 	flex -i ${LEXER}
 	bison -d -v ${GRAMMAR}
-	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -D DEBUG=1 -o pal
+	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -D DEBUG=1 -o pal $(GLIB) 
 
 clean:
 	rm -f pal core *.output
