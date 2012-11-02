@@ -41,7 +41,7 @@ Additionally, large grammar constructs, such as declaration parts and the entire
 To better handle error reporting in statements, we let conditionals reduce to errors, thus making 'else', 'then', and 'do' significant symbols. As a stop-gap, we implemented a loop counter that would kill the program if it became trapped in a seemingly infinite error reporting loop.
 \\
 \\
-The large amount of error symbols in the program has resulted in, what we think, a fairly comprehensive syntactic error reporter, although their are still some instances of open brackets and statements eating up a lot of the input; this number of error symbols have also cause fourteen shift/reduce conflicts.
+The large amount of error symbols in the program has resulted in, what we think, a fairly comprehensive syntactic error reporter, although their are still some instances of open brackets and statements eating up a lot of the input; this number of error symbols have also cause twelve shift/reduce conflicts.
 
 
 \section*{Testing}

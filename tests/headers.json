@@ -3,7 +3,7 @@
     "1": "Tests syntax of invalid function and procedure calls and definitions.",
     "2": "Tests invalid array bounds and assignments.",
     "3": "Tests invalid scalar assignments and expressions.",
-    "4": "Tests invalid function and procedure calls.",
+    "4": "Tests invalid function and procedure calls and definitions.",
     "5": "Tests scoping resulting in invalid calls.",
     "6": "Tests invalid record definitions and calls.",
     "7": "Tests invalid type and constant definitions.",
