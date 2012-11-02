@@ -9,7 +9,7 @@ typedef struct symbol {
 	struct symbol *last;
 } symbol;
 
-symbol *addSymbol(symbol *in, char *identifier, char *formula);
+symbol *addSymbol(char const *identifier, symbol *symbol);
 symbol *findSymbol(symbol *in, char *identifier);
 void showAllSymbols(symbol *in);
 symbol *deleteSymbol(symbol *in, char *identifier);

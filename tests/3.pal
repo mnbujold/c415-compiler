@@ -1,17 +1,45 @@
 {
     3.pal
-    Tests underscores.
+    Tests invalid scalar assignments and expressions.
     Errors:
-    15:6 illegal character '_'
+    22:1 illegal assignment of real to integer
+    26:1 illegal assignment of real to integer
+    42:1 illegal assignment of ... to ... type
 }
 
 program bobsyouruncle(doesthis, work);
 
-type aRecord=record id1 : boolean; bob : integer; sick : aType end;
+type willCauseError = (lol0);
+
+var x : real;
+    i : integer;
+    e : willCauseError;
 
 begin
 
-arevordInst.bob := fucntdkd(sdkl.gdf);
-fff555fff := no_allowed; { lexical error here }
+x := 1; // Legal.
+
+i := x; { $ERR_DATA$ [1, "illegal assignment of real to integer", ["illegal integer assignment"]] $ERR_DATA$ }
+
+x := 1.0;
+
+i := x; { $ERR_DATA$ [1, "illegal assignment of real to integer", ["illegal integer assignment"]] $ERR_DATA$ }
+
+i := 2;
+
+x := i; // Legal.
+
+i := i - 3;
+
+x := (x * i + 34) / 1.2; // Legal.
+
+i := lol0; // Legal.
+
+i := false; // Legal
+
+e := 1; // Legal
+
+if (1 = 1 * e) then // Legal? { $ERR_DATA$ [1, "illegal assignment of ... to ... type", ["illegal integer assignment"]] $ERR_DATA$ }
+    writeln('This is not legal!');
 
 end.

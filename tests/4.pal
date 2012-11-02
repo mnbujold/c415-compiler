@@ -1,16 +1,42 @@
-{ 
+{
     4.pal
-    Tests for acceptance of comments.
-    No Errors.
+    Tests invalid function and procedure calls and definitions.
+    Errors:
+    23:0 missing function return value assignment
 }
-program comments(i,o);
+program funcsAndProcs(i,o);
+
+var x, y : integer;
+    correctness : boolean;
+
+function correct(test : integer; var change : integer): boolean;
+begin
+    correct := (test = change); // are they equal?
+    if not correct then
+        change := test // now they are!
+end;
+
+function incorrect(test : integer; var change : integer): boolean;
+begin
+    if (test = change) then // are they equal?
+        change := -1 * test // now they aren't!
+end; { $ERR_DATA$ [0, "missing function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
+
+procedure displayCorrectness(num1 : integer; num2 : integer);
 begin
 
+// print out stuff, call other functions ...
 
+end;
 
-{   Should not be an error
-    {
-        {
-        }
+begin
 
+read(x, y);
+
+while (x <> 0 and y <> 0) do
+begin
+    displayCorrectness(x, y);
+    read(x, y);
+end;
+    
 end.

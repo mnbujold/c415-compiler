@@ -4,7 +4,6 @@
 #  Mike Bujold
 #  Dan Chui
 #  James Osgood
-#  Paul Vandermeer
 #
 # To Compile, type:
 #     make
@@ -12,12 +11,13 @@
 CC = gcc
 FLAGS = -g
 
-GRAMMAR = compiler.y
+GRAMMAR = src/compiler.y
 GRAMMAR_C = compiler.tab.c
-LEXER = compiler.lex
+LEXER = src/compiler.lex
 LEXER_C = lex.yy.c
-SOURCE = myerror.c symbol.c compiler.c
-
+SOURCE = src/myerror.c src/symbol.c src/compiler.c
+GLIB = `pkg-config --cflags --libs glib-2.0`
+CFLAGS = -Wall -std=c99
 # Stops bison from overwriting compiler.c
 %.c: %.y
 %.c: %.l
@@ -30,15 +30,18 @@ man:
 pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 	flex -i ${LEXER}
 	bison -d -v ${GRAMMAR}
-	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -o pal
+	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -o pal $(GLIB)
 
 debug: ${GRAMMAR} ${LEXER} ${SOURCE}
 	flex -i ${LEXER}
 	bison -d -v ${GRAMMAR}
-	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -D DEBUG=1 -o pal
+	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -D DEBUG=1 -o pal $(GLIB) 
 
 clean:
 	rm -f pal core *.output
 	rm -f lex.yy.c *.tab.c *.tab.h 
+	rm -f doc/pal.log
+	rm -f doc/pal.pdf
 	find . -name \*~ -type f -delete
+	find . -name \*.lst -type f -delete
 

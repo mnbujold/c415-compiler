@@ -3,6 +3,7 @@
 * PAL language
 * made by Daniel Chui
 * Mike was here
+* James was here
 **/
 %{
 #include <stdio.h>
@@ -47,10 +48,10 @@ if (yytext != NULL) {
 
 %}
  /* comments */
-"//"[^\n]*""		{ errortext = appendErrorText(errortext, yytext, &errorTextLength);}
-"{"[^}]*"}"		{ lineno += countlines(yytext); 
-                          errortext = appendErrorText(errortext, yytext, &errorTextLength);
-                          /* do nothing, a block comment */ }
+"//"[^\n]*""		        { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
+"{"[^}]*"}"		            { lineno += countlines(yytext); 
+                              errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                              /* do nothing, a block comment */ }
 
     /* reserved keywords in PAL */
 "and"						{ return AND;}
@@ -61,21 +62,21 @@ if (yytext != NULL) {
 "div"						{ return DIV;}
 "do"						{ return DO;}
 "else"						{ return ELSE;}
-"end"						{ return END;}
-"exit"						{ /* note: not in PASCAL */ return EXIT;}
-"function"					{ return FUNCTION;}
-"if"						{ return IF;}
-"mod"						{ return MOD;}
-"not"						{ return NOT;}
-"of"						{ return OF;}
-"or"						{ return OR;}
-"procedure"					{ return PROCEDURE;}
-"program"					{ return PROGRAM;}
-"record"						{ return RECORD;}
-"then"						{ return THEN;}
-"type"						{ return TYPE;}
-"var"						{ return VAR;}
-"while"						{ return WHILE;}
+"end"						                    { return END;}
+"exit"						                    { /* note: not in PASCAL */ return EXIT;}
+"function"					                    { return FUNCTION;}
+"if"						                    { return IF;}
+"mod"						                    { return MOD;}
+"not"						                    { return NOT;}
+"of"						                    { return OF;}
+"or"						                    { return OR;}
+"procedure"					                    { return PROCEDURE;}
+"program"					                    { return PROGRAM;}
+"record"						                { return RECORD;}
+"then"						                    { return THEN;}
+"type"						                    { return TYPE;}
+"var"						                    { return VAR;}
+"while"						                    { return WHILE;}
 
  /* Numbers and Vars */
 [ \t]                                           { errortext = appendErrorText(errortext, yytext, &errorTextLength); 
@@ -128,7 +129,7 @@ if (yytext != NULL) {
 
     /* other */
 .                              { illegalChar = yytext[0];
-                                 return UNKNOWN_CHARACTER;}
+                                 return UNKNOWN_CHARACTER; }
 
 %%
 void add() {

@@ -6,11 +6,12 @@
     13:16 incorrect real number (unexpecting period)
     14:13 incorrect real number (unexpecting period)
 }
-program aTHINGY(fsdf, ); { syntax error here }
+program aTHINGY(fsdf, bobbingForApples);
+
+type a = char;  // Legal.
+    char = real; // Legal.
+    char = char; // Illegal!
 
 begin
-
-bad1real := 434.e; { syntax error here }
-bad1real := .434e; { syntax error here }
 
 end.

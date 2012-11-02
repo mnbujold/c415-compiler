@@ -1,16 +1,34 @@
 {
     2.pal
-    Tests underscores.
+    Tests invalid array bounds and assignments.
     Errors:
-    15:7 incorrect range
+    13:28 illegal array range
+    32:3 incorrect string (char array) assignment
 }
 program foobar35 (io, oi);
 
-const barry = '{doe: a deer, a female deer}';
+type ohNo = (element1, element2);
 
-type agora = array[greekness] of friends;
+var aRealNum : boolean;
+    incorrectArray : array[real] of ohNo; { $ERR_DATA$ [28, "illegal array range", ["illegal array range", "real"]] $ERR_DATA$ }
+    anotherIncorrect : array[5] of array[boolean] of (element0, elementneg1); // Legal
+    correctArray : array[integer] of integer; // Legal, but warning.
+    anothCorArray : array[5..14] of ohNo;
+    a,b : array[1..10] of char;
+    c : array[1..10] of boolean;
+    d : array[1..10] of boolean;
+    neg : array[-3..true] of char; // Illegal? Can arrays have negative ranges??
+    
 
-     var aRealNum : boolean;
-begin 
-should_work := 0.9403 * 4.4; { lexical error here }
+begin
+
+a := b; // Legal.
+c := d; // Legal.
+c[1] := a = b; // Legal.
+
+anothCorArray[6] := element2;
+anothCorArray[10] := anothCorArray[6];
+
+b := 'justEnough'; // Legal.
+a := 'notEnough'; { $ERR_DATA$ [3, "incorrect string (char array) assignment", ["illegal array assignment"]] $ERR_DATA$ }
 end.

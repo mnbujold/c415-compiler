@@ -34,7 +34,7 @@ begin
         { while stmnts are the only loop construct allowed }
         begin
                 read( x, y );
-                readln;
+                readln(); // Is "readln;" legal?
                 if flag = 'g' then begin
                    { 'g' flag means compute gcd }
                    answer := gcd( x, y );
@@ -48,7 +48,7 @@ begin
                 end;
 
                 write(str, x, ' and ', y, ' is ', answer);
-                writeln;
+                writeln(); // Is "writeln;" legal?
                 read( flag )
         end
 end.

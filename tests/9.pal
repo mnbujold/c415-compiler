@@ -5,6 +5,7 @@
     11:14 unexpected comma, expecting '='
     16:8 unexpected 'end'
     24:12 unexpected greater than
+    // Remember to test the incorrect grammar: procedure ID(ID : type); !!!
 }
 program google(asd3, ds3);
 
