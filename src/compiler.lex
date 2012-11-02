@@ -72,7 +72,7 @@ if (yytext != NULL) {
 "or"						                    { return OR;}
 "procedure"					                    { return PROCEDURE;}
 "program"					                    { return PROGRAM;}
-"record"						                { return RECORD;}
+"record"						            { return RECORD;}
 "then"						                    { return THEN;}
 "type"						                    { return TYPE;}
 "var"						                    { return VAR;}

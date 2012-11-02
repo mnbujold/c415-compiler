@@ -24,6 +24,8 @@ addSymbol always adds the symbol to the topmost level
 symbol *addSymbol (char const *identifier, symbol *symbol) {
 }
 symbol *localLookup (char const *identifier) {
+  GHashTable *table = g_queue_pop_head(symbol_table);
+  return g_hash_table_lookup (table, identifier);
 }
 symbol *globalLookup (char const *identifer) {
 }

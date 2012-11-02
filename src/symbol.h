@@ -12,7 +12,7 @@
 
 struct symbol {
   char* identifier;
-  int type;
+  int kind;
   int level;
   union {
     double real;
@@ -21,15 +21,36 @@ struct symbol {
   }value;
 };
 
+struct procedure_symbol {
+};
+
+struct function_symbol {
+};
+
+struct type_symbol {
+};
+
+struct var_symbol {
+};
+
+struct array_symbol {
+};
+
+struct const_symbol {
+};
+
+struct param_symbol {
+};
+
 enum types {
   boolean,
   integer,
   real,
   character,
   string,
-  procedure,
-  function,
-  type
+  record,
+  subrange,
+  scalar
 };
 
 typedef struct symbol symbol;
