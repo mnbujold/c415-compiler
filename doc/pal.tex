@@ -23,7 +23,8 @@ Paul Vandermeer}
 \textbf{The man page is available by typing} \emph{make man}
 
 \section*{Introduction}
-The goals for this checkpoint are to have a functional compiler 'shell'. That is, it must be able to parse a program listing and report on any errors in the program in a way that is meaningful to the user so that corrective action may be taken. It must also recover from each error in such a manner that further reporting of errors is possible, up until the end of the program listing.
+The goals for this checkpoint are to have a functional compiler 'shell'. That is, it must be able to parse a program listing and report on any errors in the program in a way that is meaningful to the user so that corrective action may be taken. It must also recover from each error in such a manner that further reporting of errors is possible, up until the end of the program listing.\\
+Currently, because of the limited functionality of the compiler, only the '-n' flag is operational when running \emph{pal}. The '-n' option supresses the program listing from being output.
 
 
 \section*{Handling of Lexical Units}
@@ -31,11 +32,16 @@ Our lexer parses tokens in the following order: first, all single and multi-line
 
 
 \section*{Syntax Error Reporting \& Recovery}
-We created myerror.c to catch all the errors. When an error is found, it is added to a linked list. As soon as we finish parsing a line, we output that list, clear it, and move onto the next line. 
+The bulk of the error-handling code is in \emph{myerror.c}. The method we used for error handling is when an error is found, it is added to a linked list. As soon as we finish parsing a line, we output that list, clear it, and move onto the next line. \\
+We also used a process of finding errors by creating what we call a "loop error" catcher. A "loop error" is an error in the code that bison knows about, but is unable to handle. It doesn't reduce or shift, it stays and does the same thing over and over again. We catch these by detecting if it occurs 300 times in a single line (in theory, there shouldn't be more than 300 errors on one line). \\
+To recover from the loop error, we set yyparse to return a value of 1, which means there was an error and returns to the main function, where you do a while loop and detect if yyparse has returned a value greater than 0. After you output all errors caught, we go back to yyparse until it returns 0, that means it has parsed successfully. This is how we recover from a "loop error".\\
+We took bison error tokens before semi-colons, 'begin' tokens, 'end' tokens and between brackets.\\
+The errors are displayed by showing the program line, followed by all the errors in the line. It displays the line number, the character number in the line and the error that was detected (eg. syntax error). Underneath that line, it displays a 'caret' underneath the location of the error.
 
 
 \section*{Testing}
-To facilitate large scale testing and efficient reading of listing files, we created a python script to run the compiler on multiple tests and pipe the resulting output to a testing log.
+To facilitate large scale testing and efficient reading of listing files, we created a python script to run the compiler on multiple tests and pipe the resulting output to a testing log.\\
+When outputting program listings with the errors and line numbers appended, they are added to the program listing as comments, so the outputted program listing can be re-compiled an indefinite number of times.
 
 
 \section*{Problems}
