@@ -222,8 +222,8 @@ f_parm_list             : f_parm
                         | f_parm_list SEMICOLON f_parm
                         ;
 
-f_parm                  : ID COLON type
-                        | VAR ID COLON type
+f_parm                  : ID COLON ID
+                        | VAR ID COLON ID
                         | error /* ERROR */
                         ;
 
