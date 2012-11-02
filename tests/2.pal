@@ -11,12 +11,12 @@ type ohNo = (element1, element2);
 
 var aRealNum : boolean;
     incorrectArray : array[real] of ohNo; { $ERR_DATA$ [28, "illegal array range", ["illegal array range", "real"]] $ERR_DATA$ }
-    anotherIncorrect : array[5] of array[boolean] of (element0, elementneg1); // ILLEGAL??? - can define enum type in array definition?
+    anotherIncorrect : array[5] of array[boolean] of (element0, elementneg1); // Legal
     correctArray : array[integer] of integer; // Legal, but warning.
     anothCorArray : array[5..14] of ohNo;
     a,b : array[1..10] of char;
     c : array[1..10] of boolean;
-    d : array[1..10] of boolean;
+    d : array[1..10] of boolean; // Can arrays habe negative ranges??
     
 
 begin

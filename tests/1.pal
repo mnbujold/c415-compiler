@@ -2,14 +2,15 @@
     1.pal
     Tests syntax of invalid function and procedure calls and definitions.
     Errors:
-    18:18 incomplete parameter definition in function header
-    28:22 missing end paranthesis in function call
-    40:23 missing parameter in procedure call
+    19:18 incomplete parameter definition in function header
+    30:22 missing end paranthesis in function call
+    42:23 missing parameter in procedure call
 }
 program syntactical(hello, goodbye); 
 
 type fake = real;
      real = (r0, r1, r2, r3);
+     stringy = array[real] of char;
 
 var eighteen : integer;
     reighteen : fake; // real number
@@ -20,11 +21,12 @@ begin
     noWork := r2;
 end;
 
-procedure andAllPlay(var param1 : fake; param2 : real; param3 : array[real] of char); // Legal.
+procedure andAllPlay(var param1 : fake; param2 : real; param3 : stringy); // Legal.
     const ABCs = 'abcdefghijklmnopqrstuvwxyz';
     var variable : integer;
 begin
-    param3[param1] := ABCs[14];
+    param3[param1] := ABCs[14]; // Anonymous enumerated types are not allowed as index types, but are variable enumerated types allowed as index types?
+    
     param1 := noWork(; { $ERR_DATA$ [22, "missing end paranthesis in function call", ["unexpected SEMICOLON"]] $ERR_DATA$ }
 end;
 
