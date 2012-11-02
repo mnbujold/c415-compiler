@@ -57,7 +57,7 @@ main(int argc,char** argv)
         if(prog_listing){
             close(listing_file);
         }
-        sList = deleteAllSymbols(sList);
+        //sList = deleteAllSymbols(sList);
         if(eList != NULL) {
             updateErrorText(eList, errortext);
             showAllErrors(eList);

@@ -1,78 +1,76 @@
+/**
+ * Author: Daniel Chui
+ * Implementation of Symbol table
+ * Uses Glib library
+ */
+ 
+ 
+#include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <string.h>
+
+#include "builtin.h"  //separate builtins initalization from rest of this
+
 #include "symbol.h"
 
-symbol *addSymbol(symbol *in, char *identifier, char *value) {
-	symbol *sNew = NULL;
-	sNew = (symbol*)malloc(sizeof(symbol));
-	if(identifier != NULL) {
-		strcpy(sNew->identifier, identifier);
-	} else {
-		return NULL;
-	} /*if*/
-	if(value != NULL) {
-		strcpy(sNew->value, value);
-	} else {
-		memset(sNew->value,'\0', 256);
-	} /* if */
-	sNew->next = NULL;
-	sNew->last = sNew;
-	if(in == NULL) {
-		in = sNew;
-	} else {
-		in->last->next = sNew;
-		in->last = sNew;
-	} /*if*/
-	return in;
-} /*addSymbol*/
+GQueue* symbol_table = NULL;
+int level = -1;
+/**
+addSymbol always adds the symbol to the topmost level
+*/
 
-symbol *deleteSymbol(symbol *in, char *identifier) {
-	symbol *find = in, *prev = NULL;
-	while(find != NULL) {
-		if(strcmp(find->identifier,identifier) == 0) {
-			break;
-		} /* if */
-		prev = find;
-		find = find->next;
-	} /* while */
-	if(prev != NULL && find != NULL) {
-		prev->next = find->next;
-	} else {
-		if(find != NULL) {
-			in = find->next;
-		} else {
-			printf("Item not found!  No changes made!\n");
-		} /* if */
-	} /* if */
-	if(find != NULL) {
-		free(find);
-	} /* if */
-	return in;
-} /*deleteSymbol*/
+symbol *addSymbol (char const *identifier, symbol *symbol) {
+}
+symbol *localLookup (char const *identifier) {
+}
+symbol *globalLookup (char const *identifer) {
+}
 
-symbol *findSymbol(symbol *in, char *identifier) {
-	symbol *find = NULL;
-	for(find=in; find != NULL && strcmp(find->identifier,identifier) != 0; find = find->next);
-	return find;
-} /*findSymbol*/
+void showAllSymbols() {
+}
 
-void showAllSymbols(symbol *in) {
-	while(in != NULL) {
-		printf("Operator:>%s | Value:>%s\n", in->identifier, in->value);
-		in = in->next;
-	} /* while */
-} /*showAllSymbols*/
+/**
+Create a symbol with parameters: identifier, int type, int level, 
+pointer * value
+*/
+symbol *createSymbol (char const *identifier, int type, 
+int level , void * value) {
+}
 
-symbol *deleteAllSymbols(symbol *in) {
-	symbol *del;
-	while(in != NULL) {
-		/*printf("del=>%s\n", in->identifier);*/
-		del = in;
-		in = in->next;
-		free(del);
-	} /*while*/
-	/*printf("All Symbols deleted\n");*/
-	return in;
-} /*deleteAllSymbols*/
+/**
+ Our symbol table will need multiple levels, so we will
+ need to add and remove levels as a new scope is defined
+*/
+void addNewLevel () {
+  level++;
+  GHashTable *table = createNewTable (level);
+  g_queue_push_head (symbol_table, table);
+
+  
+
+}
+void removeTopLevel () {
+  g_queue_pop_head (symbol_table);
+}
+
+
+/** 
+Called to initialize the symbol table
+*/
+void init_table () {
+  GQueue* table_stack = g_queue_new();
+  GHashTable *builtin_table = createNewTable(level);
+  //q_queue_push_tail (table_stack, builtin_table);
+  
+  //Add all the builtins here: call builtins function
+  symbol_table = table_stack;
+  
+  
+}
+
+GHashTable *createNewTable(int level) {
+  GHashTable *table = g_hash_table_new (g_str_hash, g_str_equal);
+  return table;
+}
