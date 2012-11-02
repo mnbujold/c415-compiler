@@ -28,9 +28,9 @@ man:
 	groff -man -T ascii doc/pal.1
 
 pal: ${GRAMMAR} ${LEXER} ${SOURCE}
-	flex -i ${LEXER}
-	bison -d -v ${GRAMMAR}
-	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -o pal $(GLIB)
+	flex -i -o src/${LEXER_C} ${LEXER} 
+	bison -d -v ${GRAMMAR} -o src/${GRAMMAR_C} 
+	$(CC) $(FLAGS) src/${GRAMMAR_C} src/${LEXER_C} ${SOURCE} -o pal $(GLIB)
 
 debug: ${GRAMMAR} ${LEXER} ${SOURCE}
 	flex -i ${LEXER}
@@ -39,7 +39,7 @@ debug: ${GRAMMAR} ${LEXER} ${SOURCE}
 
 clean:
 	rm -f pal core *.output
-	rm -f lex.yy.c *.tab.c *.tab.h 
+	rm -f src/lex.yy.c src/*.tab.c src/*.tab.h 
 	rm -f doc/pal.log
 	rm -f doc/pal.pdf
 	find . -name \*~ -type f -delete
