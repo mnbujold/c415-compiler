@@ -12,3 +12,9 @@ PAL Compiler
 
 Disclaimer
 This code is for use by the above named individuals. Any use of this code by unauthorized individuals will be viewed as plagiarism as per the U of A Code of Student Behaviour (Section 30.3.2[1]) and will be reported to the appropriate University representatives accordingly.
+
+
+Known Issues:
+
+When printing out block comments in the program listing, the line number appended to the comment will only show the last line number of the comment, ie it will not print out a line number for each line
+in the comment.
