@@ -14,7 +14,8 @@ $> python runner.py -a
 # TODO: improve documentation!
 # TODO: allow custom log file name/path through command line args!
 
-from os import getcwd, listdir, path
+from os import listdir, makedirs, path
+import errno
 import platform
 import re
 from argparse import ArgumentParser
@@ -23,12 +24,14 @@ from datetime import datetime
 import json
 
 # Handle OSs
+MY_PATH = path.dirname(globals()['__file__'])
 if platform.system() == 'Windows':
-    PAL_PATH = '../pal.exe'
+    PAL_PATH = path.join(MY_PATH, '../pal.exe')
 else:
-    PAL_PATH = '../pal'
+    PAL_PATH = path.join(MY_PATH, '../pal')
 TEST_PATH = '%d.pal'
-HEADERS_PATH = 'headers.json'
+HEADERS_PATH = path.join(MY_PATH, 'headers.json')
+SUBMIT_DIR = path.join(MY_PATH, '../submitted_tests')
 DUMMY_SUMMARY = '$DUMMY_SUMMARY$'
 ERR_TAG = '$ERR_DATA$'
 TAG_LENGTH = len(ERR_TAG)
@@ -45,6 +48,7 @@ def _run_tests(test_list, test_data, log_file):
                  '| TIME: %s\n'\
                  '| TEST: %s\n'\
                  '------------------------\n'
+    log_file = path.join(MY_PATH, log_file)
     output_log = open(log_file, 'a+')
 
     for test_index in test_list:
@@ -59,8 +63,9 @@ def _run_tests(test_list, test_data, log_file):
             output_log.write(output_msg % (start_date, start_time, test_name))
 
         with open(log_file, 'a+') as output_log:
-            print 'running test program ' + test_name
-            file_str = check_output([PAL_PATH, test_name], stderr = output_log)
+            print 'running ' + test_name
+            file_str = check_output([PAL_PATH, path.join(MY_PATH, test_name)],
+                                    stderr = output_log)
             error_results = _parse_errors(file_str, test_data[test_name])
             output_log.write(error_results)
             
@@ -153,22 +158,33 @@ def _get_error_info(error_msg):
     
     return line_num1, line_num2, char_num, error[nums_end+3:]
     
-def _get_test_files_data(test_list, update_tests):
+def _get_test_files_data(test_list, update_tests, submit_clean):
     """ Returns the dictionary of error data for test lists. """
     test_data = {}
+    
+    if submit_clean:
+        # Create the submission directory if it doesn't already exist:
+        try:
+           makedirs(SUBMIT_DIR)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise            
     
     for test_index in test_list:
         test_name = TEST_PATH % test_index
         error_list = None
         head_diff = 0
         
-        with open(test_name, 'r+') as test_file:
-            print 'reading test program ' + test_name
+        with open(path.join(MY_PATH, test_name), 'r+') as test_file:
+            print 'reading ' + test_name
             error_list = _get_error_list(test_file)
             head_diff = _update_test_header(test_file,
                                             test_name,
                                             error_list,
                                             update_tests)
+            if submit_clean:
+                print 'submitting ' + test_name
+                _submit_clean_file(test_file, test_name, error_list)
 
         # Account for different comment header size
         for error_data in error_list:
@@ -177,6 +193,21 @@ def _get_test_files_data(test_list, update_tests):
         
     return test_data
 
+def _submit_clean_file(test_file, test_name, error_list):
+    """
+    Cleans up the error comments in test_file and submits the cleaned up
+    test_file to the SUBMIT_DIR.
+    """
+    test_file.seek(0)
+    clean_str = test_file.read()
+    
+    for error_data in error_list:
+        clean_str = clean_str.replace(error_data['entire'],
+                                      'ERROR: ' + error_data['message'])
+    
+    with open(path.join(SUBMIT_DIR, test_name), 'w') as clean_file:
+        clean_file.write(clean_str)
+    
 def _update_test_header(test_file, test_name, error_list, update_tests):
     """
     Updates the pal comment header for test_file with error_list. Returns the
@@ -194,14 +225,13 @@ def _update_test_header(test_file, test_name, error_list, update_tests):
         if line_num > orig_header_size:
             orig_lines.append(line)
 
-    # FINISH!!
     summary = DUMMY_SUMMARY
     with open(HEADERS_PATH, 'r') as summary_file:
         summary = json.load(summary_file).get(test_name[0], DUMMY_SUMMARY)
     
     test_file.seek(0)
     if update_tests:
-        print 'updating test program ' + test_name
+        print 'updating ' + test_name
         header = '{\n'\
                  '    %s\n'\
                  '    %s\n'\
@@ -265,7 +295,8 @@ def _get_error_list(test_file):
                     'line_number' : line_num,
                     'char_number' : error_data[0],
                     'message'     : str(error_data[1]),
-                    'checklist'   : [str(token) for token in error_data[2]]
+                    'checklist'   : [str(token) for token in error_data[2]],
+                    'entire'      : error_data[3]
                 })
     return error_list
     
@@ -277,12 +308,16 @@ def _get_error_data(line, line_num):
     try:
         l_index = line.index(ERR_TAG) + TAG_LENGTH
         r_index = line.rindex(ERR_TAG)
-
+        
         if l_index >= r_index:   # One tag
             return None
-            
+        
+        error_entire = line[l_index - TAG_LENGTH:r_index + TAG_LENGTH]
+        
         try:
-            return json.loads(line[l_index:r_index].strip())
+            error_data = json.loads(line[l_index:r_index].strip())
+            error_data.append(error_entire)
+            return error_data
         except ValueError:
             print '%d: "%s" not json encodable string' % (line, line_num)
         
@@ -297,6 +332,9 @@ def _get_cmdline_args():
     help_name_txt = 'the name of a T.pal test program to run'
     help_all_txt = 'run all *.pal tests'
     help_update_txt = 'update the comment headers in the test files to be run'
+    help_submit_txt = 'create a submitted_tests directory in ../ and '\
+                      'populate it with cleaned up verisons of the selected '\
+                      'tests; also forces update'
     help_norun_txt = 'do not run any of the test files (useful for updating '\
                      'without running)'
     help_log_txt = 'the log file that receives output from the compiler '\
@@ -316,6 +354,10 @@ def _get_cmdline_args():
                         '--update_tests',
                         action = 'store_true',
                         help = help_update_txt)
+    parser.add_argument('-s',
+                        '--submit_clean',
+                        action = 'store_true',
+                        help = help_submit_txt)
     parser.add_argument('-n',
                         '--no_run',
                         action = 'store_true',
@@ -331,7 +373,7 @@ def _get_cmdline_args():
 
 def _get_valid_indices():
     """ Returns the names of all pal files in the current directory. """
-    return [int(test_file.rsplit('.pal')[0]) for test_file in listdir(getcwd())
+    return [int(test_file.rsplit('.pal')[0]) for test_file in listdir(MY_PATH)
             if test_file.endswith('.pal')]
 
 def _valid_index(test_index, valid_indices):
@@ -349,7 +391,7 @@ if __name__ == '__main__':
     valid_indices = _get_valid_indices()
     
     if not path.isfile(PAL_PATH):
-        print 'cannot find pal compiler at ../'
+        print 'cannot find pal compiler at ' + PAL_PATH
         exit()
     
     if test_runner.all_tests:
@@ -361,6 +403,9 @@ if __name__ == '__main__':
         test_indices = [test_index for test_index in test_indices
                         if _valid_index(test_index, valid_indices)]
     
-    test_data = _get_test_files_data(test_indices, test_runner.update_tests)
+    submit_clean = test_runner.submit_clean
+    update_tests = test_runner.update_tests or submit_clean
+    test_data = _get_test_files_data(test_indices, update_tests, submit_clean)
+    
     if not test_runner.no_run:
         _run_tests(test_indices, test_data, test_runner.log_file)

@@ -3,7 +3,7 @@
     Tests invalid array bounds and assignments.
     Errors:
     13:28 illegal array range
-    32:3 incorrect string (char array) assignment
+    33:3 incorrect string (char array) assignment
 }
 program foobar35 (io, oi);
 
