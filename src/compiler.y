@@ -13,72 +13,75 @@
 #include "symbol.h"
 #include "myerror.h"
 
-extern symbol 		*sList;  
-extern myerror 		*eList;  
-extern symbol 		*sSelected;  
-extern int 			iserror;
-extern int 			lineno, oldlineno;
-extern int 			last_column;
-extern char 		*errortext;
-extern int              errorTextLength;
-extern int 			looperrordetection;
+extern myerror *eList;
+extern int iserror;
+extern int lineno;
+extern int last_column;
+extern int looperrordetection;
 
-void yyerror(const char *str)
-{
+void yyerror(const char *str) {
     iserror = 1;
 	eList = addError(eList, str, last_column, lineno);
 
 }
 
-int yywrap()
-{
+int yywrap() {
         return 1;
-} 
-
-
+}
 
 %}
 
-%defines  
+%defines
 %error-verbose
 
-%union 
-{
-        
-        double real;
-        int number;
-        char string[4096];
+%union {
+    char *string;
+    int integer;
+    double real; // Should this be float?
+    struct symbol *symbol;
 }
+
 /* Reserved word tokens */
 /* note: MOD and DIV are under operator tokens */
-%token <string> AND ARRAY BEGIN_ CONST 
-%token <string> CONTINUE DO ELSE
-%token <string> END EXIT FUNCTION IF  
-%token <string> NOT OF OR 
-%token <string> PROCEDURE PROGRAM RECORD THEN
-%token <string> TYPE VAR WHILE 
+%token AND ARRAY BEGIN_ CONST 
+%token CONTINUE DO ELSE
+%token END EXIT FUNCTION IF  
+%token NOT OF OR 
+%token PROCEDURE PROGRAM RECORD THEN
+%token TYPE VAR WHILE 
 
 /* Relational tokens */
-%token <string> ISEQUAL NOTEQUAL LESSTHAN GREATERTHAN 
-%token <string> LESSTHANEQUALS GREATERTHANEQUALS
+%token ISEQUAL NOTEQUAL LESSTHAN GREATERTHAN 
+%token LESSTHANEQUALS GREATERTHANEQUALS
 
 /* Operator tokens */
 /* note: DIVIDE is for reals, div is for integer */
-%token <string> PLUS MINUS MULTIPLY DIVIDE DIV MOD
-
-/* Miscellaneous tokens */
-%token <string> ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
-%token <string> LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD 
-
-%token <string> ID RETURN
-
-%token <string> UNKNOWN_CHARACTER
+%token PLUS MINUS MULTIPLY DIVIDE DIV MOD
 
 /* type tokens */
 
-%token <string> INT_CONST REAL_CONST
+%token <integer> INT_CONST
+%token <real> REAL_CONST 
+%token <string> STRING
 
-%token <string> BOOL CHAR INT REAL STRING
+/* Miscellaneous tokens */
+%token ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
+%token LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD 
+%token RETURN
+%token <string> ID
+
+%token <string> UNKNOWN_CHARACTER
+
+/* Symbol types */
+%type <symbol> type simple_type structured_type scalar_type
+%type <symbol> var_decl
+/*%type <symbol> const_decl
+%type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
+%type <symbol> field
+
+%type <symbol> proc_heading
+%type <symbol> var subscripted_var f_parm*/
+
 /* %type <string> expr simple_expr term factor var subscripted_var unsigned_const */
 /* %type <string> func_invok unsigned_num plist_finvok */
 
@@ -189,7 +192,25 @@ var_decl_list           : var_decl
                         ;
 
 var_decl                : ID COLON type
+                            {
+                                if (localLookup($1) == NULL) {
+                                    addSymbol($1, $3);
+                                    $$ = $3;
+                                } else {
+                                    printf("type error\n");
+                                    // typeError(...)
+                                } 
+                            }
                         | ID COMMA var_decl
+                            { // Same as above ... should extract this!
+                                if (localLookup($1) == NULL) {
+                                    addSymbol($1, $3);
+                                    $$ = $3;
+                                } else {
+                                    printf("type error\n");
+                                    // typeError(...)
+                                } 
+                            }
                         | error /* ERROR */
                         ;
 
