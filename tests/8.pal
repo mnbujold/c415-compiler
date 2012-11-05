@@ -1,36 +1,57 @@
 {
     8.pal
-    Tests unexpected characters, array declarations, and lots of illegal characters.
+    Anything goes here! Needs 14(15?) level scoping! Test array indexing!
     Errors:
-    14:12 unexpected colon, expected '='
-    16:17 unexpected while loop
-    24-34(even):14 illegal characters
+    44:3 illegal array indexing (integer for enumerated type)
+    45:3 illegal array indexing (enumerated type for integer)
+    46:3 illegal array indexing (integer for enumerated type)
+    47:3 illegal array indexing (enumerated type for integer)
+    51:3 illegal assignment of integer to enumerated type
+    52:3 illegal assignment of enumerated type to integer
 }
-program oneThousand (sda32, d);
+program scopingAndArraysAndEnums (input, output);
 
+type enum = (e1, e2, e3);
 
-const char : string = 564 * functionation(42); { syntax error here }
+var a0 = array[1..3] of char;
+    a1 = array[enum] of char;
+    a2 = array[1..3] of char;
+    e: enum;
+    i: integer;
+    x: enum;
+    y : integer;
 
-var bob : array[while gfgh do notBroeken := 2 * sdf(yella, (32*23) == 2).gdfgdfgfdgdfgfd]; { syntax error here }
-    bob = array[5..tyrue] of r6r;
+procedure setEandI():
+begin
+    e := e2;
+    i := 2;
+end;
+
+function arrayAssignment(): boolean;
+// Paul's code goes here (for declarations) ...
 begin
 
-imnotacomment := '{';
-{ // but I am}
+// Paul's code goes here (for assignment tests) ...
 
-// Test invalid identifiers and illegal characters
-bad1lex := sd@ds; { lexical error here }
-good1lex := 'sd@ds';
-bad1lex := sd$ds; { lexical error here }
-good1lex := 'sd$ds';
-bad1lex := sd`ds; { lexical error here }
-good1lex := 'sd`ds';
-bad1lex := sd~ds; { lexical error here }
-good1lex := 'sd~ds';
-bad1lex := sd"ds; { lexical error here }
-good1lex := 'sd"ds';
-bad1lex :=   åäö√•§∂; { lexical error here }
-good1lex := 'åäö√•§∂'
+end;
 
+// need about 15 layers of scoping here ...
+    
+begin
+
+setEandI();
+
+x := a1[1]; { $ERR_DATA$ [3, "illegal array indexing (integer for enumerated type)", ["illegal integer indexing of enum indexed array"]] $ERR_DATA$ }
+y := a2[e1]; { $ERR_DATA$ [3, "illegal array indexing (enumerated type for integer)", ["illegal enum indexing of integer indexed array"]] $ERR_DATA$ }
+x := a1[i]; { $ERR_DATA$ [3, "illegal array indexing (integer for enumerated type)", ["illegal integer indexing of enum indexed array"]] $ERR_DATA$ }
+y := a2[e]; { $ERR_DATA$ [3, "illegal array indexing (enumerated type for integer)", ["illegal enum indexing of integer indexed array"]] $ERR_DATA$ }
+
+a0 := a1; // Legal, just for fun.
+
+e := 1; { $ERR_DATA$ [3, "illegal assignment of integer to enumerated type", ["illegal enum assignment"]] $ERR_DATA$ }
+i := e1; { $ERR_DATA$ [3, "illegal assignment of enumerated type to integer", ["illegal integer assignment"]] $ERR_DATA$ }
+
+writeln; // Legal.
+writeln(); // Also legal.
 
 end.

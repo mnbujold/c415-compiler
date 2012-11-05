@@ -21,11 +21,11 @@ begin
     noWork := r2;
 end;
 
-procedure andAllPlay(var param1 : fake; param2 : real; param3 : stringy); // Legal.
+procedure andAllPlay(var param1 : fake; param2 : real; param3 : stringy);
     const ABCs = 'abcdefghijklmnopqrstuvwxyz';
     var variable : integer;
 begin
-    param3[param1] := ABCs[14]; // Anonymous enumerated types are not allowed as index types, but are variable enumerated types allowed as index types?
+    param3[param1] := ABCs[14];
     
     param1 := noWork(; { $ERR_DATA$ [22, "missing end paranthesis in function call", ["unexpected SEMICOLON"]] $ERR_DATA$ }
 end;
