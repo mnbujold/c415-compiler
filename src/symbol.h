@@ -65,7 +65,7 @@ struct tc_array{
 };
 
 struct tc_record{
-  struct GArray *field_list;
+  struct GPtrArray *field_list;
 };
 
 struct tc_subrange{
@@ -97,11 +97,11 @@ struct var_desc{
 };
 
 struct procedure_desc{
-  struct GArray *params;
+  struct GPtrArray *params;
 };
 
 struct function_desc{
-  struct GArray *params;
+  struct GPtrArray *params;
   struct type_desc *return_type;
 };
 
