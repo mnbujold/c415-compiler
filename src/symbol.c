@@ -22,10 +22,14 @@ addSymbol always adds the symbol to the topmost level
 */
 
 symbol *addSymbol (char const *identifier, symbol *symbol) {
+  GHashTable *table = g_queue_peek_head (symbol_table);
+  g_hash_table_insert (table, identifier, symbol);
+
 }
 symbol *localLookup (char const *identifier) {
-  GHashTable *table = g_queue_pop_head(symbol_table);
-  return g_hash_table_lookup (table, identifier);
+  GHashTable *table = g_queue_peek_head (symbol_table);
+  symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
+  return returnedSymbol;
 }
 symbol *globalLookup (char const *identifer) {
 }
@@ -55,6 +59,7 @@ void addNewLevel () {
 }
 void removeTopLevel () {
   g_queue_pop_head (symbol_table);
+  level--;
 }
 
 
