@@ -2,8 +2,9 @@
     2.pal
     Tests invalid array bounds and assignments.
     Errors:
-    13:28 illegal array range
-    33:3 incorrect string (char array) assignment
+    14:28 illegal array range
+    36:3 incorrect string (char array) assignment
+    40:3 incorrect array object (real to integer) assignment
 }
 program foobar35 (io, oi);
 
@@ -11,13 +12,15 @@ type ohNo = (element1, element2);
 
 var aRealNum : boolean;
     incorrectArray : array[real] of ohNo; { $ERR_DATA$ [28, "illegal array range", ["illegal array range", "real"]] $ERR_DATA$ }
-    anotherIncorrect : array[5] of array[boolean] of (element0, elementneg1); // Legal
+    aCorrect : array[5] of array[boolean] of (element0, elementneg1); // Legal
     correctArray : array[integer] of integer; // Legal, but warning.
     anothCorArray : array[5..14] of ohNo;
     a,b : array[1..10] of char;
     c : array[1..10] of boolean;
     d : array[1..10] of boolean;
-    neg : array[-3..true] of char; // Illegal? Can arrays have negative ranges??
+    neg : array[-3..5] of char; // Legal.
+    x : array[2..4] of integer;
+    y : array[2..4] of real;
     
 
 begin
@@ -31,4 +34,9 @@ anothCorArray[10] := anothCorArray[6];
 
 b := 'justEnough'; // Legal.
 a := 'notEnough'; { $ERR_DATA$ [3, "incorrect string (char array) assignment", ["illegal array assignment"]] $ERR_DATA$ }
+
+y := x; // Legal.
+
+x := y; { $ERR_DATA$ [3, "incorrect array object (real to integer) assignment", ["illegal array assignment"]] $ERR_DATA$ }
+
 end.

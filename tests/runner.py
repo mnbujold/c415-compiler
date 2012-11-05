@@ -23,19 +23,23 @@ from subprocess import check_output
 from datetime import datetime
 import json
 
+MY_PATH = path.dirname(path.realpath(__file__))
+
 # Handle OSs
-MY_PATH = path.dirname(globals()['__file__'])
 if platform.system() == 'Windows':
     PAL_PATH = path.join(MY_PATH, '../pal.exe')
 else:
     PAL_PATH = path.join(MY_PATH, '../pal')
+
 TEST_PATH = '%d.pal'
 HEADERS_PATH = path.join(MY_PATH, 'headers.json')
 SUBMIT_DIR = path.join(MY_PATH, '../submitted_tests')
+
 DUMMY_SUMMARY = '$DUMMY_SUMMARY$'
 ERR_TAG = '$ERR_DATA$'
 TAG_LENGTH = len(ERR_TAG)
 HEAD_BASE_LEN = 5
+
 ERROR_REGEX = '\{[\d]+\}.*\n\{\nError\! [\d]+:[\d]+ \- .*\n.*\n[ ]*\^[ ]*\n\}'
 
 def _run_tests(test_list, test_data, log_file):

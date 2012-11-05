@@ -168,8 +168,10 @@ void removeSymbol (char const *);
  Our symbol table will need multiple levels, so we will
  need to add and remove levels as a new scope is defined
 */
-void addLevel ();
-void removeLevel ();
+
+void pushLevel ();
+void popLevel ();
+
 
 GHashTable *createNewTable();
 
