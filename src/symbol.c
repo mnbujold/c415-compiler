@@ -31,7 +31,20 @@ symbol *localLookup (char const *identifier) {
   symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
   return returnedSymbol;
 }
-symbol *globalLookup (char const *identifer) {
+symbol *globalLookup (char const *identifier) {
+  
+  int numLevels = g_queue_get_length(symbol_table);
+  symbol *returnedSymbol = NULL;
+  while (numLevels > 0) {
+    GHashTable *table = g_queue_peek_head (symbol_table);
+    returnedSymbol = g_hash_table_lookup (table, identifier);
+    if (returnedSymbol != NULL) {
+      return returnedSymbol;
+    }
+    numLevels--;
+
+  }
+  return returnedSymbol;
 }
 
 void showAllSymbols() {
@@ -49,7 +62,7 @@ int level , void * value) {
  Our symbol table will need multiple levels, so we will
  need to add and remove levels as a new scope is defined
 */
-void addNewLevel () {
+void pushLevel () {
   level++;
   GHashTable *table = createNewTable (level);
   g_queue_push_head (symbol_table, table);
@@ -57,7 +70,9 @@ void addNewLevel () {
   
 
 }
-void removeTopLevel () {
+
+
+void popLevel () {
   g_queue_pop_head (symbol_table);
   level--;
 }
