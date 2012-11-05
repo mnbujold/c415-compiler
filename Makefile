@@ -21,7 +21,7 @@ SOURCE = src/myerror.c src/symbol.c src/compiler.c
 GLIB = `pkg-config --cflags --libs glib-2.0`
 
 RUNNER = tests/runner.py
-TESTS = 0 1 2 3 4
+TESTS = 0 1 2 3 4 8
 
 CP2DIR = c415g05_cp2
 SOLUTION = Makefile README src doc
