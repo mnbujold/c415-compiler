@@ -17,6 +17,9 @@
 
 GQueue* symbol_table = NULL;
 int level = -1;
+
+int func_counter = 1;
+
 /**
 addSymbol always adds the symbol to the topmost level
 */
