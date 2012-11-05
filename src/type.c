@@ -1,24 +1,29 @@
+/**
+ * Author: James Osgood
+ * Type creation, assignment, and checking for the grammar.
+ */
+
 #include <stdio.h>
 #include "type.h"
 
 struct symbol *
-addNewSymbol(const char *id, struct symbol *type, int kind) {
+addNewSymbol(const char *id, struct symbol *type, int obj_class) {
     if (localLookup(id) == NULL) {
         struct symbol *newSym = NULL;
         // create the new symbol ...
-        /*if (kind == enumeration) {
+        if (obj_class == OC_CONST) {
             // ...
-        } else if (kind == variable) {
+        } else if (obj_class == OC_VAR) {
             // ...
-        } else if (kind == type) {
+        } else if (obj_class == OC_TYPE) {
             // ...
-        } else if (kind == procedure) {
+        } else if (obj_class == OC_PROC) {
             // ...
-        } else if (kind == function) {
+        } else if (obj_class == OC_FUNC) {
             // ...
-        } else if (kind == parameter) {
+        } else if (obj_class == OC_PARM) {
             // ...
-        }*/
+        }
         
         addSymbol(id, newSym);
     } else {

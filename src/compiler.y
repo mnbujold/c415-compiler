@@ -140,7 +140,7 @@ type_decl_list           :  /* empty */
 
 type_decl               : ID ISEQUAL type
                             {
-                                addNewSymbol($1, $3, 1/*type*/);
+                                addNewSymbol($1, $3, OC_TYPE);
                             }
                         | error /* ERROR */
                         ;
@@ -203,11 +203,11 @@ var_decl_list           : var_decl
 
 var_decl                : ID COLON type
                             {
-                                $$ = addNewSymbol($1, $3, 1/*variable*/);
+                                $$ = addNewSymbol($1, $3, OC_VAR);
                             }
                         | ID COMMA var_decl
                             {
-                                $$ = addNewSymbol($1, $3, 1/*variable*/);
+                                $$ = addNewSymbol($1, $3, OC_VAR);
                             }
                         | error /* ERROR */
                         ;
