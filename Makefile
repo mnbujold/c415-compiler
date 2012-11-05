@@ -17,7 +17,7 @@ GRAMMAR = src/compiler.y
 GRAMMAR_C = compiler.tab.c
 LEXER = src/compiler.lex
 LEXER_C = lex.yy.c
-SOURCE = src/myerror.c src/symbol.c src/compiler.c
+SOURCE = src/myerror.c src/symbol.c src/type.c src/compiler.c
 GLIB = `pkg-config --cflags --libs glib-2.0`
 
 RUNNER = tests/runner.py

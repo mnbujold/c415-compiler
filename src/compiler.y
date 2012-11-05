@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "symbol.h"
+#include "type.h"
 #include "myerror.h"
 
 extern myerror *eList;
@@ -138,11 +139,20 @@ type_decl_list           :  /* empty */
                         ;
 
 type_decl               : ID ISEQUAL type
+                            {
+                                addNewSymbol($1, $3, 1/*type*/);
+                            }
                         | error /* ERROR */
                         ;
 
 type                    : simple_type
+                            {
+                                $$ = $1;
+                            }
                         | structured_type
+                            {
+                                $$ = $1;
+                            }
                         | error /* ERROR */
                         ;
 
@@ -193,23 +203,11 @@ var_decl_list           : var_decl
 
 var_decl                : ID COLON type
                             {
-                                if (localLookup($1) == NULL) {
-                                    addSymbol($1, $3);
-                                    $$ = $3;
-                                } else {
-                                    printf("type error\n");
-                                    // typeError(...)
-                                } 
+                                $$ = addNewSymbol($1, $3, 1/*variable*/);
                             }
                         | ID COMMA var_decl
-                            { // Same as above ... should extract this!
-                                if (localLookup($1) == NULL) {
-                                    addSymbol($1, $3);
-                                    $$ = $3;
-                                } else {
-                                    printf("type error\n");
-                                    // typeError(...)
-                                } 
+                            {
+                                $$ = addNewSymbol($1, $3, 1/*variable*/);
                             }
                         | error /* ERROR */
                         ;
