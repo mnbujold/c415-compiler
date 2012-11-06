@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "type.h"
+#include "symbol.h"
 
 symbol *
 addNewSymbol(const char *id, symbol *type, int objClass) {
@@ -24,6 +25,9 @@ struct type_desc *
 addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
     if (localLookup(id) == NULL) {
         symbol *newSym = createSymbolAnonType(id, type, objClass, NULL);
+#if DEBUG
+  printf ("DEBUG: Inside add new anonymous type symbol\n");
+#endif
         addSymbol(id, newSym);
     } else {
         printf("type error\n");
@@ -34,7 +38,26 @@ addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
 
 struct type_desc *
 getType(const char *id) {
-    return NULL;
+#if DEBUG
+  printf ("DEBUG: inside get type\n");
+#endif
+    symbol *typeSymbol = globalLookup (id);
+    if (typeSymbol == NULL) {
+      printf ("tpe symbole fasilgsad");
+      //TODO: error no symbol for this
+    }
+    if (OC_TYPE == typeSymbol->oc) {
+      return typeSymbol->desc.type_attr;
+    }
+    else {
+      printf ("Type sagsdagdsa");
+      //TODO: error abot it not being a type class
+      //O no. what to do here?
+      return NULL;
+    }
+#if DEBUG
+  printf ("DEBUG: inside get type\n");
+#endif
 }
 
 struct type_desc *
