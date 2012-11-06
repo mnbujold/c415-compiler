@@ -131,18 +131,18 @@ struct symbol_rec {
   char *name;         /* Name of symbol */
   int type_class;     /* Class of object (eg. OC_CONST) */
   union {             /* Class-specific attributes */
-    struct const_desc const_attr;
-    struct var_desc var_attr;
-    struct function_desc func_attr;
-    struct procedure_desc proc_attr;
-    struct param_desc parm_attr;
-    struct type_desc type_attr;
+    struct const_desc *const_attr;
+    struct var_desc *var_attr;
+    struct function_desc *func_attr;
+    struct procedure_desc *proc_attr;
+    struct param_desc *parm_attr;
+    struct type_desc *type_attr;
   }desc;
 };
 
 
 
-typedef struct symbol symbol;
+typedef struct symbol_rec symbol;
 
 extern GQueue* symbol_table;
 
@@ -166,7 +166,7 @@ symbol *createSymbol (char const *, symbol *, int, void *);
  * Create a symbol with parameters: identifier, anonymous type type_desc, int
  * object class, pointer value.
  */
-symbol *createSymbolAnonType (char const *, struct type_desc *,int , void *)
+symbol *createSymbolAnonType (char const *, struct type_desc *, int, void *);
 void removeSymbol (char const *);
 
 /**
