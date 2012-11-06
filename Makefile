@@ -17,7 +17,7 @@ GRAMMAR = src/compiler.y
 GRAMMAR_C = compiler.tab.c
 LEXER = src/compiler.lex
 LEXER_C = lex.yy.c
-SOURCE = src/myerror.c src/symbol.c src/type.c src/compiler.c
+SOURCE = src/myerror.c src/symbol.c src/type.c src/compiler.c src/builtin.c
 GLIB = `pkg-config --cflags --libs glib-2.0`
 
 RUNNER = tests/runner.py
@@ -42,9 +42,9 @@ pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 	$(CC) $(FLAGS) src/${GRAMMAR_C} src/${LEXER_C} ${SOURCE} -o pal $(GLIB)
 
 debug: ${GRAMMAR} ${LEXER} ${SOURCE}
-	flex -i ${LEXER}
-	bison -d -v ${GRAMMAR}
-	$(CC) $(FLAGS) ${GRAMMAR_C} ${LEXER_C} ${SOURCE} -D DEBUG=1 -o pal $(GLIB) 
+	flex -i -o src/${LEXER_C} ${LEXER} 
+	bison -d -v ${GRAMMAR} -o src/${GRAMMAR_C} 
+	$(CC) $(FLAGS) src/${GRAMMAR_C} src/${LEXER_C} ${SOURCE} -D DEBUG=1 -o pal $(GLIB)
 
 cp2:
 	make pal

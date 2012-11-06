@@ -3,10 +3,17 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
+
 #include "symbol.h"
-#include "myerror.h"
+#include "builtin.h"
+
 #include "compiler.h"
 #include "compiler.tab.h"
+
+#include "myerror.h"
+
+
 
 symbol 		*sList;  
 myerror 	*eList;  
@@ -50,7 +57,9 @@ main(int argc,char** argv)
     printf("bounds_check: %d \n", bounds_check);
     printf("execute: %d \n", execute);
 #endif
+    
     init_table ();
+    add_builtins();
     while (yyparse() > 0) {
         yylex();
 
@@ -69,8 +78,10 @@ main(int argc,char** argv)
     } else {
         printf("Compilation successful.\n");
     } 
-	free(errortext);
-	return 0;
+    
+    free_symbol_table();
+    free(errortext);
+    return 0;
 }
 
 void parse_args(int argc, char* argv[]){

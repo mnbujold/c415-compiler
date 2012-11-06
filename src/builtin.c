@@ -3,16 +3,16 @@
  * file that will initialize compiler symbol table with built ins
  */
  
-void addbuiltins () {
-
+void add_builtins () {
+/**
     addSymbol ("bool");
     addSymbol ("integer")
     addSymbol ("real")
-    addSymbol ("char")
-    addSymbol ("false")
-    addSymbol ("true")
-    addSymbol ("maxint")
-    
+    addSymbol ("char");
+    addSymbol ("false");
+    addSymbol ("true");
+    addSymbol ("maxint");
+   */ 
 }
 
 struct init_types
@@ -29,4 +29,4 @@ struct init_types types []
       "char",
       "string",
       "enum"
-  }
+  };
