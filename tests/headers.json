@@ -7,6 +7,6 @@
     "5": "Tests scoping resulting in invalid calls.",
     "6": "Tests invalid record definitions and calls.",
     "7": "Tests invalid type and constant definitions.",
-    "8": "Anything goes here! Needs 14(15?) level scoping! Test array indexing!",
+    "8": "Tests invalid array indexing with integer and enumerated types, invalid array assignment, and legal/illegal scoping.",
     "9": "The best of [0-7]?"
 }
