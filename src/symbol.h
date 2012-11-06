@@ -65,7 +65,7 @@ struct tc_array{
 };
 
 struct tc_record{
-  struct GPtrArray *field_list;
+  struct GArray *field_list;
 };
 
 struct tc_subrange{
@@ -97,11 +97,11 @@ struct var_desc{
 };
 
 struct procedure_desc{
-  struct GPtrArray *params;
+  struct GArray *params;
 };
 
 struct function_desc{
-  struct GPtrArray *params;
+  struct GArray *params;
   struct type_desc *return_type;
 };
 
@@ -158,7 +158,7 @@ symbol *globalLookup (char const *);
 void showAllSymbols();
 
 /**
-Create a symbol with parameters: identifier, int type, int level, 
+Create a symbol with parameters: identifier, type symbol, int object class, 
 pointer * value
 */
 symbol *createSymbol (char const *, symbol *, int, void *);
