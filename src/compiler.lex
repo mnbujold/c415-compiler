@@ -90,7 +90,7 @@ if (yytext != NULL) {
    /*cheating: scan for decimal reals */
 [0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
 [0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
-'[^']*'						{ return STRING; }
+'(\\.|[^'])*'						{ return STRING; }
 [\n\r]                      			{ lineno++;
                                     if (prog_listing) {
                                         fprintf(listing_file, "%s \n", errortext);
