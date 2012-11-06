@@ -72,6 +72,7 @@ int obj_class, void *value) {
 /**
  Our symbol table will need multiple levels, so we will
  need to add and remove levels as a new scope is defined
+ level is incremented by 1
 */
 void pushLevel () {
   level++;
@@ -83,8 +84,13 @@ void pushLevel () {
 }
 
 
+/**
+ * Once a scope ends, pop the head of the symbol table
+ * and decrement level by 1
+ */
 void popLevel () {
-  g_queue_pop_head (symbol_table);
+  GHashTable *table = g_queue_pop_head (symbol_table);
+  g_hash_table_destroy (table); 
   level--;
 }
 
@@ -93,6 +99,10 @@ void popLevel () {
 Called to initialize the symbol table
 */
 void init_table () {
+  
+#if DEBUG
+    printf("In init table\n");
+#endif
   GQueue* table_stack = g_queue_new();
   GHashTable *builtin_table = createNewTable(level);
   //q_queue_push_tail (table_stack, builtin_table);
@@ -103,6 +113,23 @@ void init_table () {
   
 }
 
+
+
+void free_symbol_table() {
+  int numLevels = g_queue_get_length(symbol_table);
+  
+  while (numLevels > 0) {
+    GHashTable *table = g_queue_pop_head (symbol_table);
+    g_hash_table_destroy (table);
+    numLevels--;
+  }
+  g_queue_free (symbol_table);
+}
+
+/**
+ * Called to create a new symbol table
+ * int level variable is currently unused
+ */
 GHashTable *createNewTable(int level) {
   GHashTable *table = g_hash_table_new (g_str_hash, g_str_equal);
   return table;

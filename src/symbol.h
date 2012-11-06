@@ -182,4 +182,5 @@ GHashTable *createNewTable();
 
 
 void init_table ();
+void free_symbol_table();
 #endif

@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <glib.h>
+
 #include "symbol.h"
 #include "type.h"
 #include "myerror.h"
