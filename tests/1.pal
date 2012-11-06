@@ -9,19 +9,19 @@
 program syntactical(hello, goodbye); 
 
 type fake = real;
-     real = (r0, r1, r2, r3);
-     stringy = array[real] of char;
+     realEnum = (r0, r1, r2, r3);
+     stringy = array[realEnum] of char;
 
 var eighteen : integer;
     reighteen : fake; // real number
-    fun : real; // enum type
+    fun : realEnum; // enum type
      
-function noWork( : fake) : real; { $ERR_DATA$ [18, "incomplete parameter definition in function header", ["unexpected COLON", "VAR", "ID"]] $ERR_DATA$ }
+function noWork( : fake) : realEnum; { $ERR_DATA$ [18, "incomplete parameter definition in function header", ["unexpected COLON", "VAR", "ID"]] $ERR_DATA$ }
 begin
     noWork := r2;
 end;
 
-procedure andAllPlay(var param1 : fake; param2 : real; param3 : stringy);
+procedure andAllPlay(var param1 : fake; param2 : realEnum; param3 : stringy);
     const ABCs = 'abcdefghijklmnopqrstuvwxyz';
     var variable : integer;
 begin
