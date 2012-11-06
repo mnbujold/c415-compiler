@@ -63,7 +63,7 @@ typedef enum object_class object_class;
 
 /* Structs for defining type classes of variables */
 struct tc_integer{
-  int len;
+  int len; //32 bits?
 };
 
 struct tc_real{
@@ -80,23 +80,28 @@ struct tc_boolean{
 
 struct tc_string{
   int high;
+  int len;
 };
 
 struct tc_scalar{
   /* const_list */
+  int len;
   GArray *const_list;
 };
 struct tc_array{
   int size;
   struct type_desc *index_type;
   struct type_desc *obj_type;
+  int len;
 };
 
 struct tc_record{
+  int len;
   GArray *field_list;
 };
 
 struct tc_subrange{
+  int len;
   int low;
   int high;
   struct type_desc *mother_type;
@@ -139,7 +144,7 @@ struct param_desc{
 };
 
 struct type_desc{
-  int class;
+  type_class type;
   union{
     struct tc_integer *integer;
     struct tc_real *real;
@@ -191,10 +196,14 @@ pointer * value
 */
 symbol *createSymbol (char const *, symbol *, int, void *);
 /**
- * Create a symbol with parameters: identifier, anonymous type type_desc, int
+ * Create a symbol with parameters: identifier, anonymous type type_desc, enum
  * object class, pointer value.
  */
-symbol *createSymbolAnonType (char const *, struct type_desc *, int, void *);
+symbol *createSymbolAnonType (char const *, struct type_desc *, object_class, void *);
+
+
+symbol *createSymbolType (char const *, type_class);
+
 void removeSymbol (char const *);
 
 /**

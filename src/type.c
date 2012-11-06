@@ -72,7 +72,7 @@ addScalar(GArray *scalarList, const char *scalar) {
 
 struct type_desc *
 createArray(struct type_desc *indexType, struct type_desc *objType) {
-    int indexClass = indexType->class;
+    int indexClass = indexType->type;
     int size = 0;
     
     if (indexClass == TC_SUBRANGE) {
@@ -90,7 +90,7 @@ createArray(struct type_desc *indexType, struct type_desc *objType) {
     newArray->obj_type = objType;
     
     struct type_desc *newType = calloc(1, sizeof(struct type_desc));
-    newType->class = TC_ARRAY;
+    newType->type = TC_ARRAY;
     newType->desc.array = newArray;
     
     return newType;
@@ -102,7 +102,7 @@ createRecord(GArray *fieldList) {
     newRecord->field_list = fieldList;
     
     struct type_desc *newType = calloc(1, sizeof(struct type_desc));
-    newType->class = TC_RECORD;
+    newType->type = TC_RECORD;
     newType->desc.record = newRecord;
     
     return newType;
