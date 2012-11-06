@@ -4,6 +4,8 @@
 #include <string.h>
 #include "myerror.h"
 
+extern int prog_listing;
+
 myerror *addError(myerror *in, const char *message, int location, int line) {
 	myerror *sNew = NULL;
 	int errorTextLength = 0;
@@ -125,7 +127,8 @@ void showAllErrors(myerror *in) {
 	int nTemp = 0;
 	if(in == NULL) return;
 	while(in != NULL) {
-		printf ("{\n");
+          if(prog_listing)
+            printf ("{\n");
 		printf("Error! %d:%d - %s\n", in->line, in->location, in->message);
 		printf("%s\n", in->text);
 		nTemp = in->location;
@@ -136,7 +139,8 @@ void showAllErrors(myerror *in) {
 		printf("^\n");
 		in = in->next;
 	} /* while */
-	printf("}\n");
+        if(prog_listing)
+          printf("}\n");
 	
 } /*showAllErrors*/
 

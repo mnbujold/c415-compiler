@@ -235,7 +235,7 @@ field_list              : field
 
 field                   : ID COLON type
                             {
-                                $$ = createSymbolAnonType($1, $3, OC_PARM, NULL);
+                                $$ = createSymbolAnonType($1, $3, OC_PARAM, NULL);
                             }
                         | error /* ERROR */
                         ;

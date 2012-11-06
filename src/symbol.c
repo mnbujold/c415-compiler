@@ -25,6 +25,9 @@ addSymbol always adds the symbol to the topmost level
 */
 
 symbol *addSymbol (char const *identifier, symbol *symbol) {
+#if DEBUG
+    printf("DEBUG: add symbol called\n");
+#endif
   GHashTable *table = g_queue_peek_head (symbol_table);
   g_hash_table_insert (table, identifier, symbol);
 
@@ -35,7 +38,9 @@ symbol *localLookup (char const *identifier) {
   return returnedSymbol;
 }
 symbol *globalLookup (char const *identifier) {
-  
+#if DEBUG
+  printf("DEBUG: In global lookup\n");
+#endif
   int numLevels = g_queue_get_length(symbol_table);
   symbol *returnedSymbol = NULL;
   while (numLevels > 0) {
@@ -66,7 +71,95 @@ int obj_class, void *value) {
  * object class, pointer value.
  */
 symbol *createSymbolAnonType (char const *identifier, struct type_desc *type,
-int obj_class, void *value) {
+object_class oc, void *value) {
+}
+
+
+symbol *createSymbolType (char const *identifier, type_class type) {
+
+  symbol *typeSymbol = calloc (1, sizeof (symbol));
+  typeSymbol->name = identifier;
+  typeSymbol->oc = OC_TYPE; 
+  struct type_desc *typeDescription = calloc (1, sizeof (struct type_desc));
+  switch (type) {
+    case TC_INTEGER:
+      typeDescription->type = type;
+      struct tc_integer *integerDescription = calloc (1, sizeof (struct tc_integer));
+      integerDescription->len = 32;
+      typeDescription->desc.integer = integerDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;
+    case TC_REAL:
+      typeDescription->type = type;
+      struct tc_real *realDescription = calloc (1, sizeof (struct tc_real));
+      realDescription->len = 32;
+      typeDescription->desc.real = realDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;
+    case TC_BOOLEAN:
+      typeDescription->type = type;
+      struct tc_boolean *boolDescription = calloc (1, sizeof (struct tc_boolean));
+      boolDescription->len = 32;
+      typeDescription->desc.real = boolDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;
+    case TC_CHAR:
+      typeDescription->type = type;
+      struct tc_char *charDescription = calloc (1, sizeof (struct tc_char));
+      charDescription->len = 8;
+      typeDescription->desc.real = charDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;      
+    case TC_STRING:
+      typeDescription->type = type;
+      struct tc_string *stringDescription = calloc (1, sizeof (struct tc_string));
+      stringDescription->len = 32;
+      typeDescription->desc.real = stringDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;
+    case TC_SCALAR:
+      typeDescription->type = type;
+      struct tc_scalar *scalarDescription = calloc (1, sizeof (struct tc_scalar));
+      scalarDescription->len = 32;
+      typeDescription->desc.real = scalarDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;
+    case TC_ARRAY:
+      typeDescription->type = type;
+      struct tc_array *arrayDescription = calloc (1, sizeof (struct tc_array));
+      arrayDescription->len = 32;
+      typeDescription->desc.real = arrayDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;    
+    case TC_RECORD:
+      typeDescription->type = type;
+      struct tc_record *recordDescription = calloc (1, sizeof (struct tc_record));
+      recordDescription->len = 32;
+      typeDescription->desc.real = recordDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;
+    case TC_SUBRANGE:
+      typeDescription->type = type;
+      struct tc_subrange *subrangeDescription = calloc (1, sizeof (struct tc_subrange));
+      subrangeDescription->len = 32;
+      typeDescription->desc.real = subrangeDescription;
+      typeSymbol->desc.type_attr = typeDescription;
+      break;    
+  }
+  
+  struct symbol_rec {
+  char *name;         /* Name of symbol */
+  object_class oc;     /* Class of object (eg. OC_CONST) */
+  union {             /* Class-specific attributes */
+    struct const_desc *const_attr;
+    struct var_desc *var_attr;
+    struct function_desc *func_attr;
+    struct procedure_desc *proc_attr;
+    struct param_desc *parm_attr;
+    struct type_desc *type_attr;
+  }desc;
+};
+
 }
 
 /**
@@ -101,7 +194,7 @@ Called to initialize the symbol table
 void init_table () {
   
 #if DEBUG
-    printf("In init table\n");
+    printf("DEBUG: In init table\n");
 #endif
   GQueue* table_stack = g_queue_new();
   GHashTable *builtin_table = createNewTable(level);
