@@ -161,7 +161,7 @@ void showAllSymbols();
 Create a symbol with parameters: identifier, int type, int level, 
 pointer * value
 */
-symbol *createSymbol (char const *, int, int, void *);
+symbol *createSymbol (char const *, symbol *, int, void *);
 void removeSymbol (char const *);
 
 /**

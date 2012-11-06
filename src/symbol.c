@@ -54,11 +54,11 @@ void showAllSymbols() {
 }
 
 /**
-Create a symbol with parameters: identifier, int type, int level, 
+Create a symbol with parameters: identifier, type symbol, int object class, 
 pointer * value
 */
-symbol *createSymbol (char const *identifier, int type, 
-int level , void * value) {
+symbol *createSymbol (char const *identifier, symbol *type, 
+int obj_class , void * value) {
 }
 
 /**
