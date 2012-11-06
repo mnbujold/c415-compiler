@@ -2,12 +2,13 @@
     4.pal
     Tests invalid function and procedure calls and definitions.
     Errors:
-    23:0 missing function return value assignment
+    24:0 missing function return value assignment
+    32:16 first parameter has incorrect type
+    35:22 second parameter missing
 }
 program funcsAndProcs(i,o);
 
 var x, y : integer;
-    correctness : boolean;
 
 function correct(test : integer; var change : integer): boolean;
 begin
@@ -23,10 +24,16 @@ begin
 end; { $ERR_DATA$ [0, "missing function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
 
 procedure displayCorrectness(num1 : integer; num2 : integer);
+    var correctness : boolean; // Just hanging out ...
+        badNum : real;
 begin
+    badNum := num1;
 
-// print out stuff, call other functions ...
-
+    if correct(badNum, num2) then { $ERR_DATA$ [16, "first parameter has incorrect type", ["type of badNum does not match type of parameter 1 of function correct"]] $ERR_DATA$ }
+        writeln(num1, ' == ', num2);
+    
+    if incorrect(num1) then { $ERR_DATA$ [22, "second parameter missing", ["missing second parameter of function correct"]] $ERR_DATA$ }
+        writeln(num1 ' != ', num2);
 end;
 
 begin
