@@ -162,6 +162,11 @@ Create a symbol with parameters: identifier, type symbol, int object class,
 pointer * value
 */
 symbol *createSymbol (char const *, symbol *, int, void *);
+/**
+ * Create a symbol with parameters: identifier, anonymous type type_desc, int
+ * object class, pointer value.
+ */
+symbol *createSymbolAnonType (char const *, struct type_desc *,int , void *)
 void removeSymbol (char const *);
 
 /**
