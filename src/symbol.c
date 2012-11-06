@@ -25,6 +25,9 @@ addSymbol always adds the symbol to the topmost level
 */
 
 symbol *addSymbol (char const *identifier, symbol *symbol) {
+#if DEBUG
+    printf("DEBUG: add symbol called\n");
+#endif
   GHashTable *table = g_queue_peek_head (symbol_table);
   g_hash_table_insert (table, identifier, symbol);
 
@@ -35,7 +38,9 @@ symbol *localLookup (char const *identifier) {
   return returnedSymbol;
 }
 symbol *globalLookup (char const *identifier) {
-  
+#if DEBUG
+  printf("DEBUG: In global lookup\n");
+#endif
   int numLevels = g_queue_get_length(symbol_table);
   symbol *returnedSymbol = NULL;
   while (numLevels > 0) {
@@ -101,7 +106,7 @@ Called to initialize the symbol table
 void init_table () {
   
 #if DEBUG
-    printf("In init table\n");
+    printf("DEBUG: In init table\n");
 #endif
   GQueue* table_stack = g_queue_new();
   GHashTable *builtin_table = createNewTable(level);

@@ -12,6 +12,7 @@
 
 /* Defines which field of union is being used for readability */
 /* Type Class defs */
+/**
 #define TC_INTEGER 0
 #define TC_REAL 1
 #define TC_BOOLEAN 2
@@ -21,8 +22,23 @@
 #define TC_ARRAY 6
 #define TC_RECORD 7
 #define TC_SUBRANGE 8
+*/
+enum type_class {
+  TC_INTEGER,
+  TC_REAL,
+  TC_BOOLEAN,
+  TC_CHAR,
+  TC_STRING,
+  TC_SCALAR,
+  TC_ARRAY,
+  TC_RECORD,
+  TC_SUBRANGE
+};
+
+typedef enum type_class type_class;
 
 /* Object Class definintions */
+/**
 #define OC_CONST 0
 #define OC_VAR 1
 #define OC_FUNC 2
@@ -31,7 +47,19 @@
 #define OC_TYPE 5
 #define OC_ERROR 6
 #define OC_RETURN 7
+*/
+enum object_class {
+  OC_CONST,
+  OC_VAR,
+  OC_FUNC,
+  OC_PROC,
+  OC_PARAM,
+  OC_TYPE,
+  OC_ERROR,
+  OC_RETURN
+};
 
+typedef enum object_class object_class;
 
 /* Structs for defining type classes of variables */
 struct tc_integer{
@@ -129,7 +157,7 @@ struct type_desc{
 
 struct symbol_rec {
   char *name;         /* Name of symbol */
-  int type_class;     /* Class of object (eg. OC_CONST) */
+  object_class oc;     /* Class of object (eg. OC_CONST) */
   union {             /* Class-specific attributes */
     struct const_desc *const_attr;
     struct var_desc *var_attr;
