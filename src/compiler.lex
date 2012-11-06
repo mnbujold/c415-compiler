@@ -27,6 +27,7 @@ void updateError(void) {
     if(lineno != oldlineno) {
         updateErrorText(eList, errortext);
         showAllErrors(eList);
+        /* If prog_listing flag is TRUE, write errors to .lst file */
         if(prog_listing)
                 writeAllErrors(eList,listing_file);
     	eList = deleteAllErrors(eList);
