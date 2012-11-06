@@ -56,7 +56,7 @@ struct tc_string{
 
 struct tc_scalar{
   /* const_list */
-  struct GArray *const_list;
+  GArray *const_list;
 };
 struct tc_array{
   int size;
@@ -65,7 +65,7 @@ struct tc_array{
 };
 
 struct tc_record{
-  struct GArray *field_list;
+  GArray *field_list;
 };
 
 struct tc_subrange{
@@ -97,11 +97,11 @@ struct var_desc{
 };
 
 struct procedure_desc{
-  struct GArray *params;
+  GArray *params;
 };
 
 struct function_desc{
-  struct GArray *params;
+  GArray *params;
   struct type_desc *return_type;
 };
 

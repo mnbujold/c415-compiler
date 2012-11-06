@@ -10,6 +10,7 @@
 #include <memory.h>
 #include <string.h>
 #include <stdlib.h>
+#include <glib.h>
 #include "symbol.h"
 #include "type.h"
 #include "myerror.h"
@@ -39,7 +40,9 @@ int yywrap() {
     char *string;
     int integer;
     double real; // Should this be float?
-    struct symbol *symbol;
+    symbol *symbol;
+    GArray *garray;
+    struct type_desc *anon_type;
 }
 
 /* Reserved word tokens */
@@ -74,8 +77,12 @@ int yywrap() {
 %token <string> UNKNOWN_CHARACTER
 
 /* Symbol types */
-%type <symbol> type simple_type structured_type scalar_type
-%type <symbol> var_decl
+%type <anon_type> type 
+%type <anon_type> structured_type closed_array_type array_type
+%type <anon_type> simple_type
+%type <garray> scalar_type scalar_list field_list
+%type <symbol> field
+%type <anon_type> var_decl
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -91,17 +98,18 @@ int yywrap() {
 %%
 program                 : program_head decls compound_stat PERIOD
                         | error PERIOD /* ERROR */
-                        | error /* ERROR */ {
-                                                iserror = 1;
-                                                yyerrok;
-                                                looperrordetection++;
-                                                if(looperrordetection == 300) {
-                                                    looperrordetection = 0;
-                                                    yyclearin;
-                                                    /*yylex();*/
-                                                    return 1;
-                                                }
-                                            }
+                        | error /* ERROR */
+                            {
+                                iserror = 1;
+                                yyerrok;
+                                looperrordetection++;
+                                if(looperrordetection == 300) {
+                                    looperrordetection = 0;
+                                    yyclearin;
+                                    /*yylex();*/
+                                    return 1;
+                                }
+                            }
                         ;
 
 program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
@@ -140,7 +148,7 @@ type_decl_list           :  /* empty */
 
 type_decl               : ID ISEQUAL type
                             {
-                                addNewSymbol($1, $3, OC_TYPE);
+                                addNewSymbolAnonType($1, $3, OC_TYPE);
                             }
                         | error /* ERROR */
                         ;
@@ -157,38 +165,77 @@ type                    : simple_type
                         ;
 
 simple_type             : scalar_type
+                            {
+                                $$ = createScalarList($1);
+                            }
                         | ID
+                            {
+                                $$ = getType($1);
+                            }
                         ;
 
 scalar_type             : LEFTPAREN scalar_list RIGHTPAREN
+                            {
+                                $$ = $2;
+                            }
                         | LEFTPAREN error RIGHTPAREN /* ERROR */
                         | LEFTPAREN error /* ERROR */
                         | error RIGHTPAREN /* ERROR */
                         ;
 
 scalar_list             : ID
+                            {
+                                $$ = addScalar(NULL, $1);
+                            }
                         | scalar_list COMMA ID
+                            {
+                                $$ = addScalar($1, $3);
+                            }
                         ;
 
 structured_type         : ARRAY closed_array_type OF type
+                            {
+                                $$ = createArray($2, $4);
+                            }
                         | RECORD field_list END
+                            {
+                                $$ = createRecord($2);
+                            }
                         ;
 
 closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
+                            {
+                                $$ = $2;
+                            }
                         | LEFTBRACKET error RIGHTBRACKET /* ERROR */
                         | LEFTBRACKET error /* ERROR */
                         | error RIGHTBRACKET /* ERROR */
                         ;
 
 array_type              : expr
+                            /*{
+                                $$ = createArrayIndex(NULL, $1);
+                            }*/
                         | expr DOUBLEPERIOD expr
+                            /*{
+                                $$ = createArrayIndex($1, $3);
+                            }*/
                         ;
 
 field_list              : field
+                            {
+                                $$ = addField(NULL, $1);
+                            }
                         | field_list SEMICOLON field
+                            {
+                                $$ = addField($1, $3);
+                            }
                         ;
 
 field                   : ID COLON type
+                            {
+                                $$ = createSymbolAnonType($1, $3, OC_PARM, NULL);
+                            }
                         | error /* ERROR */
                         ;
 
@@ -203,11 +250,11 @@ var_decl_list           : var_decl
 
 var_decl                : ID COLON type
                             {
-                                $$ = addNewSymbol($1, $3, OC_VAR);
+                                $$ = addNewSymbolAnonType($1, $3, OC_VAR);
                             }
                         | ID COMMA var_decl
                             {
-                                $$ = addNewSymbol($1, $3, OC_VAR);
+                                $$ = addNewSymbolAnonType($1, $3, OC_VAR);
                             }
                         | error /* ERROR */
                         ;

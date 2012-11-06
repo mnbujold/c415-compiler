@@ -4,31 +4,104 @@
  */
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "type.h"
 
-struct symbol *
-addNewSymbol(const char *id, struct symbol *type, int obj_class) {
+symbol *
+addNewSymbol(const char *id, symbol *type, int objClass) {
     if (localLookup(id) == NULL) {
-        struct symbol *newSym = NULL;
-        // create the new symbol ...
-        if (obj_class == OC_CONST) {
-            // ...
-        } else if (obj_class == OC_VAR) {
-            // ...
-        } else if (obj_class == OC_TYPE) {
-            // ...
-        } else if (obj_class == OC_PROC) {
-            // ...
-        } else if (obj_class == OC_FUNC) {
-            // ...
-        } else if (obj_class == OC_PARM) {
-            // ...
-        }
-        
+        symbol *newSym = createSymbol(id, type, objClass, NULL);
         addSymbol(id, newSym);
     } else {
         printf("type error\n");
-        // typeError(...)
+        // type error ...
     }
     return type;
+}
+
+struct type_desc *
+addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
+    if (localLookup(id) == NULL) {
+        symbol *newSym = createSymbolAnonType(id, type, objClass, NULL);
+        addSymbol(id, newSym);
+    } else {
+        printf("type error\n");
+        // type error ...
+    }
+    return type;
+}
+
+struct type_desc *
+getType(const char *id) {
+    return NULL;
+}
+
+struct type_desc *
+createScalarList(GArray *scalarList) {
+    return NULL;
+}
+
+GArray *
+addScalar(GArray *scalarList, const char *scalar) {
+    return NULL;
+}
+
+struct type_desc *
+createArray(struct type_desc *indexType, struct type_desc *objType) {
+    int indexClass = indexType->class;
+    int size = 0;
+    
+    if (indexClass == TC_SUBRANGE) {
+        struct tc_subrange *subrange = indexType->desc.subrange;
+        size = subrange->high - subrange->low;
+    } else if (indexClass == TC_INTEGER) {
+        // ...
+    } else if (indexClass == TC_CHAR) {
+        // ...
+    } 
+    
+    struct tc_array *newArray = calloc(1, sizeof(struct tc_array));
+    newArray->size = size;
+    newArray->index_type = indexType;
+    newArray->obj_type = objType;
+    
+    struct type_desc *newType = calloc(1, sizeof(struct type_desc));
+    newType->class = TC_ARRAY;
+    newType->desc.array = newArray;
+    
+    return newType;
+}
+
+struct type_desc *
+createRecord(GArray *fieldList) {
+    struct tc_record *newRecord = calloc(1, sizeof(struct tc_record));
+    newRecord->field_list = fieldList;
+    
+    struct type_desc *newType = calloc(1, sizeof(struct type_desc));
+    newType->class = TC_RECORD;
+    newType->desc.record = newRecord;
+    
+    return newType;
+}
+
+GArray *
+addField(GArray *fieldList, symbol *newField) {
+    if (fieldList == NULL) {
+        fieldList = g_array_new(1, 1, sizeof(symbol *));
+    }
+    int listSize = fieldList->len;
+    char *newName = newField->name;
+    int i;
+    
+    for (i = 0; i < listSize; i++) {
+        if (strcmp(g_array_index(fieldList, symbol *, i)->name, newName) == 0) {
+            printf("Duplicate name!\n");
+            // duplicate record error ...
+            return fieldList;
+        }
+    }
+    g_array_prepend_val(fieldList, newField); // Added in 'correct' order.
+    
+    return fieldList;
 }

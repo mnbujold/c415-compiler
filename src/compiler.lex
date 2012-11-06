@@ -8,6 +8,8 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
+#include "symbol.h"
 #include "compiler.tab.h"
 #include "myerror.h"
 extern char *errortext;
