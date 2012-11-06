@@ -1,42 +1,199 @@
 {
     8.pal
-    Anything goes here! Needs 14(15?) level scoping! Test array indexing!
+    Tests invalid array indexing with integer and enumerated types, invalid array assignment, and legal/illegal scoping.
     Errors:
-    44:3 illegal array indexing (integer for enumerated type)
-    45:3 illegal array indexing (enumerated type for integer)
-    46:3 illegal array indexing (integer for enumerated type)
-    47:3 illegal array indexing (enumerated type for integer)
-    51:3 illegal assignment of integer to enumerated type
-    52:3 illegal assignment of enumerated type to integer
+    67:8 illegal array assignment (index bounds not the same)
+    68:8 illegal array assignment (index bounds not the same)
+    69:8 illegal array assignment (index types not the same)
+    146:57 too many levels of scoping
+    201:3 illegal array indexing (integer for enumerated type)
+    202:3 illegal array indexing (enumerated type for integer)
+    203:3 illegal array indexing (integer for enumerated type)
+    204:3 illegal array indexing (enumerated type for integer)
+    208:3 illegal assignment of integer to enumerated type
+    209:3 illegal assignment of enumerated type to integer
 }
-program scopingAndArraysAndEnums (input, output);
+
+// Layer -1 is the built-ins.
+
+program arraysAndEnumsLayer0 (input, output);
 
 type enum = (e1, e2, e3);
 
-var a0 = array[1..3] of char;
-    a1 = array[enum] of char;
-    a2 = array[1..3] of char;
+var a0 : array[1..3] of char;
+    a1 : array[enum] of char;
+    a2 : array[1..3] of char;
     e: enum;
     i: integer;
     x: enum;
     y : integer;
 
-procedure setEandI():
+procedure setEandI();
 begin
     e := e2;
     i := 2;
 end;
 
-function arrayAssignment(): boolean;
-// Paul's code goes here (for declarations) ...
+function arrayAssignment() : boolean;
+    const ONE = 1;
+          TEN = 10;
+    
+    type et1 = (ec1, ec2, ec3, ec4);
+         et2 = et1;
+         at1 = array[1..10] of char;
+         at2 = array[2..11] of char;
+    
+    var a0 : at1;
+        a1 : at2;
+        a2 : array[ONE+ONE..TEN+ONE] of char;
+        a3 : array[et1] of char;
+        a4 : array[et2] of char;
+        a5 : array[ec1..ec4] of char;
+        a6 : array[ord(ec1)..10] of char;
+        a7 : array[ec1..ec3] of char;
+        a8 : array[ec2..ec4] of char;
+        a9 : array[2..4] of char;
+        
 begin
 
-// Paul's code goes here (for assignment tests) ...
+    // All legal.
+    a0 := a0;
+    a1 := a2;
+    a0 := a6;
+    a3 := a4;
+    a3 := a5;
+    
+    // All illegal.
+    a0 := a1; { $ERR_DATA$ [8, "illegal array assignment (index bounds not the same)", ["illegal array assignment to array with different lower bound"]] $ERR_DATA$ }
+    a7 := a8; { $ERR_DATA$ [8, "illegal array assignment (index bounds not the same)", ["illegal array assignment to array with different lower bound"]] $ERR_DATA$ }
+    a8 := a9; { $ERR_DATA$ [8, "illegal array assignment (index types not the same)", ["illegal array assignment to array with incompatible index type"]] $ERR_DATA$ }
 
 end;
 
-// need about 15 layers of scoping here ...
-    
+// 14 more levels of scoping is legal ...
+procedure layer1(var x : integer);
+    procedure layer2(var x : integer);
+        procedure layer3(var x : integer);
+            procedure layer4(var x : integer);
+                procedure layer5(var x : integer);
+                    procedure layer6(var x : integer);
+                        procedure layer7(var x : integer);
+                            procedure layer8(var x : integer);
+                                procedure layer9(var x : integer);
+                                    procedure layer10(var x : integer);
+                                        procedure layer11(var x : integer);
+                                            procedure layer12(var x : integer);
+                                                procedure layer13(var x : integer);
+                                                    procedure layer14(var x : integer);
+                                                    begin
+                                                        x := 1;
+                                                    end;
+                                                begin
+                                                    x := 1;
+                                                end;
+                                            begin
+                                                x := 1;
+                                            end;
+                                        begin
+                                            x := 1;
+                                        end;
+                                    begin
+                                        x := 1;
+                                    end;
+                                begin
+                                    x := 1;
+                                end;
+                            begin
+                                x := 1;
+                            end;
+                        begin
+                            x := 1;
+                        end;
+                    begin
+                        x := 1;
+                    end;
+                begin
+                    x := 1;
+                end;
+            begin
+                x := 1;
+            end;
+        begin
+            x := 1;
+        end;
+    begin
+        x := 1;
+    end;
+begin
+    x := 1;
+end;
+
+// but 16 more is definitely illegal!
+procedure layer1(var x : integer);
+    procedure layer2(var x : integer);
+        procedure layer3(var x : integer);
+            procedure layer4(var x : integer);
+                procedure layer5(var x : integer);
+                    procedure layer6(var x : integer);
+                        procedure layer7(var x : integer);
+                            procedure layer8(var x : integer);
+                                procedure layer9(var x : integer);
+                                    procedure layer10(var x : integer);
+                                        procedure layer11(var x : integer);
+                                            procedure layer12(var x : integer);
+                                                procedure layer13(var x : integer);
+                                                    procedure layer14(var x : integer);
+                                                        procedure layer15(var x : integer); { $ERR_DATA$ [57, "too many levels of scoping", ["scope level is too big"]] $ERR_DATA$ }
+                                                            procedure layer16(var x : integer);
+                                                            begin
+                                                                x := 1;
+                                                            end;
+                                                        begin
+                                                            x := 1;
+                                                        end;
+                                                    begin
+                                                        x := 1;
+                                                    end;
+                                                begin
+                                                    x := 1;
+                                                end;
+                                            begin
+                                                x := 1;
+                                            end;
+                                        begin
+                                            x := 1;
+                                        end;
+                                    begin
+                                        x := 1;
+                                    end;
+                                begin
+                                    x := 1;
+                                end;
+                            begin
+                                x := 1;
+                            end;
+                        begin
+                            x := 1;
+                        end;
+                    begin
+                        x := 1;
+                    end;
+                begin
+                    x := 1;
+                end;
+            begin
+                x := 1;
+            end;
+        begin
+            x := 1;
+        end;
+    begin
+        x := 1;
+    end;
+begin
+    x := 1;
+end;
+
 begin
 
 setEandI();
