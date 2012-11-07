@@ -10,6 +10,68 @@
 #include "symbol.h"
 #include "typeerrors.h"
 
+int
+compatibleSym(symbol *sym1, symbol *sym2) {
+    return compatible(sym1->desc.type_attr, sym1->desc.type_attr); // Incorrect, but I don't know if I'm actually going to use this ...
+}
+
+int
+compatible(struct type_desc *type1, struct type_desc *type2) {
+    // T1 and T2 are the exact same type:
+    if (type1 == type2) {
+        return 1;
+    }
+    type_class tc1 = type1->type;
+    type_class tc2 = type2->type;
+    
+    // T1 and T2 are integers and/or reals:
+    if ((tc1 == TC_INTEGER || tc1 == TC_REAL)
+    && (tc2 == TC_INTEGER || tc2 == TC_REAL)) {
+        return 1;
+    }
+    return 0;
+}
+
+int
+assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
+    return compatible(sym1->desc.type_attr, sym1->desc.type_attr); // Incorrect, but I don't know if I'm actually going to use this ...
+}
+
+int
+assignmentCompatible(struct type_desc *type1, struct type_desc *type2) {
+    // T1 and T2 are the same type:
+    if (type1 == type2) {
+        return 1;
+    }
+    type_class tc1 = type1->type;
+    type_class tc2 = type2->type;
+    
+    // check if booleans ...
+    
+    // T1 is of type real and T2 is of type integer:
+    if (tc1 == TC_REAL && tc2 == TC_INTEGER) {
+        return 1;
+    }
+    
+    // T1 and T2 are assignment compatible arrays:
+    if (tc1 == TC_ARRAY && tc2 == TC_ARRAY) {
+    
+        return arrayAssignmentCompatible(type1->desc.array,
+                                         type2->desc.array);
+    }
+    
+    return 0;
+}
+
+/**
+ * Returns 1 if and only if array1 and array2 have both identical indexing and
+ * mutually-assignment-compatible object types.
+ */
+int
+arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
+    return 0;
+}
+
 symbol *
 addNewSymbol(const char *id, symbol *type, int objClass) {
     if (localLookup(id) == NULL) {
@@ -78,7 +140,7 @@ createScalarList(GArray *nameList) {
     
 //     struct const_desc *constDesc;
     symbol *scalar;
-    int i;
+    int i, tmp;
     
     for (i = 0; i < listSize; i++) {
 //         constDesc = calloc(1, sizeof(struct const_desc));
@@ -91,7 +153,8 @@ createScalarList(GArray *nameList) {
 //         scalar->desc.const_attr = constDesc;
         
         const char *name = g_array_index(nameList, const char *, i);
-        scalar = createSymbolAnonType(name, constType, OC_CONST, (void *) (i + 1)); // Make better!
+        tmp = i + 1;
+        scalar = createSymbolAnonType(name, constType, OC_CONST, (void *) &tmp); // Make better!
         addSymbol(name, scalar);
         
         g_array_append_val(scalarList, scalar);
