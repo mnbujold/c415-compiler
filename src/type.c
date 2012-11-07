@@ -64,13 +64,21 @@ assignmentCompatible(struct type_desc *type1, struct type_desc *type2) {
     return 0;
 }
 
-/**
- * Returns 1 if and only if array1 and array2 have both identical indexing and
- * mutually-assignment-compatible object types.
- */
 int
 arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
-    return 0;
+    int objCompat = 1;
+    int indEquiv = 1;
+    struct type_desc *ot1 = array1->obj_type;
+    struct type_desc *ot2 = array2->obj_type;
+    
+    if (!(assignmentCompatible(ot1, ot2) && assignmentCompatible(ot2, ot1))) {
+        objCompat = 0;
+        illArrayAssignObjError();
+    }
+    
+    // index checking ...
+    
+    return objCompat && indEquiv;
 }
 
 void
