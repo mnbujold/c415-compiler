@@ -55,28 +55,27 @@ symbol *localLookup (char const *identifier) {
 
 symbol *globalLookup (char const *identifier) {
 
-  printf ("Key: %s\n", identifier);
   int numLevels = g_queue_get_length(symbol_table);
-  printf ("numlevels = %d\n", numLevels);
+
   symbol *returnedSymbol = NULL;
-  while (numLevels > 0) {
-    GHashTable *table = g_queue_peek_nth (symbol_table, numLevels-1);
-    printf ("still working\n");
+  int i = 0;
+  while (i < numLevels) {
+    GHashTable *table = g_queue_peek_nth (symbol_table, i);
     if (table == NULL) {
-      printf ("This does not work\n");
+	//Would this ever happen?
     }
-    printf ("Key: %s\n", identifier);
+
     returnedSymbol = g_hash_table_lookup (table, identifier);
-        printf ("Done doing the looking for this stage\n");
+
 
     if (returnedSymbol != NULL) {
       return returnedSymbol;
     }
-    printf ("Done doing the looking for this stage\n");
-    numLevels--;
+
+    i++;
 
   }
-  printf ("Global lookup is done\n");
+
   return returnedSymbol;
 }
 
@@ -84,9 +83,33 @@ symbol *globalLookup (char const *identifier) {
 /**
  *  Debug function: When called, this will print out the entire symbol table
  */
+
+void iterator (gpointer key, gpointer value, gpointer user_data) {
+  printf ("KEY: '%s' ", key);
+  printf ("Object class: %p\n", value); 
+}
+
 void showAllSymbols() {
   int numLevels = g_queue_get_length (symbol_table);
+  printf ("Number of levels: %d\n", numLevels);
+  printf ("LEvl: %d\n", level);
+  int tmp = level;
+  printf ("=================SYMBOL TABLE ENTRIES==================\n");
+  int i = 0;
+  while (i < numLevels) {
+    
+    printf ("LEVEL %d\n", tmp-1);
+    GHashTable *table = g_queue_peek_nth(symbol_table, i);
+    g_hash_table_foreach(table, (GHFunc)iterator, NULL);
+    
+    i++;
+    tmp--;
+    printf ("\n");
+  }
+  
+  
 }
+
 
 /**
 Create a symbol with parameters: identifier, type symbol, int object class,
