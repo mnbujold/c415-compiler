@@ -17,6 +17,9 @@ void add_builtins () {
     addSymbol ("true");
     addSymbol ("maxint");
    */ 
+   
+   
+  //There is probably a better way to do this programmatically...but screw it
   //push on initial level
   pushLevel();
   symbol *typeSymbol;
