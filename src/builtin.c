@@ -22,6 +22,7 @@ void add_builtins () {
   symbol *typeSymbol;
   typeSymbol = createSymbolType ("char", TC_CHAR);
   addSymbol ("char", typeSymbol);
+  
 
 
 }
