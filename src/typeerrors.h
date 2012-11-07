@@ -33,6 +33,11 @@ void symNotDefinedError(const char *id);
 void symNotATypeError(const char *id);
 
 /**
+ * Adds an "illegal array assignment (object types not compatible)" error.
+ */
+void illArrayAssignObjError();
+
+/**
  * Adds a "duplicate field 'id'" error.
  */
 void duplicateFieldError(const char *id);
