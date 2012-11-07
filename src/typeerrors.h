@@ -12,6 +12,12 @@
 void addTypeError(const char *errMsg);
 
 /**
+ * Adds a "type not defined for symbol 'id'; subsequent type errors with this
+ * symbol will be ignored" error.
+ */
+void typeNotDefinedError(const char *id);
+
+/**
  * Adds a "symbol 'id' already defined in this scope" error.
  */
 void symExistsError(const char *id);
