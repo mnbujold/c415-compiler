@@ -47,7 +47,7 @@ typedef enum type_class type_class;
 #define OC_PROC 3
 #define OC_PARM 4
 #define OC_TYPE 5
-#define OC_ERROR 6
+#define OC_PROGRAM 6
 #define OC_RETURN 7
 */
 enum object_class {
