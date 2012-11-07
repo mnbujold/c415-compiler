@@ -28,7 +28,7 @@ enum type_class {
   TC_REAL,
   TC_BOOLEAN,
   TC_CHAR,
-  TC_CONST;
+  TC_CONST,
   TC_STRING,
   TC_SCALAR,
   TC_ARRAY,
