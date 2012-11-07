@@ -115,6 +115,10 @@ struct tc_subrange{
   struct type_desc *mother_type;
 };
 
+struct tc_file{
+  int len; // Doesn't actually do anything - just for type comparisons.
+};
+
 /* Description fields */
 struct location_t{
   /* See ASC... */
@@ -147,7 +151,7 @@ struct function_desc{
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
 
-  
+
 struct param_desc{
   struct type_desc *type;
 };
@@ -165,6 +169,7 @@ struct type_desc{
     struct tc_array *array;
     struct tc_record *record;
     struct tc_subrange *subrange;
+    struct tc_file *file;
   }desc;
 };
 
