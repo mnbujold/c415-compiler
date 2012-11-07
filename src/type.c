@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "type.h"
 #include "symbol.h"
+#include "typeerrors.h"
 
 symbol *
 addNewSymbol(const char *id, symbol *type, int objClass) {
@@ -15,8 +16,7 @@ addNewSymbol(const char *id, symbol *type, int objClass) {
         symbol *newSym = createSymbol(id, type, objClass, NULL);
         addSymbol(id, newSym);
     } else {
-        printf("symbol already defined in this scope\n");
-        // type error ...
+        symExistsError(id);
     }
     return type;
 }
@@ -30,8 +30,7 @@ addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
 #endif
         addSymbol(id, newSym);
     } else {
-        printf("type error\n");
-        // type error ...
+        symExistsError(id);
     }
     return type;
 }
@@ -47,7 +46,7 @@ struct type_desc *getType(const char *id) {
   printf ("DEBUG: inside get type 1.5\n");
 #endif
     if (typeSymbol == NULL) {
-      printf ("No symbol with this identifier\n");
+        symNotDefinedError(id);
       //TODO: error no symbol for this
     }
 #if DEBUG
@@ -56,7 +55,7 @@ struct type_desc *getType(const char *id) {
     if (OC_TYPE == typeSymbol->oc) {
       return typeSymbol->desc.type_attr;
     } else {
-      printf ("symbol is not a type\n");
+        symNotDefinedError(id);
       //TODO: error abot it not being a type class
       //O no. what to do here?
       return NULL;
@@ -130,8 +129,7 @@ addScalar(GArray *scalarList, const char *scalar) {
     } else {
         /* Add to the scalarList as an error symbol! */
         //g_array_prepend_val(scalarList, scalar); // Added in 'correct' order.
-        printf("symbol already defined in this scope\n");
-        // type error ...
+        symExistsError(scalar);
     }
     return scalarList;
 }
@@ -185,8 +183,7 @@ addField(GArray *fieldList, symbol *newField) {
     
     for (i = 0; i < listSize; i++) {
         if (strcmp(g_array_index(fieldList, symbol *, i)->name, newName) == 0) {
-            printf("Duplicate name!\n");
-            // duplicate record error ...
+            duplicateFieldError(newName);
             return fieldList;
         }
     }

@@ -7,7 +7,6 @@
 #define TYPE_H
 
 #include <glib.h>
-#include "myerror.h"
 #include "symbol.h"
 
 /**
