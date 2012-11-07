@@ -25,6 +25,8 @@ addSymbol always adds the symbol to the topmost level
 */
 
 void *addSymbol (char const *identifier, symbol *symbol) {
+
+  gpointer *key = (gpointer) identifier;
 #if DEBUG
     printf("DEBUG: add symbol called\n");
 #endif
@@ -32,7 +34,7 @@ void *addSymbol (char const *identifier, symbol *symbol) {
   if (table == NULL) {
     printf ("Table is null");
   }
-  g_hash_table_insert (table, identifier, symbol);
+  g_hash_table_insert (table, key, symbol);
 
 }
 
@@ -123,49 +125,49 @@ symbol *createSymbolType (char const *identifier, type_class type) {
       typeDescription->type = type;
       struct tc_boolean *boolDescription = calloc (1, sizeof (struct tc_boolean));
       boolDescription->len = 32;
-      typeDescription->desc.real = boolDescription;
+      typeDescription->desc.boolean = boolDescription;
       typeSymbol->desc.type_attr = typeDescription;
       break;
     case TC_CHAR:
       typeDescription->type = type;
       struct tc_char *charDescription = calloc (1, sizeof (struct tc_char));
       charDescription->len = 8;
-      typeDescription->desc.real = charDescription;
+      typeDescription->desc.character = charDescription;
       typeSymbol->desc.type_attr = typeDescription;
       break;      
     case TC_STRING:
       typeDescription->type = type;
       struct tc_string *stringDescription = calloc (1, sizeof (struct tc_string));
       stringDescription->len = 32;
-      typeDescription->desc.real = stringDescription;
+      typeDescription->desc.string = stringDescription;
       typeSymbol->desc.type_attr = typeDescription;
       break;
     case TC_SCALAR:
       typeDescription->type = type;
       struct tc_scalar *scalarDescription = calloc (1, sizeof (struct tc_scalar));
       scalarDescription->len = 32;
-      typeDescription->desc.real = scalarDescription;
+      typeDescription->desc.scalar = scalarDescription;
       typeSymbol->desc.type_attr = typeDescription;
       break;
     case TC_ARRAY:
       typeDescription->type = type;
       struct tc_array *arrayDescription = calloc (1, sizeof (struct tc_array));
       arrayDescription->len = 32;
-      typeDescription->desc.real = arrayDescription;
+      typeDescription->desc.array = arrayDescription;
       typeSymbol->desc.type_attr = typeDescription;
       break;    
     case TC_RECORD:
       typeDescription->type = type;
       struct tc_record *recordDescription = calloc (1, sizeof (struct tc_record));
       recordDescription->len = 32;
-      typeDescription->desc.real = recordDescription;
+      typeDescription->desc.record = recordDescription;
       typeSymbol->desc.type_attr = typeDescription;
       break;
     case TC_SUBRANGE:
       typeDescription->type = type;
       struct tc_subrange *subrangeDescription = calloc (1, sizeof (struct tc_subrange));
       subrangeDescription->len = 32;
-      typeDescription->desc.real = subrangeDescription;
+      typeDescription->desc.subrange = subrangeDescription;
       typeSymbol->desc.type_attr = typeDescription;
       break;    
   }
@@ -195,9 +197,6 @@ void pushLevel () {
   GHashTable *table = createNewTable (level);
   g_queue_push_head (symbol_table, table);
   level++;
-
-  
-
 }
 
 
