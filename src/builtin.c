@@ -2,6 +2,10 @@
  * made by Daniel Chui
  * file that will initialize compiler symbol table with built ins
  */
+
+
+#include "builtin.h"
+#include "symbol.h"
  
 void add_builtins () {
 /**
@@ -13,6 +17,13 @@ void add_builtins () {
     addSymbol ("true");
     addSymbol ("maxint");
    */ 
+  //push on initial level
+  pushLevel();
+  symbol *typeSymbol;
+  typeSymbol = createSymbolType ("char", TC_CHAR);
+  addSymbol ("char", typeSymbol);
+
+
 }
 
 struct init_types

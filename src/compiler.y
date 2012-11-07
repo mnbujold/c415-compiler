@@ -38,6 +38,7 @@ int yywrap() {
 %error-verbose
 
 %union {
+    char *id;
     char *string;
     int integer;
     double real; // Should this be float?
@@ -171,6 +172,8 @@ simple_type             : scalar_type
                             }
                         | ID
                             {
+				  printf ("calling get type from simple_type reduction\n");
+				  printf ("asdf: %s asdgsad", $1);
                                 $$ = getType($1);
                             }
                         ;

@@ -24,34 +24,57 @@ int func_counter = 1;
 addSymbol always adds the symbol to the topmost level
 */
 
-symbol *addSymbol (char const *identifier, symbol *symbol) {
+void *addSymbol (char const *identifier, symbol *symbol) {
 #if DEBUG
     printf("DEBUG: add symbol called\n");
 #endif
   GHashTable *table = g_queue_peek_head (symbol_table);
+  if (table == NULL) {
+    printf ("Table is null");
+  }
   g_hash_table_insert (table, identifier, symbol);
 
 }
+
+
+
+
+
 symbol *localLookup (char const *identifier) {
   GHashTable *table = g_queue_peek_head (symbol_table);
   symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
   return returnedSymbol;
 }
+
+
+
+
 symbol *globalLookup (char const *identifier) {
 #if DEBUG
   printf("DEBUG: In global lookup\n");
 #endif
+  printf ("Key: %s\n", identifier);
   int numLevels = g_queue_get_length(symbol_table);
+  printf ("numlevels = %d\n", numLevels);
   symbol *returnedSymbol = NULL;
   while (numLevels > 0) {
-    GHashTable *table = g_queue_peek_head (symbol_table);
+    GHashTable *table = g_queue_peek_nth (symbol_table, numLevels-1);
+    printf ("still working\n");
+    if (table == NULL) {
+      printf ("This does not work\n");
+    }
+    printf ("Key: %s\n", identifier);
     returnedSymbol = g_hash_table_lookup (table, identifier);
+        printf ("Done doing the looking for this stage\n");
+
     if (returnedSymbol != NULL) {
       return returnedSymbol;
     }
+    printf ("Done doing the looking for this stage\n");
     numLevels--;
 
   }
+  printf ("Global lookup is done\n");
   return returnedSymbol;
 }
 
@@ -168,9 +191,10 @@ symbol *createSymbolType (char const *identifier, type_class type) {
  level is incremented by 1
 */
 void pushLevel () {
-  level++;
+
   GHashTable *table = createNewTable (level);
   g_queue_push_head (symbol_table, table);
+  level++;
 
   
 
