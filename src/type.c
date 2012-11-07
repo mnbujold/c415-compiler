@@ -115,7 +115,17 @@ addScalar(GArray *scalarList, const char *scalar) {
     if (scalarList == NULL) {
         scalarList = g_array_new(1, 1, sizeof(const char *));
     }
-    if (localLookup(scalar) == NULL) {
+    int listSize = scalarList->len;
+    int duplicate = 0;
+    int i;
+    
+    for (i = 0; i < listSize; i++) {
+        if (strcmp(g_array_index(scalarList, const char *, i), scalar) == 0) {
+            duplicate = 1;
+        }
+    }
+    
+    if (localLookup(scalar) == NULL && duplicate == 0) {
         g_array_prepend_val(scalarList, scalar); // Added in 'correct' order.
     } else {
         /* Add to the scalarList as an error symbol! */
