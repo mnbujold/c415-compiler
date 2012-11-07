@@ -33,7 +33,8 @@ enum type_class {
   TC_SCALAR,
   TC_ARRAY,
   TC_RECORD,
-  TC_SUBRANGE
+  TC_SUBRANGE,
+  TC_ERROR
 };
 
 typedef enum type_class type_class;
@@ -56,7 +57,6 @@ enum object_class {
   OC_PROC,
   OC_PARAM,
   OC_TYPE,
-  OC_ERROR,
   OC_PROGRAM
 };
 

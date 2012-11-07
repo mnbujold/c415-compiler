@@ -19,6 +19,15 @@ addTypeError(const char *errMsg) {
 }
 
 void
+typeNotDefinedError(const char *id) {
+    char errMsg[90 + strlen(id)];
+    sprintf(errMsg,
+            "type not defined for symbol '%s'; subsequent type errors with this symbol will be ignored",
+            id);
+    addTypeError(errMsg);
+}
+
+void
 symExistsError(const char *id) {
     char errMsg[50 + strlen(id)];
     sprintf(errMsg, "symbol '%s' already defined in this scope", id);

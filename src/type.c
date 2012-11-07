@@ -85,7 +85,16 @@ addProgramSymbols(const char *program, const char *input, const char *output) {
 symbol *
 addNewSymbol(const char *id, symbol *type, int objClass) {
     if (localLookup(id) == NULL) {
-        symbol *newSym = createSymbol(id, type, objClass, NULL);
+        symbol *newSym;
+        if (type == NULL) {
+            typeNotDefinedError(id);
+            struct type_desc *errorType = calloc(1, sizeof(struct type_desc));
+            errorType->type = TC_ERROR;
+            
+            newSym = createSymbolAnonType(id, errorType, objClass, NULL);
+        } else {
+            newSym = createSymbol(id, type, objClass, NULL);
+        }
         addSymbol(id, newSym);
     } else {
         symExistsError(id);
@@ -96,7 +105,16 @@ addNewSymbol(const char *id, symbol *type, int objClass) {
 struct type_desc *
 addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
     if (localLookup(id) == NULL) {
-        symbol *newSym = createSymbolAnonType(id, type, objClass, NULL);
+        symbol *newSym;
+        if (type == NULL) {
+            typeNotDefinedError(id);
+            struct type_desc *errorType = calloc(1, sizeof(struct type_desc));
+            errorType->type = TC_ERROR;
+            
+            newSym = createSymbolAnonType(id, errorType, objClass, NULL);
+        } else {
+            newSym = createSymbolAnonType(id, type, objClass, NULL);
+        }
 #if DEBUG
   printf ("DEBUG: Inside add new anonymous type symbol\n");
 #endif
@@ -202,8 +220,6 @@ addScalar(GArray *scalarList, const char *scalar) {
     if (localLookup(scalar) == NULL && duplicate == 0) {
         g_array_prepend_val(scalarList, scalar); // Added in 'correct' order.
     } else {
-        /* Add to the scalarList as an error symbol! */
-        //g_array_prepend_val(scalarList, scalar); // Added in 'correct' order.
         symExistsError(scalar);
     }
     return scalarList;
