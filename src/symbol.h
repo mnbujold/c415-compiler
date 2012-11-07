@@ -28,6 +28,7 @@ enum type_class {
   TC_REAL,
   TC_BOOLEAN,
   TC_CHAR,
+  TC_CONST;
   TC_STRING,
   TC_SCALAR,
   TC_ARRAY,
@@ -78,6 +79,11 @@ struct tc_boolean{
   int len;
 };
 
+struct tc_const{
+  /* individual enumeration constant */
+  int len;
+};
+
 struct tc_string{
   int high;
   int len;
@@ -115,7 +121,7 @@ struct location_t{
 };
 
 struct const_desc{
-  struct symbol_rec *type;         /* */
+  struct type_desc *type;         /* */
   union{                           /* Value of const */ 
     int integer;
     int boolean;
@@ -126,7 +132,7 @@ struct const_desc{
 };
 
 struct var_desc{
-  struct symbol_rec *type;
+  struct type_desc *type;
 };
 
 struct procedure_desc{
@@ -136,6 +142,7 @@ struct procedure_desc{
 struct function_desc{
   GArray *params;
   struct type_desc *return_type;
+  // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
 
   
@@ -150,6 +157,7 @@ struct type_desc{
     struct tc_real *real;
     struct tc_boolean *boolean;
     struct tc_char *character;
+    struct tc_const *enumeration;
     struct tc_string *string;
     struct tc_scalar *scalar;
     struct tc_array *array;
