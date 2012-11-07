@@ -39,12 +39,20 @@ addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
 struct type_desc *getType(const char *id) {
 #if DEBUG
   printf ("DEBUG: inside get type\n");
+  printf ("ID: %s\n", id);
 #endif
+
     symbol *typeSymbol = globalLookup (id);
+#if DEBUG
+  printf ("DEBUG: inside get type 1.5\n");
+#endif
     if (typeSymbol == NULL) {
       printf ("No symbol with this identifier\n");
       //TODO: error no symbol for this
     }
+#if DEBUG
+  printf ("DEBUG: inside get type 2\n");
+#endif
     if (OC_TYPE == typeSymbol->oc) {
       return typeSymbol->desc.type_attr;
     }
@@ -55,7 +63,7 @@ struct type_desc *getType(const char *id) {
       return NULL;
     }
 #if DEBUG
-  printf ("DEBUG: inside get type\n");
+  printf ("DEBUG: inside get type 3\n");
 #endif
 }
 

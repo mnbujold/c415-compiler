@@ -85,7 +85,7 @@ if (yytext != NULL) {
 [ \t]                                           { errortext = appendErrorText(errortext, yytext, &errorTextLength); 
                                                   last_column += strlen (yytext); 
                                                   /* ignore whitespace */ }
-[a-zA-Z][a-zA-Z0-9]*				{ return ID;}
+[a-zA-Z][a-zA-Z0-9]*				{ yylval.id = strdup (yytext);  return ID;}
 [0-9]+						{ return INT_CONST; }
 [0-9]+.[0-9]+					{ return REAL_CONST; } 
    /*cheating: scan for decimal reals */
