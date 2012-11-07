@@ -15,7 +15,7 @@ addNewSymbol(const char *id, symbol *type, int objClass) {
         symbol *newSym = createSymbol(id, type, objClass, NULL);
         addSymbol(id, newSym);
     } else {
-        printf("type error\n");
+        printf("symbol already defined in this scope\n");
         // type error ...
     }
     return type;
@@ -43,14 +43,13 @@ getType(const char *id) {
 #endif
     symbol *typeSymbol = globalLookup (id);
     if (typeSymbol == NULL) {
-      printf ("tpe symbole fasilgsad");
+      printf ("cannot find type symbol\n");
       //TODO: error no symbol for this
     }
     if (OC_TYPE == typeSymbol->oc) {
       return typeSymbol->desc.type_attr;
-    }
-    else {
-      printf ("Type sagsdagdsa");
+    } else {
+      printf ("symbol is not a type\n");
       //TODO: error abot it not being a type class
       //O no. what to do here?
       return NULL;
@@ -61,13 +60,63 @@ getType(const char *id) {
 }
 
 struct type_desc *
-createScalarList(GArray *scalarList) {
-    return NULL;
+createScalarList(GArray *nameList) {
+    int listSize = nameList->len;
+    GArray *scalarList = g_array_new(1, 1, sizeof(symbol *));
+    
+    struct tc_const *constTypeClass = calloc(1, sizeof(struct tc_const));
+    constTypeClass->len = listSize;
+    struct type_desc *constType = calloc(1, sizeof(struct type_desc));
+    constType->type = TC_CONST;
+    constType->desc.enumeration = constTypeClass;
+    
+//     struct const_desc *constDesc;
+    symbol *scalar;
+    int i;
+    
+    for (i = 0; i < listSize; i++) {
+//         constDesc = calloc(1, sizeof(struct const_desc));
+//         constDesc->type = constType;
+//         constDesc->value.integer = i + 1;
+//         
+//         scalar = calloc(1, sizeof(symbol));
+//         scalar->name = g_array_index(nameList, const char *, i);
+//         scalar->oc = OC_CONST;
+//         scalar->desc.const_attr = constDesc;
+        
+        const char *name = g_array_index(nameList, const char *, i);
+        scalar = createSymbolAnonType(name, constType, OC_CONST, (void *) (i + 1)); // Make better!
+        addSymbol(name, scalar);
+        
+        g_array_append_val(scalarList, scalar);
+    }
+    g_array_free(nameList, 0); // Just free the wrapper, but not the names themselves.
+    
+    struct tc_scalar *scalarTypeClass = calloc(1, sizeof(struct tc_scalar));
+    scalarTypeClass->len = listSize;
+    scalarTypeClass->const_list = scalarList;
+    
+    struct type_desc *scalarListType = calloc(1, sizeof(struct type_desc));
+    scalarListType->type = TC_SCALAR;
+    scalarListType->desc.scalar = scalarTypeClass;
+    
+    return scalarListType;
 }
 
 GArray *
 addScalar(GArray *scalarList, const char *scalar) {
-    return NULL;
+    if (scalarList == NULL) {
+        scalarList = g_array_new(1, 1, sizeof(const char *));
+    }
+    if (localLookup(scalar) == NULL) {
+        g_array_prepend_val(scalarList, scalar); // Added in 'correct' order.
+    } else {
+        /* Add to the scalarList as an error symbol! */
+        //g_array_prepend_val(scalarList, scalar); // Added in 'correct' order.
+        printf("symbol already defined in this scope\n");
+        // type error ...
+    }
+    return scalarList;
 }
 
 struct type_desc *

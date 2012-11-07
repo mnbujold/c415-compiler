@@ -32,9 +32,9 @@ struct type_desc *addNewSymbolAnonType(const char *id, struct type_desc *type,
 struct type_desc *getType(const char *id);
 
 /**
- * Returns a pointer to the scalar list type_desc created by scalarList.
+ * Returns a pointer to the scalar list type_desc created by nameList.
  */
-struct type_desc *createScalarList(GArray *scalarList);
+struct type_desc *createScalarList(GArray *nameList);
 
 /**
  * Adds scalar as a symbol to the current level and to scalarList and returns
