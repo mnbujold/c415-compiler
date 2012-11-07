@@ -10,6 +10,9 @@
 
 #include <glib.h>
 
+
+#define MAX_LEVEL 14
+
 /* Defines which field of union is being used for readability */
 /* Type Class defs */
 /**
@@ -65,6 +68,7 @@ typedef enum object_class object_class;
 /* Structs for defining type classes of variables */
 struct tc_integer{
   int len; //32 bits?
+  
 };
 
 struct tc_real{
