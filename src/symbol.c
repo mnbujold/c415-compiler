@@ -15,7 +15,14 @@
 
 #include "symbol.h"
 
+#include "myerror.h"
 #include "debug.h"
+
+
+extern myerror *eList;
+extern int iserror;
+extern int lineno;
+extern int last_column;
 
 GQueue* symbol_table = NULL;
 int level = -1;
@@ -95,7 +102,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   if (oc==OC_TYPE) {
     struct type_desc *typeDescription = recordPointer->desc.type_attr;
     int tc = typeDescription->type;
-    printf ("TYPE: %d\n");
+    printf ("TYPE: %d\n", tc);
   }
 }
 
@@ -156,6 +163,7 @@ object_class oc, void *value) {
  */
 symbol *createSymbolType (char const *identifier, type_class type) {
 
+  printf ("in create symbol type type class: %d\n", type);
   symbol *typeSymbol = calloc (1, sizeof (symbol));
   typeSymbol->name = identifier;
   typeSymbol->oc = OC_TYPE; 
@@ -247,7 +255,9 @@ symbol *createSymbolType (char const *identifier, type_class type) {
  level is incremented by 1
 */
 void pushLevel () {
-
+  if (level >=MAX_LEVEL) {
+    printf ("Too many levels\n");
+  }
   GHashTable *table = createNewTable (level);
   g_queue_push_head (symbol_table, table);
   level++;

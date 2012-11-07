@@ -1,5 +1,5 @@
 /**
- * made by Daniel Chui
+ * author: Daniel Chui
  * file that will initialize compiler symbol table with built ins
  */
 
