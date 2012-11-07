@@ -180,8 +180,10 @@ simple_type             : scalar_type
                             }
                         | ID
                             {
+                            /*
 				  printf ("calling get type from simple_type reduction\n");
 				  printf ("asdf: %s asdgsad", $1);
+				  */
                                 $$ = getType($1);
                                 printf ("What get type returned: %p\n", $$);
                                 printf ("Finished calling get type\n");
@@ -212,6 +214,7 @@ structured_type         : ARRAY closed_array_type OF type
                             
 				  DEBUG_PRINT (("Inside structured type\n"));
                                 $$ = createArray($2, $4);
+                                //DEBUG_PRINT(("Finished calling structured type\n"));
                             }
                         | RECORD field_list END
                             {
@@ -221,6 +224,7 @@ structured_type         : ARRAY closed_array_type OF type
 
 closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                             {
+				DEBUG_PRINT (("inside closed aray type: %p", $$));
                                 $$ = $2;
                             }
                         | LEFTBRACKET error RIGHTBRACKET /* ERROR */
@@ -267,7 +271,7 @@ var_decl_list           : var_decl
 
 var_decl                : ID COLON type
                             {
-				  printf ("In var declaration\n");
+                            
                                 $$ = addNewSymbolAnonType($1, $3, OC_VAR);
                             }
                         | ID COMMA var_decl

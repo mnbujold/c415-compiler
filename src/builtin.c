@@ -52,3 +52,5 @@ struct init_types types []
       "string",
       "enum"
   };
+  
+char * typesBuiltinNames [] = {"boolean", "integer", "real", "char"};

@@ -165,9 +165,22 @@ createArray(struct type_desc *indexType, struct type_desc *objType) {
     return newType;
 }
 
-struct type_desc *
-createArrayIndex(struct type_desc *lowType, struct type_desc *highType) {
-    return NULL; // Sorry - I should finish this ...
+struct type_desc *createArrayIndex(struct type_desc *lowType, struct type_desc *highType) {
+    if (lowType->type != highType->type) {
+      //TODO: Throw error because types are incompatible
+    }
+    //TODO: Check to make sure that it is a valid type eg, enum, integer, etc.
+    //TODO: Not another array, etc
+    
+    //TODO: Note that we are assuming that we have finished type checking here
+    struct type_desc *typeDescription = calloc (1, sizeof (struct type_desc));
+    typeDescription->type = TC_ARRAY;
+    struct tc_array *arrayDescription = calloc (1, sizeof (struct tc_array));
+    //TODO: Actually assign the different bounds for this
+    typeDescription->desc.array = arrayDescription;
+    
+    
+    return typeDescription;
 }
 
 struct type_desc *
