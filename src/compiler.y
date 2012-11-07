@@ -113,7 +113,7 @@ program                 : program_head decls compound_stat PERIOD
                             }
                         ;
 
-program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
+program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON 
                         | PROGRAM ID LEFTPAREN error RIGHTPAREN SEMICOLON /* ERROR */
                         | error /* ERROR */
                         ;
