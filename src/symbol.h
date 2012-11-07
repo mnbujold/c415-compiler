@@ -12,6 +12,7 @@
 
 /* Defines which field of union is being used for readability */
 /* Type Class defs */
+/**
 #define TC_INTEGER 0
 #define TC_REAL 1
 #define TC_BOOLEAN 2
@@ -21,8 +22,25 @@
 #define TC_ARRAY 6
 #define TC_RECORD 7
 #define TC_SUBRANGE 8
+*/
+enum type_class {
+  TC_INTEGER,
+  TC_REAL,
+  TC_BOOLEAN,
+  TC_CHAR,
+  TC_CONST,
+  TC_STRING,
+  TC_SCALAR,
+  TC_ARRAY,
+  TC_RECORD,
+  TC_SUBRANGE,
+  TC_ERROR
+};
+
+typedef enum type_class type_class;
 
 /* Object Class definintions */
+/**
 #define OC_CONST 0
 #define OC_VAR 1
 #define OC_FUNC 2
@@ -31,11 +49,22 @@
 #define OC_TYPE 5
 #define OC_ERROR 6
 #define OC_RETURN 7
+*/
+enum object_class {
+  OC_CONST,
+  OC_VAR,
+  OC_FUNC,
+  OC_PROC,
+  OC_PARAM,
+  OC_TYPE,
+  OC_PROGRAM
+};
 
+typedef enum object_class object_class;
 
 /* Structs for defining type classes of variables */
 struct tc_integer{
-  int len;
+  int len; //32 bits?
 };
 
 struct tc_real{
@@ -50,28 +79,44 @@ struct tc_boolean{
   int len;
 };
 
+struct tc_const{
+  /* individual enumeration constant */
+  int len;
+};
+
 struct tc_string{
   int high;
+  int len;
 };
 
 struct tc_scalar{
   /* const_list */
+  int len;
   GArray *const_list;
 };
 struct tc_array{
   int size;
   struct type_desc *index_type;
   struct type_desc *obj_type;
+  int maxIndex;
+  int minIndex;
+  int len;
 };
 
 struct tc_record{
+  int len;
   GArray *field_list;
 };
 
 struct tc_subrange{
+  int len;
   int low;
   int high;
   struct type_desc *mother_type;
+};
+
+struct tc_file{
+  int len; // Doesn't actually do anything - just for type comparisons.
 };
 
 /* Description fields */
@@ -82,7 +127,7 @@ struct location_t{
 };
 
 struct const_desc{
-  struct symbol_rec *type;         /* */
+  struct type_desc *type;         /* */
   union{                           /* Value of const */ 
     int integer;
     int boolean;
@@ -93,7 +138,7 @@ struct const_desc{
 };
 
 struct var_desc{
-  struct symbol_rec *type;
+  struct type_desc *type;
 };
 
 struct procedure_desc{
@@ -103,33 +148,36 @@ struct procedure_desc{
 struct function_desc{
   GArray *params;
   struct type_desc *return_type;
+  // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
 
-  
+
 struct param_desc{
   struct type_desc *type;
 };
 
 struct type_desc{
-  int class;
+  type_class type;
   union{
     struct tc_integer *integer;
     struct tc_real *real;
     struct tc_boolean *boolean;
     struct tc_char *character;
+    struct tc_const *enumeration;
     struct tc_string *string;
     struct tc_scalar *scalar;
     struct tc_array *array;
     struct tc_record *record;
     struct tc_subrange *subrange;
+    struct tc_file *file;
   }desc;
 };
 
 
 
 struct symbol_rec {
-  char *name;         /* Name of symbol */
-  int type_class;     /* Class of object (eg. OC_CONST) */
+  char const *name;         /* Name of symbol */
+  object_class oc;     /* Class of object (eg. OC_CONST) */
   union {             /* Class-specific attributes */
     struct const_desc *const_attr;
     struct var_desc *var_attr;
@@ -151,7 +199,8 @@ int getCurrentLevel();
 void printLevel();
 void printSymbol();
 
-symbol *addSymbol (char const *, symbol *);
+void *addSymbol (char const *, symbol *);
+
 symbol *localLookup (char const *);
 symbol *globalLookup (char const *);
 
@@ -163,10 +212,14 @@ pointer * value
 */
 symbol *createSymbol (char const *, symbol *, int, void *);
 /**
- * Create a symbol with parameters: identifier, anonymous type type_desc, int
+ * Create a symbol with parameters: identifier, anonymous type type_desc, enum
  * object class, pointer value.
  */
-symbol *createSymbolAnonType (char const *, struct type_desc *, int, void *);
+symbol *createSymbolAnonType (char const *, struct type_desc *, object_class, void *);
+
+
+symbol *createSymbolType (char const *, type_class);
+
 void removeSymbol (char const *);
 
 /**

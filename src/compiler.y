@@ -16,6 +16,8 @@
 #include "type.h"
 #include "myerror.h"
 
+#include "debug.h"
+
 extern myerror *eList;
 extern int iserror;
 extern int lineno;
@@ -24,8 +26,7 @@ extern int looperrordetection;
 
 void yyerror(const char *str) {
     iserror = 1;
-	eList = addError(eList, str, last_column, lineno);
-
+    eList = addError(eList, str, last_column, lineno);
 }
 
 int yywrap() {
@@ -38,6 +39,7 @@ int yywrap() {
 %error-verbose
 
 %union {
+    char *id;
     char *string;
     int integer;
     double real; // Should this be float?
@@ -84,6 +86,8 @@ int yywrap() {
 %type <garray> scalar_type scalar_list field_list
 %type <symbol> field
 %type <anon_type> var_decl
+
+%type <anon_type> expr
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -113,7 +117,12 @@ program                 : program_head decls compound_stat PERIOD
                             }
                         ;
 
-program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON 
+program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
+                            {
+				pushLevel();
+                                addProgramSymbols($2, $4, $6);
+                            }
+>>>>>>> master
                         | PROGRAM ID LEFTPAREN error RIGHTPAREN SEMICOLON /* ERROR */
                         | error /* ERROR */
                         ;
@@ -149,6 +158,7 @@ type_decl_list           :  /* empty */
 
 type_decl               : ID ISEQUAL type
                             {
+                                DEBUG_PRINT (("ID: %s\n", $1));
                                 addNewSymbolAnonType($1, $3, OC_TYPE);
                             }
                         | error /* ERROR */
@@ -196,7 +206,9 @@ scalar_list             : ID
 
 structured_type         : ARRAY closed_array_type OF type
                             {
+                                DEBUG_PRINT (("Inside structured type\n"));
                                 $$ = createArray($2, $4);
+                                DEBUG_PRINT(("Finished calling structured type\n"));
                             }
                         | RECORD field_list END
                             {
@@ -206,6 +218,7 @@ structured_type         : ARRAY closed_array_type OF type
 
 closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                             {
+                                DEBUG_PRINT (("inside closed aray type: %p", $$));
                                 $$ = $2;
                             }
                         | LEFTBRACKET error RIGHTBRACKET /* ERROR */
@@ -214,13 +227,13 @@ closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                         ;
 
 array_type              : expr
-                            /*{
+                            {
                                 $$ = createArrayIndex(NULL, $1);
-                            }*/
+                            }
                         | expr DOUBLEPERIOD expr
-                            /*{
+                            {
                                 $$ = createArrayIndex($1, $3);
-                            }*/
+                            }
                         ;
 
 field_list              : field
@@ -235,7 +248,8 @@ field_list              : field
 
 field                   : ID COLON type
                             {
-                                $$ = createSymbolAnonType($1, $3, OC_PARM, NULL);
+                                DEBUG_PRINT(("In field\n"));
+                                $$ = createSymbolAnonType($1, $3, OC_PARAM, NULL);
                             }
                         | error /* ERROR */
                         ;
@@ -251,6 +265,7 @@ var_decl_list           : var_decl
 
 var_decl                : ID COLON type
                             {
+                            
                                 $$ = addNewSymbolAnonType($1, $3, OC_VAR);
                             }
                         | ID COMMA var_decl

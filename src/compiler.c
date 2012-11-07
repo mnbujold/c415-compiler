@@ -28,14 +28,22 @@ extern 		FILE *yyin;
 int errorTextLength;
 int prog_listing;
 FILE *listing_file;
-
 char listing_filename[1024];
+
+
+#ifdef DEBUG
+# define DEBUG_PRINT(x) do {printf ("DEBUG: "); printf x;} while (0)
+#else
+# define DEBUG_PRINT(x) do {} while (0)
+#endif
+
 /*
  	Initialize all the variables used in the calculator program
 	Start the parser
 */
 main(int argc,char** argv)
 {
+  DEBUG_PRINT (("Hello, testing debug: %d\n", 1));
     prog_listing = 1;
     setvbuf(stdout, (char*) _IONBF, 0, 0);
     setvbuf(stderr, (char*) _IONBF, 0, 0);
@@ -52,7 +60,7 @@ main(int argc,char** argv)
 
     parse_args(argc, argv);
 #if DEBUG
-    printf("leave_asc: %d \n", leave_asc);
+    DEBUG_PRINT(("leave_asc: %d \n", leave_asc));
     printf("prog_listing: %d \n", prog_listing);
     printf("bounds_check: %d \n", bounds_check);
     printf("execute: %d \n", execute);
@@ -79,6 +87,7 @@ main(int argc,char** argv)
         printf("Compilation successful.\n");
     } 
     
+    showAllSymbols();
     free_symbol_table();
     free(errortext);
     return 0;

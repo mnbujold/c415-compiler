@@ -23,15 +23,14 @@ extern int prog_listing;
 extern FILE *listing_file;
 
 void updateError(void) {
-
-    if(lineno != oldlineno) {
-        updateErrorText(eList, errortext);
-        showAllErrors(eList);
-        /* If prog_listing flag is TRUE, write errors to .lst file */
-        if(prog_listing)
-                writeAllErrors(eList,listing_file);
-    	eList = deleteAllErrors(eList);
-	    oldlineno = lineno;
+  if(lineno != oldlineno) {
+    updateErrorText(eList, errortext);
+    showAllErrors(eList);
+    /* If prog_listing flag is TRUE, write errors to .lst file */
+    if(prog_listing)
+      writeAllErrors(eList,listing_file);
+    eList = deleteAllErrors(eList);
+	  oldlineno = lineno;
 		memset(errortext, '\0', errorTextLength);
 	} 
 } 
@@ -45,22 +44,22 @@ void updateError(void) {
 **/
 add();
 if (yytext != NULL) {
-   errortext = appendErrorText(errortext, yytext, &errorTextLength);
+  errortext = appendErrorText(errortext, yytext, &errorTextLength);
 }
 
 
 %}
  /* comments */
-"//"[^\n]*""		        { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
+"//"[^\n]*""		          { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
 "{"[^}]*"}"		            { lineno += countlines(yytext); 
                               errortext = appendErrorText(errortext, yytext, &errorTextLength);
                               /* do nothing, a block comment */ }
 
     /* reserved keywords in PAL */
-"and"						{ return AND;}
-"array"						{ return ARRAY;}
-"begin"						{ return BEGIN_; /* BEGIN causes compilation errors */}
-"const"						{ return CONST;}
+"and"                     { return AND;}
+"array"                   { return ARRAY;}
+"begin"                   { return BEGIN_; /* BEGIN causes compilation errors */}
+"const"                   { return CONST;}
 "continue"					{ /* note: not in PASCAL */ return CONTINUE;}
 "div"						{ return DIV;}
 "do"						{ return DO;}
@@ -85,13 +84,14 @@ if (yytext != NULL) {
 [ \t]                                           { errortext = appendErrorText(errortext, yytext, &errorTextLength); 
                                                   last_column += strlen (yytext); 
                                                   /* ignore whitespace */ }
-[a-zA-Z][a-zA-Z0-9]*				{ return ID;}
-[0-9]+						{ return INT_CONST; }
-[0-9]+.[0-9]+					{ return REAL_CONST; } 
+[a-zA-Z][a-zA-Z0-9]*				{ yylval.id = strdup (yytext);  return ID;}
+[0-9]+						{ yylval.integer = atoi (yytext); return INT_CONST; }
+[0-9]+.[0-9]+					{ yylval.real= atof (yytext); return REAL_CONST; } 
    /*cheating: scan for decimal reals */
-[0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
-[0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
-'(\\.|[^'])*'						{ return STRING; }
+[0-9]+.[0-9]+E[+|-]?[0-9]+			{ /*Need to return a real here!*/ return REAL_CONST; }
+[0-9]+E[+|-]?[0-9]+				{ /*Need to return a real here!*/ return REAL_CONST; } /*for exponents */
+
+'(\\.|[^\\'])*'						  { yylval.string = strdup(yytext); /*printf ("lala: %s\n", yytext);*/return STRING; }
 [\n\r]                      			{ lineno++;
                                     if (prog_listing) {
                                         fprintf(listing_file, "%s \n", errortext);
