@@ -24,8 +24,7 @@ extern int looperrordetection;
 
 void yyerror(const char *str) {
     iserror = 1;
-	eList = addError(eList, str, last_column, lineno);
-
+    eList = addError(eList, str, last_column, lineno);
 }
 
 int yywrap() {
