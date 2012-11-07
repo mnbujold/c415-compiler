@@ -15,6 +15,8 @@
 
 #include "symbol.h"
 
+#include "debug.h"
+
 GQueue* symbol_table = NULL;
 int level = -1;
 
@@ -52,9 +54,7 @@ symbol *localLookup (char const *identifier) {
 
 
 symbol *globalLookup (char const *identifier) {
-#if DEBUG
-  printf("DEBUG: In global lookup\n");
-#endif
+
   printf ("Key: %s\n", identifier);
   int numLevels = g_queue_get_length(symbol_table);
   printf ("numlevels = %d\n", numLevels);
@@ -80,7 +80,12 @@ symbol *globalLookup (char const *identifier) {
   return returnedSymbol;
 }
 
+
+/**
+ *  Debug function: When called, this will print out the entire symbol table
+ */
 void showAllSymbols() {
+  int numLevels = g_queue_get_length (symbol_table);
 }
 
 /**
@@ -92,14 +97,29 @@ int obj_class, void *value) {
 }
 
 /**
+ * Call to create an anonymous type symbol
  * Create a symbol with parameters: identifier, anonymous type type_desc, int
  * object class, pointer value.
  */
 symbol *createSymbolAnonType (char const *identifier, struct type_desc *type,
 object_class oc, void *value) {
+  
+  DEBUG_PRINT(("Inside create symbol anonymous type\n"));
+  
+  symbol *anonSymbol = calloc (1, sizeof (symbol));
+  anonSymbol->name = identifier;
+  anonSymbol->oc = oc;
+  anonSymbol->desc.type_attr = type;
+  return anonSymbol;
+  
 }
 
 
+
+/**
+ *  Call to create the PAL builtin types
+ *  Perhaps we should actually move this to builtin.c
+ */
 symbol *createSymbolType (char const *identifier, type_class type) {
 
   symbol *typeSymbol = calloc (1, sizeof (symbol));

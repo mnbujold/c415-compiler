@@ -98,6 +98,8 @@ struct tc_array{
   int size;
   struct type_desc *index_type;
   struct type_desc *obj_type;
+  int maxIndex;
+  int minIndex;
   int len;
 };
 

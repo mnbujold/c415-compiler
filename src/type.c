@@ -9,6 +9,7 @@
 #include "type.h"
 #include "symbol.h"
 #include "typeerrors.h"
+#include "debug.h"
 
 int
 compatibleSym(symbol *sym1, symbol *sym2) {
@@ -115,6 +116,8 @@ struct type_desc *getType(const char *id) {
   printf ("DEBUG: inside get type 2\n");
 #endif
     if (OC_TYPE == typeSymbol->oc) {
+      DEBUG_PRINT(("is an oc type\n"));
+      DEBUG_PRINT(("typeSymbol: %p\n", typeSymbol->desc.type_attr));
       return typeSymbol->desc.type_attr;
     } else {
         symNotDefinedError(id);
@@ -199,6 +202,8 @@ addScalar(GArray *scalarList, const char *scalar) {
 
 struct type_desc *
 createArray(struct type_desc *indexType, struct type_desc *objType) {
+    DEBUG_PRINT (("Inside create array\n"));
+    DEBUG_PRINT (("index type: %p object type: %p\n", indexType, objType));
     int indexClass = indexType->type;
     int size = 0;
     
@@ -223,9 +228,22 @@ createArray(struct type_desc *indexType, struct type_desc *objType) {
     return newType;
 }
 
-struct type_desc *
-createArrayIndex(struct type_desc *lowType, struct type_desc *highType) {
-    return NULL; // Sorry - I should finish this ...
+struct type_desc *createArrayIndex(struct type_desc *lowType, struct type_desc *highType) {
+    if (lowType->type != highType->type) {
+      //TODO: Throw error because types are incompatible
+    }
+    //TODO: Check to make sure that it is a valid type eg, enum, integer, etc.
+    //TODO: Not another array, etc
+    
+    //TODO: Note that we are assuming that we have finished type checking here
+    struct type_desc *typeDescription = calloc (1, sizeof (struct type_desc));
+    typeDescription->type = TC_ARRAY;
+    struct tc_array *arrayDescription = calloc (1, sizeof (struct tc_array));
+    //TODO: Actually assign the different bounds for this
+    typeDescription->desc.array = arrayDescription;
+    
+    
+    return typeDescription;
 }
 
 struct type_desc *
