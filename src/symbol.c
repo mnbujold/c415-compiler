@@ -85,14 +85,25 @@ symbol *globalLookup (char const *identifier) {
  */
 
 void iterator (gpointer key, gpointer value, gpointer user_data) {
-  printf ("KEY: '%s' ", key);
-  printf ("Object class: %p\n", value); 
+  char *identifier = (char *) key;
+  symbol *recordPointer = (symbol *) value;
+  //NOTE: THIS IS BAD, oc is an ENUM. But whatever
+  int oc = recordPointer->oc;
+  printf ("#############################\n");
+  printf ("KEY: '%s' ", identifier);
+  printf ("Object class: %d\n", oc); 
+  if (oc==OC_TYPE) {
+    struct type_desc *typeDescription = recordPointer->desc.type_attr;
+    int tc = typeDescription->type;
+    printf ("TYPE: %d\n");
+  }
 }
 
 void showAllSymbols() {
+
   int numLevels = g_queue_get_length (symbol_table);
-  printf ("Number of levels: %d\n", numLevels);
-  printf ("LEvl: %d\n", level);
+  //printf ("Number of levels: %d\n", numLevels);
+  //printf ("LEvl: %d\n", level);
   int tmp = level;
   printf ("=================SYMBOL TABLE ENTRIES==================\n");
   int i = 0;
@@ -106,7 +117,7 @@ void showAllSymbols() {
     tmp--;
     printf ("\n");
   }
-  
+  printf ("=========================================================\n");
   
 }
 
