@@ -87,6 +87,7 @@ main(int argc,char** argv)
         printf("Compilation successful.\n");
     } 
     
+    showAllSymbols();
     free_symbol_table();
     free(errortext);
     return 0;

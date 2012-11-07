@@ -119,6 +119,7 @@ program                 : program_head decls compound_stat PERIOD
 
 program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
                             {
+				pushLevel();
                                 addProgramSymbols($2, $4, $6);
                             }
                         | PROGRAM ID LEFTPAREN error RIGHTPAREN SEMICOLON /* ERROR */
