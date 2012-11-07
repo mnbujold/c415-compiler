@@ -86,10 +86,10 @@ if (yytext != NULL) {
                                                   /* ignore whitespace */ }
 [a-zA-Z][a-zA-Z0-9]*				{ yylval.id = strdup (yytext);  return ID;}
 [0-9]+						{ yylval.integer = atoi (yytext); return INT_CONST; }
-[0-9]+.[0-9]+					{ return REAL_CONST; } 
+[0-9]+.[0-9]+					{ yylval.real= atof (yytext); return REAL_CONST; } 
    /*cheating: scan for decimal reals */
-[0-9]+.[0-9]+E[+|-]?[0-9]+			{ return REAL_CONST; }
-[0-9]+E[+|-]?[0-9]+				{ return REAL_CONST; } /*for exponents */
+[0-9]+.[0-9]+E[+|-]?[0-9]+			{ /*Need to return a real here!*/ return REAL_CONST; }
+[0-9]+E[+|-]?[0-9]+				{ /*Need to return a real here!*/ return REAL_CONST; } /*for exponents */
 
 '(\\.|[^\\'])*'						  { yylval.string = strdup(yytext); /*printf ("lala: %s\n", yytext);*/return STRING; }
 [\n\r]                      			{ lineno++;
