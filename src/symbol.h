@@ -169,7 +169,7 @@ struct type_desc{
 
 
 struct symbol_rec {
-  char *name;         /* Name of symbol */
+  char const *name;         /* Name of symbol */
   object_class oc;     /* Class of object (eg. OC_CONST) */
   union {             /* Class-specific attributes */
     struct const_desc *const_attr;

@@ -25,6 +25,13 @@ void add_builtins () {
   symbol *typeSymbol;
   typeSymbol = createSymbolType ("char", TC_CHAR);
   addSymbol ("char", typeSymbol);
+  typeSymbol = createSymbolType ("boolean", TC_BOOLEAN);
+  addSymbol ("boolean", typeSymbol);
+  typeSymbol = createSymbolType ("integer", TC_INTEGER);
+  addSymbol ("integer", typeSymbol);
+  typeSymbol = createSymbolType ("real", TC_REAL);
+  addSymbol ("real", typeSymbol);
+  
   
 
 
