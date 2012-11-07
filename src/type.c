@@ -9,6 +9,7 @@
 #include "type.h"
 #include "symbol.h"
 #include "typeerrors.h"
+#include "debug.h"
 
 symbol *
 addNewSymbol(const char *id, symbol *type, int objClass) {
@@ -53,6 +54,8 @@ struct type_desc *getType(const char *id) {
   printf ("DEBUG: inside get type 2\n");
 #endif
     if (OC_TYPE == typeSymbol->oc) {
+      DEBUG_PRINT(("is an oc type\n"));
+      DEBUG_PRINT(("typeSymbol: %p\n", typeSymbol->desc.type_attr));
       return typeSymbol->desc.type_attr;
     } else {
         symNotDefinedError(id);
@@ -136,6 +139,8 @@ addScalar(GArray *scalarList, const char *scalar) {
 
 struct type_desc *
 createArray(struct type_desc *indexType, struct type_desc *objType) {
+    DEBUG_PRINT (("Inside create array\n"));
+    DEBUG_PRINT (("index type: %p object type: %p\n", indexType, objType));
     int indexClass = indexType->type;
     int size = 0;
     

@@ -16,6 +16,8 @@
 #include "type.h"
 #include "myerror.h"
 
+#include "debug.h"
+
 extern myerror *eList;
 extern int iserror;
 extern int lineno;
@@ -151,6 +153,8 @@ type_decl_list           :  /* empty */
 
 type_decl               : ID ISEQUAL type
                             {
+				  DEBUG_PRINT (("ID: %s\n", $1));
+				  printf ("In type declaration reduction");
                                 addNewSymbolAnonType($1, $3, OC_TYPE);
                             }
                         | error /* ERROR */
@@ -159,6 +163,9 @@ type_decl               : ID ISEQUAL type
 type                    : simple_type
                             {
                                 $$ = $1;
+                                
+                                printf ("WHAT WE ASSIGNED: %p", $$);
+                                printf ("Done\n");
                             }
                         | structured_type
                             {
@@ -176,6 +183,8 @@ simple_type             : scalar_type
 				  printf ("calling get type from simple_type reduction\n");
 				  printf ("asdf: %s asdgsad", $1);
                                 $$ = getType($1);
+                                printf ("What get type returned: %p\n", $$);
+                                printf ("Finished calling get type\n");
                             }
                         ;
 
@@ -200,6 +209,8 @@ scalar_list             : ID
 
 structured_type         : ARRAY closed_array_type OF type
                             {
+                            
+				  DEBUG_PRINT (("Inside structured type\n"));
                                 $$ = createArray($2, $4);
                             }
                         | RECORD field_list END
@@ -239,6 +250,7 @@ field_list              : field
 
 field                   : ID COLON type
                             {
+				  DEBUG_PRINT(("In field\n"));
                                 $$ = createSymbolAnonType($1, $3, OC_PARAM, NULL);
                             }
                         | error /* ERROR */
@@ -255,6 +267,7 @@ var_decl_list           : var_decl
 
 var_decl                : ID COLON type
                             {
+				  printf ("In var declaration\n");
                                 $$ = addNewSymbolAnonType($1, $3, OC_VAR);
                             }
                         | ID COMMA var_decl

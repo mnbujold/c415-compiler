@@ -15,6 +15,8 @@
 
 #include "symbol.h"
 
+#include "debug.h"
+
 GQueue* symbol_table = NULL;
 int level = -1;
 
@@ -97,6 +99,15 @@ int obj_class, void *value) {
  */
 symbol *createSymbolAnonType (char const *identifier, struct type_desc *type,
 object_class oc, void *value) {
+  
+  DEBUG_PRINT(("Inside create symbol anonymous type\n"));
+  
+  symbol *anonSymbol = calloc (1, sizeof (symbol));
+  anonSymbol->name = identifier;
+  anonSymbol->oc = oc;
+  anonSymbol->desc.type_attr = type;
+  return anonSymbol;
+  
 }
 
 
