@@ -49,6 +49,14 @@ struct type_desc *createArray(struct type_desc *indexType,
                               struct type_desc *objType);
 
 /**
+ * Returns a pointer to the array index type type_desc created by lowType and
+ * highType. Adds an error if lowType and highType are not a compatible array
+ * index type.
+ */
+struct type_desc *createArrayIndex(struct type_desc *lowType,
+                                   struct type_desc *highType);
+
+/**
  * Returns a pointer to the record type_desc created by fieldList.
  */
 struct type_desc *createRecord(GArray *fieldList);

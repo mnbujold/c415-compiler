@@ -161,6 +161,11 @@ createArray(struct type_desc *indexType, struct type_desc *objType) {
 }
 
 struct type_desc *
+createArrayIndex(struct type_desc *lowType, struct type_desc *highType) {
+    return NULL; // Sorry - I should finish this ...
+}
+
+struct type_desc *
 createRecord(GArray *fieldList) {
     struct tc_record *newRecord = calloc(1, sizeof(struct tc_record));
     newRecord->field_list = fieldList;
@@ -178,7 +183,7 @@ addField(GArray *fieldList, symbol *newField) {
         fieldList = g_array_new(1, 1, sizeof(symbol *));
     }
     int listSize = fieldList->len;
-    char *newName = newField->name;
+    const char *newName = newField->name;
     int i;
     
     for (i = 0; i < listSize; i++) {

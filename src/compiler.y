@@ -84,6 +84,8 @@ int yywrap() {
 %type <garray> scalar_type scalar_list field_list
 %type <symbol> field
 %type <anon_type> var_decl
+
+%type <anon_type> expr
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -216,13 +218,13 @@ closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                         ;
 
 array_type              : expr
-                            /*{
+                            {
                                 $$ = createArrayIndex(NULL, $1);
-                            }*/
+                            }
                         | expr DOUBLEPERIOD expr
-                            /*{
+                            {
                                 $$ = createArrayIndex($1, $3);
-                            }*/
+                            }
                         ;
 
 field_list              : field
