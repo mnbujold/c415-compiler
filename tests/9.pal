@@ -12,8 +12,11 @@ type xType = (x1, x2, x3);
 
 var xArray = array[xType] of integer;
     y : xType;
+    input_type : char; // Illegal!
 
 function canIReturn(x : xType; i : integer) : xType;
+    var output_type : char; // Legal.
+    
 // Might go into an infinite loop ...
 begin
     if (xArray[x] = i) then
@@ -24,6 +27,6 @@ end;
 
 begin
 
-
+mostness(input_type, output_type); // Illegal!
 
 end.

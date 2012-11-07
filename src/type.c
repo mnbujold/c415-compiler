@@ -73,6 +73,15 @@ arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
     return 0;
 }
 
+void
+addProgramSymbols(const char *program, const char *input, const char *output) {
+    struct type_desc *fileType = calloc(1, sizeof(struct type_desc));
+    
+    addNewSymbolAnonType(program, fileType, OC_PROGRAM); // Kinda cheating here, but no one should be touching these ...
+    addNewSymbolAnonType(input, fileType, OC_PARAM);
+    addNewSymbolAnonType(output, fileType, OC_PARAM);
+}
+
 symbol *
 addNewSymbol(const char *id, symbol *type, int objClass) {
     if (localLookup(id) == NULL) {

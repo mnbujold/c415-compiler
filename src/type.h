@@ -38,6 +38,12 @@ int assignmentCompatible(struct type_desc *type1, struct type_desc *type2);
 int arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2);
 
 /**
+ * Adds new symbols for the program and input and output file parameters.
+ */
+void addProgramSymbols(const char *program, const char *input,
+                       const char *output);
+
+/**
  * Adds a new symbol with object class obj_class, of type, and with identifier
  * id to the symbol table; returns type. Adds an error if a symbol with id
  * already exists at the current level.
