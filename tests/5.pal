@@ -1,33 +1,62 @@
 {
     5.pal
-    Tests reserved words and comment syntactical errors.
-    Expected output:
-    18:5 unexpected if
-    19:5 unexpected else
-    26:1 unexpected divide
-    
+    Tests scoping resulting in invalid procedure calls, variable declarations, and array assignments.
+    Errors:
+    17:5 str is already defined as a type
+    45:9 illegal string assignment (upper bound not the same)
+    58:1 unrecognized function or procedure call (defined in a different scope)
 }
-program syntactical(input, output);
+program scopingFun(input, output);
 
-var bob : str;
+const TRUEINT = 0;
+      FALSEINT = 1;
+
+type str = array[1..12] of char;
+
+var bob, joe : str;
+    str : array [1..10] of char; { $ERR_DATA$ [5, "str is already defined as a type", ["str already used in this level"]] $ERR_DATA$ }
+    truthiness : integer;
 
 function aFunction(question : boolean) : integer;
-begin
-    aFunction := 3;
-    if bob then bob() else bob := 4
-    if (not bob or false) then begin french := boolean; ool:=bob17.gbg and why(); end; { syntax error here }
-    else if if 'lol4567' then thisShouldBreak begin { syntax error here }
-        anotherThing := 234;
+    procedure onlyHere();
+    begin
+        bob := joe;
     end;
-    
-    writeln(question);
+begin
+    if question then
+    begin
+        bob := 'question is ';
+        aFunction := TRUEINT;
+    end;
+    else
+    begin
+        joe := 'the question';
+        onlyHere();
+        aFunction := FALSEINT;
+    end;
 end;
 
-/' This comment should break! { not a comment }
-{ syntax error above}
+procedure redefineStuff(aChar : char);
+    type str = array[1..11] of char; // This str is one character shorter!
+    
+    var tim : str;
+    
+begin
+    tim := joe; { $ERR_DATA$ [9, "illegal string assignment (upper bound not the same)", ["illegal string assignment to string with different upper bound"]] $ERR_DATA$ }
+    bob[FALSEINT] = char;
+end;
 
 begin
 
-bob[3] := 3;
+bob := 'is large eno';
+joe := 'another stri';
+
+writeln(bob, ' and ', joe);
+
+truthiness := aFunction(bob = joe);
+
+onlyHere(); { $ERR_DATA$ [1, "unrecognized function or procedure call (defined in a different scope)", ["no function or procedure named onlyHere in this scope"]] $ERR_DATA$ }
+
+writeln(bob, ' or ', joe);
 
 end.

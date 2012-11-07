@@ -5,28 +5,25 @@
     11:14 unexpected comma, expecting '='
     16:8 unexpected 'end'
     24:12 unexpected greater than
-    // Remember to test the incorrect grammar: procedure ID(ID : type); !!!
 }
-program google(asd3, ds3);
+program mostness(input_type, output_type);
 
-type erronous, error : bob; { syntax error here }
-     correctous; correct: claudious;
+type xType = (x1, x2, x3);
+
+var xArray = array[xType] of integer;
+    y : xType;
+
+function canIReturn(x : xType; i : integer) : xType;
+// Might go into an infinite loop ...
+begin
+    if (xArray[x] = i) then
+        y := x // Error?
+    else
+        canIReturn := canIReturn(x, i + 1)
+end;
 
 begin
 
-while (end = 2) do begin { syntax error here }
-    
-    Will := 54*4;
-    
-    end;
 
-anExpr := lots = of3 and fun or (34 { or 43? (} + 0 - esdedkayefef);
-
-notACorrect>Identifier := 2=4+3 ; { syntax error here }
-
-eorking := gog;
-
-Iam := correct + (0 * 7 and bob);
-if (calhoun = 34 and 3) then dfghjhk := 23 else aFunc(pear, bodyes)
 
 end.
