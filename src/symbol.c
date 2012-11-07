@@ -24,19 +24,31 @@ int func_counter = 1;
 addSymbol always adds the symbol to the topmost level
 */
 
-symbol *addSymbol (char const *identifier, symbol *symbol) {
+void *addSymbol (char const *identifier, symbol *symbol) {
 #if DEBUG
     printf("DEBUG: add symbol called\n");
 #endif
   GHashTable *table = g_queue_peek_head (symbol_table);
+  if (table == NULL) {
+    printf ("Table is null");
+  }
   g_hash_table_insert (table, identifier, symbol);
 
 }
+
+
+
+
+
 symbol *localLookup (char const *identifier) {
   GHashTable *table = g_queue_peek_head (symbol_table);
   symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
   return returnedSymbol;
 }
+
+
+
+
 symbol *globalLookup (char const *identifier) {
 #if DEBUG
   printf("DEBUG: In global lookup\n");
@@ -168,9 +180,10 @@ symbol *createSymbolType (char const *identifier, type_class type) {
  level is incremented by 1
 */
 void pushLevel () {
-  level++;
+
   GHashTable *table = createNewTable (level);
   g_queue_push_head (symbol_table, table);
+  level++;
 
   
 

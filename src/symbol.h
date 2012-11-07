@@ -184,7 +184,8 @@ int getCurrentLevel();
 void printLevel();
 void printSymbol();
 
-symbol *addSymbol (char const *, symbol *);
+void *addSymbol (char const *, symbol *);
+
 symbol *localLookup (char const *);
 symbol *globalLookup (char const *);
 

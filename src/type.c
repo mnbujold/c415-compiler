@@ -36,14 +36,13 @@ addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
     return type;
 }
 
-struct type_desc *
-getType(const char *id) {
+struct type_desc *getType(const char *id) {
 #if DEBUG
   printf ("DEBUG: inside get type\n");
 #endif
     symbol *typeSymbol = globalLookup (id);
     if (typeSymbol == NULL) {
-      printf ("tpe symbole fasilgsad");
+      printf ("No symbol with this identifier\n");
       //TODO: error no symbol for this
     }
     if (OC_TYPE == typeSymbol->oc) {
