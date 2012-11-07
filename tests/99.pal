@@ -2,8 +2,17 @@
 
 program testTypes(input, output);
 
-    type bob = (enum1, enum1);
+type bob = (enum1, enum2);
+     clark = bob;
 
+var joe : bob;
+    joe : clark;
+
+procedure tim();
+    var joe : (e1, ererer);
+begin
+end;
+    
 begin
 
 end.
