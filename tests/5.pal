@@ -12,15 +12,19 @@ const TRUEINT = 0;
       FALSEINT = 1;
 
 type str = array[1..12] of char;
+     revBoolean = (revTrue, revFalse);
 
 var bob, joe : str;
     str : array [1..10] of char; { $ERR_DATA$ [5, "str is already defined as a type", ["str already used in this level"]] $ERR_DATA$ }
     truthiness : integer;
 
 function aFunction(question : boolean) : integer;
+    const doesWork = revTrue; // Legal.
+
     procedure onlyHere();
     begin
-        bob := joe;
+        if doesWork = revFalse then
+            bob := joe
     end;
 begin
     if question then
