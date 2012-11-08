@@ -4,9 +4,10 @@
     Errors:
     15:10 unexpected period.
 }
-program loopy
-(asd, dsa);
+program recordings(useless, parameters);
 
+type boolean = (true, idunno, false);
+     
 
 begin
 
