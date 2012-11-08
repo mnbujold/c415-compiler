@@ -86,41 +86,43 @@ if (yytext != NULL) {
 "while"				{ return WHILE;}
 
  /* Numbers and Vars */
-[a-zA-Z][a-zA-Z0-9]*		{ yylval.id = strdup (yytext);  
+[a-zA-Z][a-zA-Z0-9]*		{ yylval.id = strdup(yytext);  
                                   DB_PRINT("ID ");
                                   return ID;}
-[0-9]+				{ yylval.integer = atoi (yytext); 
+
+(([0-9]+"."[0-9]+(E("+"|"-")?[0-9]+)?)|([0-9]+(E("+"|"-")?[0-9]+))) { 
+                                  yylval.real= atof(yytext);
+                                  DB_PRINT("REAL_CONST ");
+                                  return REAL_CONST; }
+
+[0-9]+                          { yylval.integer = atoi(yytext); 
+                                  DB_PRINT("INT_CONST ");
                                   return INT_CONST; }
-[0-9]+.[0-9]+		        { yylval.real= atof (yytext); 
-                                  return REAL_CONST; } 
- /* cheating: scan for decimal reals */
-[0-9]+.[0-9]+E[+|-]?[0-9]+	{ /*Need to return a real here!*/ return REAL_CONST; }
-[0-9]+E[+|-]?[0-9]+		{ /*Need to return a real here!*/ return REAL_CONST; } /*for exponents */
 
  /* relational operators in PAL */
-"="						{ return ISEQUAL;}
-"<>"						{ return NOTEQUAL;}
-"<"						{ return LESSTHAN;}
-">"						{ return GREATERTHAN;}
-"<="						{ return LESSTHANEQUALS;}
-">="						{ return GREATERTHANEQUALS;}
+"="                             { DB_PRINT("EQUAL "); return ISEQUAL;}
+"<>"				{ return NOTEQUAL;}
+"<"				{ return LESSTHAN;}
+">"				{ return GREATERTHAN;}
+"<="				{ return LESSTHANEQUALS;}
+">="				{ return GREATERTHANEQUALS;}
  /* arithmetic operators in PAL */
-"+"						{ return PLUS;}
-"-"						{ return MINUS;}
-"*"						{ return MULTIPLY;}
-"/"						{ return DIVIDE;}
+"+"				{ return PLUS;}
+"-"				{ DB_PRINT("MINUS "); return MINUS;}
+"*"				{ return MULTIPLY;}
+"/"				{ return DIVIDE;}
  /* div and mod are under reserved words */
  /* other lexical characters */
-":="						{ return ASSIGN;}
-"("						{ DB_PRINT("L_PAREN "); return LEFTPAREN;}
-")"						{ DB_PRINT("R_PAREN "); return RIGHTPAREN;}
-"."						{ return PERIOD;}
-";"						{ DB_PRINT("SEMICOLON "); return SEMICOLON;}
-":"						{ return COLON;}
-"["						{ return LEFTBRACKET;}
-"]"						{ return RIGHTBRACKET;}
-","						{ DB_PRINT("COMMA "); return COMMA;}
-".."						{ return DOUBLEPERIOD;}
+":="				{ return ASSIGN;}
+"("				{ DB_PRINT("L_PAREN "); return LEFTPAREN;}
+")"				{ DB_PRINT("R_PAREN "); return RIGHTPAREN;}
+"."				{ return PERIOD;}
+";"				{ DB_PRINT("SEMICOLON "); return SEMICOLON;}
+":"				{ return COLON;}
+"["				{ return LEFTBRACKET;}
+"]"				{ return RIGHTBRACKET;}
+","				{ DB_PRINT("COMMA "); return COMMA;}
+".."				{ return DOUBLEPERIOD;}
 
  /* comments, newlines, etc. */
 \n                      	{ DB_PRINT("CR\n"); 
@@ -132,7 +134,7 @@ if (yytext != NULL) {
                                   last_column=1;
                                   updateError(); 
 				}
-[ \t]+                          { 
+[ \t]                           { 
                                   errortext = appendErrorText(errortext, yytext, &errorTextLength);
                                   last_column += strlen (yytext);
                                   /* ignore whitespace */ 
