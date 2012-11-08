@@ -1,20 +1,28 @@
 {
     7.pal
-    Tests missing identifiers and bad real numbers.
+    Tests invalid type and constant definitions.
     Errors:
-    9:23 unexpected paranthesis, missing identifier
-    13:16 incorrect real number (unexpecting period)
-    14:13 incorrect real number (unexpecting period)
+    17:24 true already used in this scope
+    19:24 enum0 already defined as an enum
+    21:24 char already used in this scope
 }
-program aTHINGY(fsdf, bobbingForApples);
+program typesAndConsts(io, oi);
 
+const aConst = true;
+      anoConst = false;
+      aString = 'I\'m a string';
+      aNumber = 4.0 * abs(-2);
+      anoNum = aNumber - 12;
+      anoStr = aString;
+      true = false; { $ERR_DATA$ [24, "true already used in this scope", ["symbol 'true' already used in this scope"]] $ERR_DATA$ }
 
-
-type badEnum = (enum0, enum0, enum1); // Illegal - redefining an enum!
+type badEnum = (enum0, enum0, enum1); { $ERR_DATA$ [24, "enum0 already defined as an enum", ["symbol 'enum0' already defined in this scope"]] $ERR_DATA$ }
      a = char;  // Legal.
-     char = real; // Legal.
-     char = char; // Illegal!
+     char = real; { $ERR_DATA$ [24, "char already used in this scope", ["symbol 'char' already used in this scope"]] $ERR_DATA$ }
 
 begin
+
+// Not that exciting ..
+write(anoNum);
 
 end.
