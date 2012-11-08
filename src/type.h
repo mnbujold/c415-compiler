@@ -38,6 +38,16 @@ int assignmentCompatible(struct type_desc *type1, struct type_desc *type2);
 int arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2);
 
 /**
+ * Returns a pointer to a type_desc of type TC_INTEGER, TC_REAL, or TC_CHAR.
+ */
+struct type_desc *createBaseType(type_class type);
+
+/**
+ * Returns a pointer to a type_desc of type TC_STRING.
+ */
+struct type_desc *createStringType(type_class type, const char *string);
+
+/**
  * Adds new symbols for the program and input and output file parameters.
  */
 void addProgramSymbols(const char *program, const char *input,
@@ -48,7 +58,7 @@ void addProgramSymbols(const char *program, const char *input,
  * id to the symbol table; returns type. Adds an error if a symbol with id
  * already exists at the current level.
  */
-symbol *addNewSymbol(const char *id, symbol *type, int objClass);
+symbol *addNewSymbol(const char *id, symbol *type, object_class objClass);
 
 /**
  * Adds a new symbol with object class obj_class, of anonymous type, and with
@@ -56,7 +66,7 @@ symbol *addNewSymbol(const char *id, symbol *type, int objClass);
  * if a symbol with id already exists at the current level.
  */
 struct type_desc *addNewSymbolAnonType(const char *id, struct type_desc *type,
-                                       int objClass);
+                                       object_class objClass);
 
 /**
  * Returns the type_desc of the symbol with name id. Adds an error if no such

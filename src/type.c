@@ -64,13 +64,57 @@ assignmentCompatible(struct type_desc *type1, struct type_desc *type2) {
     return 0;
 }
 
-/**
- * Returns 1 if and only if array1 and array2 have both identical indexing and
- * mutually-assignment-compatible object types.
- */
 int
 arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
-    return 0;
+    int objCompat = 1;
+    int indEquiv = 1;
+    struct type_desc *ot1 = array1->obj_type;
+    struct type_desc *ot2 = array2->obj_type;
+    
+    if (!(assignmentCompatible(ot1, ot2) && assignmentCompatible(ot2, ot1))) {
+        objCompat = 0;
+        illArrayAssignObjError();
+    }
+    
+    // index checking ...
+    
+    return objCompat && indEquiv;
+}
+
+struct type_desc *
+createBaseType(type_class type) {
+    struct type_desc *baseType = calloc(1, sizeof(struct type_desc));
+    baseType->type = type;
+    
+    if (type == TC_INTEGER) {
+        struct tc_integer *intType = calloc(1, sizeof(struct tc_integer));
+        baseType->desc.integer = intType;
+    } else if (type == TC_REAL) {
+        struct tc_real *realType = calloc(1, sizeof(struct tc_real));
+        baseType->desc.real = realType;
+    } else if (type == TC_CHAR) {
+        struct tc_char *charType = calloc(1, sizeof(struct tc_char));
+        baseType->desc.character = charType;
+    } else {
+        baseType->desc.file = NULL; // You asked for it. Well, not really, but I'm lazy.
+    }
+    
+    return baseType;
+}
+
+struct type_desc *
+createStringType(type_class type, const char *string) {
+    int len = strlen(string);
+    
+    struct tc_string *stringType = calloc(1, sizeof(struct tc_string));
+    stringType->high = len;
+    stringType->len = len;
+    
+    struct type_desc *baseType = calloc(1, sizeof(struct type_desc));
+    baseType->type = type;
+    baseType->desc.string = stringType;
+    
+    return baseType;
 }
 
 void
@@ -83,7 +127,7 @@ addProgramSymbols(const char *program, const char *input, const char *output) {
 }
 
 symbol *
-addNewSymbol(const char *id, symbol *type, int objClass) {
+addNewSymbol(const char *id, symbol *type, object_class objClass) {
     if (localLookup(id) == NULL) {
         symbol *newSym;
         if (type == NULL) {
@@ -103,7 +147,7 @@ addNewSymbol(const char *id, symbol *type, int objClass) {
 }
 
 struct type_desc *
-addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
+addNewSymbolAnonType(const char *id, struct type_desc *type, object_class objClass) {
     if (localLookup(id) == NULL) {
         symbol *newSym;
         if (type == NULL) {

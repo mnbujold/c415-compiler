@@ -15,7 +15,14 @@
 
 #include "symbol.h"
 
+#include "myerror.h"
 #include "debug.h"
+
+
+extern myerror *eList;
+extern int iserror;
+extern int lineno;
+extern int last_column;
 
 GQueue* symbol_table = NULL;
 int level = -1;
@@ -85,14 +92,25 @@ symbol *globalLookup (char const *identifier) {
  */
 
 void iterator (gpointer key, gpointer value, gpointer user_data) {
-  printf ("KEY: '%s' ", key);
-  printf ("Object class: %p\n", value); 
+  char *identifier = (char *) key;
+  symbol *recordPointer = (symbol *) value;
+  //NOTE: THIS IS BAD, oc is an ENUM. But whatever
+  int oc = recordPointer->oc;
+  printf ("#############################\n");
+  printf ("KEY: '%s' ", identifier);
+  printf ("Object class: %d\n", oc); 
+  if (oc==OC_TYPE) {
+    struct type_desc *typeDescription = recordPointer->desc.type_attr;
+    int tc = typeDescription->type;
+    printf ("TYPE: %d\n", tc);
+  }
 }
 
 void showAllSymbols() {
+
   int numLevels = g_queue_get_length (symbol_table);
-  printf ("Number of levels: %d\n", numLevels);
-  printf ("LEvl: %d\n", level);
+  //printf ("Number of levels: %d\n", numLevels);
+  //printf ("LEvl: %d\n", level);
   int tmp = level;
   printf ("=================SYMBOL TABLE ENTRIES==================\n");
   int i = 0;
@@ -106,7 +124,7 @@ void showAllSymbols() {
     tmp--;
     printf ("\n");
   }
-  
+  printf ("=========================================================\n");
   
 }
 
@@ -145,6 +163,7 @@ object_class oc, void *value) {
  */
 symbol *createSymbolType (char const *identifier, type_class type) {
 
+  printf ("in create symbol type type class: %d\n", type);
   symbol *typeSymbol = calloc (1, sizeof (symbol));
   typeSymbol->name = identifier;
   typeSymbol->oc = OC_TYPE; 
@@ -236,7 +255,9 @@ symbol *createSymbolType (char const *identifier, type_class type) {
  level is incremented by 1
 */
 void pushLevel () {
-
+  if (level >=MAX_LEVEL) {
+    printf ("Too many levels\n");
+  }
   GHashTable *table = createNewTable (level);
   g_queue_push_head (symbol_table, table);
   level++;

@@ -49,6 +49,11 @@ symNotATypeError(const char *id) {
 }
 
 void
+illArrayAssignObjError(){
+    addTypeError("illegal array assignment (object types not compatible)");
+}
+
+void
 duplicateFieldError(const char *id) {
     char errMsg[25 + strlen(id)];
     sprintf(errMsg, "duplicate field '%s'", id);

@@ -87,7 +87,7 @@ int yywrap() {
 %type <symbol> field
 %type <anon_type> var_decl
 
-%type <anon_type> expr
+%type <anon_type> expr unsigned_const unsigned_num
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -102,7 +102,13 @@ int yywrap() {
 
 %%
 program                 : program_head decls compound_stat PERIOD
+                            {
+                                popLevel();
+                            }
                         | error PERIOD /* ERROR */
+                            {
+                                popLevel();
+                            }
                         | error /* ERROR */
                             {
                                 iserror = 1;
@@ -119,11 +125,17 @@ program                 : program_head decls compound_stat PERIOD
 
 program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
                             {
-				pushLevel();
+                                pushLevel();
                                 addProgramSymbols($2, $4, $6);
                             }
                         | PROGRAM ID LEFTPAREN error RIGHTPAREN SEMICOLON /* ERROR */
+                            {
+                                pushLevel();
+                            }
                         | error /* ERROR */
+                            {
+                                pushLevel();
+                            }
                         ;
 
 decls                   : const_decl_part type_decl_part var_decl_part proc_decl_part
@@ -283,14 +295,35 @@ proc_decl_list          : proc_decl
                         ;
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
+                            {
+                                popLevel();
+                            }
                         | error SEMICOLON /* ERROR */
+                            {
+                                popLevel();
+                            }
                         ;
 
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
+                            {
+                                pushLevel();
+                            }
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
+                            {
+                                pushLevel();
+                            }
                         | PROCEDURE error SEMICOLON /* ERROR */
+                            {
+                                pushLevel();
+                            }
                         | FUNCTION error SEMICOLON /* ERROR */
+                            {
+                                pushLevel();
+                            }
                         | error /* ERROR */
+                            {
+                                pushLevel();
+                            }
                         ;
 
 f_parm_decl             : LEFTPAREN f_parm_list RIGHTPAREN
@@ -379,11 +412,23 @@ factor                  : var
                         ;
 
 unsigned_const          : unsigned_num
+                            {
+                                $$ = $1;
+                            }
                         | STRING
+                            {
+                                $$ = createStringType(TC_STRING, $1);
+                            }
                         ;
 
 unsigned_num            : INT_CONST
+                            {
+                                $$ = createBaseType(TC_INTEGER);
+                            }
                         | REAL_CONST
+                            {
+                                $$ = createBaseType(TC_REAL);
+                            }
                         ;
 
 func_invok              : plist_finvok RIGHTPAREN

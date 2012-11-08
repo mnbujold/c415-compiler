@@ -27,7 +27,7 @@ begin
     begin
         bob := 'question is ';
         aFunction := TRUEINT;
-    end;
+    end
     else
     begin
         joe := 'the question';
@@ -43,7 +43,7 @@ procedure redefineStuff(aChar : char);
     
 begin
     tim := joe; { $ERR_DATA$ [9, "illegal string assignment (upper bound not the same)", ["illegal string assignment to string with different upper bound"]] $ERR_DATA$ }
-    bob[FALSEINT] = char;
+    bob[FALSEINT] := char;
 end;
 
 begin
