@@ -36,12 +36,9 @@ addSymbol always adds the symbol to the topmost level
 void *addSymbol (char const *identifier, symbol *symbol) {
 
   gpointer *key = (gpointer) identifier;
-#if DEBUG
-    printf("DEBUG: add symbol called\n");
-#endif
   GHashTable *table = g_queue_peek_head (symbol_table);
   if (table == NULL) {
-    printf ("Table is null");
+    DEBUG_PRINT(("Error: Symbol table is null for some reason\n"));
   }
   g_hash_table_insert (table, key, symbol);
 
@@ -155,7 +152,8 @@ object_class oc, void *value) {
   
 }
 
-
+symbol *createSymbolFunction (char const *identifier, void (*fp)(void)) {
+}
 
 /**
  *  Call to create the PAL builtin types
@@ -163,7 +161,7 @@ object_class oc, void *value) {
  */
 symbol *createSymbolType (char const *identifier, type_class type) {
 
-  printf ("in create symbol type type class: %d\n", type);
+  DEBUG_PRINT (("in create symbol type type class: %d\n", type));
   symbol *typeSymbol = calloc (1, sizeof (symbol));
   typeSymbol->name = identifier;
   typeSymbol->oc = OC_TYPE; 
@@ -256,6 +254,9 @@ symbol *createSymbolType (char const *identifier, type_class type) {
 */
 void pushLevel () {
   if (level >=MAX_LEVEL) {
+    iserror = 1;
+    char *str = "Exceeded the number of levels allowed in ASC\n";
+    eList = addError(eList, str, last_column, lineno);
     printf ("Too many levels\n");
   }
   GHashTable *table = createNewTable (level);

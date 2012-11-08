@@ -182,6 +182,8 @@ struct type_desc{
 struct symbol_rec {
   char const *name;         /* Name of symbol */
   object_class oc;     /* Class of object (eg. OC_CONST) */
+  struct *type_desc type;
+  //symbol *typeSymbol; //A pointer to the type that this symbol is
   union {             /* Class-specific attributes */
     struct const_desc *const_attr;
     struct var_desc *var_attr;
@@ -221,7 +223,7 @@ symbol *createSymbol (char const *, symbol *, int, void *);
  */
 symbol *createSymbolAnonType (char const *, struct type_desc *, object_class, void *);
 
-
+symbol *createSymbolFunction (char const *, void (*)(void));
 symbol *createSymbolType (char const *, type_class);
 
 void removeSymbol (char const *);

@@ -5,9 +5,27 @@
 
 
 #include "builtin.h"
+
 #include "symbol.h"
- 
+#include "builtinfunctions.h"
+
+
 void add_builtins () {
+  pushLevel();
+  add_builtin_types();
+  add_builtin_functions();
+}
+int odd (int x) {
+  return 1;
+}
+ void add_builtin_functions() {
+   symbol *functionSymbol;
+   
+   
+   functionSymbol = createSymbolFunction ("odd", &odd);
+   
+ }
+void add_builtin_types () {
 /**
     addSymbol ("bool");
     addSymbol ("integer")
@@ -21,7 +39,7 @@ void add_builtins () {
    
   //There is probably a better way to do this programmatically...but screw it
   //push on initial level
-  pushLevel();
+
   symbol *typeSymbol;
   typeSymbol = createSymbolType ("char", TC_CHAR);
   addSymbol ("char", typeSymbol);

@@ -7,4 +7,6 @@
 #ifndef BUILTIN_H
 #define BUILTIN_H
 void add_builtins ();
+void add_builtin_types ();
+void add_builtin_functions();
 #endif

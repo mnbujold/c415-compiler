@@ -75,7 +75,7 @@ int yywrap() {
 %token ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
 %token LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD 
 %token RETURN
-%token <string> ID
+%token <id> ID
 
 %token <string> UNKNOWN_CHARACTER
 
@@ -103,11 +103,12 @@ int yywrap() {
 %%
 program                 : program_head decls compound_stat PERIOD
                             {
-                                popLevel();
+			      //NOTE: Poplevel here, but for debugging dont do it
+                                //popLevel();
                             }
                         | error PERIOD /* ERROR */
                             {
-                                popLevel();
+                                //popLevel();
                             }
                         | error /* ERROR */
                             {
@@ -296,11 +297,11 @@ proc_decl_list          : proc_decl
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
                             {
-                                popLevel();
+                                //popLevel();
                             }
                         | error SEMICOLON /* ERROR */
                             {
-                                popLevel();
+                                //popLevel();
                             }
                         ;
 
@@ -354,12 +355,24 @@ stat                    : simple_stat
                         ;
 
 simple_stat             : /* empty */
-                        | stat_assigment
+                        | stat_assignment
                         | proc_invok
                         | compound_stat
                         ;
 
-stat_assigment          : var ASSIGN expr
+stat_assignment          : var ASSIGN expr
+			{
+			    /*
+			    symbol *tempSymbol = localLookup ($1);
+			    if tempSymbol (== NULL) {
+			     DEBUG_PRINT (("Var not declared\n"));
+			     //$$ = error;  //var not declared
+			    }
+			    */
+			    //else assign
+			    
+			     
+			}
                         | error /* ERROR */
                         ;
                         
@@ -368,6 +381,14 @@ proc_invok              : plist_finvok RIGHTPAREN
                         ;
 
 var                     : ID
+			{
+			  DEBUG_PRINT (("inside var rule: %s\n", $1));
+			  symbol *tempSymbol = globalLookup ($1);
+			  if (tempSymbol == NULL) {
+			    DEBUG_PRINT (("Var not declared\n"));
+			  }
+			  //$$ = $1;
+			}
                         | var PERIOD ID
                         | subscripted_var RIGHTBRACKET
                         | error RIGHTBRACKET /* ERROR */
