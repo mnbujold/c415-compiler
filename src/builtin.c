@@ -35,8 +35,7 @@ void add_builtin_types () {
     addSymbol ("true");
     addSymbol ("maxint");
    */ 
-   
-   
+
   //There is probably a better way to do this programmatically...but screw it
   //push on initial level
 
