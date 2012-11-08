@@ -38,6 +38,16 @@ int assignmentCompatible(struct type_desc *type1, struct type_desc *type2);
 int arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2);
 
 /**
+ * Returns a pointer to a type_desc of type TC_INTEGER, TC_REAL, or TC_CHAR.
+ */
+struct type_desc *createBaseType(type_class type);
+
+/**
+ * Returns a pointer to a type_desc of type TC_STRING.
+ */
+struct type_desc *createStringType(type_class type, const char *string);
+
+/**
  * Adds new symbols for the program and input and output file parameters.
  */
 void addProgramSymbols(const char *program, const char *input,

@@ -81,6 +81,42 @@ arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
     return objCompat && indEquiv;
 }
 
+struct type_desc *
+createBaseType(type_class type) {
+    struct type_desc *baseType = calloc(1, sizeof(struct type_desc));
+    baseType->type = type;
+    
+    if (type == TC_INTEGER) {
+        struct tc_integer *intType = calloc(1, sizeof(struct tc_integer));
+        baseType->desc.integer = intType;
+    } else if (type == TC_REAL) {
+        struct tc_real *realType = calloc(1, sizeof(struct tc_real));
+        baseType->desc.real = realType;
+    } else if (type == TC_CHAR) {
+        struct tc_char *charType = calloc(1, sizeof(struct tc_char));
+        baseType->desc.character = charType;
+    } else {
+        baseType->desc.file = NULL; // You asked for it. Well, not really, but I'm lazy.
+    }
+    
+    return baseType;
+}
+
+struct type_desc *
+createStringType(type_class type, const char *string) {
+    int len = strlen(string);
+    
+    struct tc_string *stringType = calloc(1, sizeof(struct tc_string));
+    stringType->high = len;
+    stringType->len = len;
+    
+    struct type_desc *baseType = calloc(1, sizeof(struct type_desc));
+    baseType->type = type;
+    baseType->desc.string = stringType;
+    
+    return baseType;
+}
+
 void
 addProgramSymbols(const char *program, const char *input, const char *output) {
     struct type_desc *fileType = calloc(1, sizeof(struct type_desc));

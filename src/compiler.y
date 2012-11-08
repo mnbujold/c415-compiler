@@ -87,7 +87,7 @@ int yywrap() {
 %type <symbol> field
 %type <anon_type> var_decl
 
-%type <anon_type> expr
+%type <anon_type> expr unsigned_const unsigned_num
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -412,11 +412,23 @@ factor                  : var
                         ;
 
 unsigned_const          : unsigned_num
+                            {
+                                $$ = $1;
+                            }
                         | STRING
+                            {
+                                $$ = createStringType(TC_STRING, $1);
+                            }
                         ;
 
 unsigned_num            : INT_CONST
+                            {
+                                $$ = createBaseType(TC_INTEGER);
+                            }
                         | REAL_CONST
+                            {
+                                $$ = createBaseType(TC_REAL);
+                            }
                         ;
 
 func_invok              : plist_finvok RIGHTPAREN
