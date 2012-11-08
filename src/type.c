@@ -127,7 +127,7 @@ addProgramSymbols(const char *program, const char *input, const char *output) {
 }
 
 symbol *
-addNewSymbol(const char *id, symbol *type, int objClass) {
+addNewSymbol(const char *id, symbol *type, object_class objClass) {
     if (localLookup(id) == NULL) {
         symbol *newSym;
         if (type == NULL) {
@@ -147,7 +147,7 @@ addNewSymbol(const char *id, symbol *type, int objClass) {
 }
 
 struct type_desc *
-addNewSymbolAnonType(const char *id, struct type_desc *type, int objClass) {
+addNewSymbolAnonType(const char *id, struct type_desc *type, object_class objClass) {
     if (localLookup(id) == NULL) {
         symbol *newSym;
         if (type == NULL) {

@@ -58,7 +58,7 @@ void addProgramSymbols(const char *program, const char *input,
  * id to the symbol table; returns type. Adds an error if a symbol with id
  * already exists at the current level.
  */
-symbol *addNewSymbol(const char *id, symbol *type, int objClass);
+symbol *addNewSymbol(const char *id, symbol *type, object_class objClass);
 
 /**
  * Adds a new symbol with object class obj_class, of anonymous type, and with
@@ -66,7 +66,7 @@ symbol *addNewSymbol(const char *id, symbol *type, int objClass);
  * if a symbol with id already exists at the current level.
  */
 struct type_desc *addNewSymbolAnonType(const char *id, struct type_desc *type,
-                                       int objClass);
+                                       object_class objClass);
 
 /**
  * Returns the type_desc of the symbol with name id. Adds an error if no such
