@@ -12,6 +12,13 @@
 #include "symbol.h"
 #include "compiler.tab.h"
 #include "myerror.h"
+
+#ifdef DEBUG
+#define DB_PRINT(body) printf(body)
+#else
+#define DB_PRINT(body)
+#endif
+
 extern char *errortext;
 extern int last_column;
 extern int lineno;
@@ -35,7 +42,11 @@ void updateError(void) {
 	} 
 } 
 
+
 %}
+
+%option yylineno 
+
 %%
 
 %{
@@ -49,17 +60,10 @@ if (yytext != NULL) {
 
 
 %}
- /* comments */
-"//"[^\n]*""                    { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
-"{"[^}]*"}"		        { lineno += countlines(yytext);
-                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
-                                  /* do nothing, a block comment */ 
-                                }
-
  /* reserved keywords in PAL */
 "and"                           { return AND;}
 "array"                         { return ARRAY;}
-"begin"                         { return BEGIN_; /* BEGIN causes compilation errors */}
+"begin"                         { DB_PRINT("BEGIN "); return BEGIN_; /* BEGIN causes compilation errors */}
 "const"                         { return CONST;}
 "continue"			{ /* note: not in PASCAL */ return CONTINUE;}
 "div"				{ return DIV;}
@@ -74,7 +78,7 @@ if (yytext != NULL) {
 "of"				{ return OF;}
 "or"				{ return OR;}
 "procedure"			{ return PROCEDURE;}
-"program"			{ return PROGRAM;}
+"program"			{ DB_PRINT("PROGRAM "); return PROGRAM;}
 "record"			{ return RECORD;}
 "then"				{ return THEN;}
 "type"				{ return TYPE;}
@@ -82,11 +86,8 @@ if (yytext != NULL) {
 "while"				{ return WHILE;}
 
  /* Numbers and Vars */
-[ \t]+                          { errortext = appendErrorText(errortext, yytext, &errorTextLength);
-                                  last_column += strlen (yytext);
-                                  /* ignore whitespace */ 
-                                  }
 [a-zA-Z][a-zA-Z0-9]*		{ yylval.id = strdup (yytext);  
+                                  DB_PRINT("ID ");
                                   return ID;}
 [0-9]+				{ yylval.integer = atoi (yytext); 
                                   return INT_CONST; }
@@ -95,17 +96,7 @@ if (yytext != NULL) {
  /* cheating: scan for decimal reals */
 [0-9]+.[0-9]+E[+|-]?[0-9]+	{ /*Need to return a real here!*/ return REAL_CONST; }
 [0-9]+E[+|-]?[0-9]+		{ /*Need to return a real here!*/ return REAL_CONST; } /*for exponents */
-'(\\.|[^\\'])*'			{ yylval.string = strdup(yytext); 
-                                  /*printf ("lala: %s\n", yytext);*/
-                                  return STRING; }
-\n                      	{ lineno++;
-                                  if (prog_listing) {
-                                     fprintf(listing_file, "%s \n", errortext);
-                                     printf("{%d} %s\n",lineno, errortext);
-                                  }
-                                  last_column=1;
-                                  updateError(); 
-				}
+
  /* relational operators in PAL */
 "="						{ return ISEQUAL;}
 "<>"						{ return NOTEQUAL;}
@@ -121,17 +112,39 @@ if (yytext != NULL) {
  /* div and mod are under reserved words */
  /* other lexical characters */
 ":="						{ return ASSIGN;}
-"("						{ return LEFTPAREN;}
-")"						{ return RIGHTPAREN;}
+"("						{ DB_PRINT("L_PAREN "); return LEFTPAREN;}
+")"						{ DB_PRINT("R_PAREN "); return RIGHTPAREN;}
 "."						{ return PERIOD;}
-";"						{ return SEMICOLON;}
+";"						{ DB_PRINT("SEMICOLON "); return SEMICOLON;}
 ":"						{ return COLON;}
 "["						{ return LEFTBRACKET;}
 "]"						{ return RIGHTBRACKET;}
-","						{ return COMMA;}
+","						{ DB_PRINT("COMMA "); return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
- /* built ins  NO LONGER DEFINED*/
- /* other */
+
+ /* comments, newlines, etc. */
+\n                      	{ DB_PRINT("CR\n"); 
+                                  lineno++;
+                                  if (prog_listing) {
+                                     fprintf(listing_file, "%s \n", errortext);
+                                     printf("{%d} %s\n",lineno, errortext);
+                                  }
+                                  last_column=1;
+                                  updateError(); 
+				}
+[ \t]+                          { 
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                                  last_column += strlen (yytext);
+                                  /* ignore whitespace */ 
+                                  }
+"//"[^\n]*""                    { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
+"{"[^}]*"}"		        { lineno += countlines(yytext);
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                                  /* do nothing, a block comment */ 
+                                }
+'(\\.|[^\\'])*'			{ yylval.string = strdup(yytext); 
+                                  /*printf ("lala: %s\n", yytext);*/
+                                  return STRING; }
 .                               { illegalChar = yytext[0];
                                   return UNKNOWN_CHARACTER; }
 
