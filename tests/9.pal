@@ -12,15 +12,14 @@ type xType = (x1, x2, x3);
 
 var xArray = array[xType] of integer;
     y : xType;
-    input_type : char; // Illegal!
+    input_type : char; // Illegal - redefining input_type
 
 function canIReturn(x : xType; i : integer) : xType;
     var output_type : char; // Legal.
     
-// Might go into an infinite loop ...
 begin
     if (xArray[x] = i) then
-        y := x // Error? I can't remember why it might be ...
+        y := x // Error - could not find return value for all conditions
     else
         canIReturn := canIReturn(x, i + 1)
 end;
