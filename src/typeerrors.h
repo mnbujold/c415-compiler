@@ -33,6 +33,11 @@ void symNotDefinedError(const char *id);
 void symNotATypeError(const char *id);
 
 /**
+ * Adds a "symbol 'id' not a valid enumeration type" error.
+ */
+void symNotValidEnumError(const char *id);
+
+/**
  * Adds an "illegal array assignment (object types not compatible)" error.
  */
 void illArrayAssignObjError();

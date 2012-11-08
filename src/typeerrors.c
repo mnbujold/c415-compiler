@@ -49,6 +49,13 @@ symNotATypeError(const char *id) {
 }
 
 void
+symNotValidEnumError(const char *id) {
+    char errMsg[50 + strlen(id)];
+    sprintf(errMsg, "symbol '%s' not a valid enumeration type", id);
+    addTypeError(errMsg);
+}
+
+void
 illArrayAssignObjError(){
     addTypeError("illegal array assignment (object types not compatible)");
 }

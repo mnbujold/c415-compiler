@@ -159,9 +159,6 @@ addNewSymbolAnonType(const char *id, struct type_desc *type, object_class objCla
         } else {
             newSym = createSymbolAnonType(id, type, objClass, NULL);
         }
-#if DEBUG
-  printf ("DEBUG: Inside add new anonymous type symbol\n");
-#endif
         addSymbol(id, newSym);
     } else {
         symExistsError(id);
@@ -170,22 +167,12 @@ addNewSymbolAnonType(const char *id, struct type_desc *type, object_class objCla
 }
 
 struct type_desc *getType(const char *id) {
-#if DEBUG
-  printf ("DEBUG: inside get type\n");
-  printf ("ID: %s\n", id);
-#endif
-
     symbol *typeSymbol = globalLookup (id);
-#if DEBUG
-  printf ("DEBUG: inside get type 1.5\n");
-#endif
+    
     if (typeSymbol == NULL) {
         symNotDefinedError(id);
       //TODO: error no symbol for this
     }
-#if DEBUG
-  printf ("DEBUG: inside get type 2\n");
-#endif
     if (OC_TYPE == typeSymbol->oc) {
       DEBUG_PRINT(("is an oc type\n"));
       DEBUG_PRINT(("typeSymbol: %p\n", typeSymbol->desc.type_attr));
@@ -196,9 +183,6 @@ struct type_desc *getType(const char *id) {
       //O no. what to do here?
       return NULL;
     }
-#if DEBUG
-  printf ("DEBUG: inside get type 3\n");
-#endif
 }
 
 struct type_desc *
@@ -228,7 +212,14 @@ createScalarList(GArray *nameList) {
         
         const char *name = g_array_index(nameList, const char *, i);
         tmp = i + 1;
-        scalar = createSymbolAnonType(name, constType, OC_CONST, (void *) &tmp); // Make better!
+        scalar = globalLookup(name);
+        if (scalar == NULL) { // New symbol.
+            scalar = createSymbolAnonType(name, constType, OC_CONST, (void *) &tmp);
+        } else if ((scalar->oc != OC_CONST)
+                || (scalar->desc.const_attr->type->type != TC_CONST)) {
+                symNotValidEnumError();
+                continue;
+        }
         addSymbol(name, scalar);
         
         g_array_append_val(scalarList, scalar);
