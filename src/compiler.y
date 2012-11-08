@@ -122,7 +122,6 @@ program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
 				pushLevel();
                                 addProgramSymbols($2, $4, $6);
                             }
->>>>>>> master
                         | PROGRAM ID LEFTPAREN error RIGHTPAREN SEMICOLON /* ERROR */
                         | error /* ERROR */
                         ;

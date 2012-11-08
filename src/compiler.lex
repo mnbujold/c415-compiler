@@ -50,73 +50,76 @@ if (yytext != NULL) {
 
 %}
  /* comments */
-"//"[^\n]*""		          { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
-"{"[^}]*"}"		            { lineno += countlines(yytext); 
-                              errortext = appendErrorText(errortext, yytext, &errorTextLength);
-                              /* do nothing, a block comment */ }
+"//"[^\n]*""                    { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
+"{"[^}]*"}"		        { lineno += countlines(yytext);
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                                  /* do nothing, a block comment */ 
+                                }
 
-    /* reserved keywords in PAL */
-"and"                     { return AND;}
-"array"                   { return ARRAY;}
-"begin"                   { return BEGIN_; /* BEGIN causes compilation errors */}
-"const"                   { return CONST;}
-"continue"					{ /* note: not in PASCAL */ return CONTINUE;}
-"div"						{ return DIV;}
-"do"						{ return DO;}
-"else"						{ return ELSE;}
-"end"						                    { return END;}
-"exit"						                    { /* note: not in PASCAL */ return EXIT;}
-"function"					                    { return FUNCTION;}
-"if"						                    { return IF;}
-"mod"						                    { return MOD;}
-"not"						                    { return NOT;}
-"of"						                    { return OF;}
-"or"						                    { return OR;}
-"procedure"					                    { return PROCEDURE;}
-"program"					                    { return PROGRAM;}
-"record"						            { return RECORD;}
-"then"						                    { return THEN;}
-"type"						                    { return TYPE;}
-"var"						                    { return VAR;}
-"while"						                    { return WHILE;}
+ /* reserved keywords in PAL */
+"and"                           { return AND;}
+"array"                         { return ARRAY;}
+"begin"                         { return BEGIN_; /* BEGIN causes compilation errors */}
+"const"                         { return CONST;}
+"continue"			{ /* note: not in PASCAL */ return CONTINUE;}
+"div"				{ return DIV;}
+"do"				{ return DO;}
+"else"				{ return ELSE;}
+"end"			        { return END;}
+"exit"				{ /* note: not in PASCAL */ return EXIT;}
+"function"			{ return FUNCTION;}
+"if"				{ return IF;}
+"mod"				{ return MOD;}
+"not"				{ return NOT;}
+"of"				{ return OF;}
+"or"				{ return OR;}
+"procedure"			{ return PROCEDURE;}
+"program"			{ return PROGRAM;}
+"record"			{ return RECORD;}
+"then"				{ return THEN;}
+"type"				{ return TYPE;}
+"var"				{ return VAR;}
+"while"				{ return WHILE;}
 
  /* Numbers and Vars */
-[ \t]                                           { errortext = appendErrorText(errortext, yytext, &errorTextLength); 
-                                                  last_column += strlen (yytext); 
-                                                  /* ignore whitespace */ }
-[a-zA-Z][a-zA-Z0-9]*				{ yylval.id = strdup (yytext);  return ID;}
-[0-9]+						{ yylval.integer = atoi (yytext); return INT_CONST; }
-[0-9]+.[0-9]+					{ yylval.real= atof (yytext); return REAL_CONST; } 
-   /*cheating: scan for decimal reals */
-[0-9]+.[0-9]+E[+|-]?[0-9]+			{ /*Need to return a real here!*/ return REAL_CONST; }
-[0-9]+E[+|-]?[0-9]+				{ /*Need to return a real here!*/ return REAL_CONST; } /*for exponents */
-
-'(\\.|[^\\'])*'						  { yylval.string = strdup(yytext); /*printf ("lala: %s\n", yytext);*/return STRING; }
-[\n\r]                      			{ lineno++;
-                                    if (prog_listing) {
-                                        fprintf(listing_file, "%s \n", errortext);
-                                        printf("{%d} %s\n",lineno, errortext);
-                                    }
-                                    last_column=1; 
-                                    updateError(); 
-						}
-                                              
-    /* relational operators in PAL */
+[ \t]+                          { errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                                  last_column += strlen (yytext);
+                                  /* ignore whitespace */ 
+                                  }
+[a-zA-Z][a-zA-Z0-9]*		{ yylval.id = strdup (yytext);  
+                                  return ID;}
+[0-9]+				{ yylval.integer = atoi (yytext); 
+                                  return INT_CONST; }
+[0-9]+.[0-9]+		        { yylval.real= atof (yytext); 
+                                  return REAL_CONST; } 
+ /* cheating: scan for decimal reals */
+[0-9]+.[0-9]+E[+|-]?[0-9]+	{ /*Need to return a real here!*/ return REAL_CONST; }
+[0-9]+E[+|-]?[0-9]+		{ /*Need to return a real here!*/ return REAL_CONST; } /*for exponents */
+'(\\.|[^\\'])*'			{ yylval.string = strdup(yytext); 
+                                  /*printf ("lala: %s\n", yytext);*/
+                                  return STRING; }
+\n                      	{ lineno++;
+                                  if (prog_listing) {
+                                     fprintf(listing_file, "%s \n", errortext);
+                                     printf("{%d} %s\n",lineno, errortext);
+                                  }
+                                  last_column=1;
+                                  updateError(); 
+				}
+ /* relational operators in PAL */
 "="						{ return ISEQUAL;}
 "<>"						{ return NOTEQUAL;}
 "<"						{ return LESSTHAN;}
 ">"						{ return GREATERTHAN;}
 "<="						{ return LESSTHANEQUALS;}
 ">="						{ return GREATERTHANEQUALS;}
-
-    /* arithmetic operators in PAL */
+ /* arithmetic operators in PAL */
 "+"						{ return PLUS;}
 "-"						{ return MINUS;}
 "*"						{ return MULTIPLY;}
 "/"						{ return DIVIDE;}
-    /* div and mod are under reserved words */
-
-    /* other lexical characters */
+ /* div and mod are under reserved words */
+ /* other lexical characters */
 ":="						{ return ASSIGN;}
 "("						{ return LEFTPAREN;}
 ")"						{ return RIGHTPAREN;}
@@ -127,16 +130,14 @@ if (yytext != NULL) {
 "]"						{ return RIGHTBRACKET;}
 ","						{ return COMMA;}
 ".."						{ return DOUBLEPERIOD;}
-
-    /* built ins  NO LONGER DEFINED*/
-
-    /* other */
-.                              { illegalChar = yytext[0];
-                                 return UNKNOWN_CHARACTER; }
+ /* built ins  NO LONGER DEFINED*/
+ /* other */
+.                               { illegalChar = yytext[0];
+                                  return UNKNOWN_CHARACTER; }
 
 %%
 void add() {
-last_column += yyleng;
+     last_column += yyleng;
 }
 
 /**
