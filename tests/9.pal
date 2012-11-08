@@ -20,9 +20,39 @@ function canIReturn(x : xType; i : integer) : xType;
 // Might go into an infinite loop ...
 begin
     if (xArray[x] = i) then
-        y := x // Error?
+        y := x // Error? I can't remember why it might be ...
     else
         canIReturn := canIReturn(x, i + 1)
+end;
+
+function doIReturn(var y : boolean) : integer;
+begin
+    if y then
+        doIReturn := 5
+    else
+        y := true
+end; // Error - could not find return value for all conditionals
+
+function returnValue() : integer;
+begin
+    while false do
+        returnValue := 0;
+
+    if doIReturn(y = x1) then
+        returnValue := 5
+end; // Error - could not find return value for all conditionals
+
+function correctReturn(int : integer) : boolean;
+begin
+    if int >= 19 then
+        correctReturn := true
+    else
+        if int <= -10 then
+            correctReturn := false
+        else if int <= 0 then
+            correctReturn := true
+        else
+            correctReturn := false
 end;
 
 begin

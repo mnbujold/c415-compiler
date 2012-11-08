@@ -8,9 +8,12 @@
 }
 program aTHINGY(fsdf, bobbingForApples);
 
-type a = char;  // Legal.
-    char = real; // Legal.
-    char = char; // Illegal!
+
+
+type badEnum = (enum0, enum0, enum1); // Illegal - redefining an enum!
+     a = char;  // Legal.
+     char = real; // Legal.
+     char = char; // Illegal!
 
 begin
 
