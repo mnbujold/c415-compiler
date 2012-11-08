@@ -152,7 +152,15 @@ object_class oc, void *value) {
   
 }
 
-symbol *createSymbolFunction (char const *identifier, void (*fp)(void)) {
+symbol *createSymbolFunction (char const *identifier, struct function_desc *functionDescription) {
+  
+  symbol *functionSymbol = calloc (1, sizeof (symbol));
+  functionSymbol->name = identifier;
+  functionSymbol->oc = OC_FUNC;
+  //functionSymbol->type = type of return value of FP
+  //struct function_desc *functionDescription = calloc (1, sizeof (struct function_desc));
+  functionSymbol->desc.func_attr = functionDescription;
+  
 }
 
 /**

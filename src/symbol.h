@@ -146,11 +146,11 @@ struct var_desc{
 };
 
 struct procedure_desc{
-  GArray *params;
+  GPtrArray *params;
 };
 
 struct function_desc{
-  GArray *params;
+  GPtrArray *params;
   struct type_desc *return_type;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
@@ -182,7 +182,8 @@ struct type_desc{
 struct symbol_rec {
   char const *name;         /* Name of symbol */
   object_class oc;     /* Class of object (eg. OC_CONST) */
-  struct type_desc *type;
+  struct type_desc *type; // Will refactor this ...
+  struct symbol_rec *symbol_type; // Will refactor this ...
   //symbol *typeSymbol; //A pointer to the type that this symbol is
   union {             /* Class-specific attributes */
     struct const_desc *const_attr;
@@ -223,7 +224,7 @@ symbol *createSymbol (char const *, symbol *, int, void *);
  */
 symbol *createSymbolAnonType (char const *, struct type_desc *, object_class, void *);
 
-symbol *createSymbolFunction (char const *, void (*)(void));
+symbol *createSymbolFunction (char const *, struct function_desc*);
 symbol *createSymbolType (char const *, type_class);
 
 void removeSymbol (char const *);

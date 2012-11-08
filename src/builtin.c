@@ -14,6 +14,13 @@ void add_builtins () {
   pushLevel();
   add_builtin_types();
   add_builtin_functions();
+  /**
+   * What to do with these?
+   * true
+   * false
+   * maxint
+   * minint
+   */
 }
 int odd (int x) {
   return 1;
@@ -21,8 +28,47 @@ int odd (int x) {
  void add_builtin_functions() {
    symbol *functionSymbol;
    
+   /*Here is the stuff for odd function
+    */
+   struct function_desc *functionDescription = calloc (1, sizeof (struct function_desc));
+   //functionDescription
+   //Do stuff to set function description to 
+   GPtrArray *oddParam = g_ptr_array_new ();
+   struct type_desc *intTypeDescription = getType ("integer");
+   g_ptr_array_add (oddParam, intTypeDescription);
+   struct type_desc *booleanTypeDescription = getType ("boolean");
+   functionDescription->return_type = booleanTypeDescription;
+   functionSymbol = createSymbolFunction ("odd", functionDescription);
+   addSymbol ("odd", functionSymbol);
    
-   functionSymbol = createSymbolFunction ("odd", &odd);
+   //TODO: They are all the same as odd right now, bad, change them
+   /*Math functions */
+   createSymbolFunction ("abs", functionDescription);
+   createSymbolFunction ("sqr", functionDescription);
+   createSymbolFunction ("sqrt", functionDescription);
+   createSymbolFunction ("sin", functionDescription);
+   createSymbolFunction ("exp", functionDescription);
+   createSymbolFunction ("ln", functionDescription);
+   
+   /* Numbery functions */
+   createSymbolFunction ("trunc", functionDescription);
+   createSymbolFunction ("round", functionDescription);
+   
+   createSymbolFunction ("ord", functionDescription);
+   createSymbolFunction ("chr", functionDescription);
+   createSymbolFunction ("succ", functionDescription);
+   createSymbolFunction ("pred", functionDescription);
+   
+   
+   
+   //createSymbolFunction ("high", functionDescription);
+   
+   
+   /*Write/Read functions */
+   createSymbolFunction ("read", functionDescription);
+   createSymbolFunction ("readln", functionDescription);
+   createSymbolFunction ("write", functionDescription);
+   createSymbolFunction ("writeln", functionDescription);
    
  }
 void add_builtin_types () {
