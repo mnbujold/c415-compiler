@@ -399,19 +399,85 @@ int validComparisonOperator (symbol *operand) {
   }
   return 0;
 }
+
+int checkComparisonCompatibility (symbol *o1, symbol *o2) {
+  //exact same type
+  
+  type_class tc1 = getTypeClass (o1);
+  type_class tc2 = getTypeClass (o2);
+  if (tc1 == tc2) {
+    return 1;
+  }
+  //real and integer
+  if ((tc1 == TC_REAL || tc1 == TC_INTEGER) && (tc2 == TC_REAL || tc2 == TC_INTEGER)) {
+    return 1;
+  }
+  //strings
+  if (isString (o1) && isString (o2)) {
+    return 1;
+  }
+  
+  return 0;
+}
+
+
 symbol *equalOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
     addTypeError ("Operators cannot be compared");
     return createErrorType();
   }
+  if (checkComparisonCompatibility (o1, o2)) {
+    addTypeError ("Operators are not compatible, cannot be compared to each other");
+    return createErrorType();
+  }
 }
 symbol *notEqualOp (symbol *o1, symbol *o2) {
+  if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
+    addTypeError ("Operators cannot be compared");
+    return createErrorType();
+  }
+  if (checkComparisonCompatibility (o1, o2)) {
+    addTypeError ("Operators are not compatible, cannot be compared to each other");
+    return createErrorType();
+  }
 }
 symbol *lessThanOp (symbol *o1, symbol *o2) {
+  if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
+    addTypeError ("Operators cannot be compared");
+    return createErrorType();
+  }
+  if (checkComparisonCompatibility (o1, o2)) {
+    addTypeError ("Operators are not compatible, cannot be compared to each other");
+    return createErrorType();
+  }
 }
 symbol *greaterThanOp (symbol *o1, symbol *o2) {
+  if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
+    addTypeError ("Operators cannot be compared");
+    return createErrorType();
+  }
+  if (checkComparisonCompatibility (o1, o2)) {
+    addTypeError ("Operators are not compatible, cannot be compared to each other");
+    return createErrorType();
+  }
 }
 symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
+  if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
+    addTypeError ("Operators cannot be compared");
+    return createErrorType();
+  }
+  if (checkComparisonCompatibility (o1, o2)) {
+    addTypeError ("Operators are not compatible, cannot be compared to each other");
+    return createErrorType();
+  }
 }
 symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
+  if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
+    addTypeError ("Operators cannot be compared");
+    return createErrorType();
+  }
+  if (checkComparisonCompatibility (o1, o2)) {
+    addTypeError ("Operators are not compatible, cannot be compared to each other");
+    return createErrorType();
+  }
 }

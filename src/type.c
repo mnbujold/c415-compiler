@@ -113,6 +113,23 @@ type_class getArrayType (symbol *sym) {
   return getTypeClass (sym->desc.type_attr->desc.array->obj_type);
 }
 
+
+/**
+ * Given symbol sym, check 
+ * if it is an array of characters, or a string
+ */
+int isString (symbol *sym) {
+  if (getTypeClass (sym) == TC_ARRAY) {
+    if (getArrayType (sym) == TC_CHAR) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  }
+  return 0;
+}
+
 symbol *
 createConstant(type_class type, union constant_values value) {
     struct const_desc *constant = createConstDesc(value);
