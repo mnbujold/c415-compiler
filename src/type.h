@@ -29,13 +29,12 @@ int compatible(struct type_desc *type1, struct type_desc *type2);
  *  4. T1 and T2 are assignment compatible arrays.
  */
 int assignmentCompatibleSym(symbol *sym1, symbol *sym2);
-int assignmentCompatible(struct type_desc *type1, struct type_desc *type2);
 
 /**
  * Returns 1 if and only if array1 and array2 have both identical indexing and
  * mutually-assignment-compatible object types.
  */
-int arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2);
+int arrayAssignmentCompatible(symbol *sym1, symbol *sym2);
 
 /**
  * Returns a pointer to a constant symbol of type TC_INTEGER, TC_REAL, TC_CHAR,

@@ -108,7 +108,8 @@ symbol *getVarSymbol(char const *id) {
     }
     object_class objClass = varSym->oc;
     
-    if (objClass != OC_VAR && objClass != OC_PARAM && objClass != OC_CONST) {        
+    if (objClass != OC_VAR && objClass != OC_PARAM && objClass != OC_CONST) {    
+      //TODO: WHat is this?
         symNotAVarParmConstError();
         return createErrorSym(OC_VAR);
     }
