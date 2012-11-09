@@ -245,6 +245,9 @@ symbol *createSymbolType (char const *, type_class);
  struct type_desc *createTypeDesc (type_class, union type_descriptions);
  
  
+ 
+ type_class getTypeClass (symbol *);
+ 
 void removeSymbol (char const *);
 
 /**

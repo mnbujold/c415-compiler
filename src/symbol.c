@@ -311,6 +311,16 @@ symbol *createSymbolType (char const *identifier, type_class type) {
  
  
  
+  type_class getTypeClass (symbol *theSymbol) {
+    symbol *tempSymbol = theSymbol;
+    while (tempSymbol->symbol_type != NULL) {
+      if (tempSymbol->oc == OC_TYPE) {
+        return tempSymbol->desc.type_attr->type;
+      }
+      tempSymbol = tempSymbol->symbol_type;
+    }
+  }
+ 
  
  
  
