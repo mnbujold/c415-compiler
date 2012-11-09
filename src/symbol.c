@@ -108,8 +108,8 @@ symbol *getVarSymbol(char const *id) {
     }
     object_class objClass = varSym->oc;
     
-    if (objClass != OC_VAR || objClass != OC_PARAM) {
-        symNotAVarParmError();
+    if (objClass != OC_VAR && objClass != OC_PARAM && objClass != OC_CONST) {        
+        symNotAVarParmConstError();
         return createErrorSym(OC_VAR);
     }
     
@@ -127,7 +127,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   //NOTE: THIS IS BAD, oc is an ENUM. But whatever
   int oc = recordPointer->oc;
   printf ("\n");
-  //printf ("Address: %p", recordPointer);
+  printf ("Address: %p", recordPointer);
   printf ("KEY: '%s' ", identifier);
   printf ("Name: %s, %p ", recordPointer->name, recordPointer->name);
   printf ("Object class: %d\n", oc); 
@@ -140,7 +140,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
     }
   }
   */
-  printf ("TYPE: %d\n", getTypeClass (recordPointer));  
+  printf ("TYPE: %p; Type class: %d\n", recordPointer->symbol_type, getTypeClass (recordPointer));  
   /*
   if (oc==OC_TYPE) {
     struct type_desc *typeDescription = recordPointer->desc.type_attr;

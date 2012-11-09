@@ -104,12 +104,12 @@ int yywrap() {
 %%
 program                 : program_head decls compound_stat PERIOD
                             {
-                                showAllSymbols();
+/*                                 showAllSymbols(); */
                                 popLevel();
                             }
                         | error PERIOD /* ERROR */
                             {
-                                showAllSymbols();
+/*                                 showAllSymbols(); */
                                 popLevel();
                             }
                         | error /* ERROR */
@@ -155,6 +155,9 @@ const_decl_list         : const_decl
                         ;
 
 const_decl              : ID ISEQUAL expr
+                            {
+                                addNewConst($1, $3);
+                            }
                         | error /* ERROR */ 
                         ;
 
@@ -173,7 +176,7 @@ type_decl_list           :  /* empty */
 type_decl               : ID ISEQUAL type
                             {
                                 DEBUG_PRINT (("ID: %s\n", $1));
-                                addNewSymbol($1, $3, OC_TYPE);
+                                addNewType($1, $3);
                             }
                         | error /* ERROR */
                         ;
@@ -279,12 +282,11 @@ var_decl_list           : var_decl
 
 var_decl                : ID COLON type
                             {
-                            
-                                $$ = addNewSymbol($1, $3, OC_VAR);
+                                $$ = addNewVar($1, $3);
                             }
                         | ID COMMA var_decl
                             {
-                                $$ = addNewSymbol($1, $3, OC_VAR);
+                                $$ = addNewVar($1, $3);
                             }
                         | error /* ERROR */
                         ;
@@ -299,12 +301,12 @@ proc_decl_list          : proc_decl
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
                             {
-                                showAllSymbols();
+/*                                 showAllSymbols(); */
                                 popLevel();
                             }
                         | error SEMICOLON /* ERROR */
                             {
-                                showAllSymbols();
+/*                                 showAllSymbols(); */
                                 popLevel();
                             }
                         ;

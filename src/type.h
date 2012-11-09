@@ -74,6 +74,13 @@ void addProgramSymbols(const char *program, const char *input,
 symbol *addNewSymbol(const char *id, symbol *type, object_class objClass);
 
 /**
+ * Functions that add and return new symbols that are declared in the grammar.
+ */
+symbol *addNewType(const char *id, symbol *type);
+symbol *addNewVar(const char *id, symbol *type);
+symbol *addNewConst(const char *id, symbol *result);
+
+/**
  * Adds a new symbol with object class obj_class, of anonymous type, and with
  * identifier id to the symbol table; returns the anonymous type. Adds an error
  * if a symbol with id already exists at the current level.

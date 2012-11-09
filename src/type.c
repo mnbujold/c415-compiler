@@ -168,11 +168,66 @@ addNewSymbol(const char *id, symbol *type, object_class objClass) {
             addSymbol(type->name, type);
         }
         newSym = createSymbol(id, type, objClass, NULL);
+        
         addSymbol(id, newSym);
     } else {
         symExistsError(id);
     }
     return type;
+}
+
+symbol *
+addNewType(const char *id, symbol *type) {
+    if (localLookup(id) == NULL) {
+        if (type == NULL) {
+            typeNotDefinedError(id);
+            type = createErrorType();
+        } else if (globalLookup(type->name) != NULL) { // A named type.
+            addSymbol(id, type);
+            
+            if (localLookup(type->name) == NULL) { // Need to bring into local scope.
+                addSymbol(type->name, type);
+            }
+            
+            return type;
+        }
+        symbol *newType= createSymbol(id, NULL, OC_TYPE, (void *) type->desc.type_attr);
+        
+        addSymbol(id, newType);
+    } else {
+        symExistsError(id);
+    }
+    return type;
+}
+
+symbol *
+addNewVar(const char *id, symbol *type) {
+    if (localLookup(id) == NULL) {
+        if (type == NULL) {
+            typeNotDefinedError(id);
+            type = createErrorType();
+        } else if (localLookup(type->name) == NULL
+                && globalLookup(type->name) != NULL) { // A named type. Need to bring into local scope.
+            addSymbol(type->name, type);
+        }
+        symbol *newVar = createSymbol(id, type, OC_VAR, (void *) createVarDesc());
+        
+        addSymbol(id, newVar);
+    } else {
+        symExistsError(id);
+    }
+    return type;
+}
+
+symbol *
+addNewConst(const char *id, symbol *result) {
+    if (localLookup(id) == NULL) {
+        result->name = id;
+        addSymbol(id, result);
+    } else {
+        symExistsError(id);
+    }
+    return result;
 }
 
 struct type_desc *

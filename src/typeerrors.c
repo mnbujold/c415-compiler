@@ -48,12 +48,9 @@ symNotATypeError(const char *id) {
     addTypeError(errMsg);
 }
 
-/**
- * Adds a "symbol 'id' not a variable or parameter" error.
- */
-void symNotAVarParmError(const char *id) {
+void symNotAVarParmConstError(const char *id) {
     char errMsg[50 + strlen(id)];
-    sprintf(errMsg, "symbol '%s' not a variable or parameter", id);
+    sprintf(errMsg, "symbol '%s' not a variable, parameter, or constant", id);
     addTypeError(errMsg);
 }
 
