@@ -67,7 +67,8 @@ main(int argc,char** argv)
 #endif
     
     init_table ();
-    add_builtins();
+    showAllSymbols();
+    //add_builtins();
     while (yyparse() > 0) {
         yylex();
 

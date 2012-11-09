@@ -11,7 +11,7 @@
 #include <memory.h>
 #include <string.h>
 
-#include "builtin.h"  //separate builtins initalization from rest of this
+//#include "builtin.h"  //separate builtins initalization from rest of this
 
 #include "symbol.h"
 #include "type.h"
@@ -37,16 +37,16 @@ addSymbol always adds the symbol to the topmost level
 void *addSymbol (char const *identifier, symbol *symbol) {
 
   gpointer *key = (gpointer) identifier;
-  GHashTable *table = g_queue_peek_head (symbol_table);
+  /* Table is equal to the hashmap at head of the queue */
+  GHashTable *table = g_queue_peek_head(symbol_table);
   if (table == NULL) {
     DEBUG_PRINT(("Error: Symbol table is null for some reason\n"));
   }
+  /* Insert symbol at key in hashmap at head of queue */
+  printf("INSERTING SYMBOL\n");
   g_hash_table_insert (table, key, symbol);
 
 }
-
-
-
 
 //Is returning null for a null identifier the right thing to do?
 symbol *localLookup (char const *identifier) {
@@ -129,8 +129,8 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   printf ("\n");
   //printf ("Address: %p", recordPointer);
   printf ("KEY: '%s' ", identifier);
-  printf ("Name: %s, %p ", recordPointer->name, recordPointer->name);
-  printf ("Object class: %d\n", oc); 
+  printf ("\tName: %s, %p ", recordPointer->name, recordPointer->name);
+  printf ("\tObject class: %d", oc); 
   //printf ("Symbol attributes: %p\n", recordPointer->desc);
 /*
   if (recordPointer->symbol_type != NULL) {
@@ -140,7 +140,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
     }
   }
   */
-  printf ("TYPE: %d\n", getTypeClass (recordPointer));  
+  printf ("\tTYPE: %d\n", getTypeClass (recordPointer));  
   /*
   if (oc==OC_TYPE) {
     struct type_desc *typeDescription = recordPointer->desc.type_attr;
@@ -150,6 +150,18 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   printf ("\n");
 }
 
+void printLevel(int level){
+
+  printf("LEVEL %d ============================\n", level-1);
+  GHashTable *table = g_queue_peek_nth(symbol_table, level-1);
+  g_hash_table_foreach(table, (GHFunc)iterator, NULL);
+  printf("\nEND LEVEL %d ========================\n");
+  
+}
+
+void printSymbol(){
+  
+}
 void showAllSymbols() {
 
   int numLevels = g_queue_get_length (symbol_table);
@@ -166,7 +178,6 @@ void showAllSymbols() {
     
     i++;
     tmp--;
-    printf ("\n");
   }
   printf ("======================END================================\n");
   
@@ -421,8 +432,8 @@ void pushLevel () {
     eList = addError(eList, str, last_column, lineno);
    // return;
   }
-  GHashTable *table = createNewTable (level);
-  g_queue_push_head (symbol_table, table);
+//  GHashTable *table = createNewTable (level);
+  g_queue_push_head (symbol_table, createNewTable(level));
   level++;
 }
 
@@ -436,25 +447,30 @@ void popLevel () {
   g_hash_table_destroy (table); 
   level--;
 }
-
-
 /** 
 Called to initialize the symbol table
 */
 void init_table () {
+  /* Create a new queue for symbol_table*/
+  symbol_table = g_queue_new();
+  /* Add a new level to the symbol table (queue) */
+  pushLevel();
   
-  GQueue* table_stack = g_queue_new();
-  GHashTable *builtin_table = createNewTable(level);
-  //q_queue_push_tail (table_stack, builtin_table);
+  //Add all the builtins here
+  addSymbol("char", createSymbolType("char", TC_CHAR));
+  addSymbol("boolean", createSymbolType("boolean", TC_BOOLEAN));
+  addSymbol("integer", createSymbolType("integer", TC_INTEGER));
+  addSymbol("real", createSymbolType("real", TC_REAL));
+  /* Constants */
+  addSymbol("true", createSymbolType("true", TC_BOOLEAN));
+  addSymbol("false", createSymbolType("false", TC_BOOLEAN));
+  addSymbol("maxint", createSymbolType("maxint", TC_REAL));
+  addSymbol("pi", createSymbolType("pi", TC_REAL));
   
-  //Add all the builtins here: call builtins function
-  symbol_table = table_stack;
+  
   
   
 }
-
-
-
 void free_symbol_table() {
   int numLevels = g_queue_get_length(symbol_table);
   
@@ -465,12 +481,10 @@ void free_symbol_table() {
   }
   g_queue_free (symbol_table);
 }
-
 /**
  * Called to create a new symbol table
  * int level variable is currently unused
  */
 GHashTable *createNewTable(int level) {
-  GHashTable *table = g_hash_table_new (g_str_hash, g_str_equal);
-  return table;
+  return g_hash_table_new (g_str_hash, g_str_equal);
 }
