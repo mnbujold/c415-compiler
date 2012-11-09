@@ -25,6 +25,9 @@ void add_builtins () {
    * minint
    * pi
    */
+  printf ("Done adding builtins\n");
+  showAllSymbols();
+  exit;
 }
 int odd (int x) {
   return 1;

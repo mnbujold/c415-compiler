@@ -216,6 +216,8 @@ void *addSymbol (char const *, symbol *);
 symbol *localLookup (char const *);
 symbol *globalLookup (char const *);
 
+symbol *topLevelLookup (char const *);
+
 void showAllSymbols();
 
 /**

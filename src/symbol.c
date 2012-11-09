@@ -83,6 +83,12 @@ symbol *globalLookup (char const *identifier) {
   return returnedSymbol;
 }
 
+symbol *topLevelLookup (char const *identifier) {
+  GHashTable *table = g_queue_peek_tail (symbol_table);
+  symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
+  return returnedSymbol;
+}
+
 
 /**
  *  Debug function: When called, this will print out the entire symbol table
@@ -168,9 +174,6 @@ symbol *createSymbolFunction (char const *identifier, struct function_desc *func
   functionSymbol->name = identifier;
   functionSymbol->oc = OC_FUNC;
   //functionSymbol->type = type of return value of FP
-  printf ("%s: ", identifier);
-  printf ("functionDescription return: %p\n", functionDescription->return_type);
-  printf ("name: %p\n", functionDescription->return_type->name);
   functionSymbol->desc.func_attr = functionDescription;
   functionSymbol->symbol_type = functionDescription->return_type;
   
