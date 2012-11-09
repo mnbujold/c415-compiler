@@ -63,9 +63,11 @@ symbol *notOp(symbol *operand) {
 
 symbol *andOp (symbol *o1, symbol *o2) {
   if (o1 == NULL || o2 == NULL) {
+    opNotBooleanError();
     return createErrorType();
   }
   if (getTypeClass (o1) != TC_BOOLEAN || getTypeClass (o2) != TC_BOOLEAN) {
+    opNotBooleanError();
     return createErrorType();
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
@@ -77,6 +79,7 @@ symbol *andOp (symbol *o1, symbol *o2) {
 symbol *orOp (symbol *o1, symbol *o2){
 
   if (getTypeClass (o1) != TC_BOOLEAN || getTypeClass (o2) != TC_BOOLEAN) {
+    opNotBooleanError();
     return createErrorType ();
   }
   
@@ -96,28 +99,37 @@ int validArithOperator (symbol *operand) {
 }
 symbol *addOp (symbol *o1, symbol *o2) {
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
+    addTypeError ("Operator not of type integer or real");
+    return createErrorType();
   }
 }
 
 symbol *subtractOp (symbol *o1, symbol *o2) {
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
+    addTypeError ("Operator not of type integer or real");
+    return createErrorType();
   }
 }
 
 symbol *multOp (symbol *o1, symbol *o2) {
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
+    addTypeError ("Operator not of type integer or real");
+    return createErrorType();
   }
 }
 
 symbol *intDivOp (symbol *o1, symbol *divisor) {
   if (getTypeClass (o1) != TC_INTEGER || getTypeClass (divisor) != TC_INTEGER) {
+    addTypeError ("Operator not of type integer");
     return createErrorType();
+
   }
   //if divisor == 0 return error
 }
 
 symbol *realDivOp (symbol *o1, symbol *divisor) {
   if (getTypeClass (o1) != TC_REAL || getTypeClass (divisor) != TC_REAL) {
+    addTypeError ("Operator not of type real");
     return createErrorType();
   }
   //if divisor == 0 error
@@ -125,6 +137,8 @@ symbol *realDivOp (symbol *o1, symbol *divisor) {
 
 symbol *modOp (symbol *o1, symbol *o2) {
   if (getTypeClass (o1) != TC_INTEGER || getTypeClass (o2) != TC_INTEGER) {
+    addTypeError ("Operator not of type integer");
+
     return createErrorType();
   }
   //if divisor == 0 error
@@ -135,7 +149,25 @@ symbol *modOp (symbol *o1, symbol *o2) {
 /************************
  * comparison operators
  * *********************/
+int validComparisonOperator (symbol *operand) {
+  if (getTypeClass (operand) == TC_REAL) {
+    return 1;
+  }
+  if (getTypeClass (operand) == TC_SCALAR) {
+    return 1;
+  }
+  if (getTypeClass (operand) == TC_ARRAY) {
+    //TODO
+    //check to make sure array is of type char
+    return 1;
+  }
+  return 0;
+}
 symbol *equalOp (symbol *o1, symbol *o2) {
+  if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
+    addTypeError ("Operators cannot be compared");
+    return createErrorType();
+  }
 }
 symbol *notEqualOp (symbol *o1, symbol *o2) {
 }

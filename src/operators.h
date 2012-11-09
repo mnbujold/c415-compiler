@@ -58,7 +58,7 @@ symbol *modOp (symbol *o1, symbol *o2);
 /************************
  * comparison operators
  * *********************/
-
+int validComparisonOperator (symbol *operand);
 symbol *equalOp (symbol *o1, symbol *o2);
 symbol *notEqualOp (symbol *o1, symbol *o2);
 symbol *lessThanOp (symbol *o1, symbol *o2);
