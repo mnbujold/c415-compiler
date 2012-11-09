@@ -185,18 +185,21 @@ struct type_desc{
   union type_descriptions desc;
 };
 
-struct symbol_rec {
-  char const *name;         /* Name of symbol */
-  object_class oc;     /* Class of object (eg. OC_CONST) */
-  struct symbol_rec *symbol_type;
-  union {             /* Class-specific attributes */
+  union oc_descriptions {             /* Class-specific attributes */
   struct const_desc *const_attr;
   struct var_desc *var_attr;
   struct function_desc *func_attr;
   struct procedure_desc *proc_attr;
   struct param_desc *parm_attr;
   struct type_desc *type_attr;
-  }desc;
+  };
+  
+  
+struct symbol_rec {
+  char const *name;         /* Name of symbol */
+  object_class oc;     /* Class of object (eg. OC_CONST) */
+  struct symbol_rec *symbol_type;
+  union oc_descriptions desc;
 };
 
 

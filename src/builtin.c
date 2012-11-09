@@ -26,9 +26,19 @@ void add_builtins () {
    * minint
    * pi
    */
+   
+  symbol *booleanTypeDescription = getType ("boolean");
+  symbol *oddFunctionSymbol = calloc (1, sizeof (symbol));
+  GPtrArray *oddParam = g_ptr_array_new ();
+  struct function_desc *funcDescription = createFunctionDesc (oddParam, 
+    booleanTypeDescription);
+  symbol *oddSymbol = createSymbol ("odd", booleanTypeDescription, OC_FUNC, funcDescription);
+  addSymbol ("odd", oddSymbol);
+  printf ("Type class of odd: %d\n", getTypeClass (oddSymbol));
   printf ("Done adding builtins\n");
   showAllSymbols();
-  exit;
+  printf ("done showing all symbols\n");
+  //exit (EXIT_SUCCESS);
 }
 int odd (int x) {
   return 1;

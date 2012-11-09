@@ -154,13 +154,19 @@ pointer * value
 */
 symbol *createSymbol (char const *identifier, symbol *type, 
 object_class oc, void *value) {
-    DEBUG_PRINT(("Inside create symbol type\n"));
+    //DEBUG_PRINT(("Inside create symbol type\n"));
     
     symbol *newSymbol = calloc(1, sizeof(symbol));
     newSymbol->name = identifier;
     newSymbol->oc = oc;
     newSymbol->symbol_type = type;
-    
+    //TODO: SWITCH Statement assigning value based on the OC
+    //newSymbol->desc = description;
+    if (value == NULL) {
+      //do nothing
+    }
+    else {
+    }
     return newSymbol;
 }
 
@@ -312,13 +318,18 @@ symbol *createSymbolType (char const *identifier, type_class type) {
  
  
   type_class getTypeClass (symbol *theSymbol) {
+
     symbol *tempSymbol = theSymbol;
-    while (tempSymbol->symbol_type != NULL) {
+    
+    while (tempSymbol != NULL){
+    //printf ("Symbol name: %s\n", tempSymbol->name);
+    //printf ("Object class: %d\n", tempSymbol->oc);
       if (tempSymbol->oc == OC_TYPE) {
         return tempSymbol->desc.type_attr->type;
       }
       tempSymbol = tempSymbol->symbol_type;
-    }
+    } 
+    DEBUG_PRINT (("Hm...symbol did not point to any type\n"));
   }
  
  
