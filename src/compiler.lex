@@ -162,7 +162,7 @@ void add() {
 int strcountlines (char *string) {
   int count = 0;
   char *charptr = string + 1;
-  while (*charptr != '\'') {
+  while (*charptr != 0) {
     if (*charptr == '\n') {
       count++;
     }

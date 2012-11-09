@@ -390,7 +390,7 @@ void pushLevel () {
     iserror = 1;
     const char *str = "scope level is too big";
     eList = addError(eList, str, last_column, lineno);
-    return;
+   // return;
   }
   GHashTable *table = createNewTable (level);
   g_queue_push_head (symbol_table, table);
