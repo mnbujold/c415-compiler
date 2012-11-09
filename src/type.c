@@ -114,7 +114,7 @@ createConstant(type_class type, union constant_values value) {
     constSym->desc.const_attr = constant;
 
     if (type == TC_INTEGER) {
-        constSym->symbol_type = topLevelLookup("integer");
+        constSym->symbol_type = topLevelLookup("integer");        
     } else if (type == TC_REAL) {
         constSym->symbol_type = topLevelLookup("real");
     } else if (type == TC_CHAR) {
@@ -371,15 +371,13 @@ createArray(symbol *indexType, symbol *objType) {
     int indexClass = indexType->desc.type_attr->type;
     int size = 0;
 
-    if (indexClass == TC_SUBRANGE) {
-        struct tc_subrange *subrange =
-                         indexType->desc.type_attr->desc.subrange;
-        size = subrange->high - subrange->low + 1;
-    } else if (indexClass == TC_INTEGER) {
-        // ...
-    } else if (indexClass == TC_CHAR) {
-        // ...
-    } 
+    if (indexClass != TC_SUBRANGE) {
+        arrayIndexTypeError();
+        return createErrorType();
+    }
+    struct tc_subrange *subrange = indexType->desc.type_attr->desc.subrange;
+    size = subrange->high - subrange->low + 1;
+    
     struct tc_array *newArray = calloc(1, sizeof(struct tc_array));
     newArray->size = size;
     newArray->index_type = indexType;
@@ -424,6 +422,12 @@ createArrayIndex(symbol *low, symbol *high) {
         } else if (typeClass == TC_BOOLEAN) {
             highValue = high->desc.const_attr->value.boolean;
             lowValue = low->desc.const_attr->value.boolean;
+        } else if (typeClass == TC_CHAR) {
+            highValue = high->desc.const_attr->value.character;
+            lowValue = low->desc.const_attr->value.character;
+        } else if (typeClass == TC_CONST) {
+            highValue = high->desc.const_attr->value.integer;
+            lowValue = low->desc.const_attr->value.integer;
         } else {
             arrayBoundInvalidError();
             return createErrorType();
@@ -444,8 +448,37 @@ createArrayIndex(symbol *low, symbol *high) {
         subrangeType->desc.subrange = subrange;
 
         return createTypeSym(NULL, subrangeType);        
-    } else if (highClass == OC_TYPE) {
-        // Special Cases!
+    } else if (low == NULL && highClass == OC_TYPE) {
+        type_class type = high->desc.type_attr->type;
+        int correct = (type == TC_INTEGER || type == TC_CHAR || type == TC_SCALAR);
+        int lowValue;
+        int highValue;
+        
+        if (type == TC_INTEGER){
+            int maxInt = topLevelLookup("maxint")->desc.const_attr->value.integer;
+            lowValue = (-1) * maxInt;
+            highValue = maxInt;
+        } else if (type == TC_CHAR) {
+            lowValue = 0;
+            highValue = 256; // 2^8 = maximum char value;
+        } else if (type == TC_SCALAR) {
+            GArray *list = high->desc.type_attr->desc.scalar->const_list;
+            lowValue = g_array_index(list, symbol *, 0)->desc.const_attr->value.integer;
+            highValue = g_array_index(list, symbol *, (list->len)-1)->desc.const_attr->value.integer;
+        }
+        
+        if (correct == 1) {
+            struct tc_subrange *subrange = calloc(1, sizeof(struct tc_subrange));
+            subrange->low = lowValue;
+            subrange->high = highValue;
+            subrange->len = highValue - lowValue + 1;
+            subrange->mother_type = high;
+            
+            struct type_desc *subrangeType = calloc(1, sizeof(struct type_desc));
+            subrangeType->type = TC_SUBRANGE;
+            subrangeType->desc.subrange = subrange;
+            return high;
+        }
     }
     arrayIndexTypeError();
     return createErrorType();
