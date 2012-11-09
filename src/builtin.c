@@ -22,6 +22,7 @@ void add_builtins () {
    * false
    * maxint
    * minint
+   * pi
    */
 }
 int odd (int x) {
@@ -110,11 +111,27 @@ int odd (int x) {
    addSymbol ("ln", functionSymbol);
    
    /* Numbery functions */
-   functionSymbol = createSymbolFunction ("trunc", functionDescription);
-   functionSymbol = createSymbolFunction ("round", functionDescription);
    
+   
+   GPtrArray *truncParam = g_ptr_array_new ();
+   parameter->type = realTypeDescription;
+   g_ptr_array_add (truncParam, parameter);
+   functionDescription->params = truncParam;
+   functionDescription->return_type = realTypeDescription;
+   functionSymbol = createSymbolFunction ("trunc", functionDescription);
+   addSymbol ("trunc", functionSymbol);
+   
+   GPtrArray *roundParam = g_ptr_array_new();
+   parameter->type = realTypeDescription;
+   g_ptr_array_add(roundParam, parameter);
+   functionDescription->return_type = realTypeDescription;
+   functionSymbol = createSymbolFunction ("round", functionDescription);
+   addSymbol ("round", functionSymbol);
    /* enumy functions */
    
+   
+   GPtrArray *ordParam = g_ptr_array_new();
+   //parameter->type = 
    functionSymbol = createSymbolFunction ("ord", functionDescription);
    functionSymbol = createSymbolFunction ("chr", functionDescription);
    functionSymbol = createSymbolFunction ("succ", functionDescription);
