@@ -58,7 +58,10 @@ symbol *localLookup (char const *identifier) {
 
 
 symbol *globalLookup (char const *identifier) {
-
+    if (identifier == NULL) {
+        return NULL;
+    }
+    
   int numLevels = g_queue_get_length(symbol_table);
 
   symbol *returnedSymbol = NULL;
@@ -83,6 +86,12 @@ symbol *globalLookup (char const *identifier) {
   return returnedSymbol;
 }
 
+symbol *topLevelLookup (char const *identifier) {
+  GHashTable *table = g_queue_peek_tail (symbol_table);
+  symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
+  return returnedSymbol;
+}
+
 
 /**
  *  Debug function: When called, this will print out the entire symbol table
@@ -93,14 +102,24 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   symbol *recordPointer = (symbol *) value;
   //NOTE: THIS IS BAD, oc is an ENUM. But whatever
   int oc = recordPointer->oc;
-  printf ("#############################\n");
+  printf ("\n");
+  //printf ("Address: %p", recordPointer);
   printf ("KEY: '%s' ", identifier);
+  printf ("Name: %s, %p ", recordPointer->name, recordPointer->name);
   printf ("Object class: %d\n", oc); 
+  if (recordPointer->symbol_type != NULL) {
+    printf ("Symbol type: %p ", recordPointer->symbol_type);
+    if (recordPointer->symbol_type->name != NULL) {
+      printf ("Symbol name: %p\n", recordPointer->symbol_type->name); 
+    }
+  }
+    
   if (oc==OC_TYPE) {
     struct type_desc *typeDescription = recordPointer->desc.type_attr;
     int tc = typeDescription->type;
     printf ("TYPE: %d\n", tc);
   }
+  printf ("\n");
 }
 
 void showAllSymbols() {
@@ -158,8 +177,8 @@ symbol *createSymbolFunction (char const *identifier, struct function_desc *func
   functionSymbol->name = identifier;
   functionSymbol->oc = OC_FUNC;
   //functionSymbol->type = type of return value of FP
-  //struct function_desc *functionDescription = calloc (1, sizeof (struct function_desc));
   functionSymbol->desc.func_attr = functionDescription;
+  functionSymbol->symbol_type = functionDescription->return_type;
   
 }
 

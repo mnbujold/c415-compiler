@@ -147,7 +147,7 @@ void
 addProgramSymbols(const char *program, const char *input, const char *output) {
     struct type_desc *fileType = calloc(1, sizeof(struct type_desc));
     symbol *fileSym = createTypeSym(NULL, fileType);
-    
+
     addNewSymbol(program, fileSym, OC_PROGRAM); // Kinda cheating here, but no one should be touching these ...
     addNewSymbol(input, fileSym, OC_PARAM);
     addNewSymbol(output, fileSym, OC_PARAM);

@@ -13,6 +13,12 @@
 
 #define MAX_LEVEL 14
 
+
+
+
+
+
+
 /* Defines which field of union is being used for readability */
 /* Type Class defs */
 /**
@@ -65,6 +71,9 @@ enum object_class {
 
 typedef enum object_class object_class;
 
+
+struct symbol_rec;
+typedef struct symbol_rec symbol;
 /* Structs for defining type classes of variables */
 struct tc_integer{
   int len; //32 bits?
@@ -100,8 +109,8 @@ struct tc_scalar{
 };
 struct tc_array{
   int size;
-  struct symbol_rec *index_type;
-  struct symbol_rec *obj_type;
+  symbol *index_type;
+  symbol *obj_type;
   int maxIndex;
   int minIndex;
   int len;
@@ -116,7 +125,7 @@ struct tc_subrange{
   int len;
   int low;
   int high;
-  struct symbol_rec *mother_type;
+  symbol *mother_type;
 };
 
 struct tc_file{
@@ -142,11 +151,10 @@ struct const_desc{
 };
 
 struct var_desc{
-  //symbol *type;
 };
 
 struct procedure_desc{
-  GPtrArray *params;
+  GPtrArray *params; //array of *param_desc
 };
 
 struct function_desc{
@@ -157,7 +165,6 @@ struct function_desc{
 
 
 struct param_desc{
-  //symbol *type;
 };
 
 struct type_desc{
@@ -177,23 +184,19 @@ struct type_desc{
   }desc;
 };
 
-
-
 struct symbol_rec {
   char const *name;         /* Name of symbol */
   object_class oc;     /* Class of object (eg. OC_CONST) */
-  struct symbol_rec *symbol_type; // Will refactor this ...
-  //symbol *typeSymbol; //A pointer to the type that this symbol is
+  struct symbol_rec *symbol_type;
   union {             /* Class-specific attributes */
-    struct const_desc *const_attr;
-    struct var_desc *var_attr;
-    struct function_desc *func_attr;
-    struct procedure_desc *proc_attr;
-    struct param_desc *parm_attr;
-    struct type_desc *type_attr;
+  struct const_desc *const_attr;
+  struct var_desc *var_attr;
+  struct function_desc *func_attr;
+  struct procedure_desc *proc_attr;
+  struct param_desc *parm_attr;
+  struct type_desc *type_attr;
   }desc;
 };
-
 
 
 typedef struct symbol_rec symbol;
@@ -209,6 +212,8 @@ void *addSymbol (char const *, symbol *);
 
 symbol *localLookup (char const *);
 symbol *globalLookup (char const *);
+
+symbol *topLevelLookup (char const *);
 
 void showAllSymbols();
 
