@@ -166,7 +166,7 @@ addNewSymbolAnonType(const char *id, struct type_desc *type, object_class objCla
     return type;
 }
 
-struct type_desc *getType(const char *id) {
+symbol *getType(const char *id) {
     symbol *typeSymbol = globalLookup (id);
     
     if (typeSymbol == NULL) {

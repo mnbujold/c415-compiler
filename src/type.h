@@ -72,7 +72,7 @@ struct type_desc *addNewSymbolAnonType(const char *id, struct type_desc *type,
  * Returns the type_desc of the symbol with name id. Adds an error if no such
  * symbol can be found.
  */
-struct type_desc *getType(const char *id);
+symbol *getType(const char *id);
 
 /**
  * Returns a pointer to the scalar list type_desc created by nameList.
