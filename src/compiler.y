@@ -87,7 +87,7 @@ int yywrap() {
 %type <garray> scalar_type scalar_list field_list
 %type <symbol> field
 %type <symbol> var_decl
-%type <symbol> var parm
+%type <symbol> var subscripted_var parm
 %type <symbol> expr simple_expr term factor unsigned_const unsigned_num
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
@@ -198,7 +198,11 @@ type                    : simple_type
 
 simple_type             : scalar_type
                             {
-                                $$ = createScalarList($1);
+                                if ($1 != NULL) {
+                                    $$ = createScalarList($1);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | ID
                             {
@@ -211,8 +215,17 @@ scalar_type             : LEFTPAREN scalar_list RIGHTPAREN
                                 $$ = $2;
                             }
                         | LEFTPAREN error RIGHTPAREN /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         | LEFTPAREN error /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         | error RIGHTPAREN /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 scalar_list             : ID
@@ -221,19 +234,31 @@ scalar_list             : ID
                             }
                         | scalar_list COMMA ID
                             {
-                                $$ = addScalar($1, $3);
+                                if ($1 != NULL) {
+                                    $$ = addScalar($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         ;
 
 structured_type         : ARRAY closed_array_type OF type
                             {
                                 DEBUG_PRINT (("Inside structured type\n"));
-                                $$ = createArray($2, $4);
+                                if ($2 != NULL && $4 != NULL) {
+                                    $$ = createArray($2, $4);
+                                } else {
+                                    $$ = NULL;
+                                }
                                 DEBUG_PRINT(("Finished calling structured type\n"));
                             }
                         | RECORD field_list END
                             {
-                                $$ = createRecord($2);
+                                if ($2 != NULL) {
+                                    $$ = createRecord($2);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         ;
 
@@ -243,17 +268,34 @@ closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                                 $$ = $2;
                             }
                         | LEFTBRACKET error RIGHTBRACKET /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         | LEFTBRACKET error /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         | error RIGHTBRACKET /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 array_type              : expr
                             {
-                                $$ = createArrayIndex(NULL, $1);
+                                if ($1 != NULL) {
+                                    $$ = createArrayIndex(NULL, $1);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | expr DOUBLEPERIOD expr
                             {
-                                $$ = createArrayIndex($1, $3);
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = createArrayIndex($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         ;
 
@@ -261,12 +303,16 @@ field_list              : field
                             {
                                 if ($1 != NULL) {
                                     $$ = addField(NULL, $1);
+                                } else {
+                                    $$ = NULL;
                                 }
                             }
                         | field_list SEMICOLON field
                             {
-                                if ($3 != NULL) {
+                                if ($1 != NULL && $3 != NULL) {
                                     $$ = addField($1, $3);
+                                } else {
+                                    $$ = NULL;
                                 }
                             }
                         ;
@@ -274,7 +320,11 @@ field_list              : field
 field                   : ID COLON type
                             {
                                 DEBUG_PRINT(("In field\n"));
-                                $$ = createSymbol($1, $3, OC_PARAM, NULL);
+                                if ($3 != NULL) {
+                                    $$ = createSymbol($1, $3, OC_PARAM, NULL);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | error /* ERROR */
                             {
@@ -293,13 +343,24 @@ var_decl_list           : var_decl
 
 var_decl                : ID COLON type
                             {
-                                $$ = addNewVar($1, $3);
+                                if ($3 != NULL) {
+                                    $$ = addNewVar($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | ID COMMA var_decl
                             {
-                                $$ = addNewVar($1, $3);
+                                if ($3 != NULL) {
+                                    $$ = addNewVar($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | error /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 proc_decl_part          : /* empty */
@@ -382,6 +443,9 @@ stat_assignment         : var ASSIGN expr
                                 // Have to finish this ...
                             }
                         | error /* ERROR */
+                            {
+                                //$$ = NULL:
+                            }
                         ;
                         
 proc_invok              : plist_finvok RIGHTPAREN
@@ -395,6 +459,9 @@ var                     : ID
                         | var PERIOD ID
                         | subscripted_var RIGHTBRACKET
                         | error RIGHTBRACKET /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 subscripted_var         : var LEFTBRACKET expr
@@ -402,6 +469,9 @@ subscripted_var         : var LEFTBRACKET expr
                         ;
 
 expr                    : simple_expr
+                            {
+                                $$ = $1;
+                            }
                         | expr ISEQUAL simple_expr
                         | expr NOTEQUAL simple_expr
                         | expr LESSTHANEQUALS simple_expr
@@ -431,6 +501,9 @@ term                    : factor
                         | term MOD factor
                         | term AND factor
                         | error /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 factor                  : var
@@ -446,6 +519,9 @@ factor                  : var
                                 $$ = $2;
                             }
                         | LEFTPAREN error RIGHTPAREN /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         | func_invok
                             {
                                 // Have to finish this ...

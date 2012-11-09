@@ -3,8 +3,8 @@
     Tests invalid record definitions and calls.
     Errors:
     30:37 field already defined
-    79:16 illegal assignment of real to integer
-    99:23 not a field of the 'another' record
+    78:16 illegal assignment of real to integer
+    98:23 not a field of the 'another' record
 }
 program recordings(useless, parameters);
 
@@ -38,9 +38,8 @@ var lib : array[1..20] of book;
     aBook : book;
     title : array[1..50] of char;
     name : nameStr;
-    id : integer;
+    id, index : integer;
     stop : char;
-    index : integer;
     another : problemRecord;
 
 procedure addBook(var newBook : book; charIndex : integer; revIndex : integer);
