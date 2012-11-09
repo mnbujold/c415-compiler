@@ -80,7 +80,7 @@ symbol *andOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     //evaluate the expression
     int value1 =o1->desc.const_attr->value.boolean;
-    int value2 = o2.desc.const_attr->value.boolean;
+    int value2 = o2->desc.const_attr->value.boolean;
     int result = value1 && value2;
     union constant_values resultValue = {.boolean = result};
     return createConstant (TC_BOOLEAN, resultValue);
@@ -98,7 +98,7 @@ symbol *orOp (symbol *o1, symbol *o2){
   
   if (canEvaluate (o1) && canEvaluate (o2)) {
     int value1 =o1->desc.const_attr->value.boolean;
-    int value2 = o2.desc.const_attr->value.boolean;
+    int value2 = o2->desc.const_attr->value.boolean;
     int result = value1 || value2;
     union constant_values resultValue = {.boolean = result};
     return createConstant (TC_BOOLEAN, resultValue);
@@ -380,10 +380,22 @@ int validComparisonOperator (symbol *operand) {
   if (getTypeClass (operand) == TC_SCALAR) {
     return 1;
   }
+  if (getTypeClass (operand) == TC_INTEGER) {
+    return 1;
+  }
+  if (getTypeClass (operand) == TC_CHAR) {
+    return 1;
+  }
+  if (getTypeClass (operand) == TC_BOOLEAN) {
+    return 1;
+  }
   if (getTypeClass (operand) == TC_ARRAY) {
     //TODO
     //check to make sure array is of type char
-    return 1;
+    //type_class tc = operand->desc.type_attr->
+    if (getArrayType (operand) == TC_CHAR) {
+      return 1;
+    }
   }
   return 0;
 }

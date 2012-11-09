@@ -105,6 +105,14 @@ arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
     return 1;
 }
 
+/**
+ * Note: We assume we know the symbol is an array
+ * If it is not, we are screwed
+ */
+type_class getArrayType (symbol *sym) {
+  return getTypeClass (sym->desc.type_attr->desc.array->obj_type);
+}
+
 symbol *
 createConstant(type_class type, union constant_values value) {
     struct const_desc *constant = createConstDesc(value);
