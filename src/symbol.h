@@ -68,8 +68,12 @@ enum object_class {
 typedef enum object_class object_class;
 
 
+/*Forward declaration of symbol so we dont have 
+ * looping errors
+ */
 struct symbol_rec;
 typedef struct symbol_rec symbol;
+
 
 /* Structs for defining type classes of variables */
 struct tc_integer{
@@ -99,8 +103,8 @@ struct tc_scalar{
 };
 struct tc_array{
   int size;
-  symbol *index_type;
-  symbol *obj_type;
+  symbol *index_type; //what are we using to index?
+  symbol *obj_type; //what elements are we storing?
   int maxIndex;
   int minIndex;
   int len;
@@ -237,7 +241,7 @@ symbol *createSymbolType (char const *, type_class);
  struct param_desc *createParamDesc ();
  struct type_desc *createTypeDesc (type_class, union type_descriptions);
  
- type_class getTypeClass (symbol *);
+type_class getTypeClass (symbol *);
  
 symbol *createErrorSym(object_class);
  

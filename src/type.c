@@ -13,7 +13,9 @@
 
 int
 compatibleSym(symbol *sym1, symbol *sym2) {
-    return compatible(sym1->desc.type_attr, sym1->desc.type_attr); // Incorrect, but I don't know if I'm actually going to use this ...
+  //TODO:
+  //hm...how to do this?
+  return 0;
 }
 
 int
@@ -33,40 +35,60 @@ compatible(struct type_desc *type1, struct type_desc *type2) {
     return 0;
 }
 
+
+/**
+ * Test to see if 2 symbols are assignment compatible
+ * Assigning symbol 2 TO symbol 1
+ * sym1 = sym2;
+ */
 int
 assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
-    return compatible(sym1->desc.type_attr, sym1->desc.type_attr); // Incorrect, but I don't know if I'm actually going to use this ...
+  
+    type_class tcSym1 = getTypeClass (sym1);
+    type_class tcSym2 = getTypeClass (sym2);
+    if (tcSym1 == tcSym2) {
+      return 1;
+    }
+    else if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
+       return arrayAssignmentCompatible (sym1, sym2);
+      //return array assignment compatiblity
+    }
+    else if (tcSym1 == TC_REAL && tcSym2 == TC_INTEGER) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
+    
 }
-
+/**
+ * IMPORTANT: Assumes that these 2 symbols are arrays, 
+ * We do not check if they are arrays here
+ */
 int
-assignmentCompatible(struct type_desc *type1, struct type_desc *type2) {
-    // T1 and T2 are the same type:
-    if (type1 == type2) {
-        return 1;
+arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
+  
+    struct tc_array *sym1ArrayDescription = sym1->desc.type_attr->desc.array;
+    struct tc_array *sym2ArrayDescription = sym2->desc.type_attr->desc.array;
+    //obviously if the objects are not the same, then can't assign
+    if (getTypeClass(sym1ArrayDescription->obj_type) != getTypeClass(sym2ArrayDescription->obj_type)) {
+      return 0;
     }
-    type_class tc1 = type1->type;
-    type_class tc2 = type2->type;
-    
-    // check if booleans ...
-    
-    // T1 is of type real and T2 is of type integer:
-    if (tc1 == TC_REAL && tc2 == TC_INTEGER) {
-        return 1;
+    if (getTypeClass (sym1ArrayDescription->index_type) != getTypeClass (sym2ArrayDescription->index_type)) {
+      return 0;
     }
     
-    // T1 and T2 are assignment compatible arrays:
-    if (tc1 == TC_ARRAY && tc2 == TC_ARRAY) {
+    //TODO: Check they are exactly the same enumerated type if we are using
+    //enum
     
-        return arrayAssignmentCompatible(type1->desc.array,
-                                         type2->desc.array);
+    if (sym1ArrayDescription->minIndex != sym2ArrayDescription->minIndex) {
+      return 0;
+    }
+    if (sym1ArrayDescription->maxIndex != sym2ArrayDescription->maxIndex) {
+      return 0;
     }
     
-    return 0;
-}
-
-int
-arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
-    return 0;
+    //if (sym1->
 //     int objCompat = 1;
 //     int indEquiv = 1;
 //     struct type_desc *ot1 = array1->obj_type;
@@ -80,51 +102,42 @@ arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
 //     // index checking ...
 //     
 //     return objCompat && indEquiv;
+    return 1;
 }
 
-
-//TODO: THIs is ugly. you're only using one of these values
-//Use a union parameter here.
 symbol *
-createConstant(type_class type, int intValue, double realValue, char charValue) {
-    struct const_desc *constant = calloc(1, sizeof(struct const_desc));    
-    char *typeName;
-
-    if (type == TC_INTEGER) {
-        typeName = "integer";
-        constant->value.integer = intValue;
-        constant->hasValue = 1;
-    } else if (type == TC_REAL) {
-        typeName = "real";
-        constant->value.real = realValue;
-        constant->hasValue = 1;
-    } else if (type == TC_CHAR) {
-        typeName = "char";
-        constant->value.character = charValue;
-        constant->hasValue = 1;
-    } else if (type == TC_BOOLEAN) {
-        typeName = "boolean";
-        constant->value.integer = intValue;  
-        constant->hasValue = 1;      
-    } else {
-        typeName = NULL; // You asked for it. Well, not really, but I'm lazy.
-        constant->value.integer = 0;
-        constant->hasValue = 0;
-    }
+createConstant(type_class type, union constant_values value) {
+    struct const_desc *constant = createConstDesc(value);
     symbol *constSym = calloc(1, sizeof(symbol));
     constSym->name = NULL;
     constSym->oc = OC_CONST;
     constSym->desc.const_attr = constant;
-    constSym->symbol_type = topLevelLookup(typeName);
+
+    if (type == TC_INTEGER) {
+        constSym->symbol_type = topLevelLookup("integer");
+    } else if (type == TC_REAL) {
+        constSym->symbol_type = topLevelLookup("real");
+    } else if (type == TC_CHAR) {
+        constSym->symbol_type = topLevelLookup("char");
+    } else if (type == TC_BOOLEAN) {
+        constSym->symbol_type = topLevelLookup("boolean"); 
+    } else if (type == TC_STRING) {
+        constSym->symbol_type = stringToArray(value.string);
+    } else {
+        constSym->symbol_type = NULL; // You asked for it. Well, not really, but I'm lazy.
+    }
+    
+    
     
     return constSym;
 }
 
 symbol *
-createStringConstant(const char *string) {
-    int len = strlen(string) + 1;
-    symbol *low = createConstant(TC_INTEGER, 1, 0.0, 0);
-    symbol *high = createConstant(TC_INTEGER, len, 0.0, 0);
+stringToArray(const char *string) {
+    union constant_values lowValue = {.integer = 1};
+    union constant_values highValue = {.integer = (strlen(string) + 1)};
+    symbol *low = createConstant(TC_INTEGER, lowValue);
+    symbol *high = createConstant(TC_INTEGER, highValue);
     
     symbol *indexSym = createArrayIndex(low, high);
     symbol *objectSym = topLevelLookup("char");
@@ -354,13 +367,13 @@ symbol *
 createArray(symbol *indexType, symbol *objType) {
     DEBUG_PRINT (("Inside create array\n"));
     DEBUG_PRINT (("index type: %p object type: %p\n", indexType, objType));
-    // indexType->symbol_type is NULL! Fix it!
-    int indexClass = indexType->symbol_type->desc.type_attr->type;
+
+    int indexClass = indexType->desc.type_attr->type;
     int size = 0;
 
     if (indexClass == TC_SUBRANGE) {
         struct tc_subrange *subrange =
-                         indexType->symbol_type->desc.type_attr->desc.subrange;
+                         indexType->desc.type_attr->desc.subrange;
         size = subrange->high - subrange->low + 1;
     } else if (indexClass == TC_INTEGER) {
         // ...
@@ -429,7 +442,7 @@ createArrayIndex(symbol *low, symbol *high) {
         struct type_desc *subrangeType = calloc(1, sizeof(struct type_desc));
         subrangeType->type = TC_SUBRANGE;
         subrangeType->desc.subrange = subrange;
-        
+
         return createTypeSym(NULL, subrangeType);        
     } else if (highClass == OC_TYPE) {
         // Special Cases!

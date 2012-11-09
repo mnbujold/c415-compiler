@@ -175,8 +175,9 @@ type_decl_list           :  /* empty */
 
 type_decl               : ID ISEQUAL type
                             {
-                                DEBUG_PRINT (("ID: %s\n", $1));
-                                addNewType($1, $3);
+                                if ($3 != NULL) {
+                                    addNewType($1, $3);
+                                }
                             }
                         | error /* ERROR */
                         ;
@@ -190,6 +191,9 @@ type                    : simple_type
                                 $$ = $1;
                             }
                         | error /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 simple_type             : scalar_type
@@ -255,11 +259,15 @@ array_type              : expr
 
 field_list              : field
                             {
-                                $$ = addField(NULL, $1);
+                                if ($1 != NULL) {
+                                    $$ = addField(NULL, $1);
+                                }
                             }
                         | field_list SEMICOLON field
                             {
-                                $$ = addField($1, $3);
+                                if ($3 != NULL) {
+                                    $$ = addField($1, $3);
+                                }
                             }
                         ;
 
@@ -269,6 +277,9 @@ field                   : ID COLON type
                                 $$ = createSymbol($1, $3, OC_PARAM, NULL);
                             }
                         | error /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 var_decl_part           : /* empty */
@@ -451,17 +462,20 @@ unsigned_const          : unsigned_num
                             }
                         | STRING
                             {
-                                $$ = createStringConstant($1);
+                                union constant_values value = { .string = $1 };
+                                $$ = createConstant(TC_STRING, value);
                             }
                         ;
 
 unsigned_num            : INT_CONST
-                            {
-                                $$ = createConstant(TC_INTEGER, $1, 0.0, 0);
+                            {                                
+                                union constant_values value = { .integer = $1 };
+                                $$ = createConstant(TC_INTEGER, value);
                             }
                         | REAL_CONST
-                            {
-                                $$ = createConstant(TC_REAL, 0, $1, 0);
+                            {                                
+                                union constant_values value = { .real = $1 };
+                                $$ = createConstant(TC_REAL, value);
                             }
                         ;
 
