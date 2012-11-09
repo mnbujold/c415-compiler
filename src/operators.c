@@ -59,6 +59,8 @@ symbol *notOp(symbol *operand) {
         union constant_values valueU = {.boolean = value}; 
         return createConstant(TC_BOOLEAN, valueU);
     }
+    
+    //TODO: This does not make any sense!
     union constant_values valueU = {.boolean = 0}; 
     symbol *resultSym = createConstant(TC_BOOLEAN,valueU);
     resultSym->desc.const_attr->hasValue = 0;
@@ -77,6 +79,12 @@ symbol *andOp (symbol *o1, symbol *o2) {
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     //evaluate the expression
+    int value1 =o1->desc.const_attr->value.boolean;
+    int value2 = o2.desc.const_attr->value.boolean;
+    int result = value1 && value2;
+    union constant_values resultValue = {.boolean = result};
+    return createConstant (TC_BOOLEAN, resultValue);
+    
   }
   
 }
@@ -89,6 +97,12 @@ symbol *orOp (symbol *o1, symbol *o2){
   }
   
   if (canEvaluate (o1) && canEvaluate (o2)) {
+    int value1 =o1->desc.const_attr->value.boolean;
+    int value2 = o2.desc.const_attr->value.boolean;
+    int result = value1 || value2;
+    union constant_values resultValue = {.boolean = result};
+    return createConstant (TC_BOOLEAN, resultValue);
+    
   }
 }
 
