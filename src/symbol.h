@@ -109,8 +109,8 @@ struct tc_scalar{
 };
 struct tc_array{
   int size;
-  struct type_desc *index_type;
-  struct type_desc *obj_type;
+  symbol *index_type;
+  symbol *obj_type;
   int maxIndex;
   int minIndex;
   int len;
@@ -125,7 +125,7 @@ struct tc_subrange{
   int len;
   int low;
   int high;
-  struct type_desc *mother_type;
+  symbol *mother_type;
 };
 
 struct tc_file{
@@ -140,7 +140,7 @@ struct location_t{
 };
 
 struct const_desc{
-  struct type_desc *type;         /* */
+  //struct symbol_rec *type;         /* */
   union{                           /* Value of const */ 
     int integer;
     int boolean;
@@ -151,7 +151,6 @@ struct const_desc{
 };
 
 struct var_desc{
-  struct type_desc *type;
 };
 
 struct procedure_desc{
@@ -159,14 +158,13 @@ struct procedure_desc{
 };
 
 struct function_desc{
-  GPtrArray *params; //array of *param_desc
-  symbol *return_type;
+  GPtrArray *params;
+  struct symbol_rec *return_type;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
 
 
 struct param_desc{
-  symbol *type;  //what to do for functions with multiple types? Hm....
 };
 
 struct type_desc{
@@ -189,8 +187,7 @@ struct type_desc{
 struct symbol_rec {
   char const *name;         /* Name of symbol */
   object_class oc;     /* Class of object (eg. OC_CONST) */
-  struct symbol_rec *symbol_type; // Will refactor this ...
-  //symbol *typeSymbol; //A pointer to the type that this symbol is
+  struct symbol_rec *symbol_type;
   union {             /* Class-specific attributes */
   struct const_desc *const_attr;
   struct var_desc *var_attr;
@@ -221,10 +218,10 @@ symbol *topLevelLookup (char const *);
 void showAllSymbols();
 
 /**
-Create a symbol with parameters: identifier, type symbol, int object class, 
+Create a symbol with parameters: identifier, type symbol, object class, 
 pointer * value
 */
-symbol *createSymbol (char const *, symbol *, int, void *);
+symbol *createSymbol (char const *, symbol *, object_class, void *);
 /**
  * Create a symbol with parameters: identifier, anonymous type type_desc, enum
  * object class, pointer value.

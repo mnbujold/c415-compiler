@@ -38,14 +38,25 @@ int assignmentCompatible(struct type_desc *type1, struct type_desc *type2);
 int arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2);
 
 /**
- * Returns a pointer to a type_desc of type TC_INTEGER, TC_REAL, or TC_CHAR.
+ * Returns a pointer to a type symbol of type TC_INTEGER, TC_REAL, or TC_CHAR.
  */
-struct type_desc *createBaseType(type_class type);
+symbol *createBaseType(type_class type);
 
 /**
- * Returns a pointer to a type_desc of type TC_STRING.
+ * Returns a pointer to a type symbol of type TC_STRING.
  */
-struct type_desc *createStringType(type_class type, const char *string);
+symbol *createStringType(type_class type, const char *string);
+
+/**
+ * Returns a pointer to a type symbol of type TC_ERROR.
+ */
+symbol *createErrorType();
+
+/**
+ * Returns a pointer to a symbol with name, object class OC_TYPE, and type
+ * attribute type.
+ */
+symbol *createTypeSym(const char *name, struct type_desc *type);
 
 /**
  * Adds new symbols for the program and input and output file parameters.
@@ -69,15 +80,16 @@ struct type_desc *addNewSymbolAnonType(const char *id, struct type_desc *type,
                                        object_class objClass);
 
 /**
- * Returns the type_desc of the symbol with name id. Adds an error if no such
- * symbol can be found.
+ * Returns the type symbol with name id. Adds an error if no such type symbol
+ * can be found.
  */
 symbol *getType(const char *id);
 
 /**
- * Returns a pointer to the scalar list type_desc created by nameList.
+ * Returns a pointer to the scalar list type symbol created by nameList.
+ * 
  */
-struct type_desc *createScalarList(GArray *nameList);
+symbol *createScalarList(GArray *nameList);
 
 /**
  * Adds scalar as a symbol to the current level and to scalarList and returns
@@ -87,23 +99,20 @@ struct type_desc *createScalarList(GArray *nameList);
 GArray *addScalar(GArray *scalarList, const char *scalar);
 
 /**
- * Returns a pointer to the array type_desc created by indexType and objType.
+ * Returns a pointer to the array type symbol created by indexType and objType.
  */
-struct type_desc *createArray(struct type_desc *indexType,
-                              struct type_desc *objType);
+symbol *createArray(symbol *indexType, symbol *objType);
 
 /**
- * Returns a pointer to the array index type type_desc created by lowType and
- * highType. Adds an error if lowType and highType are not a compatible array
- * index type.
+ * Returns a pointer to the array index type symbol created by low and high.
+ * Adds an error if low and high do not have a compatible array index type.
  */
-struct type_desc *createArrayIndex(struct type_desc *lowType,
-                                   struct type_desc *highType);
+symbol *createArrayIndex(symbol *low, symbol *high);
 
 /**
- * Returns a pointer to the record type_desc created by fieldList.
+ * Returns a pointer to the record type symbol created by fieldList.
  */
-struct type_desc *createRecord(GArray *fieldList);
+symbol *createRecord(GArray *fieldList);
 
 /**
  * Adds newField to fieldList and returns the resulting fieldList. Adds an
