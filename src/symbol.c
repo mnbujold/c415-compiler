@@ -351,6 +351,7 @@ symbol *createSymbolType (char const *identifier, type_class type) {
   struct const_desc *constDec = calloc (1, sizeof (struct const_desc));
   //TODO: Does not actually assign value right now, need to change
   constDec->value = value;
+  constDec->hasValue = 1;
   return constDec;
  }
  struct var_desc *createVarDesc () {

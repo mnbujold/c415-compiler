@@ -105,49 +105,37 @@ arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
     return 1;
 }
 
-
-//TODO: THIs is ugly. you're only using one of these values
-//Use a union parameter here.
 symbol *
-createConstant(type_class type, int intValue, double realValue, char charValue) {
-    struct const_desc *constant = calloc(1, sizeof(struct const_desc));    
-    char *typeName;
-
-    if (type == TC_INTEGER) {
-        typeName = "integer";
-        constant->value.integer = intValue;
-        constant->hasValue = 1;
-    } else if (type == TC_REAL) {
-        typeName = "real";
-        constant->value.real = realValue;
-        constant->hasValue = 1;
-    } else if (type == TC_CHAR) {
-        typeName = "char";
-        constant->value.character = charValue;
-        constant->hasValue = 1;
-    } else if (type == TC_BOOLEAN) {
-        typeName = "boolean";
-        constant->value.integer = intValue;  
-        constant->hasValue = 1;      
-    } else {
-        typeName = NULL; // You asked for it. Well, not really, but I'm lazy.
-        constant->value.integer = 0;
-        constant->hasValue = 0;
-    }
+createConstant(type_class type, union constant_values value) {
+    struct const_desc *constant = createConstDesc(value);
     symbol *constSym = calloc(1, sizeof(symbol));
     constSym->name = NULL;
     constSym->oc = OC_CONST;
     constSym->desc.const_attr = constant;
-    constSym->symbol_type = topLevelLookup(typeName);
+
+    if (type == TC_INTEGER) {
+        constSym->symbol_type = topLevelLookup("integer");
+    } else if (type == TC_REAL) {
+        constSym->symbol_type = topLevelLookup("real");
+    } else if (type == TC_CHAR) {
+        constSym->symbol_type = topLevelLookup("char");
+    } else if (type == TC_BOOLEAN) {
+        constSym->symbol_type = topLevelLookup("boolean"); 
+    } else if (type == TC_STRING) {
+        constSym->symbol_type = stringToArray(value.string);
+    } else {
+        constSym->symbol_type = NULL; // You asked for it. Well, not really, but I'm lazy.
+    }
     
     return constSym;
 }
 
 symbol *
-createStringConstant(const char *string) {
-    int len = strlen(string) + 1;
-    symbol *low = createConstant(TC_INTEGER, 1, 0.0, 0);
-    symbol *high = createConstant(TC_INTEGER, len, 0.0, 0);
+stringToArray(const char *string) {
+    union constant_values lowValue = {.integer = 1};
+    union constant_values highValue = {.integer = (strlen(string) + 1)};
+    symbol *low = createConstant(TC_INTEGER, lowValue);
+    symbol *high = createConstant(TC_INTEGER, highValue);
     
     symbol *indexSym = createArrayIndex(low, high);
     symbol *objectSym = topLevelLookup("char");

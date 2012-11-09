@@ -451,17 +451,20 @@ unsigned_const          : unsigned_num
                             }
                         | STRING
                             {
-                                $$ = createStringConstant($1);
+                                union constant_values value = { .string = $1 };
+                                $$ = createConstant(TC_STRING, value);
                             }
                         ;
 
 unsigned_num            : INT_CONST
-                            {
-                                $$ = createConstant(TC_INTEGER, $1, 0.0, 0);
+                            {                                
+                                union constant_values value = { .integer = $1 };
+                                $$ = createConstant(TC_INTEGER, value);
                             }
                         | REAL_CONST
-                            {
-                                $$ = createConstant(TC_REAL, 0, $1, 0);
+                            {                                
+                                union constant_values value = { .real = $1 };
+                                $$ = createConstant(TC_REAL, value);
                             }
                         ;
 

@@ -53,9 +53,11 @@ symbol *notOp(symbol *operand) {
     
     if (canEvaluate(operand)) {
         int value = !(operand->desc.const_attr->value.boolean);
-        return createConstant(TC_BOOLEAN, value, 0.0, 0);
+        union constant_values valueU = {.boolean = value}; 
+        return createConstant(TC_BOOLEAN, valueU);
     }
-    symbol *resultSym = createConstant(TC_BOOLEAN, 0, 0.0, 0);
+    union constant_values valueU = {.boolean = 0}; 
+    symbol *resultSym = createConstant(TC_BOOLEAN,valueU);
     resultSym->desc.const_attr->hasValue = 0;
     
     return resultSym;
