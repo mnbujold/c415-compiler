@@ -13,6 +13,12 @@
 
 #define MAX_LEVEL 14
 
+
+
+
+
+
+
 /* Defines which field of union is being used for readability */
 /* Type Class defs */
 /**
@@ -65,6 +71,9 @@ enum object_class {
 
 typedef enum object_class object_class;
 
+
+struct symbol_rec;
+typedef struct symbol_rec symbol;
 /* Structs for defining type classes of variables */
 struct tc_integer{
   int len; //32 bits?
@@ -146,18 +155,18 @@ struct var_desc{
 };
 
 struct procedure_desc{
-  GPtrArray *params;
+  GPtrArray *params; //array of *param_desc
 };
 
 struct function_desc{
-  GPtrArray *params;
-  struct type_desc *return_type;
+  GPtrArray *params; //array of *param_desc
+  symbol *return_type;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
 
 
 struct param_desc{
-  struct type_desc *type;
+  symbol *type;  //what to do for functions with multiple types? Hm....
 };
 
 struct type_desc{
@@ -177,24 +186,20 @@ struct type_desc{
   }desc;
 };
 
-
-
 struct symbol_rec {
   char const *name;         /* Name of symbol */
   object_class oc;     /* Class of object (eg. OC_CONST) */
-  struct type_desc *type; // Will refactor this ...
   struct symbol_rec *symbol_type; // Will refactor this ...
   //symbol *typeSymbol; //A pointer to the type that this symbol is
   union {             /* Class-specific attributes */
-    struct const_desc *const_attr;
-    struct var_desc *var_attr;
-    struct function_desc *func_attr;
-    struct procedure_desc *proc_attr;
-    struct param_desc *parm_attr;
-    struct type_desc *type_attr;
+  struct const_desc *const_attr;
+  struct var_desc *var_attr;
+  struct function_desc *func_attr;
+  struct procedure_desc *proc_attr;
+  struct param_desc *parm_attr;
+  struct type_desc *type_attr;
   }desc;
 };
-
 
 
 typedef struct symbol_rec symbol;

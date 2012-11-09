@@ -4,6 +4,8 @@
  */
 
 
+#include <stdlib.h>
+
 #include "builtin.h"
 
 #include "symbol.h"
@@ -15,7 +17,7 @@ void add_builtins () {
   add_builtin_types();
   add_builtin_functions();
   /**
-   * What to do with these?
+   * What to do with these? Consts
    * true
    * false
    * maxint
@@ -33,31 +35,90 @@ int odd (int x) {
    struct function_desc *functionDescription = calloc (1, sizeof (struct function_desc));
    //functionDescription
    //Do stuff to set function description to 
+   
+   //Get all the type descriptions here, assign them as needed
+   symbol *intTypeDescription = getType ("integer");
+   symbol *booleanTypeDescription = getType ("boolean");
+   symbol *realTypeDescription = getType ("real");
    GPtrArray *oddParam = g_ptr_array_new ();
-   struct type_desc *intTypeDescription = getType ("integer");
-   g_ptr_array_add (oddParam, intTypeDescription);
-   struct type_desc *booleanTypeDescription = getType ("boolean");
+
+   struct param_desc *parameter = calloc (1, sizeof (struct param_desc));
+   parameter->type = intTypeDescription;
+   g_ptr_array_add (oddParam, parameter);
+   functionDescription->params = oddParam;
    functionDescription->return_type = booleanTypeDescription;
    functionSymbol = createSymbolFunction ("odd", functionDescription);
    addSymbol ("odd", functionSymbol);
    
    //TODO: They are all the same as odd right now, bad, change them
    /*Math functions */
-   createSymbolFunction ("abs", functionDescription);
-   createSymbolFunction ("sqr", functionDescription);
-   createSymbolFunction ("sqrt", functionDescription);
-   createSymbolFunction ("sin", functionDescription);
-   createSymbolFunction ("exp", functionDescription);
-   createSymbolFunction ("ln", functionDescription);
+   
+   //TODO: How do we let functions accept both reals and ints?
+   //For now, I am just giving them reals, since reals can be ints, but not vice versa
+   //For large ints, this will probably not work
+   GPtrArray *absParam = g_ptr_array_new ();
+   parameter->type = realTypeDescription;
+   g_ptr_array_add (absParam, parameter);
+   functionDescription->params = absParam;
+   functionDescription->return_type = realTypeDescription;
+   functionSymbol = createSymbolFunction ("abs", functionDescription);
+   addSymbol ("abs", functionSymbol);
+   
+   
+   
+   GPtrArray *sqrParam = g_ptr_array_new();
+   parameter->type = realTypeDescription;
+   g_ptr_array_add(sqrParam, parameter);
+   functionDescription->params = sqrParam;
+   functionDescription->return_type = realTypeDescription;
+   functionSymbol = createSymbolFunction ("sqr", functionDescription);
+   addSymbol ("sqr", functionSymbol);
+   
+   GPtrArray *sqrtParam = g_ptr_array_new();
+   parameter->type = realTypeDescription;
+   g_ptr_array_add (sqrtParam, parameter);
+   functionDescription->params = sqrtParam;
+   functionDescription->return_type = realTypeDescription;
+   functionSymbol = createSymbolFunction ("sqrt", functionDescription);
+   addSymbol ("sqrt", functionSymbol);
+   
+   GPtrArray *sinParam = g_ptr_array_new();
+   parameter->type = realTypeDescription;
+   g_ptr_array_add (sinParam, parameter);
+   functionDescription->params = sinParam;
+   functionDescription->return_type = realTypeDescription;
+   functionSymbol = createSymbolFunction ("sin", functionDescription);
+   addSymbol ("sin", functionSymbol);
+
+   GPtrArray *expParam = g_ptr_array_new ();
+   parameter->type = realTypeDescription;
+   g_ptr_array_add (expParam, parameter);
+   g_ptr_array_add (expParam, parameter); //2 arguments, dunno if this works
+   functionDescription->params = expParam;
+   functionDescription->return_type = realTypeDescription;
+   functionSymbol = createSymbolFunction ("exp", functionDescription);
+   addSymbol ("exp", functionSymbol);
+   
+   
+   
+   GPtrArray *lnParam = g_ptr_array_new ();
+   parameter->type = realTypeDescription;
+   g_ptr_array_add (lnParam, parameter);
+   functionDescription->params = oddParam;
+   functionDescription->return_type = realTypeDescription;
+   functionSymbol = createSymbolFunction ("ln", functionDescription);
+   addSymbol ("ln", functionSymbol);
    
    /* Numbery functions */
-   createSymbolFunction ("trunc", functionDescription);
-   createSymbolFunction ("round", functionDescription);
+   functionSymbol = createSymbolFunction ("trunc", functionDescription);
+   functionSymbol = createSymbolFunction ("round", functionDescription);
    
-   createSymbolFunction ("ord", functionDescription);
-   createSymbolFunction ("chr", functionDescription);
-   createSymbolFunction ("succ", functionDescription);
-   createSymbolFunction ("pred", functionDescription);
+   /* enumy functions */
+   
+   functionSymbol = createSymbolFunction ("ord", functionDescription);
+   functionSymbol = createSymbolFunction ("chr", functionDescription);
+   functionSymbol = createSymbolFunction ("succ", functionDescription);
+   functionSymbol = createSymbolFunction ("pred", functionDescription);
    
    
    
@@ -65,8 +126,13 @@ int odd (int x) {
    
    
    /*Write/Read functions */
-   createSymbolFunction ("read", functionDescription);
-   createSymbolFunction ("readln", functionDescription);
+   
+   functionSymbol = createSymbolFunction ("read", functionDescription);
+   functionSymbol = createSymbolFunction ("readln", functionDescription);
+   
+   
+   
+   struct procedure_desc *procedureDescription = calloc (1, sizeof (struct procedure_desc));
    createSymbolFunction ("write", functionDescription);
    createSymbolFunction ("writeln", functionDescription);
    
