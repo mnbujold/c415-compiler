@@ -47,8 +47,11 @@ void *addSymbol (char const *identifier, symbol *symbol) {
 
 
 
-
+//Is returning null for a null identifier the right thing to do?
 symbol *localLookup (char const *identifier) {
+  if (identifier == NULL) {
+    return NULL;
+  }
   GHashTable *table = g_queue_peek_head (symbol_table);
   symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
   return returnedSymbol;
