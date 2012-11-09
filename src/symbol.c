@@ -107,7 +107,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   if (recordPointer->symbol_type != NULL) {
     printf ("Symbol type: %p ", recordPointer->symbol_type);
     if (recordPointer->symbol_type->name != NULL) {
-      printf ("Symbol name: %p\n", recordPointer->symbol_type->name); 
+      printf ("Symbol name: %s\n", recordPointer->symbol_type->name); 
     }
   }
     
