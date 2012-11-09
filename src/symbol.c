@@ -166,6 +166,47 @@ object_class oc, void *value) {
       //do nothing
     }
     else {
+      switch (oc) {
+        case OC_CONST:
+        {
+          struct const_desc *description = (struct const_desc *) value;
+          newSymbol->desc.const_attr = description;
+          break;
+        }
+        case OC_VAR:
+        {
+          struct var_desc *description = (struct var_desc *) value;
+          newSymbol->desc.var_attr = description;
+          break;
+        }  
+        case OC_FUNC:
+        {
+          struct function_desc *description = (struct function_desc *) value;
+          newSymbol->desc.func_attr = description;
+          break;
+        }
+        case OC_PROC:
+        {
+          struct procedure_desc *description = (struct procedure_desc *) value;
+          newSymbol->desc.proc_attr = description;
+          break;
+        }
+        case OC_PARAM:
+        {
+          struct param_desc *description = (struct param_desc *) value;
+          newSymbol->desc.parm_attr = description;
+          break;
+        }
+        case OC_TYPE:
+        {
+          struct type_desc *description = (struct type_desc *) value;
+          newSymbol->desc.type_attr = description;
+          break;
+        }
+        case OC_PROGRAM:
+          break;
+        
+      }
     }
     return newSymbol;
 }
