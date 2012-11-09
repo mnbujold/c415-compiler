@@ -3,11 +3,20 @@
 program testTypes(input, output);
 
 type bob = (enum1, enum2);
+     //str = 'a string';
      clark = bob;
+     enum0 = (e00, e01, e02);
+     //foo = array[1..10] of clark;
 
 var joe : bob;
-    joe : clark;
+    jack : clark;
 
+
+procedure foo();
+    type enum1 = (e00, e11, e02);
+    begin
+    end;
+    
 procedure tim();
     var joe : (e1, ererer);
 begin
