@@ -48,6 +48,15 @@ symNotATypeError(const char *id) {
     addTypeError(errMsg);
 }
 
+/**
+ * Adds a "symbol 'id' not a variable or parameter" error.
+ */
+void symNotAVarParmError(const char *id) {
+    char errMsg[50 + strlen(id)];
+    sprintf(errMsg, "symbol '%s' not a variable or parameter", id);
+    addTypeError(errMsg);
+}
+
 void
 symNotValidEnumError(const char *id) {
     char errMsg[50 + strlen(id)];
@@ -89,4 +98,9 @@ duplicateFieldError(const char *id) {
     char errMsg[25 + strlen(id)];
     sprintf(errMsg, "duplicate field '%s'", id);
     addTypeError(errMsg);
+}
+
+void
+opNotBooleanError() {
+    addTypeError("operator not of type boolean");
 }

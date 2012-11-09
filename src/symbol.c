@@ -14,7 +14,8 @@
 #include "builtin.h"  //separate builtins initalization from rest of this
 
 #include "symbol.h"
-
+#include "type.h"
+#include "typeerrors.h"
 #include "myerror.h"
 #include "debug.h"
 
@@ -93,6 +94,26 @@ symbol *topLevelLookup (char const *identifier) {
   GHashTable *table = g_queue_peek_tail (symbol_table);
   symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
   return returnedSymbol;
+}
+
+/**
+ * Returns found variable symbol, or returns an error type and emits an error.
+ */
+symbol *getVarSymbol(char const *id) {
+    symbol *varSym = globalLookup(id);
+    
+    if (varSym == NULL) {
+        symNotDefinedError(id);
+        return createErrorSym(OC_VAR);
+    }
+    object_class objClass = varSym->oc;
+    
+    if (objClass != OC_VAR || objClass != OC_PARAM) {
+        symNotAVarParmError();
+        return createErrorSym(OC_VAR);
+    }
+    
+    return varSym;
 }
 
 
@@ -376,7 +397,13 @@ symbol *createSymbolType (char const *identifier, type_class type) {
   }
  
  
- 
+symbol *createErrorSym(object_class objClass) {
+    symbol *errSym = calloc(1, sizeof(symbol));
+    errSym->oc = objClass;
+    errSym->symbol_type = createErrorType();
+    
+    return errSym;
+}
  
  
  

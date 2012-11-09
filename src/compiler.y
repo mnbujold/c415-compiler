@@ -14,6 +14,7 @@
 
 #include "symbol.h"
 #include "type.h"
+#include "operators.h"
 #include "myerror.h"
 
 #include "debug.h"
@@ -45,7 +46,7 @@ int yywrap() {
     double real;
     symbol *symbol;
     GArray *garray;
-    struct type_desc *anon_type;
+    struct type_desc *anon_type; // can probably get rid of this ...
 }
 
 /* Reserved word tokens */
@@ -86,8 +87,8 @@ int yywrap() {
 %type <garray> scalar_type scalar_list field_list
 %type <symbol> field
 %type <symbol> var_decl
-
-%type <symbol> expr unsigned_const unsigned_num
+%type <symbol> var parm
+%type <symbol> expr simple_expr term factor unsigned_const unsigned_num
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -359,19 +360,10 @@ simple_stat             : /* empty */
                         | compound_stat
                         ;
 
-stat_assignment          : var ASSIGN expr
-			{
-			    /*
-			    symbol *tempSymbol = localLookup ($1);
-			    if tempSymbol (== NULL) {
-			     DEBUG_PRINT (("Var not declared\n"));
-			     //$$ = error;  //var not declared
-			    }
-			    */
-			    //else assign
-			    
-			     
-			}
+stat_assignment         : var ASSIGN expr
+                            {
+                                // Have to finish this ...
+                            }
                         | error /* ERROR */
                         ;
                         
@@ -380,14 +372,9 @@ proc_invok              : plist_finvok RIGHTPAREN
                         ;
 
 var                     : ID
-			{
-			  DEBUG_PRINT (("inside var rule: %s\n", $1));
-			  symbol *tempSymbol = globalLookup ($1);
-			  if (tempSymbol == NULL) {
-			    DEBUG_PRINT (("Var not declared\n"));
-			  }
-			  //$$ = $1;
-			}
+                            {
+                                $$ = getVarSymbol($1);
+                            }
                         | var PERIOD ID
                         | subscripted_var RIGHTBRACKET
                         | error RIGHTBRACKET /* ERROR */
@@ -407,6 +394,9 @@ expr                    : simple_expr
                         ;
 
 simple_expr             : term
+                            {
+                                $$ = $1;
+                            }
                         | PLUS term
                         | MINUS term
                         | simple_expr PLUS term
@@ -415,6 +405,9 @@ simple_expr             : term
                         ;
 
 term                    : factor
+                            {
+                                $$ = $1;
+                            }
                         | term MULTIPLY factor
                         | term DIVIDE factor
                         | term DIV factor
@@ -424,11 +417,26 @@ term                    : factor
                         ;
 
 factor                  : var
+                            {
+                                $$ = $1;
+                            }
                         | unsigned_const
+                            {
+                                $$ = $1;
+                            }
                         | LEFTPAREN expr RIGHTPAREN
+                            {
+                                $$ = $2;
+                            }
                         | LEFTPAREN error RIGHTPAREN /* ERROR */
                         | func_invok
+                            {
+                                // Have to finish this ...
+                            }
                         | NOT factor
+                            {
+                                $$ = notOp($2);
+                            }
                         ;
 
 unsigned_const          : unsigned_num
@@ -460,9 +468,9 @@ plist_finvok            : ID LEFTPAREN parm
                         ;
 
 parm                    : expr
-                            /*{
+                            {
                                 $$ = $1;
-                            }*/
+                            }
                         ;
 
 struct_stat             : IF expr THEN matched_stat ELSE stat

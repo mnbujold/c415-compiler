@@ -148,6 +148,7 @@ struct location_t{
   };
 struct const_desc{
   //struct symbol_rec *type;         /* */
+  int hasValue; // We'll have to do some stuff so we can use this.
   union constant_values value;
 };
 
@@ -222,6 +223,11 @@ symbol *topLevelLookup (char const *);
 void showAllSymbols();
 
 /**
+ * Returns found variable symbol, or returns an error type and emits an error.
+ */
+symbol *getVarSymbol(char const *);
+
+/**
 Create a symbol with parameters: identifier, type symbol, object class, 
 pointer * value
 */
@@ -250,6 +256,8 @@ symbol *createSymbolType (char const *, type_class);
  
  
  type_class getTypeClass (symbol *);
+ 
+symbol *createErrorSym(object_class);
  
 void removeSymbol (char const *);
 

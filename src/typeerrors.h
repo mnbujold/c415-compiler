@@ -33,6 +33,11 @@ void symNotDefinedError(const char *id);
 void symNotATypeError(const char *id);
 
 /**
+ * Adds a "symbol 'id' not a variable or parameter" error.
+ */
+void symNotAVarParmError(const char *id);
+
+/**
  * Adds a "symbol 'id' not a valid enumeration type" error.
  */
 void symNotValidEnumError(const char *id);
@@ -76,5 +81,10 @@ void arrayIndexTypeError();
  * Adds a "duplicate field 'id'" error.
  */
 void duplicateFieldError(const char *id);
+
+/**
+ * Adds a "operator not of type boolean" error.
+ */
+void opNotBooleanError();
 
 #endif

@@ -90,22 +90,28 @@ createConstant(type_class type, int intValue, double realValue, char charValue) 
     if (type == TC_INTEGER) {
         typeName = "integer";
         constant->value.integer = intValue;
+        constant->hasValue = 1;
     } else if (type == TC_REAL) {
         typeName = "real";
         constant->value.real = realValue;
+        constant->hasValue = 1;
     } else if (type == TC_CHAR) {
         typeName = "char";
         constant->value.character = charValue;
+        constant->hasValue = 1;
     } else if (type == TC_BOOLEAN) {
         typeName = "boolean";
-        constant->value.integer = intValue;        
+        constant->value.integer = intValue;  
+        constant->hasValue = 1;      
     } else {
         typeName = NULL; // You asked for it. Well, not really, but I'm lazy.
         constant->value.integer = 0;
+        constant->hasValue = 0;
     }
     symbol *constSym = calloc(1, sizeof(symbol));
     constSym->name = NULL;
     constSym->oc = OC_CONST;
+    constSym->desc.const_attr = constant;
     constSym->symbol_type = topLevelLookup(typeName);
     
     return constSym;
@@ -290,9 +296,10 @@ symbol *
 createArray(symbol *indexType, symbol *objType) {
     DEBUG_PRINT (("Inside create array\n"));
     DEBUG_PRINT (("index type: %p object type: %p\n", indexType, objType));
+    // indexType->symbol_type is NULL! Fix it!
     int indexClass = indexType->symbol_type->desc.type_attr->type;
     int size = 0;
-    
+
     if (indexClass == TC_SUBRANGE) {
         struct tc_subrange *subrange =
                          indexType->symbol_type->desc.type_attr->desc.subrange;
@@ -302,7 +309,6 @@ createArray(symbol *indexType, symbol *objType) {
     } else if (indexClass == TC_CHAR) {
         // ...
     } 
-    
     struct tc_array *newArray = calloc(1, sizeof(struct tc_array));
     newArray->size = size;
     newArray->index_type = indexType;
