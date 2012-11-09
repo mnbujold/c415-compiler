@@ -168,6 +168,9 @@ symbol *createSymbolFunction (char const *identifier, struct function_desc *func
   functionSymbol->name = identifier;
   functionSymbol->oc = OC_FUNC;
   //functionSymbol->type = type of return value of FP
+  printf ("%s: ", identifier);
+  printf ("functionDescription return: %p\n", functionDescription->return_type);
+  printf ("name: %p\n", functionDescription->return_type->name);
   functionSymbol->desc.func_attr = functionDescription;
   functionSymbol->symbol_type = functionDescription->return_type;
   

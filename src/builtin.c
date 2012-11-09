@@ -9,6 +9,7 @@
 #include "builtin.h"
 
 #include "symbol.h"
+#include "type.h"
 #include "builtinfunctions.h"
 
 
