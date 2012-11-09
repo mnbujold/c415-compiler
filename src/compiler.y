@@ -42,7 +42,7 @@ int yywrap() {
     char *id;
     char *string;
     int integer;
-    double real; // Should this be float?
+    double real;
     symbol *symbol;
     GArray *garray;
     struct type_desc *anon_type;
@@ -103,12 +103,11 @@ int yywrap() {
 %%
 program                 : program_head decls compound_stat PERIOD
                             {
-			      //NOTE: Poplevel here, but for debugging dont do it
-                                //popLevel();
+                                popLevel();
                             }
                         | error PERIOD /* ERROR */
                             {
-                                //popLevel();
+                                popLevel();
                             }
                         | error /* ERROR */
                             {
@@ -297,11 +296,11 @@ proc_decl_list          : proc_decl
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
                             {
-                                //popLevel();
+                                popLevel();
                             }
                         | error SEMICOLON /* ERROR */
                             {
-                                //popLevel();
+                                popLevel();
                             }
                         ;
 
