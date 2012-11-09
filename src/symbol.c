@@ -386,9 +386,8 @@ symbol *createSymbolType (char const *identifier, type_class type) {
 void pushLevel () {
   if (level >=MAX_LEVEL) {
     iserror = 1;
-    char *str = "Exceeded the number of levels allowed in ASC, will continue adding to top level\n";
+    const char *str = "scope level is too big";
     eList = addError(eList, str, last_column, lineno);
-    printf ("Too many levels\n");
     return;
   }
   GHashTable *table = createNewTable (level);
