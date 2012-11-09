@@ -3,7 +3,7 @@
     Tests syntax of invalid arithmetic expressions and array definitions.
     Errors:
     19:42 unexpected real number in array definition
-    20:43 unfinished array definition, unexpected ]
+    20:46 unfinished array definition, unexpected ]
     39:34 unexpected addition operator
 }
 program correctNames (input, output);
@@ -17,7 +17,7 @@ var numOdd : integer;
     number : integer;
     randArray : array[4..45] of tf; // Legal.
     anotherArray : array[true..false] of 3.4; { $ERR_DATA$ [42, "unexpected real number in array definition", ["unexpected REAL_CONST"]] $ERR_DATA$ }
-    bob, joe : array[1] of array[3..{LOL}] of char; { $ERR_DATA$ [43, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ }
+    bob, joe : array[-2..1] of array[3..{LOL}] of char; { $ERR_DATA$ [46, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ }
     
 function countEven() : integer;
     var counter : integer;

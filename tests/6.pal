@@ -1,19 +1,102 @@
 {
     6.pal
-    Tests records.
+    Tests invalid record definitions and calls.
     Errors:
-    15:10 unexpected period.
+    30:37 field already defined
+    79:16 illegal assignment of real to integer
+    99:23 not a field of the 'another' record
 }
 program recordings(useless, parameters);
 
-type boolean = (true, idunno, false);
-     
+const aRealNum = 24.34e11;
 
+type boolean = (true, idunno, false);
+     nameStr = array[1..25] of char;
+     review = record
+                good : boolean;
+                reviewer : nameStr;
+              end;
+     book = record
+                title : array[1..50] of char;
+                author : nameStr;
+                id : integer;
+                reviews : array[1..10] of review;
+            end;
+     badRecord = record
+                    boolean : char;
+                    title : nameStr;
+                    french : boolean;
+                    english : boolean;
+                    french : boolean; { $ERR_DATA$ [37, "field already defined", ["symbol 'french' already defined as a field for this record"]] $ERR_DATA$ }
+                 end;
+    problemRecord = record
+                        field1 : integer;
+                        field2 : real;
+                    end;
+
+var lib : array[1..20] of book;
+    aBook : book;
+    title : array[1..50] of char;
+    name : nameStr;
+    id : integer;
+    stop : char;
+    index : integer;
+    another : problemRecord;
+
+procedure addBook(var newBook : book; charIndex : integer; revIndex : integer);
+    
+    var reviews := array[1..10] of review;
+    
+    function createReview(aLetter : char) : review;
+        const revName = 'I am a reviewer1234567890';
+        var rating : boolean;
+            theRev : review;
+    begin
+        if (aLetter = 'a' or aLetter = 'b' or aLetter = 'c') then
+            rating := true
+        else if (aLetter = 'x' or aLetter = 'y' or aLetter 'z') then
+            rating := false
+        else
+            rating := idunno
+        theRev.good := rating;
+        theRev.reviewer := revName;
+        createReview := theRev;
+    end;
+begin
+    book.title := title;
+    book.id := id;
+    book.author := name;
+    reviews[charIndex] := createReview(book.author[revIndex]);
+    book.reviews := reviews;
+    book.reviews[revIndex] := createReview(book.title[charIndex]);
+end;
+    
 begin
 
-while (16.isNotARecord <> 43) { syntax error here }
- do begin sdf:=34;
+stop := 'n';
+index := 1;
+
+another.field1 := aRealNum; { $ERR_DATA$ [16, "illegal assignment of real to integer", ["illegal assignment of real to integer"]] $ERR_DATA$ }
+
+while stop <> 'y' do
+begin
+    writeln('title:');
+    read(title);
+
+    writeln('author:');
+    read(name);
+
+    writeln('id:');
+    read(id);
     
+    addBook(aBook, index, index);
+    lib[index] := aBook;
+    
+    writeln('stop (y/n)?');
+    read(stop);
+    
+    index := index + 1;
+    another.field3 := index; { $ERR_DATA$ [23, "not a field of the 'another' record", ["symbol 'field3' is not a field of record 'another'"]] $ERR_DATA$ }
 end;
 
 end.

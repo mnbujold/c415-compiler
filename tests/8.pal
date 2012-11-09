@@ -2,16 +2,17 @@
     8.pal
     Tests invalid array indexing with integer and enumerated types, invalid array assignment, and legal/illegal scoping.
     Errors:
-    67:8 illegal array assignment (index bounds not the same)
     68:8 illegal array assignment (index bounds not the same)
-    69:8 illegal array assignment (index types not the same)
-    146:57 too many levels of scoping
-    201:3 illegal array indexing (integer for enumerated type)
-    202:3 illegal array indexing (enumerated type for integer)
-    203:3 illegal array indexing (integer for enumerated type)
-    204:3 illegal array indexing (enumerated type for integer)
-    208:3 illegal assignment of integer to enumerated type
-    209:3 illegal assignment of enumerated type to integer
+    69:8 illegal array assignment (index bounds not the same)
+    70:8 illegal array assignment (index types not the same)
+    147:57 too many levels of scoping
+    148:57 too many levels of scoping
+    202:3 illegal array indexing (integer for enumerated type)
+    203:3 illegal array indexing (enumerated type for integer)
+    204:3 illegal array indexing (integer for enumerated type)
+    205:3 illegal array indexing (enumerated type for integer)
+    209:3 illegal assignment of integer to enumerated type
+    210:3 illegal assignment of enumerated type to integer
 }
 
 // Layer -1 is the built-ins.
