@@ -82,6 +82,9 @@ arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
 //     return objCompat && indEquiv;
 }
 
+
+//TODO: THIs is ugly. you're only using one of these values
+//Use a union parameter here.
 symbol *
 createConstant(type_class type, int intValue, double realValue, char charValue) {
     struct const_desc *constant = calloc(1, sizeof(struct const_desc));    

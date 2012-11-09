@@ -385,12 +385,16 @@ symbol *createSymbolType (char const *identifier, type_class type) {
  
   type_class getTypeClass (symbol *theSymbol) {
 
+    DEBUG_PRINT (("In get type class\n"));
     symbol *tempSymbol = theSymbol;
-    
+
     while (tempSymbol != NULL){
+      DEBUG_PRINT (("temp SYmbol address: %p\n", tempSymbol));
+      DEBUG_PRINT (("temp symbol oc: %d\n", tempSymbol->oc));
     //printf ("Symbol name: %s\n", tempSymbol->name);
     //printf ("Object class: %d\n", tempSymbol->oc);
       if (tempSymbol->oc == OC_TYPE) {
+	DEBUG_PRINT(("type description: %p\n", tempSymbol->desc.type_attr));
         return tempSymbol->desc.type_attr->type;
       }
       tempSymbol = tempSymbol->symbol_type;
