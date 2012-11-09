@@ -43,7 +43,6 @@ void *addSymbol (char const *identifier, symbol *symbol) {
     DEBUG_PRINT(("Error: Symbol table is null for some reason\n"));
   }
   /* Insert symbol at key in hashmap at head of queue */
-  printf("INSERTING SYMBOL\n");
   g_hash_table_insert (table, key, symbol);
 
 }
@@ -57,9 +56,6 @@ symbol *localLookup (char const *identifier) {
   symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
   return returnedSymbol;
 }
-
-
-
 
 symbol *globalLookup (char const *identifier) {
     if (identifier == NULL) {
@@ -470,7 +466,8 @@ void init_table () {
   addSymbol("false", createSymbolType("false", TC_BOOLEAN));
   addSymbol("maxint", createSymbolType("maxint", TC_REAL));
   addSymbol("pi", createSymbolType("pi", TC_REAL));
-  
+  /* Built-in functions */
+  //addSymbol("writeln", createSymbolFunction("writeln", NULL));
   
   
   
