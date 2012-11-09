@@ -104,10 +104,12 @@ int yywrap() {
 %%
 program                 : program_head decls compound_stat PERIOD
                             {
+                                showAllSymbols();
                                 popLevel();
                             }
                         | error PERIOD /* ERROR */
                             {
+                                showAllSymbols();
                                 popLevel();
                             }
                         | error /* ERROR */
@@ -297,10 +299,12 @@ proc_decl_list          : proc_decl
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
                             {
+                                showAllSymbols();
                                 popLevel();
                             }
                         | error SEMICOLON /* ERROR */
                             {
+                                showAllSymbols();
                                 popLevel();
                             }
                         ;
