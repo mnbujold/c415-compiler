@@ -132,12 +132,14 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   printf ("Name: %s, %p ", recordPointer->name, recordPointer->name);
   printf ("Object class: %d\n", oc); 
   //printf ("Symbol attributes: %p\n", recordPointer->desc);
+/*
   if (recordPointer->symbol_type != NULL) {
     //printf ("Symbol type: %p ", recordPointer->symbol_type);
     if (recordPointer->symbol_type->name != NULL) {
       printf ("Symbol type: '%s'\n", recordPointer->symbol_type->name); 
     }
   }
+  */
   printf ("TYPE: %d\n", getTypeClass (recordPointer));  
   /*
   if (oc==OC_TYPE) {
@@ -166,7 +168,7 @@ void showAllSymbols() {
     tmp--;
     printf ("\n");
   }
-  printf ("=========================================================\n");
+  printf ("======================END================================\n");
   
 }
 

@@ -26,11 +26,13 @@
 #define TC_REAL 1
 #define TC_BOOLEAN 2
 #define TC_CHAR 3
-#define TC_STRING 4
-#define TC_SCALAR 5
-#define TC_ARRAY 6
-#define TC_RECORD 7
-#define TC_SUBRANGE 8
+#define TC_CONST 4
+#define TC_STRING 5
+#define TC_SCALAR 6
+#define TC_ARRAY 7
+#define TC_RECORD 8
+#define TC_SUBRANGE 9
+#define TC_ERROR 10
 */
 enum type_class {
   TC_INTEGER,

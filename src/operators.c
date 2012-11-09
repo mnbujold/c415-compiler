@@ -9,8 +9,7 @@
 #include "type.h"
 #include "typeerrors.h"
 
-int
-canEvaluate(symbol *operand) {
+int canEvaluate(symbol *operand) {
     if (operand == NULL) {
         return 0;
     }
@@ -22,8 +21,7 @@ canEvaluate(symbol *operand) {
     return operand->desc.const_attr->hasValue;
 }
 
-symbol *
-notOp(symbol *operand) {
+symbol *notOp(symbol *operand) {
     if (operand == NULL) {
         printf("Operand is NULL!\n");
         // error... will this ever happen?
