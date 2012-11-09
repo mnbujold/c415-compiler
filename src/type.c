@@ -482,3 +482,6 @@ addField(GArray *fieldList, symbol *newField) {
     
     return fieldList;
 }
+
+symbol *createAnonymousVar(symbol *o1, symbol *o2) {
+}
