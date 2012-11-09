@@ -3,14 +3,14 @@
 program testTypes(input, output);
 
 type bob = (enum1, enum2);
-     //str = 'a string';
+     //str = 'a string'; // Should be a syntactic error!
      clark = bob;
      enum0 = (e00, e01, e02);
+     bool = boolean;
      //foo = array[1..10] of clark;
 
 var joe : bob;
-    jack : clark;
-
+    text : clark;
 
 procedure foo();
     type enum1 = (e00, e11, e02);
@@ -18,8 +18,9 @@ procedure foo();
     end;
     
 procedure tim();
-    var joe : (e1, ererer);
+    var joe : (e1, ererer); // Shouldn't work!
 begin
+    joe := not 2;
 end;
     
 begin
