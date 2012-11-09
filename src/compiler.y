@@ -438,17 +438,17 @@ unsigned_const          : unsigned_num
                             }
                         | STRING
                             {
-                                $$ = createStringType(TC_STRING, $1);
+                                $$ = createStringConstant($1);
                             }
                         ;
 
 unsigned_num            : INT_CONST
                             {
-                                $$ = createBaseType(TC_INTEGER);
+                                $$ = createConstant(TC_INTEGER, $1, 0.0, 0);
                             }
                         | REAL_CONST
                             {
-                                $$ = createBaseType(TC_REAL);
+                                $$ = createConstant(TC_REAL, 0, $1, 0);
                             }
                         ;
 
@@ -461,6 +461,9 @@ plist_finvok            : ID LEFTPAREN parm
                         ;
 
 parm                    : expr
+                            /*{
+                                $$ = $1;
+                            }*/
                         ;
 
 struct_stat             : IF expr THEN matched_stat ELSE stat

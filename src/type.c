@@ -83,46 +83,44 @@ arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
 }
 
 symbol *
-createBaseType(type_class type) {
-    char *name;
-    
-//     struct type_desc *baseType = calloc(1, sizeof(struct type_desc));
-//     baseType->type = type;
-    
+createConstant(type_class type, int intValue, double realValue, char charValue) {
+    struct const_desc *constant = calloc(1, sizeof(struct const_desc));    
+    char *typeName;
+
     if (type == TC_INTEGER) {
-        name = "integer";
-//         struct tc_integer *intType = calloc(1, sizeof(struct tc_integer));
-//         baseType->desc.integer = intType;
+        typeName = "integer";
+        constant->value.integer = intValue;
     } else if (type == TC_REAL) {
-        name = "real";
-//         struct tc_real *realType = calloc(1, sizeof(struct tc_real));
-//         baseType->desc.real = realType;
+        typeName = "real";
+        constant->value.real = realValue;
     } else if (type == TC_CHAR) {
-        name = "char";
-//         struct tc_char *charType = calloc(1, sizeof(struct tc_char));
-//         baseType->desc.character = charType;
+        typeName = "char";
+        constant->value.character = charValue;
+    } else if (type == TC_BOOLEAN) {
+        typeName = "boolean";
+        constant->value.integer = intValue;        
     } else {
-        name = NULL;
-//         baseType->desc.file = NULL; // You asked for it. Well, not really, but I'm lazy.
+        typeName = NULL; // You asked for it. Well, not really, but I'm lazy.
+        constant->value.integer = 0;
     }
+    symbol *constSym = calloc(1, sizeof(symbol));
+    constSym->name = NULL;
+    constSym->oc = OC_CONST;
+    constSym->symbol_type = topLevelLookup(typeName);
     
-    return topLevelLookup(name);
-//     return createTypeSym(NULL, baseType);
+    return constSym;
 }
 
 symbol *
-createStringType(type_class type, const char *string) {
-    int len = strlen(string);
+createStringConstant(const char *string) {
+    int len = strlen(string) + 1;
+    symbol *low = createConstant(TC_INTEGER, 1, 0.0, 0);
+    symbol *high = createConstant(TC_INTEGER, len, 0.0, 0);
     
-    struct tc_string *stringType = calloc(1, sizeof(struct tc_string));
-    stringType->high = len;
-    stringType->len = len;
+    symbol *indexSym = createArrayIndex(low, high);
+    symbol *objectSym = topLevelLookup("char");
     
-    struct type_desc *baseType = calloc(1, sizeof(struct type_desc));
-    baseType->type = type;
-    baseType->desc.string = stringType;
-    
-    return createTypeSym(NULL, baseType);
+    return createArray(indexSym, objectSym);
 }
 
 symbol *
@@ -240,7 +238,7 @@ createScalarList(GArray *nameList) {
         
         const char *name = g_array_index(nameList, const char *, i);
         tmp = i + 1;
-        scalar = globalLookup(name);
+        scalar = localLookup(name);
         if (scalar == NULL) { // New symbol.
             scalar = createSymbol(name, typeSym, OC_CONST, (void *) &tmp);
         } else if ((scalar->oc != OC_CONST)
@@ -326,6 +324,7 @@ createArrayIndex(symbol *low, symbol *high) {
         object_class lowClass = noLow ? OC_CONST : low->oc;
         
         if (lowClass != OC_CONST) {
+            printf("Lowerbound not constant like upper\n");
             // error ...
             return createErrorType();
         }
@@ -333,6 +332,7 @@ createArrayIndex(symbol *low, symbol *high) {
         symbol *lowType = noLow ? highType : low->symbol_type;
         
         if (lowType != highType) {
+            printf("Lowerbound and upper not same types\n");
             // error ...
             return createErrorType();            
         }
@@ -347,11 +347,13 @@ createArrayIndex(symbol *low, symbol *high) {
             highValue = high->desc.const_attr->value.boolean;
             lowValue = noLow ? 0 : low->desc.const_attr->value.boolean;
         } else {
+            printf("Lowerbound and upper not valid array index types\n");
             // error ...
             return createErrorType();
         }   
         
-        if (lowValue < highValue) {
+        if (lowValue > highValue) {
+            printf("Lowerbound greater than upper\n");
             // error ...
             return createErrorType();  
         }
@@ -369,6 +371,7 @@ createArrayIndex(symbol *low, symbol *high) {
     } else if (highClass == OC_TYPE) {
         // Special Cases!
     }
+    printf("Upperbound not of valid array index types\n");
     // error ...
     return createErrorType();
 }

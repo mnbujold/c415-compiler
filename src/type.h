@@ -38,14 +38,16 @@ int assignmentCompatible(struct type_desc *type1, struct type_desc *type2);
 int arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2);
 
 /**
- * Returns a pointer to a type symbol of type TC_INTEGER, TC_REAL, or TC_CHAR.
+ * Returns a pointer to a type symbol of type TC_INTEGER, TC_REAL, TC_CHAR, or
+ * TC_BOOLEAN with an intValue, realValue, or charValue.
  */
-symbol *createBaseType(type_class type);
+symbol *createConstant(type_class type, int intValue, double realValue,
+                       char charValue);
 
 /**
- * Returns a pointer to a type symbol of type TC_STRING.
+ * Returns a pointer to a type symbol of type TC_STRING with value string.
  */
-symbol *createStringType(type_class type, const char *string);
+symbol *createStringConstant(const char *string);
 
 /**
  * Returns a pointer to a type symbol of type TC_ERROR.
