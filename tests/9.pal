@@ -1,26 +1,27 @@
 {
     9.pal
-    Tests commas, reserved words, and unexpected symbols.
+    Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols.
     Errors:
-    11:14 unexpected comma, expecting '='
-    16:8 unexpected 'end'
-    24:12 unexpected greater than
+    15:26 illegal array range
+    17:16 input_type is already defined as a file object thing
+    53:0 missing function return value assignment
+    70:60 cannot call a program
 }
 program mostness(input_type, output_type);
 
 type xType = (x1, x2, x3);
 
 var xArray = array[xType] of integer;
-    badArray = array[-2] of integer; // Illegal lower bound?
+    badArray = array[-2..-5] of integer; { $ERR_DATA$ [26, "illegal array range", ["lower bound is greater than upper bound"]] $ERR_DATA$ }
     y : xType;
-    input_type : char; // Illegal - redefining input_type
+    input_type : char; { $ERR_DATA$ [16, "input_type is already defined as a file object thing", ["symbol 'input_type' is being redefined in this level"]] $ERR_DATA$ }
 
 function canIReturn(x : xType; i : integer) : xType;
     var output_type : char; // Legal.
     
 begin
     if (xArray[x] = i) then
-        y := x // Error - could not find return value for all conditions
+        y := x // Should be an error, but ISN'T for cp2 (missing return value for at least one condition)
     else
         canIReturn := canIReturn(x, i + 1)
 end;
@@ -31,7 +32,7 @@ begin
         doIReturn := 5
     else
         y := true
-end; // Error - could not find return value for all conditionals
+end; // Should be an error, but ISN'T for cp2 (missing return value for at least one condition)
 
 function returnValue() : integer;
 begin
@@ -40,7 +41,16 @@ begin
 
     if doIReturn(y = x1) then
         returnValue := 5
-end; // Error - could not find return value for all conditionals
+end; // Should be an error, but ISN'T for cp2 (missing return value for at least one condition)
+
+function funVarStuff() : integer;
+    procedure varStuff(var int : integer);
+    begin
+        int := 3;
+    end;
+begin
+    varStuff(funVarStuff);
+end;{ $ERR_DATA$ [0, "missing function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
 
 function correctReturn(int : integer) : boolean;
 begin
@@ -57,6 +67,6 @@ end;
 
 begin
 
-mostness(input_type, output_type); // Illegal!
+mostness(input_type, output_type); { $ERR_DATA$ [60, "cannot call a program", ["program 'mostness' cannot be called"]] $ERR_DATA$ }
 
 end.

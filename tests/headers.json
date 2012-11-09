@@ -8,5 +8,5 @@
     "6": "Tests invalid record definitions and calls.",
     "7": "Tests invalid type and constant definitions.",
     "8": "Tests invalid array indexing with integer and enumerated types, invalid array assignment, and legal/illegal scoping.",
-    "9": "The best of [0-7]? Definitely testing invalid function bodies for return assignments."
+    "9": "Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols."
 }

@@ -2,9 +2,9 @@
     5.pal
     Tests scoping resulting in invalid procedure calls, variable declarations, and array assignments.
     Errors:
-    17:5 str is already defined as a type
-    45:9 illegal string assignment (upper bound not the same)
-    58:1 unrecognized function or procedure call (defined in a different scope)
+    18:5 str is already defined as a type
+    49:9 illegal string assignment (upper bound not the same)
+    62:1 unrecognized function or procedure call (defined in a different scope)
 }
 program scopingFun(input, output);
 
