@@ -125,7 +125,7 @@ if (yytext != NULL) {
 ".."				{ return DOUBLEPERIOD;}
 
  /* comments, newlines, etc. */
-\n                      	{ DB_PRINT("CR\n"); 
+[\n\r]                      	{ DB_PRINT("CR\n"); 
                                   lineno++;
                                   if (prog_listing) {
                                      fprintf(listing_file, "%s \n", errortext);
