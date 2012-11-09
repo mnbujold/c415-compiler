@@ -33,9 +33,9 @@ void symNotDefinedError(const char *id);
 void symNotATypeError(const char *id);
 
 /**
- * Adds a "symbol 'id' not a variable or parameter" error.
+ * Adds a "symbol 'id' not a variable, parameter, or constant" error.
  */
-void symNotAVarParmError(const char *id);
+void symNotAVarParmConstError(const char *id);
 
 /**
  * Adds a "symbol 'id' not a valid enumeration type" error.

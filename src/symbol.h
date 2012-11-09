@@ -62,7 +62,8 @@ enum object_class {
   OC_PROC,
   OC_PARAM,
   OC_TYPE,
-  OC_PROGRAM
+  OC_PROGRAM,
+  OC_RETURN
 };
 typedef enum object_class object_class;
 

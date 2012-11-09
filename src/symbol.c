@@ -108,8 +108,8 @@ symbol *getVarSymbol(char const *id) {
     }
     object_class objClass = varSym->oc;
     
-    if (objClass != OC_VAR || objClass != OC_PARAM) {
-        symNotAVarParmError();
+    if (objClass != OC_VAR && objClass != OC_PARAM && objClass != OC_CONST) {        
+        symNotAVarParmConstError();
         return createErrorSym(OC_VAR);
     }
     
@@ -127,7 +127,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   //NOTE: THIS IS BAD, oc is an ENUM. But whatever
   int oc = recordPointer->oc;
   printf ("\n");
-  //printf ("Address: %p", recordPointer);
+  printf ("Address: %p", recordPointer);
   printf ("KEY: '%s' ", identifier);
   printf ("\tName: %s, %p ", recordPointer->name, recordPointer->name);
   printf ("\tObject class: %d", oc); 
@@ -140,7 +140,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
     }
   }
   */
-  printf ("\tTYPE: %d\n", getTypeClass (recordPointer));  
+  printf ("\tTYPE: %p; Type class: %d\n", recordPointer->symbol_type, getTypeClass (recordPointer));  
   /*
   if (oc==OC_TYPE) {
     struct type_desc *typeDescription = recordPointer->desc.type_attr;
@@ -179,7 +179,7 @@ void showAllSymbols() {
     i++;
     tmp--;
   }
-  printf ("======================END================================\n");
+  printf ("==================SYMBOL TABLE END=======================\n");
   
 }
 
@@ -396,12 +396,16 @@ symbol *createSymbolType (char const *identifier, type_class type) {
  
   type_class getTypeClass (symbol *theSymbol) {
 
+    DEBUG_PRINT (("In get type class\n"));
     symbol *tempSymbol = theSymbol;
-    
+
     while (tempSymbol != NULL){
+      DEBUG_PRINT (("temp SYmbol address: %p\n", tempSymbol));
+      DEBUG_PRINT (("temp symbol oc: %d\n", tempSymbol->oc));
     //printf ("Symbol name: %s\n", tempSymbol->name);
     //printf ("Object class: %d\n", tempSymbol->oc);
       if (tempSymbol->oc == OC_TYPE) {
+	DEBUG_PRINT(("type description: %p\n", tempSymbol->desc.type_attr));
         return tempSymbol->desc.type_attr->type;
       }
       tempSymbol = tempSymbol->symbol_type;
