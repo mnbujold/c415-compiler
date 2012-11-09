@@ -104,6 +104,8 @@ createConstant(type_class type, union constant_values value) {
         constSym->symbol_type = NULL; // You asked for it. Well, not really, but I'm lazy.
     }
     
+    
+    
     return constSym;
 }
 
@@ -342,13 +344,13 @@ symbol *
 createArray(symbol *indexType, symbol *objType) {
     DEBUG_PRINT (("Inside create array\n"));
     DEBUG_PRINT (("index type: %p object type: %p\n", indexType, objType));
-    // indexType->symbol_type is NULL! Fix it!
-    int indexClass = indexType->symbol_type->desc.type_attr->type;
+
+    int indexClass = indexType->desc.type_attr->type;
     int size = 0;
 
     if (indexClass == TC_SUBRANGE) {
         struct tc_subrange *subrange =
-                         indexType->symbol_type->desc.type_attr->desc.subrange;
+                         indexType->desc.type_attr->desc.subrange;
         size = subrange->high - subrange->low + 1;
     } else if (indexClass == TC_INTEGER) {
         // ...
@@ -417,7 +419,7 @@ createArrayIndex(symbol *low, symbol *high) {
         struct type_desc *subrangeType = calloc(1, sizeof(struct type_desc));
         subrangeType->type = TC_SUBRANGE;
         subrangeType->desc.subrange = subrange;
-        
+
         return createTypeSym(NULL, subrangeType);        
     } else if (highClass == OC_TYPE) {
         // Special Cases!
