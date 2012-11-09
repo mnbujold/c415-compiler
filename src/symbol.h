@@ -139,15 +139,16 @@ struct location_t{
   int offset;
 };
 
-struct const_desc{
-  //struct symbol_rec *type;         /* */
-  union{                           /* Value of const */ 
+  union constant_values{                           /* Value of const */ 
     int integer;
     int boolean;
     double real;
     char *string;
     char character;
-  }value;
+  };
+struct const_desc{
+  //struct symbol_rec *type;         /* */
+  union constant_values value;
 };
 
 struct var_desc{
@@ -166,10 +167,7 @@ struct function_desc{
 
 struct param_desc{
 };
-
-struct type_desc{
-  type_class type;
-  union{
+  union type_descriptions{
     struct tc_integer *integer;
     struct tc_real *real;
     struct tc_boolean *boolean;
@@ -181,7 +179,10 @@ struct type_desc{
     struct tc_record *record;
     struct tc_subrange *subrange;
     struct tc_file *file;
-  }desc;
+  };
+struct type_desc{
+  type_class type;
+  union type_descriptions desc;
 };
 
 struct symbol_rec {
@@ -231,6 +232,19 @@ symbol *createSymbolAnonType (char const *, struct type_desc *, object_class, vo
 symbol *createSymbolFunction (char const *, struct function_desc*);
 symbol *createSymbolType (char const *, type_class);
 
+
+/**
+ * Declaration of symbol descriptions here
+ */
+ 
+ struct const_desc *createConstDesc (union constant_values);
+ struct var_desc *createVarDesc ();
+ struct function_desc *createFunctionDesc (GPtrArray *, symbol *);
+ struct procedure_desc *createProcedureDesc (GPtrArray *);
+ struct param_desc *createParamDesc ();
+ struct type_desc *createTypeDesc (type_class, union type_descriptions);
+ 
+ 
 void removeSymbol (char const *);
 
 /**

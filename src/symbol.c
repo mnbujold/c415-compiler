@@ -270,21 +270,52 @@ symbol *createSymbolType (char const *identifier, type_class type) {
       break;    
   }
   
-  struct symbol_rec {
-  char *name;         /* Name of symbol */
-  object_class oc;     /* Class of object (eg. OC_CONST) */
-  union {             /* Class-specific attributes */
-    struct const_desc *const_attr;
-    struct var_desc *var_attr;
-    struct function_desc *func_attr;
-    struct procedure_desc *proc_attr;
-    struct param_desc *parm_attr;
-    struct type_desc *type_attr;
-  }desc;
-};
 
 }
 
+ 
+ struct const_desc *createConstDesc (union constant_values value) {
+  struct const_desc *constDec = calloc (1, sizeof (struct const_desc));
+  //TODO: Does not actually assign value right now, need to change
+  constDec->value = value;
+  return constDec;
+ }
+ struct var_desc *createVarDesc () {
+  struct var_desc *varDesc = calloc (1, sizeof (struct var_desc));
+  return varDesc;
+  
+ }
+ struct function_desc *createFunctionDesc (GPtrArray *params, 
+                                              symbol *return_type) {
+  struct function_desc *funcDesc = calloc (1, sizeof (struct function_desc));
+  funcDesc->params = params;
+  funcDesc->return_type = return_type;
+  return funcDesc;
+ }
+ struct procedure_desc *createProcedureDesc (GPtrArray *params) {
+  struct procedure_desc *procDesc = calloc (1, sizeof (struct procedure_desc));
+  procDesc->params = params;
+  return procDesc;
+ }
+ struct param_desc *createParamDesc () {
+  struct param_desc *paramDesc = calloc (1, sizeof (struct param_desc));
+  return paramDesc;
+ }
+ struct type_desc *createTypeDesc (type_class type, 
+    union type_descriptions tc_desc) {
+  struct type_desc *typeDesc = calloc (1, sizeof (struct type_desc));
+  typeDesc->type = type;
+  typeDesc->desc = tc_desc;
+  return typeDesc;
+ }
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 /**
  Our symbol table will need multiple levels, so we will
  need to add and remove levels as a new scope is defined
@@ -293,9 +324,10 @@ symbol *createSymbolType (char const *identifier, type_class type) {
 void pushLevel () {
   if (level >=MAX_LEVEL) {
     iserror = 1;
-    char *str = "Exceeded the number of levels allowed in ASC\n";
+    char *str = "Exceeded the number of levels allowed in ASC, will continue adding to top level\n";
     eList = addError(eList, str, last_column, lineno);
     printf ("Too many levels\n");
+    return;
   }
   GHashTable *table = createNewTable (level);
   g_queue_push_head (symbol_table, table);
@@ -319,9 +351,6 @@ Called to initialize the symbol table
 */
 void init_table () {
   
-#if DEBUG
-    printf("DEBUG: In init table\n");
-#endif
   GQueue* table_stack = g_queue_new();
   GHashTable *builtin_table = createNewTable(level);
   //q_queue_push_tail (table_stack, builtin_table);
