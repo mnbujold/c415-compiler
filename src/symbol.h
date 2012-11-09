@@ -218,10 +218,10 @@ symbol *topLevelLookup (char const *);
 void showAllSymbols();
 
 /**
-Create a symbol with parameters: identifier, type symbol, int object class, 
+Create a symbol with parameters: identifier, type symbol, object class, 
 pointer * value
 */
-symbol *createSymbol (char const *, symbol *, int, void *);
+symbol *createSymbol (char const *, symbol *, object_class, void *);
 /**
  * Create a symbol with parameters: identifier, anonymous type type_desc, enum
  * object class, pointer value.

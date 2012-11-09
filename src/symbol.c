@@ -146,11 +146,19 @@ void showAllSymbols() {
 
 
 /**
-Create a symbol with parameters: identifier, type symbol, int object class,
+Create a symbol with parameters: identifier, type symbol, object class oc,
 pointer * value
 */
 symbol *createSymbol (char const *identifier, symbol *type, 
-int obj_class, void *value) {
+object_class oc, void *value) {
+    DEBUG_PRINT(("Inside create symbol type\n"));
+    
+    symbol *newSymbol = calloc(1, sizeof(symbol));
+    newSymbol->name = identifier;
+    newSymbol->oc = oc;
+    newSymbol->symbol_type = type;
+    
+    return newSymbol;
 }
 
 /**
