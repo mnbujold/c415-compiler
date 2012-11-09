@@ -123,12 +123,13 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   symbol *recordPointer = (symbol *) value;
   //NOTE: THIS IS BAD, oc is an ENUM. But whatever
   int oc = recordPointer->oc;
-  printf ("\n");
-  printf ("Address: %p", recordPointer);
-  printf ("KEY: '%s' ", identifier);
-  printf ("\tName: %s, %p ", recordPointer->name, recordPointer->name);
+  printf("Name: '%-10s', %p ", recordPointer->name, recordPointer->name);
+  printf ("\tAddress: %p", recordPointer);
+  printf ("\tKEY: '%s' ", identifier);
   printf ("\tObject class: %d", oc); 
-  //printf ("Symbol attributes: %p\n", recordPointer->desc);
+  printf ("\tTYPE: %p; Type class: %d", recordPointer->symbol_type, getTypeClass (recordPointer));
+  
+//printf ("Symbol attributes: %p\n", recordPointer->desc);
 /*
   if (recordPointer->symbol_type != NULL) {
     //printf ("Symbol type: %p ", recordPointer->symbol_type);
@@ -137,7 +138,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
     }
   }
   */
-  printf ("\tTYPE: %p; Type class: %d\n", recordPointer->symbol_type, getTypeClass (recordPointer));  
+
   /*
   if (oc==OC_TYPE) {
     struct type_desc *typeDescription = recordPointer->desc.type_attr;
@@ -269,8 +270,12 @@ symbol *createSymbolFunction (char const *identifier, struct function_desc *func
   functionSymbol->oc = OC_FUNC;
   //functionSymbol->type = type of return value of FP
   functionSymbol->desc.func_attr = functionDescription;
-  functionSymbol->symbol_type = functionDescription->return_type;
+  if(functionDescription == NULL)
+    functionSymbol->symbol_type = NULL;
+  else
+    functionSymbol->symbol_type = functionDescription->return_type;
   
+  return(functionSymbol);
 }
 
 /**
@@ -469,9 +474,23 @@ void init_table () {
   addSymbol("maxint", createSymbolType("maxint", TC_REAL));
   addSymbol("pi", createSymbolType("pi", TC_REAL));
   /* Built-in functions */
-  //addSymbol("writeln", createSymbolFunction("writeln", NULL));
-  
-  
+  addSymbol("writeln", createSymbolFunction("writeln", NULL)); /* Return type is set to NULL, for now */
+  addSymbol("write", createSymbolFunction("write", NULL));
+  addSymbol("readln", createSymbolFunction("readln", NULL));
+  addSymbol("read", createSymbolFunction("read", NULL));
+  addSymbol("abs", createSymbolFunction("abs", NULL));
+  addSymbol("chr", createSymbolFunction("chr", NULL));
+  addSymbol("cos", createSymbolFunction("cos", NULL));
+  addSymbol("exp", createSymbolFunction("exp", NULL));
+  addSymbol("ln", createSymbolFunction("ln", NULL));
+  addSymbol("odd", createSymbolFunction("odd", NULL));
+  addSymbol("ord", createSymbolFunction("ord", NULL));
+  addSymbol("pred", createSymbolFunction("pred", NULL));
+  addSymbol("round", createSymbolFunction("round", NULL));
+  addSymbol("sin", createSymbolFunction("sin", NULL));
+  addSymbol("sqr", createSymbolFunction("sqr", NULL));
+  addSymbol("sqrt", createSymbolFunction("sqrt", NULL));
+  addSymbol("succ", createSymbolFunction("succ", NULL));
   
 }
 void free_symbol_table() {
