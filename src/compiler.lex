@@ -140,11 +140,12 @@ if (yytext != NULL) {
                                   /* ignore whitespace */ 
                                   }
 "//"[^\n]*""                    { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
-"{"[^}]*"}"		        { lineno += countlines(yytext);
+"{"[^}]*"}"		        { lineno += strcountlines(yytext);
                                   errortext = appendErrorText(errortext, yytext, &errorTextLength);
                                   /* do nothing, a block comment */ 
                                 }
-'(\\.|[^\\'])*'			{ yylval.string = strdup(yytext); 
+'(\\.|[^\\'])*'			{ //lineno += strcountlines (yytext);
+				  yylval.string = strdup(yytext); 
                                   /*printf ("lala: %s\n", yytext);*/
                                   return STRING; }
 .                               { illegalChar = yytext[0];
@@ -155,6 +156,21 @@ void add() {
      last_column += yyleng;
 }
 
+/**
+* Count the number of lines in a string
+*/
+int strcountlines (char *string) {
+  int count = 0;
+  char *charptr = string + 1;
+  while (*charptr != '\'') {
+    if (*charptr == '\n') {
+      count++;
+    }
+    charptr++;
+  }
+  //printf ("Number of newlines: %d\n", count);
+  return count;
+}
 /**
 *Count the number of lines in a block comment
 **/

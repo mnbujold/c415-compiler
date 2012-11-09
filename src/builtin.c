@@ -15,8 +15,8 @@
 
 void add_builtins () {
   pushLevel();
-   add_builtin_types();
-   add_builtin_functions();
+  add_builtin_types();
+  add_builtin_functions();
   /**
    * What to do with these? Consts
    * true
@@ -26,8 +26,8 @@ void add_builtins () {
    * pi
    */
   printf ("Done adding builtins\n");
-   showAllSymbols();
-//   exit;
+  showAllSymbols();
+  exit;
 }
 int odd (int x) {
   return 1;
