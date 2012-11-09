@@ -14,11 +14,6 @@
 #define MAX_LEVEL 14
 
 
-
-
-
-
-
 /* Defines which field of union is being used for readability */
 /* Type Class defs */
 /**
@@ -47,7 +42,6 @@ enum type_class {
   TC_SUBRANGE,
   TC_ERROR
 };
-
 typedef enum type_class type_class;
 
 /* Object Class definintions */
@@ -71,7 +65,6 @@ enum object_class {
   OC_PROGRAM,
   OC_RETURN
 };
-
 typedef enum object_class object_class;
 
 
@@ -85,31 +78,24 @@ typedef struct symbol_rec symbol;
 /* Structs for defining type classes of variables */
 struct tc_integer{
   int len; //32 bits?
-  
 };
-
 struct tc_real{
   int len;
 };
-
 struct tc_char{
   int len;
 };
-
 struct tc_boolean{
   int len;
 };
-
 struct tc_const{
   /* individual enumeration constant */
   int len;
 };
-
 struct tc_string{
   int high;
   int len;
 };
-
 struct tc_scalar{
   /* const_list */
   int len;
@@ -123,37 +109,29 @@ struct tc_array{
   int minIndex;
   int len;
 };
-
 struct tc_record{
   int len;
   GArray *field_list;
 };
-
 struct tc_subrange{
   int len;
   int low;
   int high;
   symbol *mother_type;
 };
-
 struct tc_file{
   int len; // Doesn't actually do anything - just for type comparisons.
 };
 
-/* Description fields */
-struct location_t{
-  /* See ASC... */
-  int display; 
-  int offset;
-};
 
-  union constant_values{                           /* Value of const */ 
+union constant_values{                           /* Value of const */ 
     int integer;
     int boolean;
     double real;
     char *string;
     char character;
   };
+
 struct const_desc{
   //struct symbol_rec *type;         /* */
   int hasValue; // We'll have to do some stuff so we can use this.
@@ -176,7 +154,8 @@ struct function_desc{
 
 struct param_desc{
 };
-  union type_descriptions{
+
+union type_descriptions{
     struct tc_integer *integer;
     struct tc_real *real;
     struct tc_boolean *boolean;
@@ -189,46 +168,43 @@ struct param_desc{
     struct tc_subrange *subrange;
     struct tc_file *file;
   };
+
 struct type_desc{
   type_class type;
   union type_descriptions desc;
 };
 
-  union oc_descriptions {             /* Class-specific attributes */
-  struct const_desc *const_attr;
-  struct var_desc *var_attr;
-  struct function_desc *func_attr;
-  struct procedure_desc *proc_attr;
-  struct param_desc *parm_attr;
-  struct type_desc *type_attr;
-  };
-  
-  
 struct symbol_rec {
   char const *name;         /* Name of symbol */
   object_class oc;     /* Class of object (eg. OC_CONST) */
   struct symbol_rec *symbol_type;
-  union oc_descriptions desc;
+  union oc_descriptions {             /* Class-specific attributes */
+    struct const_desc *const_attr;
+    struct var_desc *var_attr;
+    struct function_desc *func_attr;
+    struct procedure_desc *proc_attr;
+    struct param_desc *parm_attr;
+    struct type_desc *type_attr;
+  }desc;  
 };
-
-
 typedef struct symbol_rec symbol;
 
 extern GQueue* symbol_table;
 
 /* Function defs */
+/* Getter for current level */
 int getCurrentLevel();
-void printLevel();
+/* Prints one entire level of the symbol table */
+void printLevel(int level);
 void printSymbol();
+void showAllSymbols();
+
 
 void *addSymbol (char const *, symbol *);
 
 symbol *localLookup (char const *);
 symbol *globalLookup (char const *);
-
 symbol *topLevelLookup (char const *);
-
-void showAllSymbols();
 
 /**
  * Returns found variable symbol, or returns an error type and emits an error.
@@ -249,7 +225,6 @@ symbol *createSymbolAnonType (char const *, struct type_desc *, object_class, vo
 symbol *createSymbolFunction (char const *, struct function_desc*);
 symbol *createSymbolType (char const *, type_class);
 
-
 /**
  * Declaration of symbol descriptions here
  */
@@ -260,8 +235,6 @@ symbol *createSymbolType (char const *, type_class);
  struct procedure_desc *createProcedureDesc (GPtrArray *);
  struct param_desc *createParamDesc ();
  struct type_desc *createTypeDesc (type_class, union type_descriptions);
- 
- 
  
 type_class getTypeClass (symbol *);
  
@@ -280,7 +253,7 @@ void popLevel ();
 
 GHashTable *createNewTable();
 
-
 void init_table ();
 void free_symbol_table();
+
 #endif

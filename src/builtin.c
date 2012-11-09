@@ -28,12 +28,15 @@ void add_builtins () {
    */
    
   symbol *booleanTypeDescription = getType ("boolean");
+  
   symbol *oddFunctionSymbol = calloc (1, sizeof (symbol));
   GPtrArray *oddParam = g_ptr_array_new ();
   struct function_desc *funcDescription = createFunctionDesc (oddParam, 
     booleanTypeDescription);
   symbol *oddSymbol = createSymbol ("odd", booleanTypeDescription, OC_FUNC, funcDescription);
   addSymbol ("odd", oddSymbol);
+
+
   printf ("Type class of odd: %d\n", getTypeClass (oddSymbol));
   printf ("Done adding builtins\n");
   showAllSymbols();
@@ -183,6 +186,7 @@ void add_builtin_types () {
   //push on initial level
 
   symbol *typeSymbol;
+/*
   typeSymbol = createSymbolType ("char", TC_CHAR);
   addSymbol ("char", typeSymbol);
   typeSymbol = createSymbolType ("boolean", TC_BOOLEAN);
@@ -192,7 +196,7 @@ void add_builtin_types () {
   typeSymbol = createSymbolType ("real", TC_REAL);
   addSymbol ("real", typeSymbol);
   
-  
+*/
 
 
 }

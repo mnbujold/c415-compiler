@@ -127,4 +127,7 @@ symbol *createRecord(GArray *fieldList);
  */
 GArray *addField(GArray *fieldList, symbol *newField);
 
+
+symbol *createAnonymousVar(symbol *o1, symbol *o2);
+
 #endif

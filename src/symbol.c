@@ -11,7 +11,7 @@
 #include <memory.h>
 #include <string.h>
 
-#include "builtin.h"  //separate builtins initalization from rest of this
+//#include "builtin.h"  //separate builtins initalization from rest of this
 
 #include "symbol.h"
 #include "type.h"
@@ -37,16 +37,15 @@ addSymbol always adds the symbol to the topmost level
 void *addSymbol (char const *identifier, symbol *symbol) {
 
   gpointer *key = (gpointer) identifier;
-  GHashTable *table = g_queue_peek_head (symbol_table);
+  /* Table is equal to the hashmap at head of the queue */
+  GHashTable *table = g_queue_peek_head(symbol_table);
   if (table == NULL) {
     DEBUG_PRINT(("Error: Symbol table is null for some reason\n"));
   }
+  /* Insert symbol at key in hashmap at head of queue */
   g_hash_table_insert (table, key, symbol);
 
 }
-
-
-
 
 //Is returning null for a null identifier the right thing to do?
 symbol *localLookup (char const *identifier) {
@@ -57,9 +56,6 @@ symbol *localLookup (char const *identifier) {
   symbol *returnedSymbol = g_hash_table_lookup (table, identifier);
   return returnedSymbol;
 }
-
-
-
 
 symbol *globalLookup (char const *identifier) {
     if (identifier == NULL) {
@@ -127,12 +123,16 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   symbol *recordPointer = (symbol *) value;
   //NOTE: THIS IS BAD, oc is an ENUM. But whatever
   int oc = recordPointer->oc;
-  printf ("\n");
-  printf ("Address: %p", recordPointer);
-  printf ("KEY: '%s' ", identifier);
-  printf ("Name: %s, %p ", recordPointer->name, recordPointer->name);
-  printf ("Object class: %d\n", oc); 
-  //printf ("Symbol attributes: %p\n", recordPointer->desc);
+  printf("Name: '%-10s', %p ", recordPointer->name, recordPointer->name);
+  printf ("\tAddress: %p", recordPointer);
+  printf ("\tKEY: '%s' ", identifier);
+  printf ("\tObject class: %d", oc); 
+  printf ("\tTYPE: %p; ", recordPointer->symbol_type);
+  if(recordPointer->symbol_type != NULL)
+    printf("Type class: %d", getTypeClass (recordPointer));
+
+  
+//printf ("Symbol attributes: %p\n", recordPointer->desc);
 /*
   if (recordPointer->symbol_type != NULL) {
     //printf ("Symbol type: %p ", recordPointer->symbol_type);
@@ -141,7 +141,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
     }
   }
   */
-  printf ("TYPE: %p; Type class: %d\n", recordPointer->symbol_type, getTypeClass (recordPointer));  
+
   /*
   if (oc==OC_TYPE) {
     struct type_desc *typeDescription = recordPointer->desc.type_attr;
@@ -151,6 +151,18 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   printf ("\n");
 }
 
+void printLevel(int level){
+
+  printf("LEVEL %d ============================\n", level-1);
+  GHashTable *table = g_queue_peek_nth(symbol_table, level-1);
+  g_hash_table_foreach(table, (GHFunc)iterator, NULL);
+  printf("\nEND LEVEL %d ========================\n");
+  
+}
+
+void printSymbol(){
+  
+}
 void showAllSymbols() {
 
   int numLevels = g_queue_get_length (symbol_table);
@@ -167,75 +179,12 @@ void showAllSymbols() {
     
     i++;
     tmp--;
-    printf ("\n");
   }
   printf ("==================SYMBOL TABLE END=======================\n");
   
 }
 
 
-/**
-Create a symbol with parameters: identifier, type symbol, object class oc,
-pointer * value
-*/
-symbol *createSymbol (char const *identifier, symbol *type, 
-object_class oc, void *value) {
-    //DEBUG_PRINT(("Inside create symbol type\n"));
-    
-    symbol *newSymbol = calloc(1, sizeof(symbol));
-    newSymbol->name = identifier;
-    newSymbol->oc = oc;
-    newSymbol->symbol_type = type;
-    //TODO: SWITCH Statement assigning value based on the OC
-    //newSymbol->desc = description;
-    if (value == NULL) {
-      //do nothing
-    }
-    else {
-      switch (oc) {
-        case OC_CONST:
-        {
-          struct const_desc *description = (struct const_desc *) value;
-          newSymbol->desc.const_attr = description;
-          break;
-        }
-        case OC_VAR:
-        {
-          struct var_desc *description = (struct var_desc *) value;
-          newSymbol->desc.var_attr = description;
-          break;
-        }  
-        case OC_FUNC:
-        {
-          struct function_desc *description = (struct function_desc *) value;
-          newSymbol->desc.func_attr = description;
-          break;
-        }
-        case OC_PROC:
-        {
-          struct procedure_desc *description = (struct procedure_desc *) value;
-          newSymbol->desc.proc_attr = description;
-          break;
-        }
-        case OC_PARAM:
-        {
-          struct param_desc *description = (struct param_desc *) value;
-          newSymbol->desc.parm_attr = description;
-          break;
-        }
-        case OC_TYPE:
-        {
-          struct type_desc *description = (struct type_desc *) value;
-          newSymbol->desc.type_attr = description;
-          break;
-        }
-        case OC_PROGRAM:
-          break;
-        
-      }
-    }
-    return newSymbol;
-}
 
 /**
  * Call to create an anonymous type symbol
@@ -262,8 +211,12 @@ symbol *createSymbolFunction (char const *identifier, struct function_desc *func
   functionSymbol->oc = OC_FUNC;
   //functionSymbol->type = type of return value of FP
   functionSymbol->desc.func_attr = functionDescription;
-  functionSymbol->symbol_type = functionDescription->return_type;
+  if(functionDescription == NULL)
+    functionSymbol->symbol_type = NULL;
+  else
+    functionSymbol->symbol_type = functionDescription->return_type;
   
+  return(functionSymbol);
 }
 
 /**
@@ -348,12 +301,13 @@ symbol *createSymbolType (char const *identifier, type_class type) {
 
  
  struct const_desc *createConstDesc (union constant_values value) {
-  struct const_desc *constDec = calloc (1, sizeof (struct const_desc));
+   struct const_desc *constDec = calloc (1, sizeof (struct const_desc));
   //TODO: Does not actually assign value right now, need to change
-  constDec->value = value;
-  constDec->hasValue = 1;
-  return constDec;
+   constDec->value = value;
+   constDec->hasValue = 1;
+   return constDec;
  }
+
  struct var_desc *createVarDesc () {
   struct var_desc *varDesc = calloc (1, sizeof (struct var_desc));
   return varDesc;
@@ -413,6 +367,69 @@ symbol *createErrorSym(object_class objClass) {
     return errSym;
 }
  
+/**
+Create a symbol with parameters: identifier, type symbol, object class oc,
+pointer * value
+*/
+symbol *createSymbol (char const *identifier, symbol *type, object_class oc, void *value){
+  
+  /* Create a symbol with name, object class, type class*/
+  
+    //DEBUG_PRINT(("Inside create symbol type\n"));
+    
+    symbol *newSymbol = calloc(1, sizeof(symbol));
+    newSymbol->name = identifier;
+    newSymbol->oc = oc;
+    newSymbol->symbol_type = type;
+
+    if (value == NULL) {
+      //do nothing
+    }
+    else {
+      switch (oc) {
+        case OC_CONST:
+        {
+          struct const_desc *description = (struct const_desc *) value;
+          newSymbol->desc.const_attr = description;
+          break;
+        }
+        case OC_VAR:
+        {
+          struct var_desc *description = (struct var_desc *) value;
+          newSymbol->desc.var_attr = description;
+          break;
+        }  
+        case OC_FUNC:
+        {
+          struct function_desc *description = (struct function_desc *) value;
+          newSymbol->desc.func_attr = description;
+          break;
+        }
+        case OC_PROC:
+        {
+          struct procedure_desc *description = (struct procedure_desc *) value;
+          newSymbol->desc.proc_attr = description;
+          break;
+        }
+        case OC_PARAM:
+        {
+          struct param_desc *description = (struct param_desc *) value;
+          newSymbol->desc.parm_attr = description;
+          break;
+        }
+        case OC_TYPE:
+        {
+          struct type_desc *description = (struct type_desc *) value;
+          newSymbol->desc.type_attr = description;
+          break;
+        }
+        case OC_PROGRAM:
+          break;
+        
+      }
+    }
+    return newSymbol;
+}
  
  
 /**
@@ -427,8 +444,8 @@ void pushLevel () {
     eList = addError(eList, str, last_column, lineno);
    // return;
   }
-  GHashTable *table = createNewTable (level);
-  g_queue_push_head (symbol_table, table);
+//  GHashTable *table = createNewTable (level);
+  g_queue_push_head (symbol_table, createNewTable(level));
   level++;
 }
 
@@ -442,25 +459,54 @@ void popLevel () {
   g_hash_table_destroy (table); 
   level--;
 }
-
-
 /** 
 Called to initialize the symbol table
 */
 void init_table () {
+  /* Create a new queue for symbol_table*/
+  symbol_table = g_queue_new();
+  /* Add a new level to the symbol table (queue) */
+  pushLevel();
   
-  GQueue* table_stack = g_queue_new();
-  GHashTable *builtin_table = createNewTable(level);
-  //q_queue_push_tail (table_stack, builtin_table);
-  
-  //Add all the builtins here: call builtins function
-  symbol_table = table_stack;
-  
-  
+  //Add all the builtins here
+  addSymbol("char", createSymbol("char", NULL, OC_TYPE, NULL));
+  addSymbol("boolean", createSymbol("boolean", NULL, OC_TYPE, NULL));
+  addSymbol("integer", createSymbol("integer", NULL, OC_TYPE, NULL));
+  addSymbol("real", createSymbol("real", NULL, OC_TYPE, NULL));
+  /* Constants */
+  struct const_desc newSymbol;
+  newSymbol.hasValue = 1;
+  newSymbol.value.boolean = 1;
+  addSymbol("true", createSymbol("true", NULL, OC_CONST, &newSymbol));
+  newSymbol.hasValue = 1;
+  newSymbol.value.boolean = 0;  
+  addSymbol("false", createSymbol("false", NULL, OC_CONST, &newSymbol));
+  newSymbol.hasValue = 1;
+  newSymbol.value.integer = 4294967295;
+  addSymbol("maxint", createSymbol("maxint", NULL, OC_CONST, &newSymbol));
+  newSymbol.hasValue = 1;
+  newSymbol.value.real = 3.141592653;
+  addSymbol("pi", createSymbol("pi", NULL, OC_CONST, &newSymbol));
+  /* Built-in functions */
+  addSymbol("writeln", createSymbol("writeln", NULL, OC_FUNC, NULL)); /* Return type is set to NULL, for now */
+  addSymbol("write", createSymbol("write", NULL, OC_FUNC, NULL));
+  addSymbol("readln", createSymbol("readln", NULL, OC_FUNC, NULL));
+  addSymbol("read", createSymbol("read", NULL, OC_FUNC, NULL));
+  addSymbol("abs", createSymbol("abs", NULL, OC_FUNC, NULL));
+  addSymbol("chr", createSymbol("chr", NULL, OC_FUNC, NULL));
+  addSymbol("cos", createSymbol("cos", NULL, OC_FUNC, NULL));
+  addSymbol("exp", createSymbol("exp", NULL, OC_FUNC, NULL));
+  addSymbol("ln", createSymbol("ln", NULL, OC_FUNC, NULL));
+  addSymbol("odd", createSymbol("odd", NULL, OC_FUNC, NULL));
+  addSymbol("ord", createSymbol("ord", NULL, OC_FUNC, NULL));
+  addSymbol("pred", createSymbol("pred", NULL, OC_FUNC, NULL));
+  addSymbol("round", createSymbol("round", NULL, OC_FUNC, NULL));
+  addSymbol("sin", createSymbol("sin", NULL, OC_FUNC, NULL));
+  addSymbol("sqr", createSymbol("sqr", NULL, OC_FUNC, NULL ));
+  addSymbol("sqrt", createSymbol("sqrt", NULL, OC_FUNC, NULL));
+  addSymbol("succ", createSymbol("succ", NULL, OC_FUNC, NULL));
+
 }
-
-
-
 void free_symbol_table() {
   int numLevels = g_queue_get_length(symbol_table);
   
@@ -471,12 +517,10 @@ void free_symbol_table() {
   }
   g_queue_free (symbol_table);
 }
-
 /**
  * Called to create a new symbol table
  * int level variable is currently unused
  */
 GHashTable *createNewTable(int level) {
-  GHashTable *table = g_hash_table_new (g_str_hash, g_str_equal);
-  return table;
+  return g_hash_table_new (g_str_hash, g_str_equal);
 }
