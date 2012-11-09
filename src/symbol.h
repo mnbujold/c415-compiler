@@ -100,8 +100,8 @@ struct tc_scalar{
 };
 struct tc_array{
   int size;
-  struct type_desc *index_type;
-  struct type_desc *obj_type;
+  struct symbol_rec *index_type;
+  struct symbol_rec *obj_type;
   int maxIndex;
   int minIndex;
   int len;
@@ -116,7 +116,7 @@ struct tc_subrange{
   int len;
   int low;
   int high;
-  struct type_desc *mother_type;
+  struct symbol_rec *mother_type;
 };
 
 struct tc_file{
@@ -131,7 +131,7 @@ struct location_t{
 };
 
 struct const_desc{
-  struct type_desc *type;         /* */
+  //struct symbol_rec *type;         /* */
   union{                           /* Value of const */ 
     int integer;
     int boolean;
@@ -142,7 +142,7 @@ struct const_desc{
 };
 
 struct var_desc{
-  struct type_desc *type;
+  //symbol *type;
 };
 
 struct procedure_desc{
@@ -151,13 +151,13 @@ struct procedure_desc{
 
 struct function_desc{
   GPtrArray *params;
-  struct type_desc *return_type;
+  struct symbol_rec *return_type;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
 
 
 struct param_desc{
-  struct type_desc *type;
+  //symbol *type;
 };
 
 struct type_desc{
@@ -182,7 +182,6 @@ struct type_desc{
 struct symbol_rec {
   char const *name;         /* Name of symbol */
   object_class oc;     /* Class of object (eg. OC_CONST) */
-  struct type_desc *type; // Will refactor this ...
   struct symbol_rec *symbol_type; // Will refactor this ...
   //symbol *typeSymbol; //A pointer to the type that this symbol is
   union {             /* Class-specific attributes */

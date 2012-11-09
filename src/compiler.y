@@ -80,14 +80,14 @@ int yywrap() {
 %token <string> UNKNOWN_CHARACTER
 
 /* Symbol types */
-%type <anon_type> type 
-%type <anon_type> structured_type closed_array_type array_type
-%type <anon_type> simple_type
+%type <symbol> type 
+%type <symbol> structured_type closed_array_type array_type
+%type <symbol> simple_type
 %type <garray> scalar_type scalar_list field_list
 %type <symbol> field
-%type <anon_type> var_decl
+%type <symbol> var_decl
 
-%type <anon_type> expr unsigned_const unsigned_num
+%type <symbol> expr unsigned_const unsigned_num
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -171,7 +171,7 @@ type_decl_list           :  /* empty */
 type_decl               : ID ISEQUAL type
                             {
                                 DEBUG_PRINT (("ID: %s\n", $1));
-                                addNewSymbolAnonType($1, $3, OC_TYPE);
+                                addNewSymbol($1, $3, OC_TYPE);
                             }
                         | error /* ERROR */
                         ;
@@ -261,7 +261,7 @@ field_list              : field
 field                   : ID COLON type
                             {
                                 DEBUG_PRINT(("In field\n"));
-                                $$ = createSymbolAnonType($1, $3, OC_PARAM, NULL);
+                                $$ = createSymbol($1, $3, OC_PARAM, NULL);
                             }
                         | error /* ERROR */
                         ;
@@ -278,11 +278,11 @@ var_decl_list           : var_decl
 var_decl                : ID COLON type
                             {
                             
-                                $$ = addNewSymbolAnonType($1, $3, OC_VAR);
+                                $$ = addNewSymbol($1, $3, OC_VAR);
                             }
                         | ID COMMA var_decl
                             {
-                                $$ = addNewSymbolAnonType($1, $3, OC_VAR);
+                                $$ = addNewSymbol($1, $3, OC_VAR);
                             }
                         | error /* ERROR */
                         ;
