@@ -60,6 +60,30 @@ illArrayAssignObjError(){
     addTypeError("illegal array assignment (object types not compatible)");
 }
 
+void arrayMissLowerError() {
+    addTypeError("array index missing lower bound");
+}
+
+void arrayLowerNotConstError() {
+    addTypeError("array index lower bound not of constant type");
+}
+
+void arrayBoundTypeError() {
+    addTypeError("array index lower bound not the same type as upper bound");
+}
+
+void arrayBoundInvalidError() {
+    addTypeError("array index bounds are not valid array index types");
+}
+
+void lowerGreaterThanUpperError() {
+    addTypeError("lower bound is greater than upper bound");
+}
+
+void arrayIndexTypeError() {
+    addTypeError("array index type not a valid array index type");
+}
+
 void
 duplicateFieldError(const char *id) {
     char errMsg[25 + strlen(id)];

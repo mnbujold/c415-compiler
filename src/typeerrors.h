@@ -43,6 +43,36 @@ void symNotValidEnumError(const char *id);
 void illArrayAssignObjError();
 
 /**
+ * Adds an "array index missing lower bound" error.
+ */
+void arrayMissLowerError();
+
+/**
+ * Adds a "array index lower bound not of constant type" error.
+ */
+void arrayLowerNotConstError();
+
+/**
+ * Adds an "array index lower bound not the same type as upper bound" error.
+ */
+void arrayBoundTypeError();
+
+/**
+ * Adds an "array index bounds are not valid array index types" error.
+ */
+void arrayBoundInvalidError();
+
+/**
+ * Adds a "lower bound is greater than upper bound" error.
+ */
+void lowerGreaterThanUpperError();
+
+/**
+ * Adds a "array index type not a valid array index type" error.
+ */
+void arrayIndexTypeError();
+
+/**
  * Adds a "duplicate field 'id'" error.
  */
 void duplicateFieldError(const char *id);

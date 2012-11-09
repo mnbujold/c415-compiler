@@ -320,20 +320,21 @@ createArrayIndex(symbol *low, symbol *high) {
     object_class highClass = high->oc;
     
     if (highClass == OC_CONST) {
-        int noLow = low == NULL;
-        object_class lowClass = noLow ? OC_CONST : low->oc;
+        if (low == NULL) {
+            arrayMissLowerError();
+            return createErrorType();
+        }
+        object_class lowClass = low->oc;
         
         if (lowClass != OC_CONST) {
-            printf("Lowerbound not constant like upper\n");
-            // error ...
+            arrayLowerNotConstError();
             return createErrorType();
         }
         symbol *highType = high->symbol_type;
-        symbol *lowType = noLow ? highType : low->symbol_type;
+        symbol *lowType = low->symbol_type;
         
         if (lowType != highType) {
-            printf("Lowerbound and upper not same types\n");
-            // error ...
+            arrayBoundTypeError();
             return createErrorType();            
         }
         type_class typeClass = lowType->desc.type_attr->type;
@@ -342,19 +343,17 @@ createArrayIndex(symbol *low, symbol *high) {
         
         if (typeClass == TC_INTEGER) {
             highValue = high->desc.const_attr->value.integer;
-            lowValue = noLow ? 1 : low->desc.const_attr->value.integer;
+            lowValue = low->desc.const_attr->value.integer;
         } else if (typeClass == TC_BOOLEAN) {
             highValue = high->desc.const_attr->value.boolean;
-            lowValue = noLow ? 0 : low->desc.const_attr->value.boolean;
+            lowValue = low->desc.const_attr->value.boolean;
         } else {
-            printf("Lowerbound and upper not valid array index types\n");
-            // error ...
+            arrayBoundInvalidError();
             return createErrorType();
         }   
         
         if (lowValue > highValue) {
-            printf("Lowerbound greater than upper\n");
-            // error ...
+            lowerGreaterThanUpperError();
             return createErrorType();  
         }
         struct tc_subrange *subrange = calloc(1, sizeof(struct tc_subrange));
@@ -371,8 +370,7 @@ createArrayIndex(symbol *low, symbol *high) {
     } else if (highClass == OC_TYPE) {
         // Special Cases!
     }
-    printf("Upperbound not of valid array index types\n");
-    // error ...
+    arrayIndexTypeError();
     return createErrorType();
 }
 
