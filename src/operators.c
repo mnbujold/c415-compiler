@@ -95,7 +95,7 @@ int validArithOperator (symbol *operand) {
   return 0;
 }
 symbol *addOp (symbol *o1, symbol *o2) {
-  if (!validArithoperator (o1) || !validArithOperator (o2)) {
+  if (!validArithOperator (o1) || !validArithOperator (o2)) {
   }
 }
 
