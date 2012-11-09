@@ -13,7 +13,9 @@
 
 int
 compatibleSym(symbol *sym1, symbol *sym2) {
-    return compatible(sym1->desc.type_attr, sym1->desc.type_attr); // Incorrect, but I don't know if I'm actually going to use this ...
+  //TODO:
+  //hm...how to do this?
+  return 0;
 }
 
 int
@@ -33,40 +35,60 @@ compatible(struct type_desc *type1, struct type_desc *type2) {
     return 0;
 }
 
+
+/**
+ * Test to see if 2 symbols are assignment compatible
+ * Assigning symbol 2 TO symbol 1
+ * sym1 = sym2;
+ */
 int
 assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
-    return compatible(sym1->desc.type_attr, sym1->desc.type_attr); // Incorrect, but I don't know if I'm actually going to use this ...
+  
+    type_class tcSym1 = getTypeClass (sym1);
+    type_class tcSym2 = getTypeClass (sym2);
+    if (tcSym1 == tcSym2) {
+      return 1;
+    }
+    else if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
+       return arrayAssignmentCompatible (sym1, sym2);
+      //return array assignment compatiblity
+    }
+    else if (tcSym1 == TC_REAL && tcSym2 == TC_INTEGER) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
+    
 }
-
+/**
+ * IMPORTANT: Assumes that these 2 symbols are arrays, 
+ * We do not check if they are arrays here
+ */
 int
-assignmentCompatible(struct type_desc *type1, struct type_desc *type2) {
-    // T1 and T2 are the same type:
-    if (type1 == type2) {
-        return 1;
+arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
+  
+    struct tc_array *sym1ArrayDescription = sym1->desc.type_attr->desc.array;
+    struct tc_array *sym2ArrayDescription = sym2->desc.type_attr->desc.array;
+    //obviously if the objects are not the same, then can't assign
+    if (getTypeClass(sym1ArrayDescription->obj_type) != getTypeClass(sym2ArrayDescription->obj_type)) {
+      return 0;
     }
-    type_class tc1 = type1->type;
-    type_class tc2 = type2->type;
-    
-    // check if booleans ...
-    
-    // T1 is of type real and T2 is of type integer:
-    if (tc1 == TC_REAL && tc2 == TC_INTEGER) {
-        return 1;
+    if (getTypeClass (sym1ArrayDescription->index_type) != getTypeClass (sym2ArrayDescription->index_type)) {
+      return 0;
     }
     
-    // T1 and T2 are assignment compatible arrays:
-    if (tc1 == TC_ARRAY && tc2 == TC_ARRAY) {
+    //TODO: Check they are exactly the same enumerated type if we are using
+    //enum
     
-        return arrayAssignmentCompatible(type1->desc.array,
-                                         type2->desc.array);
+    if (sym1ArrayDescription->minIndex != sym2ArrayDescription->minIndex) {
+      return 0;
+    }
+    if (sym1ArrayDescription->maxIndex != sym2ArrayDescription->maxIndex) {
+      return 0;
     }
     
-    return 0;
-}
-
-int
-arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
-    return 0;
+    //if (sym1->
 //     int objCompat = 1;
 //     int indEquiv = 1;
 //     struct type_desc *ot1 = array1->obj_type;
@@ -80,6 +102,7 @@ arrayAssignmentCompatible(struct tc_array *array1, struct tc_array *array2) {
 //     // index checking ...
 //     
 //     return objCompat && indEquiv;
+    return 1;
 }
 
 
