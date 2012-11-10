@@ -486,6 +486,7 @@ simple_stat             : /* empty */
 
 stat_assignment         : var ASSIGN expr
                             {
+			      //DEBUG_PRINT(("Inside a var assignment"));
 			      doVarAssignment ($1, $3);
                                 // Have to finish this ...
                             }
