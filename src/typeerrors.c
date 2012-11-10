@@ -93,6 +93,13 @@ void arrayIndexTypeError() {
     addTypeError("array index type not a valid array index type");
 }
 
+void assignmentError () {
+  addTypeError ("Could not assign to var");
+}
+void assignmentCompatibilityError () {
+  addTypeError ("Could not assign; types are incompatible");
+}
+
 void
 duplicateFieldError(const char *id) {
     char errMsg[25 + strlen(id)];
