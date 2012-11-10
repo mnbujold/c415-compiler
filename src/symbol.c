@@ -336,9 +336,7 @@ symbol *createSymbolType (char const *identifier, type_class type) {
   typeDesc->desc = tc_desc;
   return typeDesc;
  }
- 
- 
- 
+
   type_class getTypeClass (symbol *theSymbol) {
 
     DEBUG_PRINT (("In get type class\n"));
