@@ -827,7 +827,12 @@ getRecordField(symbol *record, const char *fieldName) {
 }
 
 void callProc(const char *procname) {
-    
+    symbol * proc = globalLookup(procname);
+    if (proc->oc != OC_PROC) {
+        addTypeError ("invalid procedure call");
+    } else if (proc->desc.proc_attr->params->len != 0) {
+        addTypeError ("too many parameters in procedure call");        
+    }
 }
 
 void checkWriteln() {
