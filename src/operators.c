@@ -473,7 +473,7 @@ symbol *equalOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators cannot be compared");
     return createErrorType();
   }
-  if (checkComparisonCompatibility (o1, o2)) {
+  if (!checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
@@ -538,7 +538,7 @@ symbol *notEqualOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators cannot be compared");
     return createErrorType();
   }
-  if (checkComparisonCompatibility (o1, o2)) {
+  if (!checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
@@ -599,7 +599,7 @@ symbol *lessThanOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators cannot be compared");
     return createErrorType();
   }
-  if (checkComparisonCompatibility (o1, o2)) {
+  if (!checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
@@ -661,7 +661,7 @@ symbol *greaterThanOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators cannot be compared");
     return createErrorType();
   }
-  if (checkComparisonCompatibility (o1, o2)) {
+  if (!checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
@@ -720,7 +720,7 @@ symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators cannot be compared");
     return createErrorType();
   }
-  if (checkComparisonCompatibility (o1, o2)) {
+  if (!checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
@@ -782,7 +782,7 @@ symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators cannot be compared");
     return createErrorType();
   }
-  if (checkComparisonCompatibility (o1, o2)) {
+  if (!checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
