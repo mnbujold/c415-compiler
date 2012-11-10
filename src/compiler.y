@@ -484,9 +484,8 @@ simple_stat             : /* empty */
 
 stat_assignment         : var ASSIGN expr
                             {
-			      //DEBUG_PRINT(("Inside a var assignment"));
-			      doVarAssignment ($1, $3);
-                                // Have to finish this ...
+                                //DEBUG_PRINT(("Inside a var assignment"));
+                                doVarAssignment ($1, $3);
                             }
                         | error /* ERROR */
                             {
@@ -503,13 +502,13 @@ var                     : ID
                                 $$ = getVarSymbol($1);
                             }
                         | var PERIOD ID
-			  {
-			  //TODO: implement record access
-			  }
+                            {
+                            //TODO: implement record access
+                            }
                         | subscripted_var RIGHTBRACKET
-			  {
-			  //TODO: impelment array access
-			  }
+                            {
+                            //TODO: impelment array access
+                            }
                         | error RIGHTBRACKET /* ERROR */
                             {
                                 $$ = NULL;
