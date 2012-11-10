@@ -32,12 +32,39 @@ int canEvaluate(symbol *operand) {
 }
 
 symbol *identity (symbol *op) {
+  if (getTypeClass (op) == TC_REAL || getTypeClass (op) == TC_INTEGER) {
+    return op;
+  }
+  addTypeError ("Not a real or integer");
+  return createErrorType();
 }
 
 /**
  * Reverse sign of number
  */
 symbol *inversion (symbol *op)  {
+  if (getTypeClass (op) == TC_REAL || getTypeClass (op) == TC_INTEGER) {
+    if (canEvaluate (op)) {
+      if (getTypeClass (op) == TC_REAL) {
+	//grab int value and mult by -1
+	double result = -1 * op->desc.const_attr->value.real;
+	union constant_values value = {.real = value};
+	return createConstant (TC_REAL, value);
+      }
+      else {
+	int result = -1 * op->desc.const_attr->value.integer;
+	union constant_values value = {.integer = value};
+	return createConstant (TC_INTEGER, value);
+      }
+    }
+    else {
+      //return thing
+    }
+    
+  }
+  
+  addTypeError ("Not a real or integer");
+  return createErrorType();
 }
 
 /*********
@@ -445,6 +472,7 @@ symbol *equalOp (symbol *o1, symbol *o2) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
       //straight comparison?
+      //
       
     }
     else if (isString (o1)) {
@@ -452,11 +480,15 @@ symbol *equalOp (symbol *o1, symbol *o2) {
       char *string1 = getString (o1);
       char *string2 = getString (o2);
       int cmpResult = strcmp (string1, string2);
-      if (cmpResult !=0) {
-	//return false
+      if (cmpResult ==0) {
+	
+	union constant_values resultValue = {.boolean = 1};
+	return createConstant (TC_BOOLEAN, resultValue);
       }
       else {
-	//return true
+	
+	union constant_values resultValue = {.boolean = 0};
+	return createConstant (TC_BOOLEAN, resultValue);
       }
       
     }
@@ -508,10 +540,14 @@ symbol *notEqualOp (symbol *o1, symbol *o2) {
       char *string2 = getString (o2);
       int cmpResult = strcmp (string1, string2);
       if (cmpResult !=0) {
-	//return true
+	
+	union constant_values resultValue = {.boolean = 1};
+	return createConstant (TC_BOOLEAN, resultValue);
       }
       else {
-	//return false
+	
+	union constant_values resultValue = {.boolean = 0};
+	return createConstant (TC_BOOLEAN, resultValue);
       }
     }
     else {
@@ -559,9 +595,15 @@ symbol *lessThanOp (symbol *o1, symbol *o2) {
       char *string2 = getString (o2);
       int cmpResult = strcmp (string1, string2);
       if (cmpResult <0) {
+	
+	union constant_values resultValue = {.boolean = 1};
+	return createConstant (TC_BOOLEAN, resultValue);
 	//true
       }
       else {
+	
+	union constant_values resultValue = {.boolean = 0};
+	return createConstant (TC_BOOLEAN, resultValue);
 	//return false
       }
       //call strcmp
@@ -611,10 +653,14 @@ symbol *greaterThanOp (symbol *o1, symbol *o2) {
       char *string2 = getString (o2);
       int cmpResult = strcmp (string1, string2);
       if (cmpResult >0) {
-	//return false
+	
+	union constant_values resultValue = {.boolean = 1};
+	return createConstant (TC_BOOLEAN, resultValue);
       }
       else {
-	//return true
+	
+	union constant_values resultValue = {.boolean = 0};
+	return createConstant (TC_BOOLEAN, resultValue);
       }
     }
     else {
@@ -662,9 +708,15 @@ symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
       char *string2 = getString (o2);
       int cmpResult = strcmp (string1, string2);
       if (cmpResult >=0) {
+	
+	union constant_values resultValue = {.boolean = 1};
+	return createConstant (TC_BOOLEAN, resultValue);
 	//return false
       }
       else {
+	
+	union constant_values resultValue = {.boolean = 0};
+	return createConstant (TC_BOOLEAN, resultValue);
 	//return true
       }
 
@@ -715,9 +767,13 @@ symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
       int cmpResult = strcmp (string1, string2);
       if (cmpResult <=0) {
 	//return true
+	union constant_values resultValue = {.boolean = 1};
+	return createConstant (TC_BOOLEAN, resultValue);
       }
       else {
 	//return false
+	union constant_values resultValue = {.boolean = 0};
+	return createConstant (TC_BOOLEAN, resultValue);
       }
     }
     else {
