@@ -98,6 +98,7 @@ arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
     struct tc_array *sym1ArrayDescription = getArrayDescription (sym1);
     struct tc_array *sym2ArrayDescription = getArrayDescription (sym2);
     //obviously if the objects are not the same, then can't assign
+    
     if (getTypeClass(sym1ArrayDescription->obj_type) != getTypeClass(sym2ArrayDescription->obj_type)) {
       return 0;
     }
@@ -326,25 +327,6 @@ addNewParam(const char *id, const char *typeId) {
     return createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
 }
 
-// symbol *
-// createNewFunc(const char *id, const char *returnType) {
-//     if (localLookup(id) == NULL) {
-//         struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
-//         struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
-//         typeDesc->type = TC_NONE;
-//         typeDesc->desc.none = noneType;
-//         
-//         symbol *type = createTypeSym(NULL, typeDesc);
-//         symbol *newProc = createSymbol(id, type, OC_PROC, NULL);
-//         
-//         addSymbol(id, newProc);
-//         
-//         return newProc;
-//     }
-//     symExistsError(id);
-//     return createErrorSym(OC_PROC);
-// }
-
 symbol *
 addNewProc(const char *id, GPtrArray *paramList) {
     symbol *newProc;
@@ -435,8 +417,6 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
     if (returnType->desc.type_attr->type != TC_ERROR
      && localLookup(newFunc->name) == NULL) {
         addSymbol(newFunc->name, newFunc);
-    } else if (returnType->desc.type_attr->type != TC_ERROR) {
-        symExistsError(typeId);
     }
     
     return newFunc;
