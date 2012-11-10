@@ -208,6 +208,7 @@ simple_type             : scalar_type
                             }
                         | ID
                             {
+                                DEBUG_PRINT (("magic In get type"));
                                 $$ = getType($1);
                             }
                         ;
@@ -248,6 +249,7 @@ structured_type         : ARRAY closed_array_type OF type
                             {
                                 DEBUG_PRINT (("Inside structured type\n"));
                                 if ($2 != NULL && $4 != NULL) {
+                                    DEBUG_PRINT (("Type: %s\n", $4->name));
                                     $$ = createArray($2, $4);
                                 } else {
                                     $$ = NULL;
@@ -516,6 +518,10 @@ var                     : ID
                         ;
 
 subscripted_var         : var LEFTBRACKET expr
+                            {
+                            DEBUG_PRINT (("In subscripted var"));
+                            //$$ = arrayAccessWithIndex ($1, $3);
+                            }
                         | subscripted_var COMMA expr
                         ;
 
