@@ -69,6 +69,25 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
     }
     
 }
+
+struct tc_array *getArrayDescription (symbol *sym) {
+    
+    symbol *tempSymbol = sym;
+    while (tempSymbol != NULL){
+        DEBUG_PRINT (("temp SYmbol address: %p\n", tempSymbol));
+        DEBUG_PRINT (("temp symbol oc: %d\n", tempSymbol->oc));
+    //printf ("Symbol name: %s\n", tempSymbol->name);
+    //printf ("Object class: %d\n", tempSymbol->oc);
+    if (tempSymbol->oc == OC_TYPE) {
+        DEBUG_PRINT(("type description: %p\n", tempSymbol->desc.type_attr));
+        if (getTypeClass (tempSymbol) == TC_ARRAY) {
+            return tempSymbol->desc.type_attr->desc.array;
+        }
+    }
+    tempSymbol = tempSymbol->symbol_type;
+    } 
+    return NULL;
+}
 /**
  * IMPORTANT: Assumes that these 2 symbols are arrays, 
  * We do not check if they are arrays here
@@ -76,8 +95,8 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
 int
 arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
   
-    struct tc_array *sym1ArrayDescription = sym1->desc.type_attr->desc.array;
-    struct tc_array *sym2ArrayDescription = sym2->desc.type_attr->desc.array;
+    struct tc_array *sym1ArrayDescription = getArrayDescription (sym1);
+    struct tc_array *sym2ArrayDescription = getArrayDescription (sym2);
     //obviously if the objects are not the same, then can't assign
     
     if (getTypeClass(sym1ArrayDescription->obj_type) != getTypeClass(sym2ArrayDescription->obj_type)) {

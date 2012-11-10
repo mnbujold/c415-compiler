@@ -37,6 +37,11 @@ int assignmentCompatibleSym(symbol *sym1, symbol *sym2);
 int arrayAssignmentCompatible(symbol *sym1, symbol *sym2);
 
 /**
+ * Get the array description for a symbol
+ */
+struct tc_array *getArrayDescription (symbol *sym);
+
+/**
  * Returns a pointer to a constant symbol of type TC_INTEGER, TC_REAL, TC_CHAR,
  * TC_BOOLEAN, or TC_STRING with value.
  */
