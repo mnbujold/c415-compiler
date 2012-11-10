@@ -50,24 +50,17 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
     if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
        return arrayAssignmentCompatible (sym1, sym2);
       //return array assignment compatiblity
-    }
-    else if (tcSym1 == tcSym2) {
-      if (sym1 == sym2) {
-	return 1;
-      }
-      else {
-	return 0;
-      }
-    }
-    else if (tcSym1 == TC_REAL && tcSym2 == TC_INTEGER) {
+    } else if (tcSym1 == tcSym2) {
+        if (sym1->symbol_type == sym2->symbol_type
+         || sym1->symbol_type->desc.type_attr == sym2->symbol_type->desc.type_attr) {
+            return 1;
+        }
+        return 0;
+    } else if (tcSym1 == TC_REAL && tcSym2 == TC_INTEGER) {
       return 1;
     }
-    //TODO: 
-    //Subrange case: NOT IMPLEMENTED
-    else {
-      return 0;
-    }
-    
+    //TODO: Subrange case: NOT IMPLEMENTED
+    return 0;
 }
 
 struct tc_array *getArrayDescription (symbol *sym) {
@@ -468,12 +461,17 @@ createScalarList(GPtrArray *nameList) {
     int listSize = nameList->len;
     GPtrArray *scalarList = g_ptr_array_new();
     
-    struct tc_const *constTypeClass = calloc(1, sizeof(struct tc_const));
-    constTypeClass->len = listSize;
-    struct type_desc *constType = calloc(1, sizeof(struct type_desc));
-    constType->type = TC_CONST;
-    constType->desc.enumeration = constTypeClass;
-    symbol *typeSym = createTypeSym(NULL, constType);
+    struct type_desc *scalarListType = calloc(1, sizeof(struct type_desc));
+    scalarListType->type = TC_SCALAR;
+    
+    symbol *scalarType = createTypeSym(NULL, scalarListType);
+    
+//     struct tc_const *constTypeClass = calloc(1, sizeof(struct tc_const));
+//     constTypeClass->len = listSize;
+//     struct type_desc *constType = calloc(1, sizeof(struct type_desc));
+//     constType->type = TC_CONST;
+//     constType->desc.enumeration = constTypeClass;
+//     symbol *typeSym = createTypeSym(NULL, constType);
     
     symbol *scalar;
     int i, tmp;
@@ -483,10 +481,9 @@ createScalarList(GPtrArray *nameList) {
         tmp = i + 1;
         scalar = localLookup(name);
         if (scalar == NULL) { // New symbol.
-            scalar = createSymbol(name, typeSym, OC_CONST, (void *) &tmp);
-        } else if ((scalar->oc != OC_CONST)
-                || (scalar->symbol_type->desc.type_attr->type != TC_CONST)) {
-                symNotValidEnumError();
+            scalar = createSymbol(name, scalarType, OC_CONST, (void *) &tmp);
+        } else {
+                symExistsError(name);
                 continue;
         }
         addSymbol(name, scalar);
@@ -498,11 +495,9 @@ createScalarList(GPtrArray *nameList) {
     scalarTypeClass->len = listSize;
     scalarTypeClass->const_list = scalarList;
     
-    struct type_desc *scalarListType = calloc(1, sizeof(struct type_desc));
-    scalarListType->type = TC_SCALAR;
     scalarListType->desc.scalar = scalarTypeClass;
     
-    return createTypeSym(NULL, scalarListType);
+    return scalarType;
 }
 
 GPtrArray *
@@ -772,7 +767,7 @@ void doVarAssignment (symbol *var, symbol *expr) {
   if (var->oc != OC_VAR) {
     assignmentError ();
   }
-  if (assignmentCompatibleSym (var, expr)) {
+  if (assignmentCompatibleSym(var, expr) == 1) {
     //What does it even mean to assign right now...
     //Point to the expression, as far as I can tell
     
@@ -782,8 +777,7 @@ void doVarAssignment (symbol *var, symbol *expr) {
         varLookup->desc.func_attr->returnValSet = 1;
     }    
     var->desc.var_attr->expression = expr;
-  }
-  else {
+  } else {
     //They are not assignment compatible, give error
     assignmentCompatibilityError();
   }

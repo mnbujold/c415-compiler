@@ -102,12 +102,8 @@ symbol *getVarSymbol(char const *id) {
         return createErrorSym(OC_VAR);
     }
     object_class objClass = varSym->oc;
-    
-    printf("id=%s\n", id);   
-    printf("oc=%d\n", objClass);    
-    
+
     if (objClass == OC_FUNC) {
-        printf("It is a function!\n");
         return createSymbol(id, varSym->symbol_type, OC_VAR, createVarDesc());
     }
     

@@ -7,11 +7,10 @@ const aNum = 1;
       anotherbob = aNum;
 
 type bob = (enum1, enum2);
-     str = 'a string'; // Should be a syntactic error!
      clark = bob;
      enum0 = (e00, e01, e02);
      bool = boolean;
-     foo = array[1..10] of char; // Should be a syntactic error!
+     foo = array[1..10] of char;
 
 var joe : bob;
     text : clark;
@@ -23,6 +22,13 @@ procedure foo(joe : enum0; foo :enum0);
          joe = bool;
     begin
     end;
+    
+    
+function asdf(tool : bob) : bob;
+begin
+    asdf := enum2;
+end;
+    
     
 procedure tim();
     var joe : (e1, ererer);
