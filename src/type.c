@@ -344,6 +344,7 @@ addNewProc(const char *id, GPtrArray *paramList) {
     } else {
         symExistsError(id);
         newProc = createErrorSym(OC_PROC);
+        newProc->name = id;
     }
     pushLevel();
     
@@ -359,7 +360,6 @@ addNewProc(const char *id, GPtrArray *paramList) {
         if (paramType->desc.type_attr->type != TC_ERROR) {
             addSymbol(paramType->name, paramType);
         }
-        
         addSymbol(newParam->name, newParam);
     }
     
