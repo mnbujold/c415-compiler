@@ -6,7 +6,7 @@
     17:24 missing lower or upper bound
     19:16 input_type is already defined as a file object thing
     55:0 missing function return value assignment
-    72:60 cannot call a program
+    78:60 cannot call a program
 }
 program mostness(input_type, output_type);
 

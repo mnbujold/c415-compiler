@@ -51,6 +51,7 @@ cp2:
 	$(PY) $(RUNNER) -sn $(TESTS)
 	mkdir $(CP2DIR)
 	make clean
+	pdflatex doc/pal.tex
 	cp -r $(SOLUTION) $(SUBTESTS) $(CP2DIR)
 	tar -cvzf $(CP2DIR).tgz $(CP2DIR)
 	rm -rf $(CP2DIR) $(SUBTESTS)
