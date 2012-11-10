@@ -5,6 +5,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+
 #include "symbol.h"
 #include "type.h"
 #include "typeerrors.h"
@@ -414,13 +416,21 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
   }
   //strings
   if (isString (o1) && isString (o2)) {
-    return 1;
+    //check string length
+    char *string1 = getString (o1);
+    char *string2 = getString (o2);
+    if (strlen (string1) == strlen (string2)) {
+      return 1;
+    }
   }
   
   return 0;
 }
 
-
+/*NOTE: Cheating; am casting to doubles, so it is possible that these could return incorrect results
+ * .....but screw it
+ * Also, there is probably a better way to do this rather than just copying pasting...but blargh
+ */
 symbol *equalOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
     addTypeError ("Operators cannot be compared");
@@ -430,6 +440,51 @@ symbol *equalOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
+  
+  if (canEvaluate (o1) && canEvaluate (o2)) {
+    
+    if (getTypeClass (o1) == getTypeClass (o2)) {
+      //straight comparison?
+      
+    }
+    else if (isString (o1)) {
+      //call strcmp
+      char *string1 = getString (o1);
+      char *string2 = getString (o2);
+      int cmpResult = strcmp (string1, string2);
+      if (cmpResult !=0) {
+	//return false
+      }
+      else {
+	//return true
+      }
+      
+    }
+    
+    else {
+      double val1;
+      double val2;
+      if (getTypeClass (o1) == TC_REAL) {
+	val1 = o1->desc.const_attr->value.real;
+      }
+      else {
+	val1= o1->desc.const_attr->value.integer;
+      }
+      if (getTypeClass (o2) == TC_REAL) {
+	val2 = o2->desc.const_attr->value.real;
+      }
+      else {
+	val2 = o2->desc.const_attr->value.integer;
+      }
+      int result = val1 == val2;
+      union constant_values resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
+
+    }
+    
+    
+  }
+  return createAnonymousVar(o1, o2);
 }
 symbol *notEqualOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
@@ -439,6 +494,48 @@ symbol *notEqualOp (symbol *o1, symbol *o2) {
   if (checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
+  }
+  if (canEvaluate (o1) && canEvaluate (o2)) {
+    
+    if (getTypeClass (o1) == getTypeClass (o2)) {
+      //straight comparison?
+      
+    }
+    else if (isString (o1)) {
+      //call strcmp
+      //call strcmp
+      char *string1 = getString (o1);
+      char *string2 = getString (o2);
+      int cmpResult = strcmp (string1, string2);
+      if (cmpResult !=0) {
+	//return true
+      }
+      else {
+	//return false
+      }
+    }
+    else {
+      double val1;
+      double val2;
+      if (getTypeClass (o1) == TC_REAL) {
+	val1 = o1->desc.const_attr->value.real;
+      }
+      else {
+	val1= o1->desc.const_attr->value.integer;
+      }
+      if (getTypeClass (o2) == TC_REAL) {
+	val2 = o2->desc.const_attr->value.real;
+      }
+      else {
+	val2 = o2->desc.const_attr->value.integer;
+      }
+      int result = val1 != val2;
+      union constant_values resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
+
+    }
+    
+    
   }
 }
 symbol *lessThanOp (symbol *o1, symbol *o2) {
@@ -450,6 +547,48 @@ symbol *lessThanOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
+  if (canEvaluate (o1) && canEvaluate (o2)) {
+    
+    if (getTypeClass (o1) == getTypeClass (o2)) {
+      //straight comparison?
+      
+    }
+    else if (isString (o1)) {
+      //call strcmp
+      char *string1 = getString (o1);
+      char *string2 = getString (o2);
+      int cmpResult = strcmp (string1, string2);
+      if (cmpResult <0) {
+	//true
+      }
+      else {
+	//return false
+      }
+      //call strcmp
+    }
+    else {
+      double val1;
+      double val2;
+      if (getTypeClass (o1) == TC_REAL) {
+	val1 = o1->desc.const_attr->value.real;
+      }
+      else {
+	val1= o1->desc.const_attr->value.integer;
+      }
+      if (getTypeClass (o2) == TC_REAL) {
+	val2 = o2->desc.const_attr->value.real;
+      }
+      else {
+	val2 = o2->desc.const_attr->value.integer;
+      }
+      int result = val1 < val2;
+      union constant_values resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
+
+    }
+    
+    
+  }
 }
 symbol *greaterThanOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
@@ -459,6 +598,47 @@ symbol *greaterThanOp (symbol *o1, symbol *o2) {
   if (checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
+  }
+  if (canEvaluate (o1) && canEvaluate (o2)) {
+    
+    if (getTypeClass (o1) == getTypeClass (o2)) {
+      //straight comparison?
+      
+    }
+    else if (isString (o1)) {
+      //call strcmp
+      char *string1 = getString (o1);
+      char *string2 = getString (o2);
+      int cmpResult = strcmp (string1, string2);
+      if (cmpResult >0) {
+	//return false
+      }
+      else {
+	//return true
+      }
+    }
+    else {
+      double val1;
+      double val2;
+      if (getTypeClass (o1) == TC_REAL) {
+	val1 = o1->desc.const_attr->value.real;
+      }
+      else {
+	val1= o1->desc.const_attr->value.integer;
+      }
+      if (getTypeClass (o2) == TC_REAL) {
+	val2 = o2->desc.const_attr->value.real;
+      }
+      else {
+	val2 = o2->desc.const_attr->value.integer;
+      }
+      int result = val1 > val2;
+      union constant_values resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
+
+    }
+    
+    
   }
 }
 symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
@@ -470,6 +650,48 @@ symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
+  if (canEvaluate (o1) && canEvaluate (o2)) {
+    
+    if (getTypeClass (o1) == getTypeClass (o2)) {
+      //straight comparison?
+      
+    }
+    else if (isString (o1)) {
+      //call strcmp
+      char *string1 = getString (o1);
+      char *string2 = getString (o2);
+      int cmpResult = strcmp (string1, string2);
+      if (cmpResult >=0) {
+	//return false
+      }
+      else {
+	//return true
+      }
+
+    }
+    else {
+      double val1;
+      double val2;
+      if (getTypeClass (o1) == TC_REAL) {
+	val1 = o1->desc.const_attr->value.real;
+      }
+      else {
+	val1= o1->desc.const_attr->value.integer;
+      }
+      if (getTypeClass (o2) == TC_REAL) {
+	val2 = o2->desc.const_attr->value.real;
+      }
+      else {
+	val2 = o2->desc.const_attr->value.integer;
+      }
+      int result = val1 >= val2;
+      union constant_values resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
+
+    }
+    
+    
+  }
 }
 symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
@@ -479,5 +701,46 @@ symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
   if (checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
+  }
+  if (canEvaluate (o1) && canEvaluate (o2)) {
+    
+    if (getTypeClass (o1) == getTypeClass (o2)) {
+      //straight comparison?
+      
+    }
+    else if (isString (o1)) {
+      //call strcmp
+      char *string1 = getString (o1);
+      char *string2 = getString (o2);
+      int cmpResult = strcmp (string1, string2);
+      if (cmpResult <=0) {
+	//return true
+      }
+      else {
+	//return false
+      }
+    }
+    else {
+      double val1;
+      double val2;
+      if (getTypeClass (o1) == TC_REAL) {
+	val1 = o1->desc.const_attr->value.real;
+      }
+      else {
+	val1= o1->desc.const_attr->value.integer;
+      }
+      if (getTypeClass (o2) == TC_REAL) {
+	val2 = o2->desc.const_attr->value.real;
+      }
+      else {
+	val2 = o2->desc.const_attr->value.integer;
+      }
+      int result = val1 <= val2;
+      union constant_values resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
+
+    }
+    
+    
   }
 }

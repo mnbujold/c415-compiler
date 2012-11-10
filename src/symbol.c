@@ -156,7 +156,7 @@ void printLevel(int level){
   printf("LEVEL %d ============================\n", level-1);
   GHashTable *table = g_queue_peek_nth(symbol_table, level-1);
   g_hash_table_foreach(table, (GHFunc)iterator, NULL);
-  printf("\nEND LEVEL %d ========================\n");
+  printf("\nEND LEVEL %d ========================\n", level-1);
   
 }
 
