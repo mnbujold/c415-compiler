@@ -652,6 +652,63 @@ addParam(GArray *paramList, symbol *newParam) {
     
 }
 
+symbol *arrayAccessWithIndex (symbol *array, symbol *index) {
+  
+  if (getTypeClass (array) != TC_ARRAY) {
+    addTypeError ("Trying to access something that is not an array");
+    return createErrorType();
+  }
+  //check if index is the right indexing type
+  struct tc_array *arrayDescription = array->desc.type_attr->desc.array;
+  if (!(index->symbol_type  == arrayDescription->index_type)) {
+    return createErrorType ();
+  }
+  
+  //check if it is within bounds for constant
+  //assume constant has value
+  if (index->oc = OC_CONST) {
+    int value = index->desc.const_attr->value.integer;
+    if (value > arrayDescription->minIndex || value < arrayDescription->maxIndex) {
+      //TODO:
+      //Er...Because arrays are not actually assigned, just return this
+      return arrayDescription->obj_type;
+    }
+    else {
+      //arrayOutOfBoundsError (); 
+      return createErrorType();
+    }
+  }
+  
+  //TODO: We will need to be able to access with a variable as well
+  
+}
+
+symbol *recordAccess (symbol *record, symbol *key) {
+  
+  //check that record is a record
+  if (getTypeClass (record) != TC_RECORD) {
+    addTypeError ("Trying to access something that is not a record");
+    return createErrorType();
+
+  }
+  GPtrArray *fieldList = record->desc.type_attr->desc.record->field_list;
+  int numElements = fieldList->len;
+  int i = 0;
+  const char *keyString = key->name;
+  while (i < numElements) {
+    symbol *element = (symbol *) g_ptr_array_index (fieldList, i);
+    const char *elementString = element->name;
+    if (strcmp (keyString, elementString) == 0) {
+      return element;
+    }
+    i++;
+  }
+  //otherwise not in here, return error
+  return createErrorType();
+  
+  
+}
+
 
 void doVarAssignment (symbol *var, symbol *expr) {
   if (var->oc != OC_VAR) {

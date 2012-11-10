@@ -136,6 +136,14 @@ GArray *addField(GArray *fieldList, symbol *newField);
  * Adds newParam to paramList and returns the resulting paramList.
  */
 GArray *addParam(GArray *paramList, symbol *newParam) ;
+/**
+ * Access array with symbol index
+ */
+symbol *arrayAccessWithIndex (symbol *array, symbol *index);
+/**
+ * Access element of record with key
+ */
+symbol *recordAccess (symbol *record, symbol *key);
 
 /**
  * Assign an expression to a var

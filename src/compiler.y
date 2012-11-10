@@ -505,7 +505,13 @@ var                     : ID
                                 $$ = getVarSymbol($1);
                             }
                         | var PERIOD ID
+			  {
+			  //TODO: implement record access
+			  }
                         | subscripted_var RIGHTBRACKET
+			  {
+			  //TODO: impelment array access
+			  }
                         | error RIGHTBRACKET /* ERROR */
                             {
                                 $$ = NULL;

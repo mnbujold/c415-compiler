@@ -93,6 +93,10 @@ void arrayIndexTypeError() {
     addTypeError("array index type not a valid array index type");
 }
 
+void arrayOutOfBoundsError () {
+    addTypeError ("index is not within bounds of array");
+}
+
 void assignmentError () {
   addTypeError ("Could not assign to var");
 }
