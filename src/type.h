@@ -79,7 +79,7 @@ symbol *addNewVar(const char *id, symbol *type);
 symbol *addNewConst(const char *id, symbol *result);
 symbol *addNewParam(const char *id, const char *typeId);
 symbol *addNewProc(const char *id, GPtrArray *paramList);
-symbol *addNewFunc(const char *id, const char *returnType, GPtrArray *paramList);
+symbol *addNewFunc(const char *id, const char *typeId, GPtrArray *paramList);
 
 /**
  * Adds a new symbol with object class obj_class, of anonymous type, and with

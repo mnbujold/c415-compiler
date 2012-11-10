@@ -519,11 +519,53 @@ expr                    : simple_expr
                                 $$ = $1;
                             }
                         | expr ISEQUAL simple_expr
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = equalOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | expr NOTEQUAL simple_expr
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = notEqualOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | expr LESSTHANEQUALS simple_expr
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = lessThanEqualOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | expr LESSTHAN simple_expr
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = lessThanOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | expr GREATERTHANEQUALS simple_expr
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = greaterThanEqualOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | expr GREATERTHAN simple_expr
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = greaterThanOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         ;
 
 simple_expr             : term
@@ -531,10 +573,45 @@ simple_expr             : term
                                 $$ = $1;
                             }
                         | PLUS term
+                            {
+                                if ($2 != NULL) {
+                                    $$ = identity($2);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | MINUS term
+                            {
+                                if ($2 != NULL) {
+                                    $$ = inversion($2);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | simple_expr PLUS term
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = addOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | simple_expr MINUS term
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = subtractOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | simple_expr OR term
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = orOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         ;
 
 term                    : factor
@@ -542,10 +619,45 @@ term                    : factor
                                 $$ = $1;
                             }
                         | term MULTIPLY factor
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = multOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | term DIVIDE factor
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = realDivOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | term DIV factor
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = intDivOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | term MOD factor
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = modOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | term AND factor
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = andOp($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | error /* ERROR */
                             {
                                 $$ = NULL;

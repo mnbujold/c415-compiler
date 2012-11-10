@@ -307,7 +307,6 @@ addNewParam(const char *id, const char *typeId) {
     return createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
 }
 
-
 // symbol *
 // createNewFunc(const char *id, const char *returnType) {
 //     if (localLookup(id) == NULL) {
@@ -373,8 +372,55 @@ addNewProc(const char *id, GPtrArray *paramList) {
 
 
 symbol *
-addNewFunc(const char *id, const char *returnType, GPtrArray *paramList) {
-    return NULL;
+addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
+    symbol *newFunc;
+    symbol *returnType = globalLookup(typeId);
+    
+    if (localLookup(id) == NULL) {
+        if (returnType == NULL) {
+            typeNotDefinedError(typeId);
+            returnType = createErrorType();
+        }
+        newFunc = createSymbol(id, returnType, OC_PROC,
+                               createFunctionDesc(paramList, returnType));
+        
+        addSymbol(id, newFunc);
+    } else {
+        symExistsError(id);
+        newFunc = createErrorSym(OC_PROC);
+        newFunc->name = id;
+    }
+    pushLevel();
+    
+    symbol *newParam;
+    symbol *paramType;
+    int listSize = paramList->len;
+    int i;
+    
+    for (i = 0; i < listSize; i++) {
+        newParam = (symbol *) g_ptr_array_index(paramList, i);
+        paramType = newParam->symbol_type;
+        
+        if (paramType->desc.type_attr->type != TC_ERROR) {
+            addSymbol(paramType->name, paramType);
+        }
+        addSymbol(newParam->name, newParam);
+    }
+    
+    if (localLookup(newFunc->name) == NULL) {
+        addSymbol(newFunc->name, newFunc);
+    } else {
+        symExistsError(newFunc->name);
+    }
+    
+    if (returnType->desc.type_attr->type != TC_ERROR
+     && localLookup(newFunc->name) == NULL) {
+        addSymbol(newFunc->name, newFunc);
+    } else if (returnType->desc.type_attr->type != TC_ERROR) {
+        symExistsError(typeId);
+    }
+    
+    return newFunc;
 }
 
 struct type_desc *
