@@ -420,6 +420,8 @@ int validComparisonOperator (symbol *operand) {
   }
   if (getTypeClass (operand) == TC_ARRAY) {
     //TODO
+    //showAllSymbols();
+    //printf ("Have determined type class is array\n");
     //check to make sure array is of type char
     //type_class tc = operand->desc.type_attr->
     if (getArrayType (operand) == TC_CHAR) {
@@ -469,14 +471,18 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
  * in check comparison compatibilty instead
  */
 symbol *equalOp (symbol *o1, symbol *o2) {
+    //printf ("Inside equal op\n");
+    //printf ("op1: %p, op2: %p\n", o1, o2);
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
     addTypeError ("Operators cannot be compared");
     return createErrorType();
   }
+  //printf ("Done checking valid\n");
   if (!checkComparisonCompatibility (o1, o2)) {
     addTypeError ("Operators are not compatible, cannot be compared to each other");
     return createErrorType();
   }
+  //printf ("Done checking compatiblity\n");
   
   if (canEvaluate (o1) && canEvaluate (o2)) {
     

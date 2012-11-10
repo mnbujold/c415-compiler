@@ -209,6 +209,7 @@ simple_type             : scalar_type
                             }
                         | ID
                             {
+                                DEBUG_PRINT (("magic In get type"));
                                 $$ = getType($1);
                             }
                         ;
@@ -249,13 +250,14 @@ structured_type         : ARRAY closed_array_type OF type
                             {
                                 DEBUG_PRINT (("Inside structured type\n"));
                                 if ($2 != NULL && $4 != NULL) {
+                                    DEBUG_PRINT (("Type: %s\n", $4->name));
                                     $$ = createArray($2, $4);
                                 } else {
                                     $$ = NULL;
                                 }
                                 DEBUG_PRINT(("Finished calling structured type\n"));
                             }
-                        | RECORD field_list END
+                        | RECORD field_list SEMICOLON END
                             {
                                 if ($2 != NULL) {
                                     $$ = createRecord($2);
@@ -304,6 +306,7 @@ array_type              : expr
 
 field_list              : field
                             {
+                                DEBUG_PRINT(("Inside field list"));
                                 if ($1 != NULL) {
                                     $$ = addField(NULL, $1);
                                 } else {
@@ -527,6 +530,10 @@ var                     : ID
                         ;
 
 subscripted_var         : var LEFTBRACKET expr
+                            {
+                            DEBUG_PRINT (("In subscripted var"));
+                            //$$ = arrayAccessWithIndex ($1, $3);
+                            }
                         | subscripted_var COMMA expr
                         ;
 

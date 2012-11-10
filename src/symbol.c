@@ -130,9 +130,7 @@ void iterator (gpointer key, gpointer value, gpointer user_data) {
   printf ("\tKEY: '%s' ", identifier);
   printf ("\tObject class: %d", oc); 
   printf ("\tTYPE: %p; ", recordPointer->symbol_type);
-  if(recordPointer->symbol_type != NULL)
-    printf("Type class: %d", getTypeClass (recordPointer));
-
+  printf ("\tTYPE CLASS: %d", getTypeClass (recordPointer));
   
 //printf ("Symbol attributes: %p\n", recordPointer->desc);
 /*
@@ -332,7 +330,7 @@ struct const_desc *createConstDesc (union constant_values value) {
 struct type_desc *createTypeDesc (type_class type) {
   struct type_desc *typeDesc = calloc (1, sizeof (struct type_desc));
 
-  typeDesc->desc.character;
+  typeDesc->type = type;
 
   switch (type) {
     case TC_INTEGER:
@@ -390,21 +388,21 @@ struct type_desc *createTypeDesc (type_class type) {
 
   type_class getTypeClass (symbol *theSymbol) {
 
-    DEBUG_PRINT (("In get type class\n"));
+    //DEBUG_PRINT (("In get type class\n"));
     symbol *tempSymbol = theSymbol;
 
     while (tempSymbol != NULL){
-      DEBUG_PRINT (("temp SYmbol address: %p\n", tempSymbol));
-      DEBUG_PRINT (("temp symbol oc: %d\n", tempSymbol->oc));
+      //DEBUG_PRINT (("temp SYmbol address: %p\n", tempSymbol));
+      //DEBUG_PRINT (("temp symbol oc: %d\n", tempSymbol->oc));
     //printf ("Symbol name: %s\n", tempSymbol->name);
     //printf ("Object class: %d\n", tempSymbol->oc);
       if (tempSymbol->oc == OC_TYPE) {
-	DEBUG_PRINT(("type description: %p\n", tempSymbol->desc.type_attr));
+	//DEBUG_PRINT(("type description: %p\n", tempSymbol->desc.type_attr));
         return tempSymbol->desc.type_attr->type;
       }
       tempSymbol = tempSymbol->symbol_type;
     } 
-    DEBUG_PRINT (("Hm...symbol did not point to any type\n"));
+    //DEBUG_PRINT (("Hm...symbol did not point to any type\n"));
   }
  
  

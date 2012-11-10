@@ -63,8 +63,12 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
     return 0;
 }
 
+/**
+ * Get description of array from symbol
+ * Assume that we know symbol is an array
+ */
 struct tc_array *getArrayDescription (symbol *sym) {
-    
+    DEBUG_PRINT (("Inside get array description\n"));
     symbol *tempSymbol = sym;
     while (tempSymbol != NULL){
         DEBUG_PRINT (("temp SYmbol address: %p\n", tempSymbol));
@@ -73,7 +77,9 @@ struct tc_array *getArrayDescription (symbol *sym) {
     //printf ("Object class: %d\n", tempSymbol->oc);
     if (tempSymbol->oc == OC_TYPE) {
         DEBUG_PRINT(("type description: %p\n", tempSymbol->desc.type_attr));
+        DEBUG_PRINT (("Type class: %d\n", getTypeClass (tempSymbol)));
         if (getTypeClass (tempSymbol) == TC_ARRAY) {
+            DEBUG_PRINT(("type class: %d\n", getTypeClass (tempSymbol->desc.type_attr->desc.array->obj_type)));
             return tempSymbol->desc.type_attr->desc.array;
         }
     }
@@ -131,7 +137,10 @@ arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
  * If it is not, we are screwed
  */
 type_class getArrayType (symbol *sym) {
-  return getTypeClass (sym->desc.type_attr->desc.array->obj_type);
+    
+    struct tc_array *arrayDescription = getArrayDescription (sym);
+    //printf ("Type of array: %d\n", getTypeClass (arrayDescription->obj_type));
+    return getTypeClass (arrayDescription->obj_type);
 }
 
 
@@ -527,7 +536,10 @@ symbol *
 createArray(symbol *indexType, symbol *objType) {
     DEBUG_PRINT (("Inside create array\n"));
     DEBUG_PRINT (("index type: %p object type: %p\n", indexType, objType));
-
+    DEBUG_PRINT (("Type: %d, %d\n", getTypeClass (indexType), getTypeClass (objType)));
+#if DEBUG
+    showAllSymbols ();
+#endif
     int indexClass = indexType->desc.type_attr->type;
     int size = 0;
 
@@ -706,7 +718,7 @@ addParam(GPtrArray *paramList, symbol *newParam) {
 }
 
 symbol *arrayAccessWithIndex (symbol *array, symbol *index) {
-  
+  //printf ("Within array access\n");
   if (getTypeClass (array) != TC_ARRAY) {
     addTypeError ("Trying to access something that is not an array");
     return createErrorType();
