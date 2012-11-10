@@ -58,6 +58,7 @@ int odd (int x) {
 //    symbol *intTypeDescription = getType ("integer");
 //    symbol *booleanTypeDescription = getType ("boolean");
 //    symbol *realTypeDescription = getType ("real");
+   
 //    GPtrArray *oddParam = g_ptr_array_new ();
 // 
 //    struct param_desc *parameter = calloc (1, sizeof (struct param_desc));
