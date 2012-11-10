@@ -329,8 +329,7 @@ struct const_desc *createConstDesc (union constant_values value) {
 struct type_desc *createTypeDesc (type_class type) {
   struct type_desc *typeDesc = calloc (1, sizeof (struct type_desc));
 
-  typeDesc->desc.character;
-
+  typeDesc->type = type;
   switch (type) {
     case TC_INTEGER:
     {
