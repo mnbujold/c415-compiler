@@ -153,4 +153,6 @@ type_class getArrayType (symbol *sym);
 
 symbol *getRecordField(symbol *record, const char *fieldName);
 
+void checkWriteln() ;
+
 #endif

@@ -57,6 +57,7 @@ int yywrap() {
 %token NOT OF OR 
 %token PROCEDURE PROGRAM RECORD THEN
 %token TYPE VAR WHILE 
+%token WRITELN
 
 /* Relational tokens */
 %token ISEQUAL NOTEQUAL LESSTHAN GREATERTHAN 
@@ -512,8 +513,13 @@ proc_invok              : plist_finvok RIGHTPAREN
                             }
                         | ID LEFTPAREN RIGHTPAREN
                             {
-                                
+                                callProc($1);
                             }
+                        | WRITELN
+                            {
+                                checkWriteln();
+                            }
+                        | WRITELN LEFTPAREN RIGHTPAREN
                         ;
 
 var                     : ID

@@ -826,6 +826,15 @@ getRecordField(symbol *record, const char *fieldName) {
     return createErrorSym(OC_VAR);
 }
 
+void callProc(const char *procname) {
+    
+}
+
+void checkWriteln() {
+    if (globalLookup("writeln") != topLevelLookup("writeln")) {
+        addTypeError ("invalid procedure call");
+    }
+}
 
 //TODO: Should not need this for checkpoint 2...
 symbol *createAnonymousVar(symbol *o1, symbol *o2) {
