@@ -92,4 +92,9 @@ void opNotBooleanError();
  */
 void missFuncRetError();
 
+/**
+ * Adds a "symbol 'id' not a record" error.
+ */
+void symNotRecordError(const char *id);
+
 #endif
