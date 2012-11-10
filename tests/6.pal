@@ -44,7 +44,7 @@ var lib : array[1..20] of book;
 
 procedure addBook(var newBook : book; charIndex : integer; revIndex : integer);
     
-    var reviews := array[1..10] of review;
+    var reviews : array[1..10] of review;
     
     function createReview(aLetter : char) : review;
         const revName = 'I am a reviewer1234567890';

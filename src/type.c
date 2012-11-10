@@ -146,7 +146,7 @@ arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
 type_class getArrayType (symbol *sym) {
     
     struct tc_array *arrayDescription = getArrayDescription (sym);
-    printf ("Type of array: %d\n", getTypeClass (arrayDescription->obj_type));
+    //printf ("Type of array: %d\n", getTypeClass (arrayDescription->obj_type));
     return getTypeClass (arrayDescription->obj_type);
 }
 

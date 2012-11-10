@@ -256,7 +256,7 @@ structured_type         : ARRAY closed_array_type OF type
                                 }
                                 DEBUG_PRINT(("Finished calling structured type\n"));
                             }
-                        | RECORD field_list END
+                        | RECORD field_list SEMICOLON END
                             {
                                 if ($2 != NULL) {
                                     $$ = createRecord($2);
@@ -305,6 +305,7 @@ array_type              : expr
 
 field_list              : field
                             {
+                                DEBUG_PRINT(("Inside field list"));
                                 if ($1 != NULL) {
                                     $$ = addField(NULL, $1);
                                 } else {
