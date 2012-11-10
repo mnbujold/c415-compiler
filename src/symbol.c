@@ -33,7 +33,6 @@ int func_counter = 1;
 /**
 addSymbol always adds the symbol to the topmost level
 */
-
 void *addSymbol (char const *identifier, symbol *symbol) {
 
   gpointer *key = (gpointer) identifier;
@@ -299,8 +298,7 @@ symbol *createSymbolType (char const *identifier, type_class type) {
 
 }
 
- 
- struct const_desc *createConstDesc (union constant_values value) {
+struct const_desc *createConstDesc (union constant_values value) {
    struct const_desc *constDec = calloc (1, sizeof (struct const_desc));
   //TODO: Does not actually assign value right now, need to change
    constDec->value = value;
@@ -313,8 +311,7 @@ symbol *createSymbolType (char const *identifier, type_class type) {
   return varDesc;
   
  }
- struct function_desc *createFunctionDesc (GPtrArray *params, 
-                                              symbol *return_type) {
+ struct function_desc *createFunctionDesc (GPtrArray *params, symbol *return_type) {
   struct function_desc *funcDesc = calloc (1, sizeof (struct function_desc));
   funcDesc->params = params;
   funcDesc->return_type = return_type;
@@ -329,11 +326,62 @@ symbol *createSymbolType (char const *identifier, type_class type) {
   struct param_desc *paramDesc = calloc (1, sizeof (struct param_desc));
   return paramDesc;
  }
- struct type_desc *createTypeDesc (type_class type, 
-    union type_descriptions tc_desc) {
+struct type_desc *createTypeDesc (type_class type) {
   struct type_desc *typeDesc = calloc (1, sizeof (struct type_desc));
-  typeDesc->type = type;
-  typeDesc->desc = tc_desc;
+
+  typeDesc->desc.character;
+
+  switch (type) {
+    case TC_INTEGER:
+    {
+      struct tc_integer *integerDesc = calloc (1, sizeof (struct tc_integer));
+      integerDesc->len = 32;
+      typeDesc->desc.integer = integerDesc;
+      break;
+    }
+    case TC_REAL:
+    {
+      struct tc_real *realDesc = calloc (1, sizeof (struct tc_real));
+      realDesc->len = 32;
+      typeDesc->desc.real = realDesc;
+      break;
+    }
+    case TC_BOOLEAN:
+    {
+      struct tc_boolean *boolDesc = calloc(1, sizeof(struct tc_boolean));
+      boolDesc->len = 32;
+      typeDesc->desc.boolean = boolDesc;
+      break;
+    }
+    case TC_CHAR:
+    {
+      struct tc_char *charDesc = calloc(1, sizeof(struct tc_char));
+      charDesc->len = 32;
+      typeDesc->desc.character = charDesc;
+      break;
+    }
+    case TC_CONST:
+    {
+
+      break;
+    }
+    case TC_STRING:
+    
+      break;
+    case TC_SCALAR:
+    
+      break;
+    case TC_ARRAY:
+    
+      break;    
+    case TC_RECORD:
+    
+      break;
+    case TC_SUBRANGE:
+    
+      break;    
+  }
+
   return typeDesc;
  }
 
@@ -467,26 +515,38 @@ void init_table () {
   pushLevel();
   
   //Add all the builtins here
-  addSymbol("char", createSymbol("char", NULL, OC_TYPE, NULL));
-  addSymbol("boolean", createSymbol("boolean", NULL, OC_TYPE, NULL));
-  addSymbol("integer", createSymbol("integer", NULL, OC_TYPE, NULL));
-  addSymbol("real", createSymbol("real", NULL, OC_TYPE, NULL));
+  addSymbol("char", createSymbol("char", NULL, OC_TYPE, createTypeDesc(TC_CHAR)));
+  addSymbol("boolean", createSymbol("boolean", NULL, OC_TYPE, createTypeDesc(TC_BOOLEAN)));
+  addSymbol("integer", createSymbol("integer", NULL, OC_TYPE, createTypeDesc(TC_INTEGER)));
+  addSymbol("real", createSymbol("real", NULL, OC_TYPE, createTypeDesc(TC_REAL)));
   /* Constants */
-  struct const_desc newSymbol;
-  newSymbol.hasValue = 1;
-  newSymbol.value.boolean = 1;
-  addSymbol("true", createSymbol("true", NULL, OC_CONST, &newSymbol));
-  newSymbol.hasValue = 1;
-  newSymbol.value.boolean = 0;  
-  addSymbol("false", createSymbol("false", NULL, OC_CONST, &newSymbol));
-  newSymbol.hasValue = 1;
-  newSymbol.value.integer = 4294967295;
-  addSymbol("maxint", createSymbol("maxint", NULL, OC_CONST, &newSymbol));
-  newSymbol.hasValue = 1;
-  newSymbol.value.real = 3.141592653;
-  addSymbol("pi", createSymbol("pi", NULL, OC_CONST, &newSymbol));
+  union constant_values trueval = { .boolean = 1 };
+  addSymbol("true", createSymbol("true", NULL, OC_CONST, createConstDesc(trueval)));
+  union constant_values falseval = { .boolean = 0 };
+  addSymbol("false", createSymbol("false", NULL, OC_CONST, createConstDesc(falseval)));
+  union constant_values maxintval = { .integer = 2294967295 };
+  addSymbol("maxint", createSymbol("maxint", NULL, OC_CONST, createConstDesc(maxintval)));
+  union constant_values pival = { .real = 3.141592653 };
+  addSymbol("pi", createSymbol("pi", NULL, OC_CONST, createConstDesc(pival)));
+
+  /* Param lists for built-ins */
+  addSymbol("abs_param", createSymbol("abs_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("chr_param", createSymbol("chr_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("cos_param", createSymbol("cos_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("exp_param", createSymbol("exp_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("ln_param", createSymbol("ln_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("odd_param", createSymbol("odd_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("ord_param", createSymbol("ord_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("pred_param", createSymbol("pred_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("round_param", createSymbol("round_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("sin_param", createSymbol("sin_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("sqr_param", createSymbol("sqr_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("sqrt_param", createSymbol("sqrt_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("succ_param", createSymbol("succ_param", NULL, OC_PARAM, createParamDesc()));
+  
   /* Built-in functions */
-  addSymbol("writeln", createSymbol("writeln", NULL, OC_FUNC, NULL)); /* Return type is set to NULL, for now */
+  
+  addSymbol("writeln", createSymbol("writeln", NULL, OC_FUNC, NULL)); 
   addSymbol("write", createSymbol("write", NULL, OC_FUNC, NULL));
   addSymbol("readln", createSymbol("readln", NULL, OC_FUNC, NULL));
   addSymbol("read", createSymbol("read", NULL, OC_FUNC, NULL));
@@ -504,6 +564,7 @@ void init_table () {
   addSymbol("sqrt", createSymbol("sqrt", NULL, OC_FUNC, NULL));
   addSymbol("succ", createSymbol("succ", NULL, OC_FUNC, NULL));
 
+  
 }
 void free_symbol_table() {
   int numLevels = g_queue_get_length(symbol_table);

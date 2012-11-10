@@ -135,6 +135,11 @@ GPtrArray *addField(GPtrArray *fieldList, symbol *newField);
  */
 GPtrArray *addParam(GPtrArray *paramList, symbol *newParam) ;
 
+/**
+ * Assign an expression to a var
+ */
+void doVarAssignment (symbol *var, symbol *expr);
+
 symbol *createAnonymousVar(symbol *o1, symbol *o2);
 
 int isString (symbol *sym);
