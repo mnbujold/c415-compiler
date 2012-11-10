@@ -429,7 +429,7 @@ getType(const char *id) {
     
     if (typeSymbol == NULL) {
         symNotDefinedError(id);
-        return NULL;
+        return createErrorType();
       //TODO: error no symbol for this
     }
     if (OC_TYPE == typeSymbol->oc) {
@@ -440,7 +440,7 @@ getType(const char *id) {
         symNotDefinedError(id);
       //TODO: error abot it not being a type class
       //O no. what to do here?
-      return NULL;
+      return createErrorType();
     }
 }
 
