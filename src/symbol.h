@@ -151,6 +151,7 @@ struct procedure_desc{
 struct function_desc{
   GPtrArray *params;
   struct symbol_rec *return_type;
+  int returnValSet;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
 

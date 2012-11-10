@@ -87,4 +87,9 @@ void duplicateFieldError(const char *id);
  */
 void opNotBooleanError();
 
+/**
+ * Adds a "missing function return value assignment" error.
+ */
+void missFuncRetError();
+
 #endif

@@ -89,6 +89,7 @@ int yywrap() {
 %type <symbol> var_decl
 %type <symbol> var subscripted_var parm
 %type <symbol> expr simple_expr term factor unsigned_const unsigned_num
+%type <symbol> proc_heading
 %type <garray> f_parm_decl f_parm_list
 %type <symbol> f_parm
 /*%type <symbol> const_decl
@@ -376,6 +377,9 @@ proc_decl_list          : proc_decl
 proc_decl               : proc_heading decls compound_stat SEMICOLON
                             {
 /*                                 showAllSymbols(); */
+                                if ($1 != NULL) {
+                                    checkFuncValSet($1);
+                                }
                                 popLevel();
                             }
                         | error SEMICOLON /* ERROR */
@@ -388,25 +392,32 @@ proc_decl               : proc_heading decls compound_stat SEMICOLON
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                             {
                                 if ($3 != NULL) {
-                                    addNewProc($2, $3);
+                                    $$ = addNewProc($2, $3);
+                                } else {
+                                    $$ = NULL;
                                 }
                             }
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
                             {
                                 if ($3 != NULL) {
-                                    addNewFunc($2, $5, $3);
+                                    $$ = addNewFunc($2, $5, $3);
+                                } else {
+                                    $$ = NULL;
                                 }
                             }
                         | PROCEDURE error SEMICOLON /* ERROR */
                             {
-                                //pushLevel();
+                                $$ = NULL;
+                                pushLevel();
                             }
                         | FUNCTION error SEMICOLON /* ERROR */
                             {
+                                $$ = NULL;
                                 pushLevel();
                             }
                         | error /* ERROR */
                             {
+                                $$ = NULL;
                                 pushLevel();
                             }
                         ;

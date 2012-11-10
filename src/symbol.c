@@ -103,15 +103,22 @@ symbol *getVarSymbol(char const *id) {
     }
     object_class objClass = varSym->oc;
     
+    printf("id=%s\n", id);   
+    printf("oc=%d\n", objClass);    
+    
+    if (objClass == OC_FUNC) {
+        printf("It is a function!\n");
+        return createSymbol(id, varSym->symbol_type, OC_VAR, createVarDesc());
+    }
+    
     if (objClass != OC_VAR && objClass != OC_PARAM && objClass != OC_CONST) {    
       //TODO: WHat is this?
-        symNotAVarParmConstError();
+        symNotAVarParmConstError(id);
         return createErrorSym(OC_VAR);
     }
     
     return varSym;
 }
-
 
 /**
  *  Debug function: When called, this will print out the entire symbol table

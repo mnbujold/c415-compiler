@@ -382,13 +382,13 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
             typeNotDefinedError(typeId);
             returnType = createErrorType();
         }
-        newFunc = createSymbol(id, returnType, OC_PROC,
+        newFunc = createSymbol(id, returnType, OC_FUNC,
                                createFunctionDesc(paramList, returnType));
         
         addSymbol(id, newFunc);
     } else {
         symExistsError(id);
-        newFunc = createErrorSym(OC_PROC);
+        newFunc = createErrorSym(OC_FUNC);
         newFunc->name = id;
     }
     pushLevel();
@@ -775,12 +775,27 @@ void doVarAssignment (symbol *var, symbol *expr) {
   if (assignmentCompatibleSym (var, expr)) {
     //What does it even mean to assign right now...
     //Point to the expression, as far as I can tell
+    
+    symbol *varLookup = globalLookup(var->name);
+    
+    if (varLookup != NULL && varLookup->oc == OC_FUNC) {
+        varLookup->desc.func_attr->returnValSet = 1;
+    }    
     var->desc.var_attr->expression = expr;
   }
   else {
     //They are not assignment compatible, give error
-    void assignmentCompatibilityError ();
+    assignmentCompatibilityError();
   }
+}
+
+void
+checkFuncValSet(symbol *func) {
+    if (func->oc == OC_FUNC
+     && func->symbol_type->desc.type_attr->type != TC_ERROR
+     && func->desc.func_attr->returnValSet != 1) {
+        missFuncRetError();
+    }
 }
 
 //TODO: Should not need this for checkpoint 2...
