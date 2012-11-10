@@ -79,9 +79,9 @@ symbol *addNewVar(const char *id, symbol *type);
 symbol *addNewConst(const char *id, symbol *result);
 symbol *addNewParam(const char *id, const char *typeId);
 symbol *createNewProc(const char *id);
-symbol *createNewFunc(const char *id);
-symbol *addNewProc(symbol *newProc, GArray *paramList);
-symbol *addNewFunc(symbol *newFunc, const char *returnType, GArray *paramList);
+symbol *createNewFunc(const char *id, const char *returnType);
+symbol *addNewProc(const char *id, GArray *paramList);
+symbol *addNewFunc(symbol *newFunc, GArray *paramList);
 
 /**
  * Adds a new symbol with object class obj_class, of anonymous type, and with

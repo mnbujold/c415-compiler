@@ -387,23 +387,21 @@ proc_decl               : proc_heading decls compound_stat SEMICOLON
 
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                             {
-                                symbol *newProc = createNewProc($2);
-                                pushLevel();
                                 if ($3 != NULL) {
-                                    addNewProc(newProc, $3);
+                                    addNewProc($2, $3);
                                 }
                             }
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
                             {
-                                symbol *newFunc = createNewFunc($2);
-                                pushLevel();
+                                symbol *newFunc = createNewFunc($2, $5);
+                                //pushLevel();
                                 if ($3 != NULL) {
-                                    addNewFunc(newFunc, $5, $3);
+                                    addNewFunc(newFunc, $3);
                                 }
                             }
                         | PROCEDURE error SEMICOLON /* ERROR */
                             {
-                                pushLevel();
+                                //pushLevel();
                             }
                         | FUNCTION error SEMICOLON /* ERROR */
                             {
@@ -421,14 +419,17 @@ f_parm_decl             : LEFTPAREN f_parm_list RIGHTPAREN
                             }
                         | LEFTPAREN RIGHTPAREN
                             {
+                                pushLevel();
                                 $$ = addParam(NULL, NULL);
                             }
                         | error RIGHTPAREN /* ERROR */
                             {
+                                pushLevel();
                                 $$ = NULL;
                             }
                         | error /* ERROR */
                             {
+                                pushLevel();
                                 $$ = NULL;
                             }
                         ;

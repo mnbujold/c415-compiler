@@ -235,8 +235,8 @@ symbol *createSymbolType (char const *, type_class);
  
  struct const_desc *createConstDesc (union constant_values);
  struct var_desc *createVarDesc ();
- struct function_desc *createFunctionDesc (GPtrArray *, symbol *);
- struct procedure_desc *createProcedureDesc (GPtrArray *);
+ struct function_desc *createFunctionDesc (GArray *, symbol *);
+ struct procedure_desc *createProcedureDesc (GArray *);
  struct param_desc *createParamDesc ();
  struct type_desc *createTypeDesc (type_class, union type_descriptions);
  

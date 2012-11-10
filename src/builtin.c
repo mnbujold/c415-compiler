@@ -30,7 +30,7 @@ void add_builtins () {
   symbol *booleanTypeDescription = getType ("boolean");
   
   symbol *oddFunctionSymbol = calloc (1, sizeof (symbol));
-  GPtrArray *oddParam = g_ptr_array_new ();
+  GArray *oddParam = g_ptr_array_new ();
   struct function_desc *funcDescription = createFunctionDesc (oddParam, 
     booleanTypeDescription);
   symbol *oddSymbol = createSymbol ("odd", booleanTypeDescription, OC_FUNC, funcDescription);

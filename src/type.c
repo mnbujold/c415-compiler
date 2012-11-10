@@ -288,26 +288,35 @@ addNewConst(const char *id, symbol *result) {
 
 symbol *
 addNewParam(const char *id, const char *typeId) {
-    symbol *newParam;
-    if (localLookup(id) == NULL) {
-        symbol *type = globalLookup(typeId);
-        if (type == NULL) {
-            typeNotDefinedError(typeId);
-            type = createErrorType();
-        } else if (type->oc != OC_TYPE) {
-            symNotATypeError(typeId);
-            type = createErrorType();
-        } else { 
-            addSymbol(typeId, type); // A named type. Need to bring into local scope.
-        }
-        newParam = createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
-        
-        addSymbol(id, newParam);
-    } else {
-        newParam = createErrorSym(OC_PARAM);
-        symExistsError(id);
+    symbol *type = globalLookup(typeId);
+    if (type == NULL) {
+        typeNotDefinedError(typeId);
+        type = createErrorType();
+    } else if (type->oc != OC_TYPE) {
+        symNotATypeError(typeId);
+        type = createErrorType();
     }
-    return newParam;
+    return createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
+    
+//     if (localLookup(id) == NULL) {
+//         symbol *type = globalLookup(typeId);
+//         if (type == NULL) {
+//             typeNotDefinedError(typeId);
+//             type = createErrorType();
+//         } else if (type->oc != OC_TYPE) {
+//             symNotATypeError(typeId);
+//             type = createErrorType();
+//         } else { 
+//             addSymbol(typeId, type); // A named type. Need to bring into local scope.
+//         }
+//         newParam = createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
+//         
+//         addSymbol(id, newParam);
+//     } else {
+//         newParam = createErrorSym(OC_PARAM);
+//         symExistsError(id);
+//     }
+//     return newParam;
 }
 
 symbol *
@@ -331,31 +340,71 @@ createNewProc(const char *id) {
 
 
 symbol *
-createNewFunc(const char *id) {
-    return NULL;
-}
-
-symbol *
-addNewProc(symbol *newProc, GArray *paramList) {
-    if (newProc->symbol_type->desc.type_attr->type == TC_ERROR) {
-        return NULL;
-    }
-    
-    if (localLookup(newProc->name) == NULL) {
-        struct procedure_desc *procDesc = calloc(1, sizeof(struct procedure_desc));
-        procDesc->params = paramList;
-        newProc->desc.proc_attr = procDesc;
+createNewFunc(const char *id, const char *returnType) {
+    if (localLookup(id) == NULL) {
+        struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
+        struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
+        typeDesc->type = TC_NONE;
+        typeDesc->desc.none = noneType;
         
-        addSymbol(newProc->name, newProc);
+        symbol *type = createTypeSym(NULL, typeDesc);
+        symbol *newProc = createSymbol(id, type, OC_PROC, NULL);
+        
+        addSymbol(id, newProc);
+        
         return newProc;
     }
-    symExistsError(newProc->name);
+    symExistsError(id);
     return createErrorSym(OC_PROC);
 }
 
+symbol *
+addNewProc(const char *id, GArray *paramList) {
+    symbol *newProc;
+    
+    if (localLookup(id) == NULL) {
+        struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
+        struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
+        typeDesc->type = TC_NONE;
+        typeDesc->desc.none = noneType;
+        
+        symbol *type = createTypeSym(NULL, typeDesc);
+        newProc = createSymbol(id, type, OC_PROC, createProcedureDesc(paramList));
+        
+        addSymbol(id, newProc);
+    } else {
+        symExistsError(id);
+        newProc = createErrorSym(OC_PROC);
+    }
+    pushLevel();
+    
+    symbol *newParam;
+    symbol *paramType;
+    int listSize = paramList->len;
+    int i;
+    
+    for (i = 0; i < listSize; i++) {
+        newParam = g_array_index(paramList, symbol *, i);
+        paramType = newParam->symbol_type;
+        
+        if (paramType->desc.type_attr->type != TC_ERROR) {
+            addSymbol(paramType->name, paramType);
+        }
+        
+        addSymbol(newParam->name, newParam);
+    }
+    
+    if (localLookup(newProc->name) == NULL) {
+        addSymbol(newProc->name, newProc);
+    } else {
+        symExistsError(newProc->name);
+    }
+    return newProc;
+}
+
 
 symbol *
-addNewFunc(symbol *newFunc, const char *returnType, GArray *paramList) {
+addNewFunc(symbol *newFunc, GArray *paramList) {
     return NULL;
 }
 
@@ -637,11 +686,24 @@ addParam(GArray *paramList, symbol *newParam) {
     if (newParam == NULL) {
         return paramList;
     }
+  
+    const char *newName = newParam->name;
+    int listSize = paramList->len;
+    int duplicate = 0;
+    int i;
     
-    g_array_prepend_val(paramList, newParam); // Added in 'correct' order.
+    for (i = 0; i < listSize; i++) {
+        if (strcmp(g_array_index(paramList, symbol *, i)->name, newName) == 0) {
+            duplicate = 1;
+        }
+    }
     
-    return paramList;
-    
+    if (duplicate == 0) {
+        g_array_prepend_val(paramList, newParam); // Added in 'correct' order.
+    } else {
+        symExistsError(newName);
+    }
+    return paramList;    
 }
 
 symbol *createAnonymousVar(symbol *o1, symbol *o2) {
