@@ -3,8 +3,8 @@
     Tests invalid array bounds and assignments.
     Errors:
     14:28 illegal array range
-    36:3 incorrect string (char array) assignment
-    40:3 incorrect array object (real to integer) assignment
+    38:3 incorrect string (char array) assignment
+    42:3 incorrect array object (real to integer) assignment
 }
 program foobar35 (io, oi);
 
@@ -13,7 +13,7 @@ type ohNo = (element1, element2);
 var aRealNum : boolean;
     incorrectArray : array[real] of ohNo; { $ERR_DATA$ [28, "illegal array range", ["illegal array range", "real"]] $ERR_DATA$ }
     aCorrect : array[1..5] of array[boolean] of (element0, elementneg1); // Legal.
-    correctArray : array[integer] of integer; // Legal, but warning.
+    correctArray : array[integer] of integer; // Legal, but warning (but NOT for cp2).
     anothCorArray : array[5..14] of ohNo;
     a,b : array[1..10] of char;
     c : array[1..10] of boolean;
@@ -28,6 +28,8 @@ begin
 a := b; // Legal.
 c := d; // Legal.
 c[1] := a = b; // Legal.
+
+aCorrect[3][true] := aCorrect[2, false]; // Legal
 
 anothCorArray[6] := element2;
 anothCorArray[10] := anothCorArray[6];

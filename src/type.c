@@ -105,6 +105,46 @@ arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
     return 1;
 }
 
+/**
+ * Note: We assume we know the symbol is an array
+ * If it is not, we are screwed
+ */
+type_class getArrayType (symbol *sym) {
+  return getTypeClass (sym->desc.type_attr->desc.array->obj_type);
+}
+
+
+/**
+ * Given symbol sym, check 
+ * if it is an array of characters, or a string
+ */
+int isString (symbol *sym) {
+  if (getTypeClass (sym) == TC_ARRAY) {
+    if (getArrayType (sym) == TC_CHAR) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  }
+  return 0;
+}
+/**
+ * Gets String const from symbol
+ * returns NULL if it is not a string
+ */
+char *getString (symbol *sym) {
+  if (!isString) {
+    return NULL;
+  }
+  
+  if (sym->oc ==OC_CONST) {
+    return sym->desc.const_attr->value.string;
+  }
+    
+   return NULL;
+  //now do this for vars
+}
 symbol *
 createConstant(type_class type, union constant_values value) {
     struct const_desc *constant = createConstDesc(value);
@@ -114,7 +154,7 @@ createConstant(type_class type, union constant_values value) {
     constSym->desc.const_attr = constant;
 
     if (type == TC_INTEGER) {
-        constSym->symbol_type = topLevelLookup("integer");
+        constSym->symbol_type = topLevelLookup("integer");        
     } else if (type == TC_REAL) {
         constSym->symbol_type = topLevelLookup("real");
     } else if (type == TC_CHAR) {
@@ -246,6 +286,79 @@ addNewConst(const char *id, symbol *result) {
     return result;
 }
 
+symbol *
+addNewParam(const char *id, const char *typeId) {
+    symbol *newParam;
+    if (localLookup(id) == NULL) {
+        symbol *type = globalLookup(typeId);
+        if (type == NULL) {
+            typeNotDefinedError(typeId);
+            type = createErrorType();
+        } else if (type->oc != OC_TYPE) {
+            symNotATypeError(typeId);
+            type = createErrorType();
+        } else { 
+            addSymbol(typeId, type); // A named type. Need to bring into local scope.
+        }
+        newParam = createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
+        
+        addSymbol(id, newParam);
+    } else {
+        newParam = createErrorSym(OC_PARAM);
+        symExistsError(id);
+    }
+    return newParam;
+}
+
+symbol *
+createNewProc(const char *id) {
+    if (localLookup(id) == NULL) {
+        struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
+        struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
+        typeDesc->type = TC_NONE;
+        typeDesc->desc.none = noneType;
+        
+        symbol *type = createTypeSym(NULL, typeDesc);
+        symbol *newProc = createSymbol(id, type, OC_PROC, NULL);
+        
+        addSymbol(id, newProc);
+        
+        return newProc;
+    }
+    symExistsError(id);
+    return createErrorSym(OC_PROC);
+}
+
+
+symbol *
+createNewFunc(const char *id) {
+    return NULL;
+}
+
+symbol *
+addNewProc(symbol *newProc, GArray *paramList) {
+    if (newProc->symbol_type->desc.type_attr->type == TC_ERROR) {
+        return NULL;
+    }
+    
+    if (localLookup(newProc->name) == NULL) {
+        struct procedure_desc *procDesc = calloc(1, sizeof(struct procedure_desc));
+        procDesc->params = paramList;
+        newProc->desc.proc_attr = procDesc;
+        
+        addSymbol(newProc->name, newProc);
+        return newProc;
+    }
+    symExistsError(newProc->name);
+    return createErrorSym(OC_PROC);
+}
+
+
+symbol *
+addNewFunc(symbol *newFunc, const char *returnType, GArray *paramList) {
+    return NULL;
+}
+
 struct type_desc *
 addNewSymbolAnonType(const char *id, struct type_desc *type, object_class objClass) {
     if (localLookup(id) == NULL) {
@@ -324,7 +437,6 @@ createScalarList(GArray *nameList) {
                 continue;
         }
         addSymbol(name, scalar);
-        
         g_array_append_val(scalarList, scalar);
     }
     g_array_free(nameList, 0); // Just free the wrapper, but not the names themselves.
@@ -371,15 +483,13 @@ createArray(symbol *indexType, symbol *objType) {
     int indexClass = indexType->desc.type_attr->type;
     int size = 0;
 
-    if (indexClass == TC_SUBRANGE) {
-        struct tc_subrange *subrange =
-                         indexType->desc.type_attr->desc.subrange;
-        size = subrange->high - subrange->low + 1;
-    } else if (indexClass == TC_INTEGER) {
-        // ...
-    } else if (indexClass == TC_CHAR) {
-        // ...
-    } 
+    if (indexClass != TC_SUBRANGE) {
+        arrayIndexTypeError();
+        return createErrorType();
+    }
+    struct tc_subrange *subrange = indexType->desc.type_attr->desc.subrange;
+    size = subrange->high - subrange->low + 1;
+    
     struct tc_array *newArray = calloc(1, sizeof(struct tc_array));
     newArray->size = size;
     newArray->index_type = indexType;
@@ -424,6 +534,12 @@ createArrayIndex(symbol *low, symbol *high) {
         } else if (typeClass == TC_BOOLEAN) {
             highValue = high->desc.const_attr->value.boolean;
             lowValue = low->desc.const_attr->value.boolean;
+        } else if (typeClass == TC_CHAR) {
+            highValue = high->desc.const_attr->value.character;
+            lowValue = low->desc.const_attr->value.character;
+        } else if (typeClass == TC_CONST) {
+            highValue = high->desc.const_attr->value.integer;
+            lowValue = low->desc.const_attr->value.integer;
         } else {
             arrayBoundInvalidError();
             return createErrorType();
@@ -444,8 +560,37 @@ createArrayIndex(symbol *low, symbol *high) {
         subrangeType->desc.subrange = subrange;
 
         return createTypeSym(NULL, subrangeType);        
-    } else if (highClass == OC_TYPE) {
-        // Special Cases!
+    } else if (low == NULL && highClass == OC_TYPE) {
+        type_class type = high->desc.type_attr->type;
+        int correct = (type == TC_INTEGER || type == TC_CHAR || type == TC_SCALAR);
+        int lowValue;
+        int highValue;
+        
+        if (type == TC_INTEGER){
+            int maxInt = topLevelLookup("maxint")->desc.const_attr->value.integer;
+            lowValue = (-1) * maxInt;
+            highValue = maxInt;
+        } else if (type == TC_CHAR) {
+            lowValue = 0;
+            highValue = 256; // 2^8 = maximum char value;
+        } else if (type == TC_SCALAR) {
+            GArray *list = high->desc.type_attr->desc.scalar->const_list;
+            lowValue = g_array_index(list, symbol *, 0)->desc.const_attr->value.integer;
+            highValue = g_array_index(list, symbol *, (list->len)-1)->desc.const_attr->value.integer;
+        }
+        
+        if (correct == 1) {
+            struct tc_subrange *subrange = calloc(1, sizeof(struct tc_subrange));
+            subrange->low = lowValue;
+            subrange->high = highValue;
+            subrange->len = highValue - lowValue + 1;
+            subrange->mother_type = high;
+            
+            struct type_desc *subrangeType = calloc(1, sizeof(struct type_desc));
+            subrangeType->type = TC_SUBRANGE;
+            subrangeType->desc.subrange = subrange;
+            return high;
+        }
     }
     arrayIndexTypeError();
     return createErrorType();
@@ -481,4 +626,23 @@ addField(GArray *fieldList, symbol *newField) {
     g_array_prepend_val(fieldList, newField); // Added in 'correct' order.
     
     return fieldList;
+}
+
+GArray *
+addParam(GArray *paramList, symbol *newParam) {
+    if (paramList == NULL) {
+        paramList = g_array_new(1, 1, sizeof(symbol *));
+    }
+    
+    if (newParam == NULL) {
+        return paramList;
+    }
+    
+    g_array_prepend_val(paramList, newParam); // Added in 'correct' order.
+    
+    return paramList;
+    
+}
+
+symbol *createAnonymousVar(symbol *o1, symbol *o2) {
 }

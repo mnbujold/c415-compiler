@@ -384,9 +384,7 @@ struct type_desc *createTypeDesc (type_class type) {
 
   return typeDesc;
  }
- 
- 
- 
+
   type_class getTypeClass (symbol *theSymbol) {
 
     DEBUG_PRINT (("In get type class\n"));

@@ -77,6 +77,11 @@ symbol *addNewSymbol(const char *id, symbol *type, object_class objClass);
 symbol *addNewType(const char *id, symbol *type);
 symbol *addNewVar(const char *id, symbol *type);
 symbol *addNewConst(const char *id, symbol *result);
+symbol *addNewParam(const char *id, const char *typeId);
+symbol *createNewProc(const char *id);
+symbol *createNewFunc(const char *id);
+symbol *addNewProc(symbol *newProc, GArray *paramList);
+symbol *addNewFunc(symbol *newFunc, const char *returnType, GArray *paramList);
 
 /**
  * Adds a new symbol with object class obj_class, of anonymous type, and with
@@ -126,5 +131,16 @@ symbol *createRecord(GArray *fieldList);
  * error if there exists a symbol in fieldList with the same name as newField.
  */
 GArray *addField(GArray *fieldList, symbol *newField);
+
+/**
+ * Adds newParam to paramList and returns the resulting paramList.
+ */
+GArray *addParam(GArray *paramList, symbol *newParam) ;
+
+symbol *createAnonymousVar(symbol *o1, symbol *o2);
+
+int isString (symbol *sym);
+char *getString (symbol *sym);
+type_class getArrayType (symbol *sym);
 
 #endif

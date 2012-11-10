@@ -7,14 +7,15 @@ const aNum = 1;
       anotherbob = aNum;
 
 type bob = (enum1, enum2);
-     //str = 'a string'; // Should be a syntactic error!
+     str = 'a string'; // Should be a syntactic error!
      clark = bob;
      enum0 = (e00, e01, e02);
      bool = boolean;
-     //foo = array[1..10] of clark;
+     foo = array[1..10] of 54;
 
 var joe : bob;
     text : clark;
+    bar : foo;
 
 procedure foo();
     type enum1 = (e00, e11, e02);
