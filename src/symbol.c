@@ -1,5 +1,5 @@
 /**
- * Author: Daniel Chui
+ * Author: Daniel Chui, Mike Bujold
  * Implementation of Symbol table
  * Uses Glib library
  */
