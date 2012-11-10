@@ -151,4 +151,6 @@ int isString (symbol *sym);
 char *getString (symbol *sym);
 type_class getArrayType (symbol *sym);
 
+symbol *getRecordField(symbol *record, const char *fieldName);
+
 #endif

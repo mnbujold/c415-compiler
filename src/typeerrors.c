@@ -117,3 +117,10 @@ void
 missFuncRetError() {
     addTypeError("missing function return value assignment");
 }
+
+void
+symNotRecordError(const char *id) {
+    char errMsg[50 + strlen(id)];
+    sprintf(errMsg, "symbol '%s' not a record", id);
+    addTypeError(errMsg);
+}

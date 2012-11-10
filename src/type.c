@@ -788,7 +788,7 @@ void doVarAssignment (symbol *var, symbol *expr) {
     if (varLookup != NULL && varLookup->oc == OC_FUNC) {
         varLookup->desc.func_attr->returnValSet = 1;
     }    
-    var->desc.var_attr->expression = expr;
+    //var->desc.var_attr->expression = expr;
   } else {
     //They are not assignment compatible, give error
     assignmentCompatibilityError();
@@ -803,6 +803,29 @@ checkFuncValSet(symbol *func) {
         missFuncRetError();
     }
 }
+
+
+symbol *
+getRecordField(symbol *record, const char *fieldName) {
+    if (record->oc != OC_VAR || record->symbol_type->desc.type_attr->type != TC_RECORD) {
+        symNotRecordError();
+        return createErrorSym(OC_VAR);
+    }
+
+    GPtrArray *fieldList = record->symbol_type->desc.type_attr->desc.record->field_list;
+    int listSize = fieldList->len;
+    int i;
+    symbol *currField;
+    
+    for (i = 0; i < listSize; i += 1) {
+        currField = (symbol *) g_ptr_array_index(fieldList, i);
+        if (strcmp(currField->name, fieldName) == 0) {
+            return currField;
+        }
+    }
+    return createErrorSym(OC_VAR);
+}
+
 
 //TODO: Should not need this for checkpoint 2...
 symbol *createAnonymousVar(symbol *o1, symbol *o2) {
