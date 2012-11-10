@@ -129,7 +129,22 @@ int isString (symbol *sym) {
   }
   return 0;
 }
-
+/**
+ * Gets String const from symbol
+ * returns NULL if it is not a string
+ */
+char *getString (symbol *sym) {
+  if (!isString) {
+    return NULL;
+  }
+  
+  if (sym->oc ==OC_CONST) {
+    return sym->desc.const_attr->value.string;
+  }
+    
+   return NULL;
+  //now do this for vars
+}
 symbol *
 createConstant(type_class type, union constant_values value) {
     struct const_desc *constant = createConstDesc(value);

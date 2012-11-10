@@ -139,4 +139,8 @@ GArray *addParam(GArray *paramList, symbol *newParam) ;
 
 symbol *createAnonymousVar(symbol *o1, symbol *o2);
 
+int isString (symbol *sym);
+char *getString (symbol *sym);
+type_class getArrayType (symbol *sym);
+
 #endif
