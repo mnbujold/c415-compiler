@@ -46,16 +46,24 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
   
     type_class tcSym1 = getTypeClass (sym1);
     type_class tcSym2 = getTypeClass (sym2);
-    if (tcSym1 == tcSym2) {
-      return 1;
-    }
-    else if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
+
+    if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
        return arrayAssignmentCompatible (sym1, sym2);
       //return array assignment compatiblity
+    }
+    else if (tcSym1 == tcSym2) {
+      if (sym1 == sym2) {
+	return 1;
+      }
+      else {
+	return 0;
+      }
     }
     else if (tcSym1 == TC_REAL && tcSym2 == TC_INTEGER) {
       return 1;
     }
+    //TODO: 
+    //Subrange case: NOT IMPLEMENTED
     else {
       return 0;
     }
@@ -644,5 +652,23 @@ addParam(GArray *paramList, symbol *newParam) {
     
 }
 
+
+void doVarAssignment (symbol *var, symbol *expr) {
+  if (var->oc != OC_VAR) {
+    assignmentError ();
+  }
+  if (assignmentCompatibleSym (var, expr)) {
+    //What does it even mean to assign right now...
+    //Point to the expression, as far as I can tell
+    var->desc.var_attr->expression = expr;
+  }
+  else {
+    //They are not assignment compatible, give error
+    void assignmentCompatibilityError ();
+  }
+}
+
+//TODO: Should not need this for checkpoint 2...
 symbol *createAnonymousVar(symbol *o1, symbol *o2) {
+  return NULL;
 }

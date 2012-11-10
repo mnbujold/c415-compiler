@@ -387,6 +387,7 @@ proc_decl               : proc_heading decls compound_stat SEMICOLON
 
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                             {
+
                                 symbol *newProc = createNewProc($2);
                                 pushLevel();
                                 if ($3 != NULL) {
@@ -485,6 +486,7 @@ simple_stat             : /* empty */
 
 stat_assignment         : var ASSIGN expr
                             {
+			      doVarAssignment ($1, $3);
                                 // Have to finish this ...
                             }
                         | error /* ERROR */

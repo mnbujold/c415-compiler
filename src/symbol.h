@@ -141,14 +141,15 @@ struct const_desc{
 };
 
 struct var_desc{
+  symbol *expression; //point to the expression?
 };
 
 struct procedure_desc{
-  GArray *params; //array of *param_desc
+  GPtrArray *params; //array of *param_desc
 };
 
 struct function_desc{
-  GArray *params;
+  GPtrArray *params;
   struct symbol_rec *return_type;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
