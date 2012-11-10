@@ -296,30 +296,41 @@ addNewConst(const char *id, symbol *result) {
 
 symbol *
 addNewParam(const char *id, const char *typeId) {
-    symbol *newParam;
-    if (localLookup(id) == NULL) {
-        symbol *type = globalLookup(typeId);
-        if (type == NULL) {
-            typeNotDefinedError(typeId);
-            type = createErrorType();
-        } else if (type->oc != OC_TYPE) {
-            symNotATypeError(typeId);
-            type = createErrorType();
-        } else { 
-            addSymbol(typeId, type); // A named type. Need to bring into local scope.
-        }
-        newParam = createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
-        
-        addSymbol(id, newParam);
-    } else {
-        newParam = createErrorSym(OC_PARAM);
-        symExistsError(id);
+    symbol *type = globalLookup(typeId);
+    if (type == NULL) {
+        typeNotDefinedError(typeId);
+        type = createErrorType();
+    } else if (type->oc != OC_TYPE) {
+        symNotATypeError(typeId);
+        type = createErrorType();
     }
-    return newParam;
+    return createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
 }
 
+
+// symbol *
+// createNewFunc(const char *id, const char *returnType) {
+//     if (localLookup(id) == NULL) {
+//         struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
+//         struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
+//         typeDesc->type = TC_NONE;
+//         typeDesc->desc.none = noneType;
+//         
+//         symbol *type = createTypeSym(NULL, typeDesc);
+//         symbol *newProc = createSymbol(id, type, OC_PROC, NULL);
+//         
+//         addSymbol(id, newProc);
+//         
+//         return newProc;
+//     }
+//     symExistsError(id);
+//     return createErrorSym(OC_PROC);
+// }
+
 symbol *
-createNewProc(const char *id) {
+addNewProc(const char *id, GPtrArray *paramList) {
+    symbol *newProc;
+    
     if (localLookup(id) == NULL) {
         struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
         struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
@@ -327,43 +338,42 @@ createNewProc(const char *id) {
         typeDesc->desc.none = noneType;
         
         symbol *type = createTypeSym(NULL, typeDesc);
-        symbol *newProc = createSymbol(id, type, OC_PROC, NULL);
+        newProc = createSymbol(id, type, OC_PROC, createProcedureDesc(paramList));
         
         addSymbol(id, newProc);
-        
-        return newProc;
+    } else {
+        symExistsError(id);
+        newProc = createErrorSym(OC_PROC);
+        newProc->name = id;
     }
-    symExistsError(id);
-    return createErrorSym(OC_PROC);
-}
-
-
-symbol *
-createNewFunc(const char *id) {
-    return NULL;
-}
-
-symbol *
-addNewProc(symbol *newProc, GArray *paramList) {
-    if (newProc->symbol_type->desc.type_attr->type == TC_ERROR) {
-        return NULL;
+    pushLevel();
+    
+    symbol *newParam;
+    symbol *paramType;
+    int listSize = paramList->len;
+    int i;
+    
+    for (i = 0; i < listSize; i++) {
+        newParam = (symbol *) g_ptr_array_index(paramList, i);
+        paramType = newParam->symbol_type;
+        
+        if (paramType->desc.type_attr->type != TC_ERROR) {
+            addSymbol(paramType->name, paramType);
+        }
+        addSymbol(newParam->name, newParam);
     }
     
     if (localLookup(newProc->name) == NULL) {
-        struct procedure_desc *procDesc = calloc(1, sizeof(struct procedure_desc));
-        procDesc->params = paramList;
-        newProc->desc.proc_attr = procDesc;
-        
         addSymbol(newProc->name, newProc);
-        return newProc;
+    } else {
+        symExistsError(newProc->name);
     }
-    symExistsError(newProc->name);
-    return createErrorSym(OC_PROC);
+    return newProc;
 }
 
 
 symbol *
-addNewFunc(symbol *newFunc, const char *returnType, GArray *paramList) {
+addNewFunc(const char *id, const char *returnType, GPtrArray *paramList) {
     return NULL;
 }
 
@@ -409,9 +419,9 @@ getType(const char *id) {
 }
 
 symbol *
-createScalarList(GArray *nameList) {
+createScalarList(GPtrArray *nameList) {
     int listSize = nameList->len;
-    GArray *scalarList = g_array_new(1, 1, sizeof(symbol *));
+    GPtrArray *scalarList = g_ptr_array_new();
     
     struct tc_const *constTypeClass = calloc(1, sizeof(struct tc_const));
     constTypeClass->len = listSize;
@@ -420,21 +430,11 @@ createScalarList(GArray *nameList) {
     constType->desc.enumeration = constTypeClass;
     symbol *typeSym = createTypeSym(NULL, constType);
     
-//     struct const_desc *constDesc;
     symbol *scalar;
     int i, tmp;
     
     for (i = 0; i < listSize; i++) {
-//         constDesc = calloc(1, sizeof(struct const_desc));
-//         constDesc->type = constType;
-//         constDesc->value.integer = i + 1;
-//         
-//         scalar = calloc(1, sizeof(symbol));
-//         scalar->name = g_array_index(nameList, const char *, i);
-//         scalar->oc = OC_CONST;
-//         scalar->desc.const_attr = constDesc;
-        
-        const char *name = g_array_index(nameList, const char *, i);
+        const char *name = (const char *) g_ptr_array_index(nameList, i);
         tmp = i + 1;
         scalar = localLookup(name);
         if (scalar == NULL) { // New symbol.
@@ -445,9 +445,9 @@ createScalarList(GArray *nameList) {
                 continue;
         }
         addSymbol(name, scalar);
-        g_array_append_val(scalarList, scalar);
+        g_ptr_array_add(scalarList, scalar);
     }
-    g_array_free(nameList, 0); // Just free the wrapper, but not the names themselves.
+    g_ptr_array_free(nameList, 0); // Just free the wrapper, but not the names themselves.
     
     struct tc_scalar *scalarTypeClass = calloc(1, sizeof(struct tc_scalar));
     scalarTypeClass->len = listSize;
@@ -460,23 +460,23 @@ createScalarList(GArray *nameList) {
     return createTypeSym(NULL, scalarListType);
 }
 
-GArray *
-addScalar(GArray *scalarList, const char *scalar) {
+GPtrArray *
+addScalar(GPtrArray *scalarList, const char *scalar) {
     if (scalarList == NULL) {
-        scalarList = g_array_new(1, 1, sizeof(const char *));
+        scalarList = g_ptr_array_new();
     }
     int listSize = scalarList->len;
     int duplicate = 0;
     int i;
     
     for (i = 0; i < listSize; i++) {
-        if (strcmp(g_array_index(scalarList, const char *, i), scalar) == 0) {
+        if (strcmp((const char *) g_ptr_array_index(scalarList, i), scalar) == 0) {
             duplicate = 1;
         }
     }
     
     if (localLookup(scalar) == NULL && duplicate == 0) {
-        g_array_prepend_val(scalarList, scalar); // Added in 'correct' order.
+        g_ptr_array_add(scalarList, (char *) scalar); // Added in 'correct' order. REVERSE!
     } else {
         symExistsError(scalar);
     }
@@ -582,9 +582,9 @@ createArrayIndex(symbol *low, symbol *high) {
             lowValue = 0;
             highValue = 256; // 2^8 = maximum char value;
         } else if (type == TC_SCALAR) {
-            GArray *list = high->desc.type_attr->desc.scalar->const_list;
-            lowValue = g_array_index(list, symbol *, 0)->desc.const_attr->value.integer;
-            highValue = g_array_index(list, symbol *, (list->len)-1)->desc.const_attr->value.integer;
+            GPtrArray *list = high->desc.type_attr->desc.scalar->const_list;
+            lowValue = ((symbol *) g_ptr_array_index(list, 0))->desc.const_attr->value.integer;
+            highValue = ((symbol *) g_ptr_array_index(list, (list->len)-1))->desc.const_attr->value.integer;
         }
         
         if (correct == 1) {
@@ -605,7 +605,7 @@ createArrayIndex(symbol *low, symbol *high) {
 }
 
 symbol *
-createRecord(GArray *fieldList) {
+createRecord(GPtrArray *fieldList) {
     struct tc_record *newRecord = calloc(1, sizeof(struct tc_record));
     newRecord->field_list = fieldList;
     
@@ -616,40 +616,53 @@ createRecord(GArray *fieldList) {
     return createTypeSym(NULL, newType);
 }
 
-GArray *
-addField(GArray *fieldList, symbol *newField) {
+GPtrArray *
+addField(GPtrArray *fieldList, symbol *newField) {
     if (fieldList == NULL) {
-        fieldList = g_array_new(1, 1, sizeof(symbol *));
+        fieldList = g_ptr_array_new();
     }
     int listSize = fieldList->len;
     const char *newName = newField->name;
     int i;
     
     for (i = 0; i < listSize; i++) {
-        if (strcmp(g_array_index(fieldList, symbol *, i)->name, newName) == 0) {
+        if (strcmp(((symbol *) g_ptr_array_index(fieldList, i))->name, newName) == 0) {
             duplicateFieldError(newName);
             return fieldList;
         }
     }
-    g_array_prepend_val(fieldList, newField); // Added in 'correct' order.
+    g_ptr_array_add(fieldList, newField); // Added in 'correct' order. REVERSE
     
     return fieldList;
 }
 
-GArray *
-addParam(GArray *paramList, symbol *newParam) {
+GPtrArray *
+addParam(GPtrArray *paramList, symbol *newParam) {
     if (paramList == NULL) {
-        paramList = g_array_new(1, 1, sizeof(symbol *));
+        paramList = g_ptr_array_new();
     }
     
     if (newParam == NULL) {
         return paramList;
     }
+  
+    const char *newName = newParam->name;
+    int listSize = paramList->len;
+    int duplicate = 0;
+    int i;
     
-    g_array_prepend_val(paramList, newParam); // Added in 'correct' order.
+    for (i = 0; i < listSize; i++) {
+        if (strcmp(((symbol *) g_ptr_array_index(paramList, i))->name, newName) == 0) {
+            duplicate = 1;
+        }
+    }
     
-    return paramList;
-    
+    if (duplicate == 0) {
+        g_ptr_array_add(paramList, newParam); // Added in 'correct' order. REVERSE
+    } else {
+        symExistsError(newName);
+    }
+    return paramList;    
 }
 
 symbol *arrayAccessWithIndex (symbol *array, symbol *index) {

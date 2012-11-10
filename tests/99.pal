@@ -11,21 +11,23 @@ type bob = (enum1, enum2);
      clark = bob;
      enum0 = (e00, e01, e02);
      bool = boolean;
-     foo = array[1..10] of 54;
+     foo = array[1..10] of char; // Should be a syntactic error!
 
 var joe : bob;
     text : clark;
     bar : foo;
+    e11 : enum0;
 
-procedure foo(joe: enum0);
+procedure foo(joe : enum0; foo :enum0);
     type enum1 = (e00, e11, e02);
+         joe = bool;
     begin
     end;
     
 procedure tim();
     var joe : (e1, ererer);
 begin
-    joe := not 2;
+    //joe := not 2;
 end;
     
 begin
