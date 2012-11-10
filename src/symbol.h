@@ -99,7 +99,7 @@ struct tc_string{
 struct tc_scalar{
   /* const_list */
   int len;
-  GPtrArray *const_list;
+  GArray *const_list;
 };
 struct tc_array{
   int size;
@@ -111,7 +111,7 @@ struct tc_array{
 };
 struct tc_record{
   int len;
-  GPtrArray *field_list;
+  GArray *field_list;
 };
 struct tc_subrange{
   int len;
