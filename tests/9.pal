@@ -67,6 +67,12 @@ begin
             correctReturn := false
 end;
 
+procedure testAllBuiltins();
+    var a: integer;
+begin
+    
+end;
+
 begin
 
 mostness(input_type, output_type); { $ERR_DATA$ [60, "cannot call a program", ["program 'mostness' cannot be called"]] $ERR_DATA$ }
