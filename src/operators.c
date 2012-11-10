@@ -48,12 +48,12 @@ symbol *inversion (symbol *op)  {
       if (getTypeClass (op) == TC_REAL) {
 	//grab int value and mult by -1
 	double result = -1 * op->desc.const_attr->value.real;
-	union constant_values value = {.real = value};
+	union constant_values value = {.real = result};
 	return createConstant (TC_REAL, value);
       }
       else {
 	int result = -1 * op->desc.const_attr->value.integer;
-	union constant_values value = {.integer = value};
+	union constant_values value = {.integer = result};
 	return createConstant (TC_INTEGER, value);
       }
     }
@@ -436,8 +436,14 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
   type_class tc2 = getTypeClass (o2);
   if (tc1 == tc2) {
     //TODO:
-    //types are same, but now, we need to check they are pointing to EXACT SAME ENUM
-    return 1;
+    
+    //Check that they are pointing to the exact same type
+    
+    if (o1->symbol_type == o2->symbol_type) {
+      return 1;
+    }
+
+    return 0;
   }
   //real and integer
   if ((tc1 == TC_REAL || tc1 == TC_INTEGER) && (tc2 == TC_REAL || tc2 == TC_INTEGER)) {
@@ -475,10 +481,10 @@ symbol *equalOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      int value1  = o1.desc->const_attr->value.integer;
-      int value2 = o2.desc->const_attr->value.integer;
+      int value1  = o1->desc.const_attr->value.integer;
+      int value2 = o2->desc.const_attr->value.integer;
       int result = value1 == value2;
-      union constantValues resultValue = {.boolean = result};
+      union constant_values resultValue = {.boolean = result};
       return createConstant (TC_BOOLEAN, resultValue);
       //straight comparison?
       //
@@ -539,10 +545,10 @@ symbol *notEqualOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      int value1  = o1.desc->const_attr->value.integer;
-      int value2 = o2.desc->const_attr->value.integer;
+      int value1  = o1->desc.const_attr->value.integer;
+      int value2 = o2->desc.const_attr->value.integer;
       int result = value1 != value2;
-      union constantValues resultValue = {.boolean = result};
+      union constant_values resultValue = {.boolean = result};
       return createConstant (TC_BOOLEAN, resultValue);
       //straight comparison?
       
@@ -600,10 +606,10 @@ symbol *lessThanOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      int value1  = o1.desc->const_attr->value.integer;
-      int value2 = o2.desc->const_attr->value.integer;
+      int value1  = o1->desc.const_attr->value.integer;
+      int value2 = o2->desc.const_attr->value.integer;
       int result = value1  < value2;
-      union constantValues resultValue = {.boolean = result};
+      union constant_values resultValue = {.boolean = result};
       return createConstant (TC_BOOLEAN, resultValue);
       
     }
@@ -662,10 +668,10 @@ symbol *greaterThanOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      int value1  = o1.desc->const_attr->value.integer;
-      int value2 = o2.desc->const_attr->value.integer;
+      int value1  = o1->desc.const_attr->value.integer;
+      int value2 = o2->desc.const_attr->value.integer;
       int result = value1 > value2;
-      union constantValues resultValue = {.boolean = result};
+      union constant_values resultValue = {.boolean = result};
       return createConstant (TC_BOOLEAN, resultValue);
       
     }
@@ -721,10 +727,10 @@ symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      int value1  = o1.desc->const_attr->value.integer;
-      int value2 = o2.desc->const_attr->value.integer;
+      int value1  = o1->desc.const_attr->value.integer;
+      int value2 = o2->desc.const_attr->value.integer;
       int result = value1 >= value2;
-      union constantValues resultValue = {.boolean = result};
+      union constant_values resultValue = {.boolean = result};
       return createConstant (TC_BOOLEAN, resultValue);
       
     }
@@ -783,10 +789,10 @@ symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      int value1  = o1.desc->const_attr->value.integer;
-      int value2 = o2.desc->const_attr->value.integer;
+      int value1  = o1->desc.const_attr->value.integer;
+      int value2 = o2->desc.const_attr->value.integer;
       int result = value1 <= value2;
-      union constantValues resultValue = {.boolean = result};
+      union constant_values resultValue = {.boolean = result};
       return createConstant (TC_BOOLEAN, resultValue);
       
     }
