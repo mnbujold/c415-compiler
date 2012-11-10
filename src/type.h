@@ -155,5 +155,6 @@ symbol *arrayAccessWithIndex (symbol *array, symbol *index);
 symbol *recordAccess (symbol *record, symbol *key);
 
 char *getString (symbol *sym);
+symbol *getRecordField(symbol *record, const char *fieldName);
 
 #endif

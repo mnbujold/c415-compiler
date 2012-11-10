@@ -499,16 +499,21 @@ simple_stat             : /* empty */
 stat_assignment         : var ASSIGN expr
                             {
                                 //DEBUG_PRINT(("Inside a var assignment"));
-                                doVarAssignment ($1, $3);
+                                if ($1 != NULL && $3 != NULL) {
+                                    doVarAssignment ($1, $3);
+                                }
                             }
                         | error /* ERROR */
-                            {
-                                //$$ = NULL:
-                            }
                         ;
                         
 proc_invok              : plist_finvok RIGHTPAREN
+                            {
+                                
+                            }
                         | ID LEFTPAREN RIGHTPAREN
+                            {
+                                
+                            }
                         ;
 
 var                     : ID
@@ -517,7 +522,11 @@ var                     : ID
                             }
                         | var PERIOD ID
                             {
-                            //TODO: implement record access
+                                if ($1 != NULL) {
+                                    $$ = getRecordField($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | subscripted_var RIGHTBRACKET
                             {
