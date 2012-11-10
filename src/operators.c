@@ -435,13 +435,15 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
   type_class tc1 = getTypeClass (o1);
   type_class tc2 = getTypeClass (o2);
   if (tc1 == tc2) {
+    //TODO:
+    //types are same, but now, we need to check they are pointing to EXACT SAME ENUM
     return 1;
   }
   //real and integer
   if ((tc1 == TC_REAL || tc1 == TC_INTEGER) && (tc2 == TC_REAL || tc2 == TC_INTEGER)) {
     return 1;
   }
-  //strings
+  //strings, hopefully chars should be here as well
   if (isString (o1) && isString (o2)) {
     //check string length
     char *string1 = getString (o1);
@@ -457,6 +459,8 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
 /*NOTE: Cheating; am casting to doubles, so it is possible that these could return incorrect results
  * .....but screw it
  * Also, there is probably a better way to do this rather than just copying pasting...but blargh
+ * And, right now it will still return if enums are not the exact same enum...but implement that
+ * in check comparison compatibilty instead
  */
 symbol *equalOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
@@ -471,6 +475,11 @@ symbol *equalOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
+      int value1  = o1.desc->const_attr->value.integer;
+      int value2 = o2.desc->const_attr->value.integer;
+      int result = value1 == value2;
+      union constantValues resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
       //straight comparison?
       //
       
@@ -530,6 +539,11 @@ symbol *notEqualOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
+      int value1  = o1.desc->const_attr->value.integer;
+      int value2 = o2.desc->const_attr->value.integer;
+      int result = value1 != value2;
+      union constantValues resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
       //straight comparison?
       
     }
@@ -586,7 +600,11 @@ symbol *lessThanOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      //straight comparison?
+      int value1  = o1.desc->const_attr->value.integer;
+      int value2 = o2.desc->const_attr->value.integer;
+      int result = value1  < value2;
+      union constantValues resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
       
     }
     else if (isString (o1)) {
@@ -644,7 +662,11 @@ symbol *greaterThanOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      //straight comparison?
+      int value1  = o1.desc->const_attr->value.integer;
+      int value2 = o2.desc->const_attr->value.integer;
+      int result = value1 > value2;
+      union constantValues resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
       
     }
     else if (isString (o1)) {
@@ -699,7 +721,11 @@ symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      //straight comparison?
+      int value1  = o1.desc->const_attr->value.integer;
+      int value2 = o2.desc->const_attr->value.integer;
+      int result = value1 >= value2;
+      union constantValues resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
       
     }
     else if (isString (o1)) {
@@ -757,7 +783,11 @@ symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
     if (getTypeClass (o1) == getTypeClass (o2)) {
-      //straight comparison?
+      int value1  = o1.desc->const_attr->value.integer;
+      int value2 = o2.desc->const_attr->value.integer;
+      int result = value1 <= value2;
+      union constantValues resultValue = {.boolean = result};
+      return createConstant (TC_BOOLEAN, resultValue);
       
     }
     else if (isString (o1)) {
