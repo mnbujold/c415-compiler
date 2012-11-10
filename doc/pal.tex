@@ -55,15 +55,15 @@ To better handle error reporting in statements, we let conditionals reduce to er
 
 The large amount of error symbols in the program has resulted in, what we think, a fairly comprehensive syntactic error reporter, although their are still some instances of open brackets and statements eating up a lot of the input; this number of error symbols have also cause twelve shift/reduce conflicts.
 
-\section*{Semantic Analysis}
-\lipsum[1]
-
 \section*{Symbol Table}
 We used the glib-2.0 library to implement data structures within our compiler, namely the symbol table.\\
-Our symbol table is a stack; for each new scope, we push a new level onto the stack. Lookup then looks at the top of the stack for localLookup, and begins its lookup from the top of the stack to the bottom for globalLookup. Each level of the symbol table stack is a hash table, where the symbol is retrieved using its identifier.
+Our symbol table is a stack; for each new scope, we push a new level onto the stack. Lookup then looks at the top of the stack for localLookup, and begins its lookup from the top of the stack to the bottom for globalLookup. Each level of the symbol table stack is a hash table, where the symbol is retrieved using its identifier.\\
 
 \section*{Symbols}
-Each symbol is a struck containing: the identifier, an enum oc, which determines what the object class the symbol is (eg. var, const, function, etc.), a pointer to a type symbol (unless it is a type symbol: more on that later) and a description of its attributes based on the object class. Type symbols are special cases of symbols; they have a type\_attr description, which defines the type itself, and this type symbol is pointed to by other symbols, showing what type they are.
+Symbols are first divided into classes using an \texttt{object\_class} enumerated type which determines what object class the symbol belongs to (eg. var, const, function, etc.). Objects can then have a \texttt{type\_class} enumerated type which indicates what type of variable can be expected. \\
+Symbols are stored in a \texttt{symbol\_rec} struct, which is composed of a symbol \texttt{name} field, an \texttt{object\_class} field, and a \texttt{oc\_descriptions} union, which contains further parameters based on which object class the record contains. The descriptions for each object class contain data that pertains to each class. For instance, the description for a \texttt{OC\_CONST} object would contain the value of the constant, the description for a \texttt{OC\_FUNCTION} object would contain a pointer to the list of parameters and the return type for that object.\\
+Type Classes are a special object case that have a further structure with data pertinent to that variable. For instance, type class \texttt{TC\_SCALAR} has two extra fields in it's description, one for length and another to hold a pointer to the list of elements. Type symbols are special cases of symbols; they have a type\_attr description, which defines the type itself, and this type symbol is pointed to by other symbols, showing what type they are.\\
+
 
 \section*{Testing}
 To facilitate large scale testing and efficient reading of listing files, we created a python script to run the compiler on multiple tests and pipe the resulting output to a testing log.\\
