@@ -25,7 +25,7 @@ procedure foo(joe: enum0);
 procedure tim();
     var joe : (e1, ererer);
 begin
-    //joe := not 2;
+    joe := not 2;
 end;
     
 begin
