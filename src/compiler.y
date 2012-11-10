@@ -89,6 +89,8 @@ int yywrap() {
 %type <symbol> var_decl
 %type <symbol> var subscripted_var parm
 %type <symbol> expr simple_expr term factor unsigned_const unsigned_num
+%type <garray> f_parm_decl f_parm_list
+%type <symbol> f_parm
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -385,11 +387,19 @@ proc_decl               : proc_heading decls compound_stat SEMICOLON
 
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                             {
+                                symbol *newProc = createNewProc($2);
                                 pushLevel();
+                                if ($3 != NULL) {
+                                    addNewProc(newProc, $3);
+                                }
                             }
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
                             {
+                                symbol *newFunc = createNewFunc($2);
                                 pushLevel();
+                                if ($3 != NULL) {
+                                    addNewFunc(newFunc, $5, $3);
+                                }
                             }
                         | PROCEDURE error SEMICOLON /* ERROR */
                             {
@@ -406,18 +416,53 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                         ;
 
 f_parm_decl             : LEFTPAREN f_parm_list RIGHTPAREN
+                            {
+                                $$ = $2;
+                            }
                         | LEFTPAREN RIGHTPAREN
+                            {
+                                $$ = addParam(NULL, NULL);
+                            }
                         | error RIGHTPAREN /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         | error /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 f_parm_list             : f_parm
+                            {
+                                if ($1 != NULL) {
+                                    $$ = addParam(NULL, $1);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         | f_parm_list SEMICOLON f_parm
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = addParam($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         ;
 
 f_parm                  : ID COLON ID
+                            {
+                                $$ = addNewParam($1, $3);
+                            }
                         | VAR ID COLON ID
+                            {
+                                $$ = addNewParam($2, $4);
+                            }
                         | error /* ERROR */
+                            {
+                                $$ = NULL;
+                            }
                         ;
 
 compound_stat           : BEGIN_ stat_list END

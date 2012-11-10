@@ -40,7 +40,8 @@ enum type_class {
   TC_ARRAY,
   TC_RECORD,
   TC_SUBRANGE,
-  TC_ERROR
+  TC_ERROR,
+  TC_NONE
 };
 typedef enum type_class type_class;
 
@@ -123,6 +124,8 @@ struct tc_file{
   int len; // Doesn't actually do anything - just for type comparisons.
 };
 
+struct tc_none{
+};
 
 union constant_values{                           /* Value of const */ 
     int integer;
@@ -142,11 +145,11 @@ struct var_desc{
 };
 
 struct procedure_desc{
-  GPtrArray *params; //array of *param_desc
+  GArray *params; //array of *param_desc
 };
 
 struct function_desc{
-  GPtrArray *params;
+  GArray *params;
   struct symbol_rec *return_type;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
@@ -167,6 +170,7 @@ union type_descriptions{
     struct tc_record *record;
     struct tc_subrange *subrange;
     struct tc_file *file;
+    struct tc_none *none;
   };
 
 struct type_desc{

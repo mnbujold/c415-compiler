@@ -271,6 +271,79 @@ addNewConst(const char *id, symbol *result) {
     return result;
 }
 
+symbol *
+addNewParam(const char *id, const char *typeId) {
+    symbol *newParam;
+    if (localLookup(id) == NULL) {
+        symbol *type = globalLookup(typeId);
+        if (type == NULL) {
+            typeNotDefinedError(typeId);
+            type = createErrorType();
+        } else if (type->oc != OC_TYPE) {
+            symNotATypeError(typeId);
+            type = createErrorType();
+        } else { 
+            addSymbol(typeId, type); // A named type. Need to bring into local scope.
+        }
+        newParam = createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
+        
+        addSymbol(id, newParam);
+    } else {
+        newParam = createErrorSym(OC_PARAM);
+        symExistsError(id);
+    }
+    return newParam;
+}
+
+symbol *
+createNewProc(const char *id) {
+    if (localLookup(id) == NULL) {
+        struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
+        struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
+        typeDesc->type = TC_NONE;
+        typeDesc->desc.none = noneType;
+        
+        symbol *type = createTypeSym(NULL, typeDesc);
+        symbol *newProc = createSymbol(id, type, OC_PROC, NULL);
+        
+        addSymbol(id, newProc);
+        
+        return newProc;
+    }
+    symExistsError(id);
+    return createErrorSym(OC_PROC);
+}
+
+
+symbol *
+createNewFunc(const char *id) {
+    return NULL;
+}
+
+symbol *
+addNewProc(symbol *newProc, GArray *paramList) {
+    if (newProc->symbol_type->desc.type_attr->type == TC_ERROR) {
+        return NULL;
+    }
+    
+    if (localLookup(newProc->name) == NULL) {
+        struct procedure_desc *procDesc = calloc(1, sizeof(struct procedure_desc));
+        procDesc->params = paramList;
+        newProc->desc.proc_attr = procDesc;
+        
+        addSymbol(newProc->name, newProc);
+        return newProc;
+    }
+    symExistsError(newProc->name);
+    return createErrorSym(OC_PROC);
+}
+
+
+symbol *
+addNewFunc(symbol *newFunc, const char *returnType, GArray *paramList) {
+    return NULL;
+}
+
 struct type_desc *
 addNewSymbolAnonType(const char *id, struct type_desc *type, object_class objClass) {
     if (localLookup(id) == NULL) {
@@ -349,7 +422,6 @@ createScalarList(GArray *nameList) {
                 continue;
         }
         addSymbol(name, scalar);
-        
         g_array_append_val(scalarList, scalar);
     }
     g_array_free(nameList, 0); // Just free the wrapper, but not the names themselves.
@@ -539,6 +611,22 @@ addField(GArray *fieldList, symbol *newField) {
     g_array_prepend_val(fieldList, newField); // Added in 'correct' order.
     
     return fieldList;
+}
+
+GArray *
+addParam(GArray *paramList, symbol *newParam) {
+    if (paramList == NULL) {
+        paramList = g_array_new(1, 1, sizeof(symbol *));
+    }
+    
+    if (newParam == NULL) {
+        return paramList;
+    }
+    
+    g_array_prepend_val(paramList, newParam); // Added in 'correct' order.
+    
+    return paramList;
+    
 }
 
 symbol *createAnonymousVar(symbol *o1, symbol *o2) {
