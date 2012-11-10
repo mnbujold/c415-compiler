@@ -313,14 +313,14 @@ symbol *createSymbolType (char const *identifier, type_class type) {
   return varDesc;
   
  }
- struct function_desc *createFunctionDesc (GArray *params, 
+ struct function_desc *createFunctionDesc (GPtrArray *params, 
                                               symbol *return_type) {
   struct function_desc *funcDesc = calloc (1, sizeof (struct function_desc));
   funcDesc->params = params;
   funcDesc->return_type = return_type;
   return funcDesc;
  }
- struct procedure_desc *createProcedureDesc (GArray *params) {
+ struct procedure_desc *createProcedureDesc (GPtrArray *params) {
   struct procedure_desc *procDesc = calloc (1, sizeof (struct procedure_desc));
   procDesc->params = params;
   return procDesc;

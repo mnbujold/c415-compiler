@@ -45,7 +45,7 @@ int yywrap() {
     int integer;
     double real;
     symbol *symbol;
-    GArray *garray;
+    GPtrArray *garray;
     struct type_desc *anon_type; // can probably get rid of this ...
 }
 
@@ -393,10 +393,8 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                             }
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
                             {
-                                symbol *newFunc = createNewFunc($2, $5);
-                                //pushLevel();
                                 if ($3 != NULL) {
-                                    addNewFunc(newFunc, $3);
+                                    addNewFunc($2, $5, $3);
                                 }
                             }
                         | PROCEDURE error SEMICOLON /* ERROR */

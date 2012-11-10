@@ -100,7 +100,7 @@ struct tc_string{
 struct tc_scalar{
   /* const_list */
   int len;
-  GArray *const_list;
+  GPtrArray *const_list;
 };
 struct tc_array{
   int size;
@@ -112,7 +112,7 @@ struct tc_array{
 };
 struct tc_record{
   int len;
-  GArray *field_list;
+  GPtrArray *field_list;
 };
 struct tc_subrange{
   int len;
@@ -145,11 +145,11 @@ struct var_desc{
 };
 
 struct procedure_desc{
-  GArray *params; //array of *param_desc
+  GPtrArray *params; //array of *param_desc
 };
 
 struct function_desc{
-  GArray *params;
+  GPtrArray *params;
   struct symbol_rec *return_type;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
 };
@@ -235,8 +235,8 @@ symbol *createSymbolType (char const *, type_class);
  
  struct const_desc *createConstDesc (union constant_values);
  struct var_desc *createVarDesc ();
- struct function_desc *createFunctionDesc (GArray *, symbol *);
- struct procedure_desc *createProcedureDesc (GArray *);
+ struct function_desc *createFunctionDesc (GPtrArray *, symbol *);
+ struct procedure_desc *createProcedureDesc (GPtrArray *);
  struct param_desc *createParamDesc ();
  struct type_desc *createTypeDesc (type_class, union type_descriptions);
  

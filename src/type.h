@@ -78,10 +78,8 @@ symbol *addNewType(const char *id, symbol *type);
 symbol *addNewVar(const char *id, symbol *type);
 symbol *addNewConst(const char *id, symbol *result);
 symbol *addNewParam(const char *id, const char *typeId);
-symbol *createNewProc(const char *id);
-symbol *createNewFunc(const char *id, const char *returnType);
-symbol *addNewProc(const char *id, GArray *paramList);
-symbol *addNewFunc(symbol *newFunc, GArray *paramList);
+symbol *addNewProc(const char *id, GPtrArray *paramList);
+symbol *addNewFunc(const char *id, const char *returnType, GPtrArray *paramList);
 
 /**
  * Adds a new symbol with object class obj_class, of anonymous type, and with
@@ -101,14 +99,14 @@ symbol *getType(const char *id);
  * Returns a pointer to the scalar list type symbol created by nameList.
  * 
  */
-symbol *createScalarList(GArray *nameList);
+symbol *createScalarList(GPtrArray *nameList);
 
 /**
  * Adds scalar as a symbol to the current level and to scalarList and returns
  * the resulting scalarList. Adds an error if there exists a symbol in the
  * current level with the same name as scalar.
  */
-GArray *addScalar(GArray *scalarList, const char *scalar);
+GPtrArray *addScalar(GPtrArray *scalarList, const char *scalar);
 
 /**
  * Returns a pointer to the array type symbol created by indexType and objType.
@@ -124,18 +122,18 @@ symbol *createArrayIndex(symbol *low, symbol *high);
 /**
  * Returns a pointer to the record type symbol created by fieldList.
  */
-symbol *createRecord(GArray *fieldList);
+symbol *createRecord(GPtrArray *fieldList);
 
 /**
  * Adds newField to fieldList and returns the resulting fieldList. Adds an
  * error if there exists a symbol in fieldList with the same name as newField.
  */
-GArray *addField(GArray *fieldList, symbol *newField);
+GPtrArray *addField(GPtrArray *fieldList, symbol *newField);
 
 /**
  * Adds newParam to paramList and returns the resulting paramList.
  */
-GArray *addParam(GArray *paramList, symbol *newParam) ;
+GPtrArray *addParam(GPtrArray *paramList, symbol *newParam) ;
 
 symbol *createAnonymousVar(symbol *o1, symbol *o2);
 
