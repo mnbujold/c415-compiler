@@ -1,6 +1,5 @@
 /**
- * Author: Daniel Chui
- * Modified from original file from Paul Vandermeer
+ * Author: Mike Bujold, Daniel Chui
  * Implementation of Symbol table header
  */
  
@@ -154,7 +153,6 @@ struct function_desc{
 
 struct param_desc{
 };
-
 union type_descriptions{
     struct tc_integer *integer;
     struct tc_real *real;
@@ -234,7 +232,7 @@ symbol *createSymbolType (char const *, type_class);
  struct function_desc *createFunctionDesc (GPtrArray *, symbol *);
  struct procedure_desc *createProcedureDesc (GPtrArray *);
  struct param_desc *createParamDesc ();
- struct type_desc *createTypeDesc (type_class, union type_descriptions);
+ struct type_desc *createTypeDesc (type_class);
  
 type_class getTypeClass (symbol *);
  
