@@ -10,6 +10,11 @@
 #include <glib.h>
 
 
+#define PI_VALUE 3.14159265358979
+#define MAX_INT_VALUE 2147483647
+#define FALSE_VALUE 0
+#define TRUE_VALUE !FALSE_VALUE
+
 #define MAX_LEVEL 14
 
 

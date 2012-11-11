@@ -301,7 +301,6 @@ symbol *createSymbolType (char const *identifier, type_class type) {
 
 struct const_desc *createConstDesc (union constant_values value) {
    struct const_desc *constDec = calloc (1, sizeof (struct const_desc));
-  //TODO: Does not actually assign value right now, need to change
    constDec->value = value;
    constDec->hasValue = 1;
    return constDec;
@@ -361,6 +360,7 @@ struct type_desc *createTypeDesc (type_class type) {
       typeDesc->desc.character = charDesc;
       break;
     }
+    //The other ones are not basic types, so don't need a type description
     case TC_CONST:
     {
 
@@ -415,10 +415,12 @@ symbol *createErrorSym(object_class objClass) {
 }
  
 /**
-Create a symbol with parameters: identifier, type symbol, object class oc,
+Create a symbol with parameters: identifier, 
+symbol type (what type the symbol is), object class oc,
 pointer * value
 */
-symbol *createSymbol (char const *identifier, symbol *type, object_class oc, void *value){
+symbol *createSymbol (char const *identifier, symbol *type, 
+object_class oc, void *value){
   
   /* Create a symbol with name, object class, type class*/
   
@@ -479,6 +481,15 @@ symbol *createSymbol (char const *identifier, symbol *type, object_class oc, voi
 }
  
  
+ 
+ 
+ 
+ /**
+  *
+  * Actions to take on the symbol table itself
+  *
+  */
+ 
 /**
  Our symbol table will need multiple levels, so we will
  need to add and remove levels as a new scope is defined
@@ -516,21 +527,27 @@ void init_table () {
   pushLevel();
   
   //Add all the builtins here
+  
+  /* Basic types */
   addSymbol("char", createSymbol("char", NULL, OC_TYPE, createTypeDesc(TC_CHAR)));
   addSymbol("boolean", createSymbol("boolean", NULL, OC_TYPE, createTypeDesc(TC_BOOLEAN)));
   addSymbol("integer", createSymbol("integer", NULL, OC_TYPE, createTypeDesc(TC_INTEGER)));
   addSymbol("real", createSymbol("real", NULL, OC_TYPE, createTypeDesc(TC_REAL)));
+  
+  
   /* Constants */
-  union constant_values trueval = { .boolean = 1 };
+  union constant_values trueval = { .boolean = TRUE_VALUE };
   addSymbol("true", createSymbol("true", NULL, OC_CONST, createConstDesc(trueval)));
-  union constant_values falseval = { .boolean = 0 };
+  union constant_values falseval = { .boolean = FALSE_VALUE };
   addSymbol("false", createSymbol("false", NULL, OC_CONST, createConstDesc(falseval)));
-  union constant_values maxintval = { .integer = 2294967295 };
+  union constant_values maxintval = { .integer = MAX_INT_VALUE };
   addSymbol("maxint", createSymbol("maxint", NULL, OC_CONST, createConstDesc(maxintval)));
-  union constant_values pival = { .real = 3.141592653 };
+  union constant_values pival = { .real = PI_VALUE };
   addSymbol("pi", createSymbol("pi", NULL, OC_CONST, createConstDesc(pival)));
 
   /* Param lists for built-ins */
+  
+  //TODO: Finish implementing all the different param descriptions here
   addSymbol("abs_param", createSymbol("abs_param", NULL, OC_PARAM, createParamDesc()));
   addSymbol("chr_param", createSymbol("chr_param", NULL, OC_PARAM, createParamDesc()));
   addSymbol("cos_param", createSymbol("cos_param", NULL, OC_PARAM, createParamDesc()));
@@ -547,6 +564,7 @@ void init_table () {
   
   /* Built-in functions */
   
+  //TODO: finish implementing all the different function descriptions here
   addSymbol("writeln", createSymbol("writeln", NULL, OC_FUNC, NULL)); 
   addSymbol("write", createSymbol("write", NULL, OC_FUNC, NULL));
   addSymbol("readln", createSymbol("readln", NULL, OC_FUNC, NULL));
@@ -567,6 +585,14 @@ void init_table () {
 
   
 }
+
+
+
+/**
+ *Symbol table memory management functions
+ */
+ 
+ 
 void free_symbol_table() {
   int numLevels = g_queue_get_length(symbol_table);
   
@@ -577,6 +603,8 @@ void free_symbol_table() {
   }
   g_queue_free (symbol_table);
 }
+
+
 /**
  * Called to create a new symbol table
  * int level variable is currently unused
