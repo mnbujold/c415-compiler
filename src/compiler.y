@@ -756,6 +756,7 @@ func_invok              : plist_finvok RIGHTPAREN
                         ;
 
 plist_finvok            : ID LEFTPAREN parm
+                        | WRITELN LEFTPAREN parm
                         | plist_finvok COMMA parm
                         ;
 
