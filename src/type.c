@@ -341,13 +341,12 @@ addNewProc(const char *id, GPtrArray *paramList) {
         
         symbol *type = createTypeSym(NULL, typeDesc);
         newProc = createSymbol(id, type, OC_PROC, createProcedureDesc(paramList));
-        
-        addSymbol(id, newProc);
     } else {
         symExistsError(id);
         newProc = createErrorSym(OC_PROC);
-        newProc->name = id;
+        newProc->name = id;        
     }
+    addSymbol(id, newProc);
     pushLevel();
     
     symbol *newParam;
@@ -365,11 +364,6 @@ addNewProc(const char *id, GPtrArray *paramList) {
         addSymbol(newParam->name, newParam);
     }
     
-    if (localLookup(newProc->name) == NULL) {
-        addSymbol(newProc->name, newProc);
-    } else {
-        symExistsError(newProc->name);
-    }
     return newProc;
 }
 
@@ -833,6 +827,10 @@ void callProc(const char *procname) {
     } else if (proc->desc.proc_attr->params->len != 0) {
         addTypeError ("too many parameters in procedure call");        
     }
+    
+//     for () {
+//     }
+    
 }
 
 void checkWriteln() {
