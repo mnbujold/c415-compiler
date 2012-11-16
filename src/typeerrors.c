@@ -119,6 +119,13 @@ missFuncRetError() {
 }
 
 void
+badProcArgError(int arg_num, char *proc_name) {
+    char errMsg[75 + strlen(proc_name)];
+    sprintf(errMsg, "argument %d of %s call has incompatible type.", arg_num, proc_name);
+    addTypeError(errMsg);
+}
+
+void
 symNotRecordError(const char *id) {
     char errMsg[50 + strlen(id)];
     sprintf(errMsg, "symbol '%s' not a record", id);

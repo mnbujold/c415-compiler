@@ -509,11 +509,11 @@ stat_assignment         : var ASSIGN expr
                         
 proc_invok              : plist_finvok RIGHTPAREN
                             {
-                                
+                                //callProc($?, $1);
                             }
                         | ID LEFTPAREN RIGHTPAREN
                             {
-                                callProc($1);
+                                callProc($1, NULL);
                             }
                         | WRITELN
                             {
@@ -758,6 +758,9 @@ func_invok              : plist_finvok RIGHTPAREN
 plist_finvok            : ID LEFTPAREN parm
                         | WRITELN LEFTPAREN parm
                         | plist_finvok COMMA parm
+                            {
+                                //addArgument($1, $3);
+                            }
                         ;
 
 parm                    : expr

@@ -820,17 +820,43 @@ getRecordField(symbol *record, const char *fieldName) {
     return createErrorSym(OC_VAR);
 }
 
-void callProc(const char *procname) {
+void callProc(const char *procname, GPtrArray *arguments) {
     symbol * proc = globalLookup(procname);
-    if (proc->oc != OC_PROC) {
-        addTypeError ("invalid procedure call");
-    } else if (proc->desc.proc_attr->params->len != 0) {
-        addTypeError ("too many parameters in procedure call");        
+    int numArgs;
+    
+    if (arguments == NULL) {
+        numArgs = 0;
+    } else {
+        numArgs = arguments->len;
     }
     
-//     for () {
-//     }
+    if (proc->oc != OC_PROC) {
+        addTypeError ("invalid procedure call");
+        return;
+    }
     
+    GPtrArray *params = proc->desc.proc_attr->params;
+    int numParams = params->len;
+    int minLen = numArgs;
+    
+    if (numParams > numArgs) {
+        addTypeError("too many parameters in procedure call");
+    } else if (numParams < numArgs) {
+        addTypeError("not enough parameters in procedure call");
+        minLen = numParams;
+    }
+    symbol *param;
+    symbol *arg;
+    int i;
+    
+    for (i = 0; i < minLen; i += 1) {
+        param = (symbol *) g_ptr_array_index(params, i);
+        arg = (symbol *) g_ptr_array_index(arguments, i);
+        
+        if (assignmentCompatibleSym(param, arg) != 1) {
+            badProcArgError(i + 1, procname);
+        }
+    }
 }
 
 void checkWriteln() {
