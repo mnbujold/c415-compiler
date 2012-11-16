@@ -162,6 +162,7 @@ struct function_desc{
 
 
 struct param_desc{
+    int varParam;
 };
 union type_descriptions{
     struct tc_integer *integer;
@@ -242,7 +243,7 @@ symbol *createSymbolType (char const *, type_class);
  struct var_desc *createVarDesc ();
  struct function_desc *createFunctionDesc (GPtrArray *, symbol *);
  struct procedure_desc *createProcedureDesc (GPtrArray *);
- struct param_desc *createParamDesc ();
+ struct param_desc *createParamDesc (int);
  struct type_desc *createTypeDesc (type_class);
  
 type_class getTypeClass (symbol *);

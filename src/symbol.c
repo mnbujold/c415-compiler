@@ -322,8 +322,9 @@ struct const_desc *createConstDesc (union constant_values value) {
   procDesc->params = params;
   return procDesc;
  }
- struct param_desc *createParamDesc () {
+ struct param_desc *createParamDesc (int varParam) {
   struct param_desc *paramDesc = calloc (1, sizeof (struct param_desc));
+  paramDesc->varParam = varParam;
   return paramDesc;
  }
 struct type_desc *createTypeDesc (type_class type) {
@@ -548,27 +549,27 @@ void init_table () {
   /* Param lists for built-ins */
   
   //TODO: Finish implementing all the different param descriptions here
-  addSymbol("abs_param", createSymbol("abs_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("chr_param", createSymbol("chr_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("cos_param", createSymbol("cos_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("exp_param", createSymbol("exp_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("ln_param", createSymbol("ln_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("odd_param", createSymbol("odd_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("ord_param", createSymbol("ord_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("pred_param", createSymbol("pred_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("round_param", createSymbol("round_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("sin_param", createSymbol("sin_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("sqr_param", createSymbol("sqr_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("sqrt_param", createSymbol("sqrt_param", NULL, OC_PARAM, createParamDesc()));
-  addSymbol("succ_param", createSymbol("succ_param", NULL, OC_PARAM, createParamDesc()));
+  addSymbol("abs_param", createSymbol("abs_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("chr_param", createSymbol("chr_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("cos_param", createSymbol("cos_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("exp_param", createSymbol("exp_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("ln_param", createSymbol("ln_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("odd_param", createSymbol("odd_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("ord_param", createSymbol("ord_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("pred_param", createSymbol("pred_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("round_param", createSymbol("round_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("sin_param", createSymbol("sin_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("sqr_param", createSymbol("sqr_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("sqrt_param", createSymbol("sqrt_param", NULL, OC_PARAM, createParamDesc(0)));
+  addSymbol("succ_param", createSymbol("succ_param", NULL, OC_PARAM, createParamDesc(0)));
   
   /* Built-in functions */
   
   //TODO: finish implementing all the different function descriptions here
-  addSymbol("writeln", createSymbol("writeln", NULL, OC_FUNC, NULL)); 
-  addSymbol("write", createSymbol("write", NULL, OC_FUNC, NULL));
-  addSymbol("readln", createSymbol("readln", NULL, OC_FUNC, NULL));
-  addSymbol("read", createSymbol("read", NULL, OC_FUNC, NULL));
+  addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
+  addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
+  addSymbol("readln", createSymbol("readln", NULL, OC_PROC, NULL));
+  addSymbol("read", createSymbol("read", NULL, OC_PROC, NULL));
   addSymbol("abs", createSymbol("abs", NULL, OC_FUNC, NULL));
   addSymbol("chr", createSymbol("chr", NULL, OC_FUNC, NULL));
   addSymbol("cos", createSymbol("cos", NULL, OC_FUNC, NULL));
