@@ -119,9 +119,17 @@ missFuncRetError() {
 }
 
 void
+missingVarParamError(int arg_num, char *proc_name) {
+    char errMsg[75 + strlen(proc_name)];
+    sprintf(errMsg, "var argument %d of %s call is not a variable", arg_num, proc_name);
+    addTypeError(errMsg);
+}
+
+
+void
 badProcArgError(int arg_num, char *proc_name) {
     char errMsg[75 + strlen(proc_name)];
-    sprintf(errMsg, "argument %d of %s call has incompatible type.", arg_num, proc_name);
+    sprintf(errMsg, "argument %d of %s call has incompatible type", arg_num, proc_name);
     addTypeError(errMsg);
 }
 

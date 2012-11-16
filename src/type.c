@@ -317,7 +317,7 @@ addNewConst(const char *id, symbol *result) {
 }
 
 symbol *
-addNewParam(const char *id, const char *typeId) {
+addNewParam(const char *id, const char *typeId, int varParam) {
     symbol *type = globalLookup(typeId);
     if (type == NULL) {
         typeNotDefinedError(typeId);
@@ -326,7 +326,7 @@ addNewParam(const char *id, const char *typeId) {
         symNotATypeError(typeId);
         type = createErrorType();
     }
-    return createSymbol(id, type, OC_PARAM, (void *) createParamDesc());
+    return createSymbol(id, type, OC_PARAM, (void *) createParamDesc(varParam));
 }
 
 symbol *
@@ -840,18 +840,28 @@ void callProc(const char *procname, GPtrArray *arguments) {
     int minLen = numArgs;
     
     if (numParams > numArgs) {
-        addTypeError("too many parameters in procedure call");
-    } else if (numParams < numArgs) {
         addTypeError("not enough parameters in procedure call");
+    } else if (numParams < numArgs) {
+        addTypeError("too many parameters in procedure call");
         minLen = numParams;
     }
     symbol *param;
     symbol *arg;
     int i;
     
+    printf("%s\n", procname);
+    
     for (i = 0; i < minLen; i += 1) {
         param = (symbol *) g_ptr_array_index(params, i);
         arg = (symbol *) g_ptr_array_index(arguments, i);
+        
+        printf("param %d has varParam=%d\n", i, param->desc.parm_attr->varParam);
+        printf("arg %d has object_class=%d\n", i, arg->oc);
+        
+        if (param->desc.parm_attr->varParam == 1
+         && arg->oc != OC_VAR) { // var parameter requires a call with a variable.
+            missingVarParamError(i + 1, procname);
+        }
         
         if (assignmentCompatibleSym(param, arg) != 1) {
             badProcArgError(i + 1, procname);

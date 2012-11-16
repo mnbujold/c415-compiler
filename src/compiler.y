@@ -46,7 +46,7 @@ int yywrap() {
     double real;
     symbol *symbol;
     GPtrArray *garray;
-    struct type_desc *anon_type; // can probably get rid of this ...
+    struct pf_invok *pf_invok;
 }
 
 /* Reserved word tokens */
@@ -93,6 +93,8 @@ int yywrap() {
 %type <symbol> proc_heading
 %type <garray> f_parm_decl f_parm_list
 %type <symbol> f_parm
+%type <pf_invok> plist_finvok
+%type <symbol> func_invok
 /*%type <symbol> const_decl
 %type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
 %type <symbol> field
@@ -467,11 +469,11 @@ f_parm_list             : f_parm
 
 f_parm                  : ID COLON ID
                             {
-                                $$ = addNewParam($1, $3);
+                                $$ = addNewParam($1, $3, 0);
                             }
                         | VAR ID COLON ID
                             {
-                                $$ = addNewParam($2, $4);
+                                $$ = addNewParam($2, $4, 1);
                             }
                         | error /* ERROR */
                             {
@@ -509,7 +511,7 @@ stat_assignment         : var ASSIGN expr
                         
 proc_invok              : plist_finvok RIGHTPAREN
                             {
-                                //callProc($?, $1);
+                                //callProc($1->id, $1->paramList);
                             }
                         | ID LEFTPAREN RIGHTPAREN
                             {
@@ -520,6 +522,9 @@ proc_invok              : plist_finvok RIGHTPAREN
                                 checkWriteln();
                             }
                         | WRITELN LEFTPAREN RIGHTPAREN
+                            {
+                                callProc("writeln", NULL);
+                            }
                         ;
 
 var                     : ID
@@ -752,14 +757,26 @@ unsigned_num            : INT_CONST
                         ;
 
 func_invok              : plist_finvok RIGHTPAREN
+                            {
+                                //$$ = callFunc($1->id, $1->paramList);
+                            }
                         | ID LEFTPAREN RIGHTPAREN
+                            {
+                                //$$ = callFunc($1, NULL);
+                            }
                         ;
 
 plist_finvok            : ID LEFTPAREN parm
+                            {
+                                //$$ = createArgList($1, $3);
+                            }
                         | WRITELN LEFTPAREN parm
+                            {
+                                //$$ = createArgList("writeln", $3);
+                            }
                         | plist_finvok COMMA parm
                             {
-                                //addArgument($1, $3);
+                                //$$ = addArgument($1, $3);
                             }
                         ;
 
