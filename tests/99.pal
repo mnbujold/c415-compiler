@@ -10,12 +10,15 @@ type bob = (enum1, enum2);
      clark = bob;
      enum0 = (e00, e01, e02);
      bool = boolean;
-     foo = array[1..10] of char;
+     athing = array[1..10] of char;
+     arec = record blah : integer end;
+     anotherrec = record blah : boolean; end;
 
 var joe : bob;
     text : clark;
-    bar : foo;
+    bar : athing;
     e11 : enum0;
+    aboolean : bool;
 
 procedure foo(joe : enum0; foo :enum0);
     type enum1 = (e00, e11, e02);
@@ -23,6 +26,9 @@ procedure foo(joe : enum0; foo :enum0);
     begin
     end;
     
+procedure test(var bob : clark; jim : boolean);
+    begin
+    end;
     
 function asdf(tool : bob) : bob;
 begin
@@ -37,5 +43,13 @@ begin
 end;
     
 begin
+
+test();
+test(enum1, true);
+test(text, aboolean);
+
+writeln;
+writeln();
+writeln(aNum, anotherbob);
 
 end.
