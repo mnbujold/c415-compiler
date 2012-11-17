@@ -93,6 +93,16 @@ void opNotBooleanError();
 void missFuncRetError();
 
 /**
+ * Adds a "var argument arg_num of proc_name call is not a variable" error.
+ */
+void missingVarParamError(int arg_num, char *proc_name);
+
+/**
+ * Adds an "argument arg_num of proc_name call has incompatible type" error.
+ */
+void badProcArgError(int arg_num, char *proc_name);
+
+/**
  * Adds a "symbol 'id' not a record" error.
  */
 void symNotRecordError(const char *id);

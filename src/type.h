@@ -9,6 +9,11 @@
 #include <glib.h>
 #include "symbol.h"
 
+struct pf_invok {
+        const char *id;
+        GPtrArray *paramList;
+};
+
 /**
  * Given two symbols (or type_descs) of type T1 and T2, respectively, returns 1
  * if any of the following are true:
@@ -82,7 +87,7 @@ symbol *addNewSymbol(const char *id, symbol *type, object_class objClass);
 symbol *addNewType(const char *id, symbol *type);
 symbol *addNewVar(const char *id, symbol *type);
 symbol *addNewConst(const char *id, symbol *result);
-symbol *addNewParam(const char *id, const char *typeId);
+symbol *addNewParam(const char *id, const char *typeId, int varParam);
 symbol *addNewProc(const char *id, GPtrArray *paramList);
 symbol *addNewFunc(const char *id, const char *typeId, GPtrArray *paramList);
 
