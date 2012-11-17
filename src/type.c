@@ -42,24 +42,38 @@ compatible(struct type_desc *type1, struct type_desc *type2) {
  * sym1 = sym2;
  */
 int
-assignmentCompatibleSym(symbol *sym1, symbol *sym2) {
-  
+assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
+    object_class sym1_oc = sym1->oc;
+    
+    if (sym1_oc != OC_VAR && sym1_oc != OC_PARAM) {
+        if (showErrors != 0) {
+            assignNotVarParamError();
+        }
+        return 0; // sym1 must be a variable or parameter
+    }    
+    
     type_class tcSym1 = getTypeClass (sym1);
     type_class tcSym2 = getTypeClass (sym2);
 
     if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
-       return arrayAssignmentCompatible (sym1, sym2);
+       return arrayAssignmentCompatible (sym1, sym2, showErrors);
       //return array assignment compatiblity
     } else if (tcSym1 == tcSym2) {
         if (sym1->symbol_type == sym2->symbol_type
          || sym1->symbol_type->desc.type_attr == sym2->symbol_type->desc.type_attr) {
             return 1;
         }
+        if (showErrors != 0) {
+            assignBadTypesError();
+        }
         return 0;
     } else if (tcSym1 == TC_REAL && tcSym2 == TC_INTEGER) {
       return 1;
     }
     //TODO: Subrange case: NOT IMPLEMENTED
+    if (showErrors != 0) {
+        assignBadTypesError();
+    }
     return 0;
 }
 
@@ -92,7 +106,8 @@ struct tc_array *getArrayDescription (symbol *sym) {
  * We do not check if they are arrays here
  */
 int
-arrayAssignmentCompatible(symbol *sym1, symbol *sym2) {
+arrayAssignmentCompatible(symbol *sym1, symbol *sym2, int showErrors) {
+    // TODO: need some error printing in here!
   
     struct tc_array *sym1ArrayDescription = getArrayDescription (sym1);
     struct tc_array *sym2ArrayDescription = getArrayDescription (sym2);
@@ -770,10 +785,10 @@ symbol *recordAccess (symbol *record, symbol *key) {
 
 
 void doVarAssignment (symbol *var, symbol *expr) {
-  if (var->oc != OC_VAR) {
-    assignmentError ();
-  }
-  if (assignmentCompatibleSym(var, expr) == 1) {
+//   if (var->oc != OC_VAR) {
+//     assignmentError ();
+//   }
+  if (assignmentCompatibleSym(var, expr, 1) == 1) {
     //What does it even mean to assign right now...
     //Point to the expression, as far as I can tell
     
@@ -785,7 +800,7 @@ void doVarAssignment (symbol *var, symbol *expr) {
     //var->desc.var_attr->expression = expr;
   } else {
     //They are not assignment compatible, give error
-    assignmentCompatibilityError();
+    // do nothing assignmentCompatibilityError();
   }
 }
 
@@ -863,7 +878,7 @@ void callProc(const char *procname, GPtrArray *arguments) {
             missingVarParamError(i + 1, procname);
         }
         
-        if (assignmentCompatibleSym(param, arg) != 1) {
+        if (assignmentCompatibleSym(param, arg, 0) != 1) {
             badProcArgError(i + 1, procname);
         }
     }
