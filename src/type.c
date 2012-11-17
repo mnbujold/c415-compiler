@@ -864,15 +864,10 @@ void callProc(const char *procname, GPtrArray *arguments) {
     symbol *arg;
     int i;
     
-    printf("%s\n", procname);
-    
     for (i = 0; i < minLen; i += 1) {
         param = (symbol *) g_ptr_array_index(params, i);
         arg = (symbol *) g_ptr_array_index(arguments, i);
-        
-        printf("param %d has varParam=%d\n", i, param->desc.parm_attr->varParam);
-        printf("arg %d has object_class=%d\n", i, arg->oc);
-        
+
         if (param->desc.parm_attr->varParam == 1
          && arg->oc != OC_VAR) { // var parameter requires a call with a variable.
             missingVarParamError(i + 1, procname);
@@ -882,6 +877,25 @@ void callProc(const char *procname, GPtrArray *arguments) {
             badProcArgError(i + 1, procname);
         }
     }
+}
+
+struct pf_invok *
+createArgList(const char *id, symbol *arg) {
+    GPtrArray *args = g_ptr_array_new();
+    g_ptr_array_add(args, arg);
+    
+    struct pf_invok *invok = calloc(1, sizeof(struct pf_invok));
+    invok->id = id;
+    invok->paramList = args;
+    
+    return invok;
+}
+
+struct pf_invok *
+addArgument(struct pf_invok *invok, symbol *arg) {
+    g_ptr_array_add(invok->paramList, arg);
+    
+    return invok;
 }
 
 void checkWriteln() {

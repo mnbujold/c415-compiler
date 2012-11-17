@@ -150,6 +150,16 @@ GPtrArray *addParam(GPtrArray *paramList, symbol *newParam) ;
  */
 void doVarAssignment (symbol *var, symbol *expr);
 
+/**
+ * Returns a new pf_invok with id and a new GPtrArray containing arg.
+ */
+struct pf_invok *createArgList(const char *id, symbol *arg);
+
+/**
+ * Returns invok with arg added.
+ */
+struct pf_invok *addArgument(struct pf_invok *invok, symbol *arg);
+
 symbol *createAnonymousVar(symbol *o1, symbol *o2);
 
 int isString (symbol *sym);

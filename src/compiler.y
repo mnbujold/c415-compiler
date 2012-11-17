@@ -511,7 +511,9 @@ stat_assignment         : var ASSIGN expr
                         
 proc_invok              : plist_finvok RIGHTPAREN
                             {
-                                //callProc($1->id, $1->paramList);
+                                if ($1 != NULL) {
+                                    callProc($1->id, $1->paramList);
+                                }
                             }
                         | ID LEFTPAREN RIGHTPAREN
                             {
@@ -768,15 +770,27 @@ func_invok              : plist_finvok RIGHTPAREN
 
 plist_finvok            : ID LEFTPAREN parm
                             {
-                                //$$ = createArgList($1, $3);
+                                if ($3 != NULL) {
+                                    $$ = createArgList($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | WRITELN LEFTPAREN parm
                             {
-                                //$$ = createArgList("writeln", $3);
+                                if ($3 != NULL) {
+                                    $$ = createArgList("writeln", $3);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | plist_finvok COMMA parm
                             {
-                                //$$ = addArgument($1, $3);
+                                if ($3 != NULL) {
+                                    $$ = addArgument($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         ;
 
