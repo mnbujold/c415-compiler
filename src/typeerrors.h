@@ -98,9 +98,29 @@ void missFuncRetError();
 void assignNotVarParamError();
 
 /**
+ * Adds a "cannot assign to a objectClass" error.
+ */
+void assignToError(const char *objectClass);
+
+/**
  * Adds a "target and source of assignment do not have matching types" error.
  */
 void assignBadTypesError();
+
+/**
+ * Adds a "cannot call 'procname' here since it is not a callable" error.
+ */
+void notCallableError(char *proc_name, const char *callable);
+
+/**
+ * Adds a "not enough arguments in callable call" error.
+ */
+void notEnoughParamsError(const char *callable);
+
+/**
+ * Adds a "too many arguments in callable call" error.
+ */
+void tooManyParamsError(const char *callable);
 
 /**
  * Adds a "var argument arg_num of 'proc_name' call is not a variable" error.

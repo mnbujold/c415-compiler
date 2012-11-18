@@ -172,6 +172,17 @@ symbol *recordAccess (symbol *record, symbol *key);
 char *getString (symbol *sym);
 symbol *getRecordField(symbol *record, const char *fieldName);
 
+/**
+ * Checks that arguments are compatible with a procname procedure call.
+ */
+void callProc(const char *procname, GPtrArray *arguments);
+
+/**
+ * Checks that arguments are compatible with a funcname function call and
+ * returns the type of the function call.
+ */
+symbol *callFunc(const char *funcname, GPtrArray *arguments);
+
 void checkWriteln() ;
 
 #endif

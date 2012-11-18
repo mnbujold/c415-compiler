@@ -124,8 +124,37 @@ assignNotVarParamError() {
 }
 
 void
+assignToError(const char *objectClass) {
+    char errMsg[25 + strlen(objectClass)];
+    sprintf(errMsg, "cannot assign to a %s", objectClass);
+    addTypeError(errMsg);
+}
+
+
+void
 assignBadTypesError() {
     addTypeError("target and source of assignment do not have matching types");
+}
+
+void
+notCallableError(char *proc_name, const char *callable) {
+    char errMsg[50 + strlen(proc_name) + strlen(callable)];
+    sprintf(errMsg, "cannot call '%s' here since it is not a %s", proc_name, callable);
+    addTypeError(errMsg);
+}
+
+void
+notEnoughParamsError(const char *callable) {
+    char errMsg[50 + strlen(callable)];
+    sprintf(errMsg, "not enough arguments in %s call", callable);
+    addTypeError(errMsg);
+}
+
+void
+tooManyParamsError(const char *callable) {
+    char errMsg[50 + strlen(callable)];
+    sprintf(errMsg, "too many arguments in %s call", callable);
+    addTypeError(errMsg);
 }
 
 void

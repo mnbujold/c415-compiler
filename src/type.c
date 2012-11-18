@@ -44,17 +44,31 @@ compatible(struct type_desc *type1, struct type_desc *type2) {
 int
 assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
     object_class sym1_oc = sym1->oc;
-    
+    object_class sym2_oc = sym2->oc;
+
     if (sym1_oc != OC_VAR && sym1_oc != OC_PARAM) {
         if (showErrors != 0) {
             assignNotVarParamError();
         }
+        
         return 0; // sym1 must be a variable or parameter
-    }    
+    }
     
-    type_class tcSym1 = getTypeClass (sym1);
-    type_class tcSym2 = getTypeClass (sym2);
+    if (sym2_oc == OC_TYPE) {
+        assignToError("type");
+        return 0;
+    } else if (sym2_oc == OC_PROC) {
+        assignToError("procedure");
+        return 0;
+    }
+    
+    type_class tcSym1 = getTypeClass(sym1);
+    type_class tcSym2 = getTypeClass(sym2);
 
+    if (tcSym1 == TC_ERROR || tcSym2 == TC_ERROR) {
+        return 1;
+    }
+    
     if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
        return arrayAssignmentCompatible (sym1, sym2, showErrors);
       //return array assignment compatiblity
@@ -87,8 +101,7 @@ struct tc_array *getArrayDescription (symbol *sym) {
     while (tempSymbol != NULL){
         DEBUG_PRINT (("temp SYmbol address: %p\n", tempSymbol));
         DEBUG_PRINT (("temp symbol oc: %d\n", tempSymbol->oc));
-    //printf ("Symbol name: %s\n", tempSymbol->name);
-    //printf ("Object class: %d\n", tempSymbol->oc);
+
     if (tempSymbol->oc == OC_TYPE) {
         DEBUG_PRINT(("type description: %p\n", tempSymbol->desc.type_attr));
         DEBUG_PRINT (("Type class: %d\n", getTypeClass (tempSymbol)));
@@ -791,7 +804,7 @@ void doVarAssignment (symbol *var, symbol *expr) {
   if (assignmentCompatibleSym(var, expr, 1) == 1) {
     //What does it even mean to assign right now...
     //Point to the expression, as far as I can tell
-    
+
     symbol *varLookup = globalLookup(var->name);
     
     if (varLookup != NULL && varLookup->oc == OC_FUNC) {
@@ -835,9 +848,38 @@ getRecordField(symbol *record, const char *fieldName) {
     return createErrorSym(OC_VAR);
 }
 
-void callProc(const char *procname, GPtrArray *arguments) {
-    symbol * proc = globalLookup(procname);
+void
+callProc(const char *procname, GPtrArray *arguments) {
+    checkCallAndArgs(procname, arguments, OC_PROC, "procedure");
+}
+
+symbol *
+callFunc(const char *funcname, GPtrArray *arguments) {
+    int goodCall = checkCallAndArgs(funcname, arguments, OC_FUNC, "function");
+    
+    if (goodCall == 0) {
+        return createErrorSym(OC_FUNC);
+    }
+    
+    return globalLookup(funcname);
+}
+
+/**
+ * Checks arguments for functions and procedures.
+ */
+int
+checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
+                 const char *callable) {
+    symbol *proc = globalLookup(procname);
     int numArgs;
+    
+    if (proc == NULL) {
+        symNotDefinedError(procname);
+        return 0;
+    } else if (proc->oc != oc) {
+        notCallableError(procname, callable);
+        return 0;
+    }
     
     if (arguments == NULL) {
         numArgs = 0;
@@ -845,20 +887,23 @@ void callProc(const char *procname, GPtrArray *arguments) {
         numArgs = arguments->len;
     }
     
-    if (proc->oc != OC_PROC) {
-        addTypeError ("invalid procedure call");
-        return;
+    GPtrArray *params;
+    if (oc == OC_PROC) {
+        params = proc->desc.proc_attr->params;
+    } else {
+        params = proc->desc.func_attr->params;
     }
-    
-    GPtrArray *params = proc->desc.proc_attr->params;
     int numParams = params->len;
     int minLen = numArgs;
+    int goodCall = 1;
     
     if (numParams > numArgs) {
-        addTypeError("not enough parameters in procedure call");
+        notEnoughParamsError(callable);
+        goodCall = 0;
     } else if (numParams < numArgs) {
-        addTypeError("too many parameters in procedure call");
+        tooManyParamsError(callable);
         minLen = numParams;
+        goodCall = 0;
     }
     symbol *param;
     symbol *arg;
@@ -867,16 +912,19 @@ void callProc(const char *procname, GPtrArray *arguments) {
     for (i = 0; i < minLen; i += 1) {
         param = (symbol *) g_ptr_array_index(params, i);
         arg = (symbol *) g_ptr_array_index(arguments, i);
-
-        if (param->desc.parm_attr->varParam == 1
-         && arg->oc != OC_VAR) { // var parameter requires a call with a variable.
+        
+        if (param->desc.parm_attr->varParam == 1 && arg->oc != OC_VAR) {
             missingVarParamError(i + 1, procname);
+            goodCall = 0;
         }
         
         if (assignmentCompatibleSym(param, arg, 0) != 1) {
             badProcArgError(i + 1, procname);
+            goodCall = 0;
         }
     }
+    
+    return goodCall;
 }
 
 struct pf_invok *
