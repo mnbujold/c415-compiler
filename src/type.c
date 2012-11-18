@@ -838,7 +838,7 @@ getRecordField(symbol *record, const char *fieldName) {
 void callProc(const char *procname, GPtrArray *arguments) {
     symbol * proc = globalLookup(procname);
     int numArgs;
-    
+    //printf ("Have looked up in callproc, working");
     if (arguments == NULL) {
         numArgs = 0;
     } else {
@@ -849,11 +849,12 @@ void callProc(const char *procname, GPtrArray *arguments) {
         addTypeError ("invalid procedure call");
         return;
     }
-    
+    printf ("1\n");
     GPtrArray *params = proc->desc.proc_attr->params;
+    printf ("Danger!");
     int numParams = params->len;
     int minLen = numArgs;
-    
+    printf ("2\n");
     if (numParams > numArgs) {
         addTypeError("not enough parameters in procedure call");
     } else if (numParams < numArgs) {
@@ -863,6 +864,7 @@ void callProc(const char *procname, GPtrArray *arguments) {
     symbol *param;
     symbol *arg;
     int i;
+
     
     for (i = 0; i < minLen; i += 1) {
         param = (symbol *) g_ptr_array_index(params, i);
@@ -899,9 +901,11 @@ addArgument(struct pf_invok *invok, symbol *arg) {
 }
 
 void checkWriteln() {
+    //printf ("In check writeln");
     if (globalLookup("writeln") != topLevelLookup("writeln")) {
         addTypeError ("invalid procedure call");
     }
+    //printf ("Leaving check writeln");
 }
 
 //TODO: Should not need this for checkpoint 2...

@@ -174,4 +174,6 @@ symbol *getRecordField(symbol *record, const char *fieldName);
 
 void checkWriteln() ;
 
+void callProc(const char *procname, GPtrArray *arguments);
+
 #endif

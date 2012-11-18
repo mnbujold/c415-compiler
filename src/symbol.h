@@ -162,7 +162,7 @@ struct function_desc{
 
 
 struct param_desc{
-    int varParam;
+    int varParam; //is this a var parameter?
 };
 union type_descriptions{
     struct tc_integer *integer;
