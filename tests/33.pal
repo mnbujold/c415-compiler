@@ -1,0 +1,44 @@
+{
+  Tests builtin functions
+    3.pal
+    Tests invalid scalar assignments and expressions.
+    Errors:
+    22:3 illegal assignment of real to integer
+    26:3 illegal assignment of real to integer
+    36:9 incompatible enumerated type operand for multiplication
+}
+
+program bobsyouruncle(doesthis, work);
+
+type willCauseError = (lol0);
+
+var x : real;
+    i : integer;
+    e : willCauseError;
+
+begin
+writeln;
+writeln ();
+
+x := 1; // Legal.
+
+i := x; { $ERR_DATA$ [3, "illegal assignment of real to integer", ["illegal integer assignment"]] $ERR_DATA$ }
+
+x := 1.0;
+
+i := x; { $ERR_DATA$ [3, "illegal assignment of real to integer", ["illegal integer assignment"]] $ERR_DATA$ }
+
+i := 2;
+
+i := abs (1.0);
+
+x := i; // Legal.
+
+i := i - 3;
+
+x := (x * i + 34) / 1.2; // Legal.
+
+if (1 = 1 * e) then { $ERR_DATA$ [9, "incompatible enumerated type operand for multiplication", ["illegal arithemtic operand for multiplication (willCauseError type)"]] $ERR_DATA$ }
+    writeln('This is not legal!');
+
+end.
