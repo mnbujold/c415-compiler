@@ -242,11 +242,11 @@ stringToArray(const char *string) {
 }
 
 symbol *
-createErrorType() {
+createErrorType(const char *name) {
     struct type_desc *errorType = calloc(1, sizeof(struct type_desc));
     errorType->type = TC_ERROR;
     
-    return createTypeSym(NULL, errorType);
+    return createTypeSym(name, errorType);
 }
 
 symbol *
@@ -275,7 +275,7 @@ addNewSymbol(const char *id, symbol *type, object_class objClass) {
         symbol *newSym;
         if (type == NULL) {
             typeNotDefinedError(id);
-            type = createErrorType();
+            type = createErrorType(NULL);
         } else if (globalLookup(type->name) != NULL) { // A named type.
             addSymbol(type->name, type);
         }
@@ -293,7 +293,7 @@ addNewType(const char *id, symbol *type) {
     if (localLookup(id) == NULL) {
         if (type == NULL) {
             typeNotDefinedError(id);
-            type = createErrorType();
+            type = createErrorType(NULL);
         } else if (globalLookup(type->name) != NULL) { // A named type.
             addSymbol(id, type);
             
@@ -317,7 +317,7 @@ addNewVar(const char *id, symbol *type) {
     if (localLookup(id) == NULL) {
         if (type == NULL) {
             typeNotDefinedError(id);
-            type = createErrorType();
+            type = createErrorType(NULL);
         } else if (localLookup(type->name) == NULL
                 && globalLookup(type->name) != NULL) { // A named type. Need to bring into local scope.
             addSymbol(type->name, type);
@@ -347,10 +347,10 @@ addNewParam(const char *id, const char *typeId, int varParam) {
     symbol *type = globalLookup(typeId);
     if (type == NULL) {
         typeNotDefinedError(typeId);
-        type = createErrorType();
+        type = createErrorType(typeId);
     } else if (type->oc != OC_TYPE) {
         symNotATypeError(typeId);
-        type = createErrorType();
+        type = createErrorType(typeId);
     }
     return createSymbol(id, type, OC_PARAM, (void *) createParamDesc(varParam));
 }
@@ -384,7 +384,8 @@ addNewProc(const char *id, GPtrArray *paramList) {
         newParam = (symbol *) g_ptr_array_index(paramList, i);
         paramType = newParam->symbol_type;
         
-        if (paramType->desc.type_attr->type != TC_ERROR) {
+        if (paramType->desc.type_attr->type != TC_ERROR
+         && localLookup(paramType->name) != NULL) {
             addSymbol(paramType->name, paramType);
         }
         addSymbol(newParam->name, newParam);
@@ -402,7 +403,7 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
     if (localLookup(id) == NULL) {
         if (returnType == NULL) {
             typeNotDefinedError(typeId);
-            returnType = createErrorType();
+            returnType = createErrorType(typeId);
         }
         newFunc = createSymbol(id, returnType, OC_FUNC,
                                createFunctionDesc(paramList, returnType));
@@ -424,7 +425,8 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         newParam = (symbol *) g_ptr_array_index(paramList, i);
         paramType = newParam->symbol_type;
         
-        if (paramType->desc.type_attr->type != TC_ERROR) {
+        if (paramType->desc.type_attr->type != TC_ERROR
+         && localLookup(paramType->name) != NULL) {
             addSymbol(paramType->name, paramType);
         }
         addSymbol(newParam->name, newParam);
@@ -470,8 +472,11 @@ getType(const char *id) {
     
     if (typeSymbol == NULL) {
         symNotDefinedError(id);
-        return createErrorType();
-      //TODO: error no symbol for this
+        typeSymbol = createErrorType(id);
+        
+        addSymbol(id, typeSymbol);
+        
+        return typeSymbol;
     }
     if (OC_TYPE == typeSymbol->oc) {
       DEBUG_PRINT(("is an oc type\n"));
@@ -479,9 +484,11 @@ getType(const char *id) {
       return typeSymbol;
     } else {
         symNotDefinedError(id);
-      //TODO: error abot it not being a type class
-      //O no. what to do here?
-      return createErrorType();
+        typeSymbol = createErrorType(id);
+        
+        addSymbol(id, typeSymbol);
+
+        return typeSymbol;
     }
 }
 
@@ -493,15 +500,7 @@ createScalarList(GPtrArray *nameList) {
     struct type_desc *scalarListType = calloc(1, sizeof(struct type_desc));
     scalarListType->type = TC_SCALAR;
     
-    symbol *scalarType = createTypeSym(NULL, scalarListType);
-    
-//     struct tc_const *constTypeClass = calloc(1, sizeof(struct tc_const));
-//     constTypeClass->len = listSize;
-//     struct type_desc *constType = calloc(1, sizeof(struct type_desc));
-//     constType->type = TC_CONST;
-//     constType->desc.enumeration = constTypeClass;
-//     symbol *typeSym = createTypeSym(NULL, constType);
-    
+    symbol *scalarType = createTypeSym(NULL, scalarListType);    
     symbol *scalar;
     int i, tmp;
     
@@ -565,7 +564,7 @@ createArray(symbol *indexType, symbol *objType) {
 
     if (indexClass != TC_SUBRANGE) {
         arrayIndexTypeError();
-        return createErrorType();
+        return createErrorType(NULL);
     }
     struct tc_subrange *subrange = indexType->desc.type_attr->desc.subrange;
     size = subrange->high - subrange->low + 1;
@@ -585,24 +584,25 @@ createArray(symbol *indexType, symbol *objType) {
 symbol *
 createArrayIndex(symbol *low, symbol *high) {
     object_class highClass = high->oc;
-    
+
     if (highClass == OC_CONST) {
         if (low == NULL) {
             arrayMissLowerError();
-            return createErrorType();
+            return createErrorType(NULL);
         }
         object_class lowClass = low->oc;
         
         if (lowClass != OC_CONST) {
             arrayLowerNotConstError();
-            return createErrorType();
+            return createErrorType(NULL);
         }
         symbol *highType = high->symbol_type;
         symbol *lowType = low->symbol_type;
         
-        if (lowType != highType) {
+        if (lowType != highType
+         && lowType->desc.type_attr != highType->desc.type_attr) {
             arrayBoundTypeError();
-            return createErrorType();            
+            return createErrorType(NULL);  
         }
         type_class typeClass = lowType->desc.type_attr->type;
         int highValue;
@@ -617,17 +617,17 @@ createArrayIndex(symbol *low, symbol *high) {
         } else if (typeClass == TC_CHAR) {
             highValue = high->desc.const_attr->value.character;
             lowValue = low->desc.const_attr->value.character;
-        } else if (typeClass == TC_CONST) {
+        } else if (typeClass == TC_SCALAR) {
             highValue = high->desc.const_attr->value.integer;
             lowValue = low->desc.const_attr->value.integer;
         } else {
             arrayBoundInvalidError();
-            return createErrorType();
+            return createErrorType(NULL);
         }   
         
         if (lowValue > highValue) {
             lowerGreaterThanUpperError();
-            return createErrorType();  
+            return createErrorType(NULL);  
         }
         struct tc_subrange *subrange = calloc(1, sizeof(struct tc_subrange));
         subrange->low = lowValue;
@@ -645,14 +645,14 @@ createArrayIndex(symbol *low, symbol *high) {
         int correct = (type == TC_INTEGER || type == TC_CHAR || type == TC_SCALAR);
         int lowValue;
         int highValue;
-        
+
         if (type == TC_INTEGER){
             int maxInt = topLevelLookup("maxint")->desc.const_attr->value.integer;
             lowValue = (-1) * maxInt;
             highValue = maxInt;
         } else if (type == TC_CHAR) {
             lowValue = 0;
-            highValue = 256; // 2^8 = maximum char value;
+            highValue = 256; // 2^8 = maximum char value
         } else if (type == TC_SCALAR) {
             GPtrArray *list = high->desc.type_attr->desc.scalar->const_list;
             lowValue = ((symbol *) g_ptr_array_index(list, 0))->desc.const_attr->value.integer;
@@ -669,11 +669,12 @@ createArrayIndex(symbol *low, symbol *high) {
             struct type_desc *subrangeType = calloc(1, sizeof(struct type_desc));
             subrangeType->type = TC_SUBRANGE;
             subrangeType->desc.subrange = subrange;
-            return high;
+            
+            return createTypeSym(NULL, subrangeType);
         }
     }
     arrayIndexTypeError();
-    return createErrorType();
+    return createErrorType(NULL);
 }
 
 symbol *
@@ -740,13 +741,13 @@ addParam(GPtrArray *paramList, symbol *newParam) {
 symbol *arrayAccessWithIndex (symbol *array, symbol *index) {
   //printf ("Within array access\n");
   if (getTypeClass (array) != TC_ARRAY) {
-    addTypeError ("Trying to access something that is not an array");
-    return createErrorType();
+      symNotArrayError(array->name);
+    return createErrorType(NULL);
   }
   //check if index is the right indexing type
   struct tc_array *arrayDescription = array->desc.type_attr->desc.array;
   if (!(index->symbol_type  == arrayDescription->index_type)) {
-    return createErrorType ();
+    return createErrorType (NULL);
   }
   
   //check if it is within bounds for constant
@@ -760,7 +761,7 @@ symbol *arrayAccessWithIndex (symbol *array, symbol *index) {
     }
     else {
       //arrayOutOfBoundsError (); 
-      return createErrorType();
+      return createErrorType(NULL);
     }
   }
   
@@ -773,7 +774,7 @@ symbol *recordAccess (symbol *record, symbol *key) {
   //check that record is a record
   if (getTypeClass (record) != TC_RECORD) {
     addTypeError ("Trying to access something that is not a record");
-    return createErrorType();
+    return createErrorType(NULL);
 
   }
   GPtrArray *fieldList = record->desc.type_attr->desc.record->field_list;
@@ -789,7 +790,7 @@ symbol *recordAccess (symbol *record, symbol *key) {
     i++;
   }
   //otherwise not in here, return error
-  return createErrorType();
+  return createErrorType(NULL);
   
   
 }
@@ -873,6 +874,9 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
  
     if (proc == NULL) {
         symNotDefinedError(procname);
+
+        addSymbol(procname, createErrorType(procname));
+
         return 0;
     } else if (proc->oc != oc) {
         notCallableError(procname, callable);

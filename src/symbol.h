@@ -25,20 +25,18 @@
 #define TC_REAL 1
 #define TC_BOOLEAN 2
 #define TC_CHAR 3
-#define TC_CONST 4
-#define TC_STRING 5
-#define TC_SCALAR 6
-#define TC_ARRAY 7
-#define TC_RECORD 8
-#define TC_SUBRANGE 9
-#define TC_ERROR 10
+#define TC_STRING 4
+#define TC_SCALAR 5
+#define TC_ARRAY 6
+#define TC_RECORD 7
+#define TC_SUBRANGE 8
+#define TC_ERROR 9
 */
 enum type_class {
   TC_INTEGER,
   TC_REAL,
   TC_BOOLEAN,
   TC_CHAR,
-  TC_CONST,
   TC_STRING,
   TC_SCALAR,
   TC_ARRAY,
@@ -91,10 +89,6 @@ struct tc_char{
   int len;
 };
 struct tc_boolean{
-  int len;
-};
-struct tc_const{
-  /* individual enumeration constant */
   int len;
 };
 struct tc_string{

@@ -137,4 +137,9 @@ void badProcArgError(int arg_num, char *proc_name);
  */
 void symNotRecordError(const char *id);
 
+/**
+ * Adds a "symbol 'id' not an array" error.
+ */
+void symNotArrayError(const char *id);
+
 #endif

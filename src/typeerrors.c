@@ -180,7 +180,14 @@ badProcArgError(int arg_num, char *proc_name) {
 
 void
 symNotRecordError(const char *id) {
-    char errMsg[50 + strlen(id)];
+    char errMsg[25 + strlen(id)];
     sprintf(errMsg, "symbol '%s' not a record", id);
+    addTypeError(errMsg);
+}
+
+void
+symNotArrayError(const char *id) {
+    char errMsg[25 + strlen(id)];
+    sprintf(errMsg, "symbol '%s' not an array", id);
     addTypeError(errMsg);
 }

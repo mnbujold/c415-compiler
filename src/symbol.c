@@ -362,11 +362,6 @@ struct type_desc *createTypeDesc (type_class type) {
       break;
     }
     //The other ones are not basic types, so don't need a type description
-    case TC_CONST:
-    {
-
-      break;
-    }
     case TC_STRING:
     
       break;

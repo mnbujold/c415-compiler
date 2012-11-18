@@ -86,7 +86,7 @@ int yywrap() {
 %type <symbol> type 
 %type <symbol> structured_type closed_array_type array_type
 %type <symbol> simple_type
-%type <garray> scalar_type scalar_list field_list
+%type <garray> scalar_type scalar_list field_list 
 %type <symbol> field
 %type <symbol> var_decl
 %type <symbol> var subscripted_var parm
@@ -290,10 +290,11 @@ closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                             }
                         ;
 
-array_type              : expr
+array_type              : ID // Might need simple_type here, but gives a reduce/reduce error because of parantheses
                             {
-                                if ($1 != NULL) {
-                                    $$ = createArrayIndex(NULL, $1);
+                                symbol *type = getType($1);
+                                if (type != NULL) {
+                                    $$ = createArrayIndex(NULL, type);
                                 } else {
                                     $$ = NULL;
                                 }
@@ -307,7 +308,8 @@ array_type              : expr
                                 }
                             }
                         ;
-
+                     
+                        
 field_list              : field
                             {
                                 DEBUG_PRINT(("Inside field list"));
@@ -400,6 +402,7 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                     $$ = addNewProc($2, $3);
                                 } else {
                                     $$ = NULL;
+                                    pushLevel();
                                 }
                             }
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
@@ -408,6 +411,7 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                     $$ = addNewFunc($2, $5, $3);
                                 } else {
                                     $$ = NULL;
+                                    pushLevel();
                                 }
                             }
                         | PROCEDURE error SEMICOLON /* ERROR */
