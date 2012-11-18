@@ -68,7 +68,7 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
     if (tcSym1 == TC_ERROR || tcSym2 == TC_ERROR) {
         return 1;
     }
-    
+
     if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
        return arrayAssignmentCompatible (sym1, sym2, showErrors);
       //return array assignment compatiblity
@@ -224,8 +224,6 @@ createConstant(type_class type, union constant_values value) {
     } else {
         constSym->symbol_type = NULL; // You asked for it. Well, not really, but I'm lazy.
     }
-    
-    
     
     return constSym;
 }

@@ -742,8 +742,14 @@ unsigned_const          : unsigned_num
                             }
                         | STRING
                             {
-                                union constant_values value = { .string = $1 };
-                                $$ = createConstant(TC_STRING, value);
+                                if (strlen($1) == 1) {
+                                    union constant_values value = { .character = $1[0] };
+                                     $$ = createConstant(TC_CHAR, value);
+                                } else {
+                                    union constant_values value = { .string = $1 };
+                                    $$ = createConstant(TC_STRING, value);
+                                }
+                                
                             }
                         ;
 
@@ -761,7 +767,11 @@ unsigned_num            : INT_CONST
 
 func_invok              : plist_finvok RIGHTPAREN
                             {
-                                $$ = callFunc($1->id, $1->paramList);
+                                if ($1 != NULL) {
+                                    $$ = callFunc($1->id, $1->paramList);
+                                } else {
+                                    $$ = NULL;
+                                }
                             }
                         | ID LEFTPAREN RIGHTPAREN
                             {
