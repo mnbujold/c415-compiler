@@ -433,6 +433,8 @@ object_class oc, void *value){
     newSymbol->symbol_type = type;
 
     if (value == NULL) {
+    //TODO: Should there ever be a time where
+    // the description of a symbol is null?
       //do nothing
     }
     else {
@@ -566,8 +568,16 @@ void init_table () {
   /* Built-in functions */
   
   //TODO: finish implementing all the different function descriptions here
-  addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
+  
+  /* Procedures */
+  GPtrArray *writelnParams = addParam (NULL, NULL);
+  addNewProc ("writeln", writelnParams);
+  //addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
   addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
+  
+  
+  
+  /* Functions */
   addSymbol("readln", createSymbol("readln", NULL, OC_PROC, NULL));
   addSymbol("read", createSymbol("read", NULL, OC_PROC, NULL));
   addSymbol("abs", createSymbol("abs", NULL, OC_FUNC, NULL));

@@ -523,7 +523,8 @@ proc_invok              : plist_finvok RIGHTPAREN
                             }
                         | WRITELN LEFTPAREN RIGHTPAREN
                             {
-                                callProc("writeln", NULL);
+                                //Can't use callproc, since writeln is special
+                                //callProc("writeln", NULL);
                             }
                         ;
 

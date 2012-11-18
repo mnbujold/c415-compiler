@@ -872,7 +872,7 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
                  const char *callable) {
     symbol *proc = globalLookup(procname);
     int numArgs;
-    
+ 
     if (proc == NULL) {
         symNotDefinedError(procname);
         return 0;
@@ -880,7 +880,7 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
         notCallableError(procname, callable);
         return 0;
     }
-    
+
     if (arguments == NULL) {
         numArgs = 0;
     } else {
@@ -896,7 +896,7 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
     int numParams = params->len;
     int minLen = numArgs;
     int goodCall = 1;
-    
+
     if (numParams > numArgs) {
         notEnoughParamsError(callable);
         goodCall = 0;
@@ -947,9 +947,11 @@ addArgument(struct pf_invok *invok, symbol *arg) {
 }
 
 void checkWriteln() {
+    //printf ("In check writeln");
     if (globalLookup("writeln") != topLevelLookup("writeln")) {
         addTypeError ("invalid procedure call");
     }
+    //printf ("Leaving check writeln");
 }
 
 //TODO: Should not need this for checkpoint 2...

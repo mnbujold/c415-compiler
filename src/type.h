@@ -185,4 +185,6 @@ symbol *callFunc(const char *funcname, GPtrArray *arguments);
 
 void checkWriteln() ;
 
+void callProc(const char *procname, GPtrArray *arguments);
+
 #endif
