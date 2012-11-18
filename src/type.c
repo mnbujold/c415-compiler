@@ -578,6 +578,10 @@ createArray(symbol *indexType, symbol *objType) {
     int indexClass = indexType->desc.type_attr->type;
     int size = 0;
 
+    if (indexClass == TC_ERROR) {
+        return createErrorType(NULL);
+    }
+    
     if (indexClass != TC_SUBRANGE) {
         arrayIndexTypeError();
         return createErrorType(NULL);
