@@ -58,7 +58,7 @@ symbol *inversion (symbol *op)  {
       }
     }
     else {
-      //return thing
+      return op;
     }
     
   }
