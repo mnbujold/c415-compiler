@@ -47,8 +47,17 @@ begin
 
 test();
 test(enum1, true);
+test(text, enum0);
+test(text, e11);
 test(text, aboolean);
+joe := test(text, aboolean);
 test(text, aboolean, joe);
+
+joe := asdf();
+joe := asdf(joe);
+bar := asdf(joe);
+joe := asdf(e11);
+joe := asdf(joe, e11);
 
 writeln;
 writeln();

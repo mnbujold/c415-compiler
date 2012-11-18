@@ -382,7 +382,6 @@ proc_decl_list          : proc_decl
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
                             {
-/*                                 showAllSymbols(); */
                                 if ($1 != NULL) {
                                     checkFuncValSet($1);
                                 }
@@ -390,7 +389,6 @@ proc_decl               : proc_heading decls compound_stat SEMICOLON
                             }
                         | error SEMICOLON /* ERROR */
                             {
-/*                                 showAllSymbols(); */
                                 popLevel();
                             }
                         ;
@@ -730,7 +728,7 @@ factor                  : var
                             }
                         | func_invok
                             {
-                                // Have to finish this ...
+                                $$ = $1;
                             }
                         | NOT factor
                             {
@@ -763,11 +761,11 @@ unsigned_num            : INT_CONST
 
 func_invok              : plist_finvok RIGHTPAREN
                             {
-                                //$$ = callFunc($1->id, $1->paramList);
+                                $$ = callFunc($1->id, $1->paramList);
                             }
                         | ID LEFTPAREN RIGHTPAREN
                             {
-                                //$$ = callFunc($1, NULL);
+                                $$ = callFunc($1, NULL);
                             }
                         ;
 
