@@ -129,7 +129,7 @@ if (yytext != NULL) {
 ".."				{ return DOUBLEPERIOD;}
 
  /* comments, newlines, etc. */
-[\n\r]                      	{ DB_PRINT("CR\n"); 
+[\n\r]|(\r\n)                      	{ DB_PRINT("CR\n"); 
                                   lineno++;
                                   if (prog_listing) {
                                      fprintf(listing_file, "%s \n", errortext);
@@ -137,7 +137,7 @@ if (yytext != NULL) {
                                   }
                                   last_column=1;
                                   updateError(); 
-				}
+                                }
 [ \t]                           { 
                                   errortext = appendErrorText(errortext, yytext, &errorTextLength);
                                   last_column += strlen (yytext);
