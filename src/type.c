@@ -662,14 +662,17 @@ createArrayIndex(symbol *low, symbol *high) {
         return createTypeSym(NULL, subrangeType);        
     } else if (low == NULL && highClass == OC_TYPE) {
         type_class type = high->desc.type_attr->type;
-        int correct = (type == TC_INTEGER || type == TC_CHAR || type == TC_SCALAR);
+        int correct = (type == TC_INTEGER || type == TC_BOOLEAN || type == TC_CHAR || type == TC_SCALAR);
         int lowValue;
         int highValue;
-
+        
         if (type == TC_INTEGER){
             int maxInt = topLevelLookup("maxint")->desc.const_attr->value.integer;
             lowValue = (-1) * maxInt;
             highValue = maxInt;
+        } else if (type == TC_BOOLEAN) {
+            lowValue = 0;
+            highValue = 1;
         } else if (type == TC_CHAR) {
             lowValue = 0;
             highValue = 256; // 2^8 = maximum char value
