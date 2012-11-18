@@ -358,11 +358,16 @@ addNewParam(const char *id, const char *typeId, int varParam) {
 symbol *
 addNewProc(const char *id, GPtrArray *paramList) {
     symbol *newProc;
+    int badDefn = paramList == NULL;
     
     if (localLookup(id) == NULL) {
         struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
         struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
-        typeDesc->type = TC_NONE;
+        if (badDefn == 1) {
+            typeDesc->type = TC_ERROR;
+        } else {
+            typeDesc->type = TC_NONE;
+        }
         typeDesc->desc.none = noneType;
         
         symbol *type = createTypeSym(NULL, typeDesc);
@@ -374,6 +379,10 @@ addNewProc(const char *id, GPtrArray *paramList) {
     }
     addSymbol(id, newProc);
     pushLevel();
+    
+    if (badDefn == 1) {
+        return newProc;
+    }
     
     symbol *newParam;
     symbol *paramType;
@@ -399,9 +408,12 @@ symbol *
 addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
     symbol *newFunc;
     symbol *returnType = globalLookup(typeId);
+    int badDefn = paramList == NULL;
     
     if (localLookup(id) == NULL) {
-        if (returnType == NULL) {
+        if (badDefn == 1) {
+            returnType = createErrorType(NULL);
+        } else if (returnType == NULL) {
             typeNotDefinedError(typeId);
             returnType = createErrorType(typeId);
         }
@@ -415,6 +427,10 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         newFunc->name = id;
     }
     pushLevel();
+    
+    if (badDefn == 1) {
+        return newFunc;
+    }
     
     symbol *newParam;
     symbol *paramType;
@@ -883,6 +899,10 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
         return 0;
     }
 
+    if (getTypeClass(proc) == TC_ERROR) {
+        return 0;
+    }
+    
     if (arguments == NULL) {
         numArgs = 0;
     } else {

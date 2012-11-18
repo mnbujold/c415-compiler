@@ -402,6 +402,7 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                     $$ = addNewProc($2, $3);
                                 } else {
                                     $$ = NULL;
+                                    addNewProc($2, NULL);
                                     pushLevel();
                                 }
                             }
@@ -411,8 +412,21 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                     $$ = addNewFunc($2, $5, $3);
                                 } else {
                                     $$ = NULL;
+                                    addNewFunc($2, NULL, NULL);
                                     pushLevel();
                                 }
+                            }
+                        | PROCEDURE ID error SEMICOLON /* ERROR */
+                            {
+                                $$ = NULL;
+                                addNewProc($2, NULL);
+                                pushLevel();
+                            }
+                        | FUNCTION ID error SEMICOLON /* ERROR */
+                            {
+                                $$ = NULL;
+                                addNewFunc($2, NULL, NULL);
+                                pushLevel();
                             }
                         | PROCEDURE error SEMICOLON /* ERROR */
                             {
