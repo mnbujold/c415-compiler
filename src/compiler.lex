@@ -86,6 +86,8 @@ if (yytext != NULL) {
 "while"				{ return WHILE;}
 
 "writeln"           { return WRITELN;}
+"read"              { return READ;}
+"readln"            { return READLN;}
 
  /* Numbers and Vars */
 [a-zA-Z][a-zA-Z0-9]*		{ yylval.id = strdup(yytext);  

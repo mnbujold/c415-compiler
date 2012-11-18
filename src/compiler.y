@@ -57,7 +57,8 @@ int yywrap() {
 %token NOT OF OR 
 %token PROCEDURE PROGRAM RECORD THEN
 %token TYPE VAR WHILE 
-%token WRITELN
+/* Special cases need special rules */
+%token WRITELN READ READLN 
 
 /* Relational tokens */
 %token ISEQUAL NOTEQUAL LESSTHAN GREATERTHAN 
