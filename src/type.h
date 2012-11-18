@@ -192,4 +192,9 @@ void callProc(const char *procname, GPtrArray *arguments);
  */
 void checkConditional(symbol *expr);
 
+/**
+ * Checks that the controlType statement is in a loop.
+ */
+void checkControlFlow(int inLoop, const char *controlType);
+
 #endif

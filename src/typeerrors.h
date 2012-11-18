@@ -142,4 +142,9 @@ void symNotRecordError(const char *id);
  */
 void symNotArrayError(const char *id);
 
+/**
+ * Adds a "'controlType' statement not in a loop" error.
+ */
+void ctrlTypeNotInLoopError(const char *controlType);
+
 #endif

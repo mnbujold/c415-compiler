@@ -996,6 +996,16 @@ checkConditional(symbol *expr) {
     }
 }
 
+/**
+ * Checks that the controlType statement is in a loop.
+ */
+void
+checkControlFlow(int inLoop, const char *controlType) {
+    if (inLoop == 0) {
+        ctrlTypeNotInLoopError(controlType);
+    }
+}
+
 //TODO: Should not need this for checkpoint 2...
 symbol *createAnonymousVar(symbol *o1, symbol *o2) {
   return NULL;

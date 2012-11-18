@@ -191,3 +191,10 @@ symNotArrayError(const char *id) {
     sprintf(errMsg, "symbol '%s' not an array", id);
     addTypeError(errMsg);
 }
+
+void
+ctrlTypeNotInLoopError(const char *controlType) {
+    char errMsg[30 + strlen(controlType)];
+    sprintf(errMsg, "'%s' statement not in a loop", controlType);
+    addTypeError(errMsg);
+}

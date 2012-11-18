@@ -72,16 +72,25 @@ else
 
 while 1 <> 0 do
 begin
+exit;
 end;
 
 while aboolean do
 begin
+continue;
 end;
+
+while aboolean do
+continue;
+
+exit;
 
 while asdf(joe) do
 begin
 end;
-    
+
+continue;
+
 if (1) then
     writeln;
     

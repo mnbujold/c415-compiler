@@ -34,6 +34,9 @@ int yywrap() {
         return 1;
 }
 
+// For control flow checking:
+int inLoop = 0;
+
 %}
 
 %defines
@@ -844,15 +847,19 @@ struct_stat             : IF expr THEN matched_stat ELSE stat
                                 }
                             }
                         | error THEN stat /* ERROR */
-                        | WHILE expr DO stat
+                        | while_header stat
                             {
-                                if ($2 != NULL) {
-                                    checkConditional($2);
-                                }
+                                inLoop = 0;
                             }
                         | error DO stat /* ERROR */
                         | CONTINUE
+                            {
+                                checkControlFlow(inLoop, "continue");
+                            }
                         | EXIT
+                            {
+                                checkControlFlow(inLoop, "exit");
+                            }
                         ;
 
 matched_stat            : simple_stat
@@ -863,15 +870,28 @@ matched_stat            : simple_stat
                                 }
                             }
                         | error ELSE matched_stat /* ERROR */
-                        | WHILE expr DO matched_stat
+                        | while_header matched_stat
+                            {
+                                inLoop = 0;
+                            }
+                        | error DO matched_stat /* ERROR */
+                        | CONTINUE
+                            {
+                                checkControlFlow(inLoop, "continue");
+                            }
+                        | EXIT
+                            {
+                                checkControlFlow(inLoop, "exit");
+                            }
+                        ;
+
+while_header            : WHILE expr DO
                             {
                                 if ($2 != NULL) {
                                     checkConditional($2);
                                 }
-                            }
-                        | error DO matched_stat /* ERROR */
-                        | CONTINUE
-                        | EXIT
+                                inLoop = 1;
+                            }                            
                         ;
 
 %%
