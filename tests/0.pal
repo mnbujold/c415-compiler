@@ -6,6 +6,9 @@
     20:46 unfinished array definition, unexpected ]
     39:34 unexpected addition operator
 }
+
+
+
 program correctNames (input, output);
 // Reads an integer input and naively counts the number of even and odd numbers
 // between that integer and zero.

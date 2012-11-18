@@ -519,14 +519,16 @@ proc_invok              : plist_finvok RIGHTPAREN
                             {
                                 callProc($1, NULL);
                             }
-                        | WRITELN
+                        | WRITELN 
+                        //Note: we could accept write; but really that doesnt 
+                        //do anything, so we can just pretend to accept it
                             {
                                 checkWriteln();
                             }
                         | WRITELN LEFTPAREN RIGHTPAREN
                             {
-                                //Can't use callproc, since writeln is special
-                                //callProc("writeln", NULL);
+
+                                callProc("writeln", NULL);
                             }
                         ;
 
