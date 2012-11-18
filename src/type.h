@@ -195,6 +195,6 @@ void checkConditional(symbol *expr);
 /**
  * Checks that the controlType statement is in a loop.
  */
-void checkControlFlow(int inLoop, const char *controlType);
+void checkControlFlow(int loopLevel, const char *controlType);
 
 #endif

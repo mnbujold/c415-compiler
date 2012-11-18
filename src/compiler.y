@@ -35,7 +35,7 @@ int yywrap() {
 }
 
 // For control flow checking:
-int inLoop = 0;
+int loopLevel = 0;
 
 %}
 
@@ -849,16 +849,16 @@ struct_stat             : IF expr THEN matched_stat ELSE stat
                         | error THEN stat /* ERROR */
                         | while_header stat
                             {
-                                inLoop = 0;
+                                loopLevel -= 1;
                             }
                         | error DO stat /* ERROR */
                         | CONTINUE
                             {
-                                checkControlFlow(inLoop, "continue");
+                                checkControlFlow(loopLevel, "continue");
                             }
                         | EXIT
                             {
-                                checkControlFlow(inLoop, "exit");
+                                checkControlFlow(loopLevel, "exit");
                             }
                         ;
 
@@ -872,16 +872,16 @@ matched_stat            : simple_stat
                         | error ELSE matched_stat /* ERROR */
                         | while_header matched_stat
                             {
-                                inLoop = 0;
+                                loopLevel -= 1;
                             }
                         | error DO matched_stat /* ERROR */
                         | CONTINUE
                             {
-                                checkControlFlow(inLoop, "continue");
+                                checkControlFlow(loopLevel, "continue");
                             }
                         | EXIT
                             {
-                                checkControlFlow(inLoop, "exit");
+                                checkControlFlow(loopLevel, "exit");
                             }
                         ;
 
@@ -890,7 +890,7 @@ while_header            : WHILE expr DO
                                 if ($2 != NULL) {
                                     checkConditional($2);
                                 }
-                                inLoop = 1;
+                                loopLevel += 1;
                             }                            
                         ;
 

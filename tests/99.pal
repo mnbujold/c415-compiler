@@ -45,19 +45,19 @@ end;
     
 begin
 
-test();
-test(enum1, true);
-test(text, enum0);
-test(text, e11);
+test(); // Error!
+test(enum1, true); // Error!
+test(text, enum0); // Error!
+test(text, e11); // Error!
 test(text, aboolean);
-joe := test(text, aboolean);
-test(text, aboolean, joe);
+joe := test(text, aboolean); // Error!
+test(text, aboolean, joe); // Error!
 
-joe := asdf();
+joe := asdf(); // Error!
 joe := asdf(joe);
-bar := asdf(joe);
-joe := asdf(e11);
-joe := asdf(joe, e11);
+bar := asdf(joe); // Error!
+joe := asdf(e11); // Error!
+joe := asdf(joe, e11); // Error!
 
 writeln;
 writeln();
@@ -75,26 +75,31 @@ begin
 exit;
 end;
 
-while aboolean do
-begin
-continue;
-end;
-
-while aboolean do
-continue;
-
+wilek aboolean do // Error!
 exit;
 
-while asdf(joe) do
+while aboolean do
+begin
+    while 1 <> 0 do
+    exit;
+continue;
+end;
+
+while aboolean do
+continue;
+
+exit; // Error!
+
+while asdf(joe) do // Error!
 begin
 end;
 
-continue;
+continue; // Error!
 
-if (1) then
+if (1) then // Error!
     writeln;
     
-if (text) then
+if (text) then // Error!
     writeln;
 
 end.
