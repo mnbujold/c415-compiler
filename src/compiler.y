@@ -816,7 +816,7 @@ plist_finvok            : ID LEFTPAREN parm
                             }
                         | plist_finvok COMMA parm
                             {
-                                if ($3 != NULL) {
+                                if ($1 != NULL && $3 != NULL) {
                                     $$ = addArgument($1, $3);
                                 } else {
                                     $$ = NULL;
