@@ -32,6 +32,7 @@ procedure test(var bob : clark; jim : boolean);
     
 function asdf(tool : bob) : bob;
 begin
+    anotherbob := tool;
     asdf := enum2;
 end;
     
@@ -47,6 +48,7 @@ begin
 test();
 test(enum1, true);
 test(text, aboolean);
+test(text, aboolean, joe);
 
 writeln;
 writeln();

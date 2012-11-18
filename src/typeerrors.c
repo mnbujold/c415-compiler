@@ -95,10 +95,10 @@ void arrayOutOfBoundsError () {
 }
 
 void assignmentError () {
-  addTypeError ("Could not assign to var");
+  addTypeError ("could not assign to var");
 }
 void assignmentCompatibilityError () {
-  addTypeError ("Could not assign; types are incompatible");
+  addTypeError ("could not assign; types are incompatible");
 }
 
 void
@@ -119,9 +119,22 @@ missFuncRetError() {
 }
 
 void
+assignNotVarParamError() {
+    addTypeError("target of assignment not a variable or parameter");
+}
+
+void
+assignBadTypesError() {
+    addTypeError("target and source of assignment do not have matching types");
+}
+
+void
 missingVarParamError(int arg_num, char *proc_name) {
     char errMsg[75 + strlen(proc_name)];
-    sprintf(errMsg, "var argument %d of %s call is not a variable", arg_num, proc_name);
+    sprintf(errMsg,
+            "var argument %d of '%s' call is not a variable",
+            arg_num,
+            proc_name);
     addTypeError(errMsg);
 }
 
@@ -129,7 +142,10 @@ missingVarParamError(int arg_num, char *proc_name) {
 void
 badProcArgError(int arg_num, char *proc_name) {
     char errMsg[75 + strlen(proc_name)];
-    sprintf(errMsg, "argument %d of %s call has incompatible type", arg_num, proc_name);
+    sprintf(errMsg,
+            "argument %d of' %s' call has incompatible type",
+            arg_num,
+            proc_name);
     addTypeError(errMsg);
 }
 

@@ -93,12 +93,22 @@ void opNotBooleanError();
 void missFuncRetError();
 
 /**
- * Adds a "var argument arg_num of proc_name call is not a variable" error.
+ * Adds a "target of assignment not a variable or parameter" error.
+ */
+void assignNotVarParamError();
+
+/**
+ * Adds a "target and source of assignment do not have matching types" error.
+ */
+void assignBadTypesError();
+
+/**
+ * Adds a "var argument arg_num of 'proc_name' call is not a variable" error.
  */
 void missingVarParamError(int arg_num, char *proc_name);
 
 /**
- * Adds an "argument arg_num of proc_name call has incompatible type" error.
+ * Adds an "argument arg_num of 'proc_name' call has incompatible type" error.
  */
 void badProcArgError(int arg_num, char *proc_name);
 

@@ -33,13 +33,13 @@ int compatible(struct type_desc *type1, struct type_desc *type2);
  *     interval specified by type T1.
  *  4. T1 and T2 are assignment compatible arrays.
  */
-int assignmentCompatibleSym(symbol *sym1, symbol *sym2);
+int assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors);
 
 /**
  * Returns 1 if and only if array1 and array2 have both identical indexing and
  * mutually-assignment-compatible object types.
  */
-int arrayAssignmentCompatible(symbol *sym1, symbol *sym2);
+int arrayAssignmentCompatible(symbol *sym1, symbol *sym2, int showErrors);
 
 /**
  * Get the array description for a symbol
@@ -149,6 +149,16 @@ GPtrArray *addParam(GPtrArray *paramList, symbol *newParam) ;
  * Assign an expression to a var
  */
 void doVarAssignment (symbol *var, symbol *expr);
+
+/**
+ * Returns a new pf_invok with id and a new GPtrArray containing arg.
+ */
+struct pf_invok *createArgList(const char *id, symbol *arg);
+
+/**
+ * Returns invok with arg added.
+ */
+struct pf_invok *addArgument(struct pf_invok *invok, symbol *arg);
 
 symbol *createAnonymousVar(symbol *o1, symbol *o2);
 
