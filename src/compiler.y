@@ -831,10 +831,25 @@ parm                    : expr
                         ;
 
 struct_stat             : IF expr THEN matched_stat ELSE stat
+                            {
+                                if ($2 != NULL) {
+                                    checkConditional($2);
+                                }
+                            }
                         | error ELSE stat /* ERROR */
                         | IF expr THEN stat
+                            {
+                                if ($2 != NULL) {
+                                    checkConditional($2);
+                                }
+                            }
                         | error THEN stat /* ERROR */
                         | WHILE expr DO stat
+                            {
+                                if ($2 != NULL) {
+                                    checkConditional($2);
+                                }
+                            }
                         | error DO stat /* ERROR */
                         | CONTINUE
                         | EXIT
@@ -842,8 +857,18 @@ struct_stat             : IF expr THEN matched_stat ELSE stat
 
 matched_stat            : simple_stat
                         | IF expr THEN matched_stat ELSE matched_stat
+                            {
+                                if ($2 != NULL) {
+                                    checkConditional($2);
+                                }
+                            }
                         | error ELSE matched_stat /* ERROR */
                         | WHILE expr DO matched_stat
+                            {
+                                if ($2 != NULL) {
+                                    checkConditional($2);
+                                }
+                            }
                         | error DO matched_stat /* ERROR */
                         | CONTINUE
                         | EXIT

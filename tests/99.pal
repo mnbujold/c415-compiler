@@ -63,4 +63,29 @@ writeln;
 writeln();
 writeln(aNum, anotherbob);
 
+if (1 <> 0) then
+    writeln
+else if (aboolean) then
+    writeln()
+else
+    foo(e11, e11);
+
+while 1 <> 0 do
+begin
+end;
+
+while aboolean do
+begin
+end;
+
+while asdf(joe) do
+begin
+end;
+    
+if (1) then
+    writeln;
+    
+if (text) then
+    writeln;
+
 end.

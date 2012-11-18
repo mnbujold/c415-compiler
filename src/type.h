@@ -183,8 +183,13 @@ void callProc(const char *procname, GPtrArray *arguments);
  */
 symbol *callFunc(const char *funcname, GPtrArray *arguments);
 
-void checkWriteln() ;
+void checkWriteln();
 
 void callProc(const char *procname, GPtrArray *arguments);
+
+/**
+ * Checks that expr has a boolean type.
+ */
+void checkConditional(symbol *expr);
 
 #endif

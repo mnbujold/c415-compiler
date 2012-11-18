@@ -675,7 +675,7 @@ createArrayIndex(symbol *low, symbol *high) {
             highValue = 1;
         } else if (type == TC_CHAR) {
             lowValue = 0;
-            highValue = 256; // 2^8 = maximum char value
+            highValue = 255; // 2^8 - 1 = maximum char value
         } else if (type == TC_SCALAR) {
             GPtrArray *list = high->desc.type_attr->desc.scalar->const_list;
             lowValue = ((symbol *) g_ptr_array_index(list, 0))->desc.const_attr->value.integer;
@@ -981,6 +981,19 @@ void checkWriteln() {
         addTypeError ("invalid procedure call");
     }
     //printf ("Leaving check writeln");
+}
+
+void
+checkConditional(symbol *expr) {
+    if (expr->symbol_type == NULL) {
+        addTypeError("conditional cannot be a type");
+    } else {
+        type_class type = expr->symbol_type->desc.type_attr->type;
+        
+        if (type != TC_ERROR && type != TC_BOOLEAN) {
+            addTypeError("conditional is not of boolean type");
+        }
+    }
 }
 
 //TODO: Should not need this for checkpoint 2...
