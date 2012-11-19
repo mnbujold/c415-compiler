@@ -395,7 +395,6 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                 } else {
                                     $$ = NULL;
                                     addNewProc($2, NULL);
-                                    pushLevel();
                                 }
                             }
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
@@ -404,21 +403,18 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                     $$ = addNewFunc($2, $5, $3);
                                 } else {
                                     $$ = NULL;
-                                    addNewFunc($2, NULL, NULL);
-                                    pushLevel();
+                                    addNewFunc($2, $5, NULL);
                                 }
                             }
                         | PROCEDURE ID error SEMICOLON /* ERROR */
                             {
                                 $$ = NULL;
                                 addNewProc($2, NULL);
-                                pushLevel();
                             }
                         | FUNCTION ID error SEMICOLON /* ERROR */
                             {
                                 $$ = NULL;
                                 addNewFunc($2, NULL, NULL);
-                                pushLevel();
                             }
                         | PROCEDURE error SEMICOLON /* ERROR */
                             {
@@ -443,17 +439,14 @@ f_parm_decl             : LEFTPAREN f_parm_list RIGHTPAREN
                             }
                         | LEFTPAREN RIGHTPAREN
                             {
-                                pushLevel();
                                 $$ = addParam(NULL, NULL);
                             }
                         | error RIGHTPAREN /* ERROR */
                             {
-                                pushLevel();
                                 $$ = NULL;
                             }
                         | error /* ERROR */
                             {
-                                pushLevel();
                                 $$ = NULL;
                             }
                         ;

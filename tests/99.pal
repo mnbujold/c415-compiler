@@ -36,7 +36,11 @@ begin
     anotherbob := tool; // Error!
     asdf := enum2;
 end;
-    
+
+function anotherTest() : real;
+begin
+    writeln;
+end; // Error!
     
 procedure tim();
     var joe : (e1, ererer);

@@ -385,15 +385,24 @@ symbol *
 addNewProc(const char *id, GPtrArray *paramList) {
     symbol *newProc;
     int badDefn = paramList == NULL;
+    int listSize = badDefn ? 0 : paramList->len;
+    int i;
+    symbol *paramType;
     
     if (localLookup(id) == NULL) {
         struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
         struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
-        if (badDefn == 1) {
-            typeDesc->type = TC_ERROR;
-        } else {
-            typeDesc->type = TC_NONE;
+        typeDesc->type = badDefn ? TC_ERROR : TC_NONE;
+        
+        for (i = 0; i < listSize; i++) {
+            paramType = ((symbol *) g_ptr_array_index(paramList, i))->symbol_type;
+            
+            if (paramType->desc.type_attr->type != TC_ERROR
+            && localLookup(paramType->name) != NULL) {
+                addSymbol(paramType->name, paramType);
+            }
         }
+        
         typeDesc->desc.none = noneType;
         
         symbol *type = createTypeSym(NULL, typeDesc);
@@ -401,19 +410,12 @@ addNewProc(const char *id, GPtrArray *paramList) {
     } else {
         symExistsError(id);
         newProc = createErrorSym(OC_PROC);
-        newProc->name = id;        
+        newProc->name = id;
     }
     addSymbol(id, newProc);
     pushLevel();
-    
-    if (badDefn == 1) {
-        return newProc;
-    }
-    
+
     symbol *newParam;
-    symbol *paramType;
-    int listSize = paramList->len;
-    int i;
     
     for (i = 0; i < listSize; i++) {
         newParam = (symbol *) g_ptr_array_index(paramList, i);
@@ -435,6 +437,9 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
     symbol *newFunc;
     symbol *returnType = globalLookup(typeId);
     int badDefn = paramList == NULL;
+    int listSize = badDefn ? 0 : paramList->len;
+    int i;
+    symbol *paramType;
     
     if (localLookup(id) == NULL) {
         if (badDefn == 1) {
@@ -443,25 +448,32 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
             typeNotDefinedError(typeId);
             returnType = createErrorType(typeId);
         }
+        
+        if (returnType->desc.type_attr->type != TC_ERROR
+        && localLookup(returnType->name) == NULL) {
+            addSymbol(returnType->name, returnType);
+        }
+        
+        for (i = 0; i < listSize; i++) {
+            paramType = ((symbol *) g_ptr_array_index(paramList, i))->symbol_type;
+            
+            if (paramType->desc.type_attr->type != TC_ERROR
+            && localLookup(paramType->name) != NULL) {
+                addSymbol(paramType->name, paramType);
+            }
+        }
+        
         newFunc = createSymbol(id, returnType, OC_FUNC,
                                createFunctionDesc(paramList, returnType));
-        
-        addSymbol(id, newFunc);
     } else {
         symExistsError(id);
         newFunc = createErrorSym(OC_FUNC);
         newFunc->name = id;
     }
+    addSymbol(id, newFunc);
     pushLevel();
     
-    if (badDefn == 1) {
-        return newFunc;
-    }
-    
     symbol *newParam;
-    symbol *paramType;
-    int listSize = paramList->len;
-    int i;
     
     for (i = 0; i < listSize; i++) {
         newParam = (symbol *) g_ptr_array_index(paramList, i);
@@ -480,9 +492,13 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         symExistsError(newFunc->name);
     }
     
+    if (returnType == NULL) {
+        return newFunc;
+    }
+    
     if (returnType->desc.type_attr->type != TC_ERROR
-     && localLookup(newFunc->name) == NULL) {
-        addSymbol(newFunc->name, newFunc);
+     && localLookup(returnType->name) == NULL) {
+        addSymbol(returnType->name, returnType);
     }
     
     return newFunc;
