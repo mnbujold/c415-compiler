@@ -48,6 +48,21 @@ void symNotValidEnumError(const char *id);
 void illArrayAssignObjError();
 
 /**
+ * Adds an "illegal array assignment (index types not the same)" error.
+ */
+void illArrayAssignIndError();
+
+/**
+ * Adds an "illegal array assignment (lower bounds do not match)" error.
+ */
+void illArrayAssignMinError();
+
+/**
+ * Adds an "illegal array assignment (upper bounds do not match)" error.
+ */
+void illArrayAssignMaxError();
+
+/**
  * Adds an "array index missing lower bound" error.
  */
 void arrayMissLowerError();

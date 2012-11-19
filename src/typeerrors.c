@@ -66,6 +66,21 @@ illArrayAssignObjError(){
     addTypeError("illegal array assignment (object types not compatible)");
 }
 
+void
+illArrayAssignIndError() {
+    addTypeError("illegal array assignment (index types not the same)");
+}
+
+void
+illArrayAssignMinError() {
+    addTypeError("illegal array assignment (lower bounds do not match)");
+}
+
+void
+illArrayAssignMaxError() {
+    addTypeError("illegal array assignment (upper bounds do not match)");
+}
+
 void arrayMissLowerError() {
     addTypeError("array index missing lower bound");
 }
@@ -97,8 +112,9 @@ void arrayOutOfBoundsError () {
 void assignmentError () {
   addTypeError ("could not assign to var");
 }
+
 void assignmentCompatibilityError () {
-  addTypeError ("could not assign; types are incompatible");
+  addTypeError ("could not assign (types are incompatible)");
 }
 
 void

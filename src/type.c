@@ -120,44 +120,70 @@ struct tc_array *getArrayDescription (symbol *sym) {
  */
 int
 arrayAssignmentCompatible(symbol *sym1, symbol *sym2, int showErrors) {
-    // TODO: need some error printing in here!
-  
-    struct tc_array *sym1ArrayDescription = getArrayDescription (sym1);
-    struct tc_array *sym2ArrayDescription = getArrayDescription (sym2);
-    //obviously if the objects are not the same, then can't assign
+    struct tc_array *arrayType1 = sym1->symbol_type->desc.type_attr->desc.array;
+    struct tc_array *arrayType2 = sym2->symbol_type->desc.type_attr->desc.array;
+    symbol *objType1 = createSymbol(NULL, arrayType1->obj_type, OC_VAR, (void *) createVarDesc());
+    symbol *objType2 = createSymbol(NULL, arrayType2->obj_type, OC_VAR, (void *) createVarDesc());
     
-    if (getTypeClass(sym1ArrayDescription->obj_type) != getTypeClass(sym2ArrayDescription->obj_type)) {
-      return 0;
-    }
-    if (getTypeClass (sym1ArrayDescription->index_type) != getTypeClass (sym2ArrayDescription->index_type)) {
-      return 0;
-    }
-    
-    //TODO: Check they are exactly the same enumerated type if we are using
-    //enum
-    
-    if (sym1ArrayDescription->minIndex != sym2ArrayDescription->minIndex) {
-      return 0;
-    }
-    if (sym1ArrayDescription->maxIndex != sym2ArrayDescription->maxIndex) {
-      return 0;
+    if (assignmentCompatibleSym(objType1, objType2, 0) == 0
+     || assignmentCompatibleSym(objType2, objType1, 0) == 0) {
+        if (showErrors != 0) {
+            illArrayAssignObjError();
+        }
+        return 0; // object types not assignment compatible both ways
     }
     
-    //if (sym1->
-//     int objCompat = 1;
-//     int indEquiv = 1;
-//     struct type_desc *ot1 = array1->obj_type;
-//     struct type_desc *ot2 = array2->obj_type;
-//     
-//     if (!(assignmentCompatible(ot1, ot2) && assignmentCompatible(ot2, ot1))) {
-//         objCompat = 0;
-//         illArrayAssignObjError();
-//     }
-//     
-//     // index checking ...
-//     
-//     return objCompat && indEquiv;
+    symbol *indType1 = arrayType1->index_type;
+    symbol *indType2 = arrayType2->index_type;
+    
+    if (indexTypesCompatible(indType1, indType2) == 0) {
+        if (showErrors != 0) {
+            illArrayAssignIndError();
+        }
+        return 0; // index types not the same
+    }
+    
+    if (arrayType1->minIndex != arrayType2->minIndex) {
+        if (showErrors != 0) {
+            illArrayAssignMinError();
+        }
+        return 0; // lower bounds not the same
+    }
+    
+    if (arrayType1->maxIndex != arrayType2->maxIndex) {
+        if (showErrors != 0) {
+            illArrayAssignMaxError();
+        }
+        return 0; // upper bounds not the same
+    }
+    
     return 1;
+}
+
+/**
+ * Returns 1 if index1 and index2 are compatible subrange types. Returns 0 otherwise.
+ */
+int
+indexTypesCompatible(symbol *index1, symbol *index2) {
+    if (index1 == index2) {
+        return 1;
+    }
+    
+    struct tc_subrange *subrange1 = index1->desc.type_attr->desc.subrange;
+    struct tc_subrange *subrange2 = index2->desc.type_attr->desc.subrange;
+    
+    if (subrange1 == subrange2) {
+        return 1;
+    }
+    
+    symbol *indexType1 = subrange1->mother_type;
+    symbol *indexType2 = subrange2->mother_type;
+    
+    if (indexType1 == indexType2 || indexType1->desc.type_attr == indexType2->desc.type_attr) {
+        return 1;
+    }
+    
+    return 0;
 }
 
 /**

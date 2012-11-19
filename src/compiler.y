@@ -99,27 +99,16 @@ int loopLevel = 0;
 %type <symbol> f_parm
 %type <pf_invok> plist_finvok
 %type <symbol> func_invok
-/*%type <symbol> const_decl
-%type <symbol> type_decl type simple_type scalar_type scalar_list structured_type closed_array_type array_type
-%type <symbol> field
-
-%type <symbol> proc_heading
-%type <symbol> var subscripted_var f_parm*/
-
-/* %type <string> expr simple_expr term factor var subscripted_var unsigned_const */
-/* %type <string> func_invok unsigned_num plist_finvok */
 
 %left LEFTBRACKET ISEQUAL
 
 %%
 program                 : program_head decls compound_stat PERIOD
                             {
-/*                                 showAllSymbols(); */
                                 popLevel();
                             }
                         | error PERIOD /* ERROR */
                             {
-/*                                 showAllSymbols(); */
                                 popLevel();
                             }
                         | error /* ERROR */
