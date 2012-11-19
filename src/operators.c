@@ -35,8 +35,8 @@ symbol *identity (symbol *op) {
   if (getTypeClass (op) == TC_REAL || getTypeClass (op) == TC_INTEGER) {
     return op;
   }
-  addTypeError ("Not a real or integer");
-  return createErrorType();
+  addTypeError ("not a real or integer");
+  return createErrorSym(OC_CONST);
 }
 
 /**
@@ -63,8 +63,8 @@ symbol *inversion (symbol *op)  {
     
   }
   
-  addTypeError ("Not a real or integer");
-  return createErrorType();
+  addTypeError ("not a real or integer");
+  return createErrorSym(OC_CONST);
 }
 
 /*********
@@ -74,13 +74,13 @@ symbol *notOp(symbol *operand) {
     if (operand == NULL) {
         //printf("Operand is NULL!\n");
         // error... will this ever happen?
-        return createErrorType();
+        return createErrorSym(OC_CONST);
     }
 
     if (operand->symbol_type == NULL
      || getTypeClass (operand) != TC_BOOLEAN) {
         opNotBooleanError();
-        return createErrorType();
+        return createErrorSym(OC_CONST);
     }
     
     if (canEvaluate(operand)) {
@@ -100,11 +100,11 @@ symbol *notOp(symbol *operand) {
 symbol *andOp (symbol *o1, symbol *o2) {
   if (o1 == NULL || o2 == NULL) {
     opNotBooleanError();
-    return createErrorType();
+    return createErrorSym(OC_CONST);
   }
   if (getTypeClass (o1) != TC_BOOLEAN || getTypeClass (o2) != TC_BOOLEAN) {
     opNotBooleanError();
-    return createErrorType();
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     //evaluate the expression
@@ -122,7 +122,7 @@ symbol *orOp (symbol *o1, symbol *o2){
 
   if (getTypeClass (o1) != TC_BOOLEAN || getTypeClass (o2) != TC_BOOLEAN) {
     opNotBooleanError();
-    return createErrorType ();
+    return createErrorSym(OC_CONST);
   }
   
   if (canEvaluate (o1) && canEvaluate (o2)) {
@@ -151,8 +151,8 @@ double getConstRealValue (symbol *operand) {
 }
 symbol *addOp (symbol *o1, symbol *o2) {
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
-    addTypeError ("Operator not of type integer or real");
-    return createErrorType();
+    addTypeError ("operand not of type integer or real");
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
@@ -210,8 +210,8 @@ symbol *addOp (symbol *o1, symbol *o2) {
 
 symbol *subtractOp (symbol *o1, symbol *o2) {
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
-    addTypeError ("Operator not of type integer or real");
-    return createErrorType();
+    addTypeError ("operand not of type integer or real");
+    return createErrorSym(OC_CONST);
   }
     int hasReal = 0;    
     int intDiff = 0;
@@ -271,8 +271,8 @@ symbol *subtractOp (symbol *o1, symbol *o2) {
 
 symbol *multOp (symbol *o1, symbol *o2) {
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
-    addTypeError ("Operator not of type integer or real");
-    return createErrorType();
+    addTypeError ("operand not of type integer or real");
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
@@ -328,8 +328,8 @@ symbol *multOp (symbol *o1, symbol *o2) {
 
 symbol *intDivOp (symbol *o1, symbol *o2) {
   if (getTypeClass (o1) != TC_INTEGER || getTypeClass (o2) != TC_INTEGER) {
-    addTypeError ("Operator not of type integer");
-    return createErrorType();
+    addTypeError ("operand not of type integer");
+    return createErrorSym(OC_CONST);
   }
     
     if (canEvaluate (o1) && canEvaluate (o2)) {
@@ -337,8 +337,8 @@ symbol *intDivOp (symbol *o1, symbol *o2) {
       int dividend = o1->desc.const_attr->value.integer;
       int divisor = o2->desc.const_attr->value.integer;
       if (divisor == 0) {
-	addTypeError ("Cannot divide by 0");
-	return createErrorType();
+	addTypeError ("cannot divide by 0");
+	return createErrorSym(OC_CONST);
       }
       int quotient = dividend / divisor;
       union constant_values quotValue = {.integer = quotient};
@@ -353,16 +353,16 @@ symbol *intDivOp (symbol *o1, symbol *o2) {
 
 symbol *realDivOp (symbol *o1, symbol *o2) {
   if (getTypeClass (o1) != TC_REAL || getTypeClass (o2) != TC_REAL) {
-    addTypeError ("Operator not of type real");
-    return createErrorType();
+    addTypeError ("operand not of type real");
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     //Check if divisor is 0
     double dividend = o1->desc.const_attr->value.real;
     double divisor = o2->desc.const_attr->value.real;
     if (divisor == 0.0) {
-      addTypeError ("Cannot divide by 0");
-      return createErrorType();
+      addTypeError ("cannot divide by 0");
+      return createErrorSym(OC_CONST);
     }
     double quotient = dividend / divisor;
     union constant_values quotValue = {.real = quotient};
@@ -376,17 +376,17 @@ symbol *realDivOp (symbol *o1, symbol *o2) {
 
 symbol *modOp (symbol *o1, symbol *o2) {
   if (getTypeClass (o1) != TC_INTEGER || getTypeClass (o2) != TC_INTEGER) {
-    addTypeError ("Operator not of type integer");
+    addTypeError ("operand not of type integer");
 
-    return createErrorType();
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     //Check if divisor is 0
     int dividend = o1->desc.const_attr->value.integer;
     int divisor = o2->desc.const_attr->value.integer;
     if (divisor == 0) {
-      addTypeError ("Cannot divide by 0");
-      return createErrorType();
+      addTypeError ("cannot divide by 0");
+      return createErrorSym(OC_CONST);
     }
     int result = dividend % divisor;
     union constant_values resultValue = {.integer = result};
@@ -474,13 +474,13 @@ symbol *equalOp (symbol *o1, symbol *o2) {
     //printf ("Inside equal op\n");
     //printf ("op1: %p, op2: %p\n", o1, o2);
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
-    addTypeError ("Operators cannot be compared");
-    return createErrorType();
+    addTypeError ("operands cannot be compared");
+    return createErrorSym(OC_CONST);
   }
   //printf ("Done checking valid\n");
   if (!checkComparisonCompatibility (o1, o2)) {
-    addTypeError ("Operators are not compatible, cannot be compared to each other");
-    return createErrorType();
+    addTypeError ("operands are not compatible, cannot be compared to each other");
+    return createErrorSym(OC_CONST);
   }
   //printf ("Done checking compatiblity\n");
   
@@ -541,12 +541,12 @@ symbol *equalOp (symbol *o1, symbol *o2) {
 }
 symbol *notEqualOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
-    addTypeError ("Operators cannot be compared");
-    return createErrorType();
+    addTypeError ("operands cannot be compared");
+    return createErrorSym(OC_CONST);
   }
   if (!checkComparisonCompatibility (o1, o2)) {
-    addTypeError ("Operators are not compatible, cannot be compared to each other");
-    return createErrorType();
+    addTypeError ("operands are not compatible, cannot be compared to each other");
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
@@ -602,12 +602,12 @@ symbol *notEqualOp (symbol *o1, symbol *o2) {
 }
 symbol *lessThanOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
-    addTypeError ("Operators cannot be compared");
-    return createErrorType();
+    addTypeError ("operands cannot be compared");
+    return createErrorSym(OC_CONST);
   }
   if (!checkComparisonCompatibility (o1, o2)) {
-    addTypeError ("Operators are not compatible, cannot be compared to each other");
-    return createErrorType();
+    addTypeError ("operands are not compatible, cannot be compared to each other");
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
@@ -664,12 +664,12 @@ symbol *lessThanOp (symbol *o1, symbol *o2) {
 }
 symbol *greaterThanOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
-    addTypeError ("Operators cannot be compared");
-    return createErrorType();
+    addTypeError ("operands cannot be compared");
+    return createErrorSym(OC_CONST);
   }
   if (!checkComparisonCompatibility (o1, o2)) {
-    addTypeError ("Operators are not compatible, cannot be compared to each other");
-    return createErrorType();
+    addTypeError ("operands are not compatible, cannot be compared to each other");
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
@@ -723,12 +723,12 @@ symbol *greaterThanOp (symbol *o1, symbol *o2) {
 }
 symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
-    addTypeError ("Operators cannot be compared");
-    return createErrorType();
+    addTypeError ("operands cannot be compared");
+    return createErrorSym(OC_CONST);
   }
   if (!checkComparisonCompatibility (o1, o2)) {
-    addTypeError ("Operators are not compatible, cannot be compared to each other");
-    return createErrorType();
+    addTypeError ("operands are not compatible, cannot be compared to each other");
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
@@ -785,12 +785,12 @@ symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
 }
 symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
-    addTypeError ("Operators cannot be compared");
-    return createErrorType();
+    addTypeError ("operands cannot be compared");
+    return createErrorSym(OC_CONST);
   }
   if (!checkComparisonCompatibility (o1, o2)) {
-    addTypeError ("Operators are not compatible, cannot be compared to each other");
-    return createErrorType();
+    addTypeError ("operands are not compatible, cannot be compared to each other");
+    return createErrorSym(OC_CONST);
   }
   if (canEvaluate (o1) && canEvaluate (o2)) {
     
