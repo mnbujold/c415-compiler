@@ -72,11 +72,11 @@ symbol *inversion (symbol *op)  {
  * ****************/
 symbol *notOp(symbol *operand) {
     if (operand == NULL) {
-        printf("Operand is NULL!\n");
+        //printf("Operand is NULL!\n");
         // error... will this ever happen?
         return createErrorType();
     }
-    
+
     if (operand->symbol_type == NULL
      || getTypeClass (operand) != TC_BOOLEAN) {
         opNotBooleanError();

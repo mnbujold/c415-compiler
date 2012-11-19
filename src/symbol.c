@@ -528,16 +528,17 @@ void init_table () {
   
   /* Basic types */
   addSymbol("char", createSymbol("char", NULL, OC_TYPE, createTypeDesc(TC_CHAR)));
-  addSymbol("boolean", createSymbol("boolean", NULL, OC_TYPE, createTypeDesc(TC_BOOLEAN)));
+  symbol *boolean = createSymbol("boolean", NULL, OC_TYPE, createTypeDesc(TC_BOOLEAN));
+  addSymbol("boolean", boolean);
   addSymbol("integer", createSymbol("integer", NULL, OC_TYPE, createTypeDesc(TC_INTEGER)));
   addSymbol("real", createSymbol("real", NULL, OC_TYPE, createTypeDesc(TC_REAL)));
   
   
   /* Constants */
   union constant_values trueval = { .boolean = TRUE_VALUE };
-  addSymbol("true", createSymbol("true", NULL, OC_CONST, createConstDesc(trueval)));
+  addSymbol("true", createSymbol("true", boolean, OC_CONST, createConstDesc(trueval)));
   union constant_values falseval = { .boolean = FALSE_VALUE };
-  addSymbol("false", createSymbol("false", NULL, OC_CONST, createConstDesc(falseval)));
+  addSymbol("false", createSymbol("false", boolean, OC_CONST, createConstDesc(falseval)));
   union constant_values maxintval = { .integer = MAX_INT_VALUE };
   addSymbol("maxint", createSymbol("maxint", NULL, OC_CONST, createConstDesc(maxintval)));
   union constant_values pival = { .real = PI_VALUE };
