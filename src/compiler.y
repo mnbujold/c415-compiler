@@ -264,7 +264,7 @@ structured_type         : ARRAY closed_array_type OF type
                                 }
                                 DEBUG_PRINT(("Finished calling structured type\n"));
                             }
-                        | RECORD field_list SEMICOLON END
+                        | RECORD field_list END
                             {
                                 if ($2 != NULL) {
                                     $$ = createRecord($2);

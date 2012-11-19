@@ -3,7 +3,7 @@
 program testTypes(input, output);
 
 const aNum = 1;
-      aNum = 2;
+      aNum = 2; // Error!
       anotherbob = aNum;
 
 type bob = (enum1, enum2);
@@ -12,7 +12,8 @@ type bob = (enum1, enum2);
      bool = boolean;
      athing = array[1..10] of char;
      arec = record blah : integer end;
-     anotherrec = record blah : boolean; end;
+     anotherrec = record blah : boolean end;
+     maybegoodRec = record end; // Error!
 
 var joe : bob;
     text : clark;
@@ -22,7 +23,7 @@ var joe : bob;
 
 procedure foo(joe : enum0; foo :enum0);
     type enum1 = (e00, e11, e02);
-         joe = bool;
+         joe = bool; // Error!
     begin
     end;
     
@@ -32,7 +33,7 @@ procedure test(var bob : clark; jim : boolean);
     
 function asdf(tool : bob) : bob;
 begin
-    anotherbob := tool;
+    anotherbob := tool; // Error!
     asdf := enum2;
 end;
     

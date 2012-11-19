@@ -14,24 +14,24 @@ type boolean = (true, idunno, false);
      nameStr = array[1..25] of char;
      review = record
                 good : boolean;
-                reviewer : nameStr;
+                reviewer : nameStr
               end;
      book = record
                 title : array[1..50] of char;
                 author : nameStr;
                 id : integer;
-                reviews : array[1..10] of review;
+                reviews : array[1..10] of review
             end;
      badRecord = record
                     boolean : char;
                     title : nameStr;
                     french : boolean;
                     english : boolean;
-                    french : boolean; { $ERR_DATA$ [37, "field already defined", ["symbol 'french' already defined as a field for this record"]] $ERR_DATA$ }
+                    french : boolean { $ERR_DATA$ [37, "field already defined", ["symbol 'french' already defined as a field for this record"]] $ERR_DATA$ }
                  end;
     problemRecord = record
                         field1 : integer;
-                        field2 : real;
+                        field2 : real
                     end;
 
 var lib : array[1..20] of book;
