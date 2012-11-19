@@ -544,14 +544,15 @@ createScalarList(GPtrArray *nameList) {
     
     symbol *scalarType = createTypeSym(NULL, scalarListType);    
     symbol *scalar;
-    int i, tmp;
+    int i;
+    union constant_values constVal = { .integer = 0 };
     
     for (i = 0; i < listSize; i++) {
         const char *name = (const char *) g_ptr_array_index(nameList, i);
-        tmp = i + 1;
+        constVal.integer = i;
         scalar = localLookup(name);
         if (scalar == NULL) { // New symbol.
-            scalar = createSymbol(name, scalarType, OC_CONST, (void *) &tmp);
+            scalar = createSymbol(name, scalarType, OC_CONST, createConstDesc(constVal));
         } else {
                 symExistsError(name);
                 continue;
