@@ -246,6 +246,8 @@ symbol *createErrorSym(object_class);
  
 void removeSymbol (char const *);
 
+symbol *addBuiltinProc(const char *id, GPtrArray *paramList);
+
 /**
  Our symbol table will need multiple levels, so we will
  need to add and remove levels as a new scope is defined

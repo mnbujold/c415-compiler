@@ -67,6 +67,8 @@ main(int argc,char** argv)
 #endif
     
     init_table ();
+    //showAllSymbols ();
+    //exit (1);
 #if DEBUG
     showAllSymbols();
 #endif
