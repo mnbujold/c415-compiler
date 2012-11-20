@@ -559,19 +559,19 @@ void init_table () {
   addBuiltinProc("read", addParam(NULL, NULL));
 
   
-  addBuiltinProc("abs", addParam(NULL, NULL));
-  addBuiltinProc("chr", addParam(NULL, NULL));
-  addBuiltinProc("cos", addParam(NULL, NULL));
-  addBuiltinProc("exp", addParam(NULL, NULL));
-  addBuiltinProc("ln", addParam(NULL, NULL));
-  addBuiltinProc("odd", addParam(NULL, NULL));
-  addBuiltinProc("ord", addParam(NULL, NULL));
-  addBuiltinProc("pred", addParam(NULL, NULL));
-  addBuiltinProc("round", addParam(NULL, NULL));
-  addBuiltinProc("sin", addParam(NULL, NULL));
-  addBuiltinProc("sqr", addParam(NULL, NULL));
-  addBuiltinProc("sqrt", addParam(NULL, NULL));
-  addBuiltinProc("succ", addParam(NULL, NULL));
+  addBuiltinFunc("abs", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("chr", globalLookup("char"), addParam(NULL, NULL));
+  addBuiltinFunc("cos", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("exp", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("ln", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("odd", globalLookup("integer"), addParam(NULL, NULL));
+  addBuiltinFunc("ord", globalLookup("integer"), addParam(NULL, NULL));
+  addBuiltinFunc("pred", globalLookup("integer"), addParam(NULL, NULL));
+  addBuiltinFunc("round", globalLookup("integer"), addParam(NULL, NULL));
+  addBuiltinFunc("sin", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("sqr", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("sqrt", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("succ", globalLookup("integer"), addParam(NULL, NULL));
   
   //addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
   //addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
@@ -593,8 +593,7 @@ symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {
     return newProc;
 }
 
-symbol *
-addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList) {
+symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList) {
     symbol *newFunc = createSymbol(id, returnType, OC_FUNC,
                                    createFunctionDesc(paramList, returnType));
 
