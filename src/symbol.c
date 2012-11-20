@@ -566,36 +566,30 @@ void init_table () {
   //TODO: finish implementing all the different function descriptions here
   
   /* Procedures */
-  GPtrArray *writelnParams = addParam (NULL, NULL);
-  addBuiltinProc ("writeln", writelnParams);
+  addBuiltinProc("writeln", addParam(NULL, NULL));
+  addBuiltinProc("write", addParam(NULL, NULL));
+  addBuiltinProc("readln", addParam(NULL, NULL));
+  addBuiltinProc("read", addParam(NULL, NULL));
+  addBuiltinProc("abs", addParam(NULL, NULL));
+  addBuiltinProc("chr", addParam(NULL, NULL));
+  addBuiltinProc("cos", addParam(NULL, NULL));
+  addBuiltinProc("exp", addParam(NULL, NULL));
+  addBuiltinProc("ln", addParam(NULL, NULL));
+  addBuiltinProc("odd", addParam(NULL, NULL));
+  addBuiltinProc("ord", addParam(NULL, NULL));
+  addBuiltinProc("pred", addParam(NULL, NULL));
+  addBuiltinProc("round", addParam(NULL, NULL));
+  addBuiltinProc("sin", addParam(NULL, NULL));
+  addBuiltinProc("sqr", addParam(NULL, NULL));
+  addBuiltinProc("sqrt", addParam(NULL, NULL));
+  addBuiltinProc("succ", addParam(NULL, NULL));
+  
   //addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
-  addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
-  
-  
-  
-  /* Functions */
-  addSymbol("readln", createSymbol("readln", NULL, OC_PROC, NULL));
-  addSymbol("read", createSymbol("read", NULL, OC_PROC, NULL));
-  addSymbol("abs", createSymbol("abs", NULL, OC_FUNC, NULL));
-  addSymbol("chr", createSymbol("chr", NULL, OC_FUNC, NULL));
-  addSymbol("cos", createSymbol("cos", NULL, OC_FUNC, NULL));
-  addSymbol("exp", createSymbol("exp", NULL, OC_FUNC, NULL));
-  addSymbol("ln", createSymbol("ln", NULL, OC_FUNC, NULL));
-  addSymbol("odd", createSymbol("odd", NULL, OC_FUNC, NULL));
-  addSymbol("ord", createSymbol("ord", NULL, OC_FUNC, NULL));
-  addSymbol("pred", createSymbol("pred", NULL, OC_FUNC, NULL));
-  addSymbol("round", createSymbol("round", NULL, OC_FUNC, NULL));
-  addSymbol("sin", createSymbol("sin", NULL, OC_FUNC, NULL));
-  addSymbol("sqr", createSymbol("sqr", NULL, OC_FUNC, NULL ));
-  addSymbol("sqrt", createSymbol("sqrt", NULL, OC_FUNC, NULL));
-  addSymbol("succ", createSymbol("succ", NULL, OC_FUNC, NULL));
-
-  
+  //addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
+  //addSymbol("readln", createSymbol("readln", NULL, OC_PROC, NULL));
+  //addSymbol("read", createSymbol("read", NULL, OC_PROC, NULL));
 }
-
-
-symbol *
-addBuiltinProc(const char *id, GPtrArray *paramList) {
+symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {
     symbol *newProc;
     int badDefn = paramList == NULL;
     
