@@ -547,19 +547,6 @@ void init_table () {
   /* Param lists for built-ins */
   
   //TODO: Finish implementing all the different param descriptions here
-  addSymbol("abs_param", createSymbol("abs_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("chr_param", createSymbol("chr_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("cos_param", createSymbol("cos_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("exp_param", createSymbol("exp_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("ln_param", createSymbol("ln_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("odd_param", createSymbol("odd_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("ord_param", createSymbol("ord_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("pred_param", createSymbol("pred_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("round_param", createSymbol("round_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("sin_param", createSymbol("sin_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("sqr_param", createSymbol("sqr_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("sqrt_param", createSymbol("sqrt_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("succ_param", createSymbol("succ_param", NULL, OC_PARAM, createParamDesc(0)));
   
   /* Built-in functions */
   
@@ -570,6 +557,8 @@ void init_table () {
   addBuiltinProc("write", addParam(NULL, NULL));
   addBuiltinProc("readln", addParam(NULL, NULL));
   addBuiltinProc("read", addParam(NULL, NULL));
+
+  
   addBuiltinProc("abs", addParam(NULL, NULL));
   addBuiltinProc("chr", addParam(NULL, NULL));
   addBuiltinProc("cos", addParam(NULL, NULL));
