@@ -282,7 +282,7 @@ closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                             }
                         ;
 
-array_type              : ID // Might need simple_type here, but gives a reduce/reduce error because of parantheses
+array_type              : ID
                             {
                                 symbol *type = getType($1);
                                 if (type != NULL) {
