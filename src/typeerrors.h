@@ -162,4 +162,5 @@ void symNotArrayError(const char *id);
  */
 void ctrlTypeNotInLoopError(const char *controlType);
 
+void incompatibleIndexError (const char *arrayID, const char *indexID);
 #endif

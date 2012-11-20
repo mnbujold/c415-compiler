@@ -2,9 +2,9 @@
     1.pal
     Tests syntax of invalid function and procedure calls and definitions.
     Errors:
-    19:18 incomplete parameter definition in function header
-    29:12 incompatible array assignment, arrays cannot be indexed by reals
-    30:22 missing end paranthesis in function call
+    20:18 incomplete parameter definition in function header
+    29:12 incompatible array assignment, arrays cannot be indexed by reals, param1 is a real
+    30:22 missing end parenthesis in function call
     42:23 missing parameter in procedure call
 }
 program syntactical(hello, goodbye); 
