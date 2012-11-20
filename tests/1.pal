@@ -3,7 +3,6 @@
     Tests syntax of invalid function and procedure calls and definitions.
     Errors:
     19:18 incomplete parameter definition in function header
-    29:12 incompatible array assignment, arrays cannot be indexed by reals
     30:22 missing end paranthesis in function call
     42:23 missing parameter in procedure call
 }

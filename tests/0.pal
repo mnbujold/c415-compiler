@@ -2,9 +2,9 @@
     0.pal
     Tests syntax of invalid arithmetic expressions and array definitions.
     Errors:
-    19:42 unexpected real number in array definition
-    20:46 unfinished array definition, unexpected ]
-    39:34 unexpected addition operator
+    22:42 unexpected real number in array definition
+    23:46 unfinished array definition, unexpected ]
+    42:34 unexpected addition operator
 }
 
 
