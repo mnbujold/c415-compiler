@@ -130,20 +130,23 @@ if (yytext != NULL) {
 
  /* comments, newlines, etc. */
 [\n\r]|(\r\n)                      	{ DB_PRINT("CR\n"); 
-                                  lineno++;
+                                  //lineno++;
                                   if (prog_listing) {
                                      fprintf(listing_file, "%s \n", errortext);
                                      printf("{%d} %s\n",lineno, errortext);
                                   }
+                                  lineno++;
                                   last_column=1;
                                   updateError(); 
+
                                 }
 [ \t]                           { 
                                   errortext = appendErrorText(errortext, yytext, &errorTextLength);
                                   last_column += strlen (yytext);
                                   /* ignore whitespace */ 
                                   }
-"//"[^\n]*""                    { errortext = appendErrorText(errortext, yytext, &errorTextLength);}
+"//"[^\n]*""                    { DB_PRINT("SL_COMMENT ");
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);}
 "{"[^}]*"}"		        { lineno += strcountlines(yytext);
                                   errortext = appendErrorText(errortext, yytext, &errorTextLength);
                                   /* do nothing, a block comment */ 

@@ -51,8 +51,8 @@ main(int argc,char** argv)
 	eList = NULL;
 	iserror = 0;
     token_location = 0;
-    lineno = 0;
-    oldlineno = 1;
+    lineno = 1;
+    oldlineno = 0;
     looperrordetection = 0;
 	errorTextLength = 0;
 	errortext = NULL;
@@ -67,7 +67,7 @@ main(int argc,char** argv)
 #endif
     
     init_table ();
-    //showAllSymbols ();
+    showAllSymbols ();
     //exit (1);
 #if DEBUG
     showAllSymbols();
