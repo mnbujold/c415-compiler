@@ -282,7 +282,7 @@ closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                             }
                         ;
 
-array_type              : ID // Might need simple_type here, but gives a reduce/reduce error because of parantheses
+array_type              : ID
                             {
                                 symbol *type = getType($1);
                                 if (type != NULL) {
@@ -559,6 +559,7 @@ var                     : ID
 subscripted_var         : var LEFTBRACKET expr
                             {
                                 if ($1 != NULL && $3 != NULL) {
+                                    //printf ("Accessing the array like I should");
                                     $$ = accessArray($1, $3);
                                 } else {
                                     $$ = NULL;

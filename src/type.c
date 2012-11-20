@@ -45,6 +45,10 @@ int
 assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
     object_class sym1_oc = sym1->oc;
     object_class sym2_oc = sym2->oc;
+    //printf ("In checking assignment compatiblity %s %s\n", sym1->name, sym2->name);
+    //printf ("Their object class and type %d %s %d %s\n", sym1_oc, sym1->symbol_type->name, sym2_oc, sym2->symbol_type->name);
+    //printf ("Object class: %d %d", sym1_oc, sym2_oc);
+
 
     if (sym1_oc != OC_VAR && sym1_oc != OC_PARAM) {
         if (showErrors != 0) {
@@ -70,6 +74,7 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
     }
 
     if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
+       //printf ("We see they are both arrays");
        return arrayAssignmentCompatible (sym1, sym2, showErrors);
       //return array assignment compatiblity
     } else if (tcSym1 == tcSym2) {
@@ -806,18 +811,22 @@ addParam(GPtrArray *paramList, symbol *newParam) {
 
 symbol *accessArray(symbol *array, symbol *index) {
     
-    return createErrorSym(OC_VAR);
+    //return createErrorSym(OC_VAR);
     
-  //printf ("Within array access\n");
   if (getTypeClass (array) != TC_ARRAY) {
       symNotArrayError(array->name);
     return createErrorType(NULL);
   }
   //check if index is the right indexing type
-  struct tc_array *arrayDescription = array->desc.type_attr->desc.array;
-  if (!(index->symbol_type  == arrayDescription->index_type)) {
+  struct tc_array *arrayDescription = getArrayDescription(array);
+  
+  //struct tc_subrange *subrange1 = index1->desc.type_attr->desc.subrange;
+  symbol *motherType = arrayDescription->index_type->desc.type_attr->desc.subrange->mother_type;
+  if (!(index->symbol_type  == motherType)) {
+    incompatibleIndexError (array->name, index->name);
     return createErrorType (NULL);
   }
+ // printf ("Still not segfaulting..\n");
   
   //check if it is within bounds for constant
   //assume constant has value
@@ -834,8 +843,9 @@ symbol *accessArray(symbol *array, symbol *index) {
     }
   }
   
-  //TODO: We will need to be able to access with a variable as well
   
+  //TODO: We will need to be able to access with a variable as well
+  // Or would this be a run time error?
 }
 
 symbol *recordAccess (symbol *record, symbol *key) {
@@ -869,6 +879,8 @@ void doVarAssignment (symbol *var, symbol *expr) {
 //   if (var->oc != OC_VAR) {
 //     assignmentError ();
 //   }
+
+//  printf ("In do var assignment %s %s\n", var->name, expr->name);
   if (assignmentCompatibleSym(var, expr, 1) == 1) {
     //What does it even mean to assign right now...
     //Point to the expression, as far as I can tell

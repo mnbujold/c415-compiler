@@ -578,51 +578,29 @@ void init_table () {
   //addSymbol("readln", createSymbol("readln", NULL, OC_PROC, NULL));
   //addSymbol("read", createSymbol("read", NULL, OC_PROC, NULL));
 }
-symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {
-    symbol *newProc;
-    int badDefn = paramList == NULL;
-    
-    if (localLookup(id) == NULL) {
-        struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
-        struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
-        if (badDefn == 1) {
-            typeDesc->type = TC_ERROR;
-        } else {
-            typeDesc->type = TC_NONE;
-        }
-        typeDesc->desc.none = noneType;
+
+symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {    
+    struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
+    struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
+    typeDesc->type = TC_NONE;
+    typeDesc->desc.none = noneType;
         
-        symbol *type = createTypeSym(NULL, typeDesc);
-        newProc = createSymbol(id, type, OC_PROC, createProcedureDesc(paramList));
-    } else {
-        symExistsError(id);
-        newProc = createErrorSym(OC_PROC);
-        newProc->name = id;        
-    }
+    symbol *type = createTypeSym(NULL, typeDesc);
+    symbol *newProc = createSymbol(id, type, OC_PROC, createProcedureDesc(paramList));
+
     addSymbol(id, newProc);
-    //pushLevel();
-    
-    if (badDefn == 1) {
-        return newProc;
-    }
-    
-    symbol *newParam;
-    symbol *paramType;
-    int listSize = paramList->len;
-    int i;
-    
-    for (i = 0; i < listSize; i++) {
-        newParam = (symbol *) g_ptr_array_index(paramList, i);
-        paramType = newParam->symbol_type;
-        
-        if (paramType->desc.type_attr->type != TC_ERROR
-            && localLookup(paramType->name) != NULL) {
-            addSymbol(paramType->name, paramType);
-            }
-            addSymbol(newParam->name, newParam);
-    }
-    
+
     return newProc;
+}
+
+symbol *
+addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList) {
+    symbol *newFunc = createSymbol(id, returnType, OC_FUNC,
+                                   createFunctionDesc(paramList, returnType));
+
+    addSymbol(id, newFunc);
+    
+    return newFunc;
 }
 
 

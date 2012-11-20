@@ -208,6 +208,19 @@ symNotArrayError(const char *id) {
     addTypeError(errMsg);
 }
 
+void incompatibleIndexError (const char *arrayID, const char *indexID) {
+    //printf ("Inside incompatible index error\n");
+    //char *errMsgString = "Cannot access '%s' using '%s', incompatible index type";
+    char errMsg[75+ strlen (arrayID) + strlen (indexID)];
+    //printf ("Success");
+    
+    sprintf (errMsg, "Cannot access '%s' using '%s', incompatible index type", arrayID, indexID);
+    //printf ("Error message output: %s\n", errMsgString);
+    addTypeError(errMsg);
+    //printf ("Done stuff");
+    
+}
+
 void
 ctrlTypeNotInLoopError(const char *controlType) {
     char errMsg[30 + strlen(controlType)];
