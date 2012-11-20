@@ -1,11 +1,10 @@
 {
-  Tests builtin functions
-    3.pal
+    33.pal
     Tests invalid scalar assignments and expressions.
     Errors:
-    22:3 illegal assignment of real to integer
-    26:3 illegal assignment of real to integer
-    36:9 incompatible enumerated type operand for multiplication
+    24:3 illegal assignment of real to integer
+    28:3 illegal assignment of real to integer
+    40:9 incompatible enumerated type operand for multiplication
 }
 
 program bobsyouruncle(doesthis, work);

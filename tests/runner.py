@@ -378,7 +378,7 @@ def _get_cmdline_args():
 def _get_valid_indices():
     """ Returns the names of all pal files in the current directory. """
     return [int(test_file.rsplit('.pal')[0]) for test_file in listdir(MY_PATH)
-            if test_file.endswith('.pal')]
+            if test_file.endswith('.pal') and test_file.rsplit('.pal')[0].isdigit()]
 
 def _valid_index(test_index, valid_indices):
     """ Returns whether test_index is in valid_indices. """
