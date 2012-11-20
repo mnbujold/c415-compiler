@@ -804,7 +804,10 @@ addParam(GPtrArray *paramList, symbol *newParam) {
     return paramList;    
 }
 
-symbol *arrayAccessWithIndex (symbol *array, symbol *index) {
+symbol *accessArray(symbol *array, symbol *index) {
+    
+    return createErrorSym(OC_VAR);
+    
   //printf ("Within array access\n");
   if (getTypeClass (array) != TC_ARRAY) {
       symNotArrayError(array->name);

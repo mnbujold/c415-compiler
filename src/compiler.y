@@ -548,7 +548,7 @@ var                     : ID
                             }
                         | subscripted_var RIGHTBRACKET
                             {
-                            //TODO: impelment array access
+                                $$ = $1;
                             }
                         | error RIGHTBRACKET /* ERROR */
                             {
@@ -558,10 +558,21 @@ var                     : ID
 
 subscripted_var         : var LEFTBRACKET expr
                             {
-                            DEBUG_PRINT (("In subscripted var"));
-                            //$$ = arrayAccessWithIndex ($1, $3);
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = accessArray($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                                DEBUG_PRINT (("In subscripted var"));
                             }
                         | subscripted_var COMMA expr
+                            {
+                                if ($1 != NULL && $3 != NULL) {
+                                    $$ = accessArray($1, $3);
+                                } else {
+                                    $$ = NULL;
+                                }
+                            }
                         ;
 
 expr                    : simple_expr

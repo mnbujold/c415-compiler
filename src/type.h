@@ -166,7 +166,7 @@ int isString (symbol *sym);
 char *getString (symbol *sym);
 type_class getArrayType (symbol *sym);
 
-symbol *arrayAccessWithIndex (symbol *array, symbol *index);
+symbol *accessArray(symbol *array, symbol *index);
 symbol *recordAccess (symbol *record, symbol *key);
 
 char *getString (symbol *sym);
