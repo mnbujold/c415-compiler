@@ -559,6 +559,7 @@ var                     : ID
 subscripted_var         : var LEFTBRACKET expr
                             {
                                 if ($1 != NULL && $3 != NULL) {
+                                    //printf ("Accessing the array like I should");
                                     $$ = accessArray($1, $3);
                                 } else {
                                     $$ = NULL;
