@@ -43,7 +43,8 @@ enum type_class {
   TC_RECORD,
   TC_SUBRANGE,
   TC_ERROR,
-  TC_NONE
+  TC_NONE,
+  TC_NUMBER
 };
 typedef enum type_class type_class;
 
@@ -125,6 +126,9 @@ struct tc_file{
 struct tc_none{
 };
 
+struct tc_number{
+};
+
 union constant_values{                           /* Value of const */ 
     int integer;
     int boolean;
@@ -171,6 +175,7 @@ union type_descriptions{
     struct tc_subrange *subrange;
     struct tc_file *file;
     struct tc_none *none;
+    struct tc_number *number;
   };
 
 struct type_desc{
