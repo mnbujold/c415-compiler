@@ -189,7 +189,6 @@ indexTypesCompatible(symbol *index1, symbol *index2) {
     if (indexType1 == indexType2 || indexType1->desc.type_attr == indexType2->desc.type_attr) {
         return 1;
     }
-    
     return 0;
 }
 
@@ -258,7 +257,7 @@ createConstant(type_class type, union constant_values value) {
 symbol *
 stringToArray(const char *string) {
     union constant_values lowValue = {.integer = 1};
-    union constant_values highValue = {.integer = (strlen(string) + 1)};
+    union constant_values highValue = {.integer = strlen(string)};
     symbol *low = createConstant(TC_INTEGER, lowValue);
     symbol *high = createConstant(TC_INTEGER, highValue);
     
@@ -993,10 +992,6 @@ callBuiltinFunc(const char *funcname, GPtrArray *arguments) {
         }
     }
     
-    printf("funcname=%s\n", funcname);
-    printf("arg_tc=%d\n", arg_tc);
-    
-    
     badProcArgError(1, funcname);
     return createErrorSym(OC_FUNC);
 }
@@ -1061,7 +1056,7 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
             goodCall = 0;
         }
         
-        if (assignmentCompatibleSym(param, arg, 0) != 1) {
+        if (assignmentCompatibleSym(param, arg, 1) != 1) {
             badProcArgError(i + 1, procname);
             goodCall = 0;
         }

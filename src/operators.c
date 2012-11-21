@@ -431,6 +431,11 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
   
   type_class tc1 = getTypeClass (o1);
   type_class tc2 = getTypeClass (o2);
+  
+  if (tc1 == TC_ERROR || tc2 == TC_ERROR) {
+      return 1;
+  }
+  
   if (tc1 == tc2) {
     if (o1->symbol_type == o2->symbol_type
      || o1->symbol_type->desc.type_attr == o2->symbol_type->desc.type_attr) {

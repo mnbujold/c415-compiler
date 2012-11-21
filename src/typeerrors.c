@@ -203,7 +203,7 @@ void
 badProcArgError(int arg_num, char *proc_name) {
     char errMsg[80 + strlen(proc_name)];
     sprintf(errMsg,
-            "argument %d of' %s' call has incompatible type",
+            "argument %d of '%s' call has incompatible type",
             arg_num,
             proc_name);
     addTypeError(errMsg);

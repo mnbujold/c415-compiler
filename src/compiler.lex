@@ -97,10 +97,20 @@ if (yytext != NULL) {
 }
 
 
-'(\\.|[^\\'])*'			{ //lineno += strcountlines (yytext);
-				  yylval.string = strdup(yytext); 
-                                  /*printf ("lala: %s\n", yytext);*/
-                                  return STRING; }
+'(\\.|[^\\'])*'                 {
+                                    int len = strlen(yytext);
+
+                                    if (len == 2) {
+                                        yylval.character = 0;
+                                        return CHAR;
+                                    } else if (len == 3) {
+                                        yylval.character = yytext[1];
+                                        return CHAR;
+                                    }
+                                    yylval.string = strndup(yytext+1, len-2);
+                                    
+                                    return STRING;
+                                }
 
  /* reserved keywords in PAL */
 "and"                           { return AND;}

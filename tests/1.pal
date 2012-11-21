@@ -38,7 +38,7 @@ reighteen := 18.0;
 
 fun := noWork(reighteen);
 
-andAllPlay(r1, fun, 'abcd'); // Legal.
+andAllPlay(r1, fun, 'abcd'); // Not Legal.
 
 andAllPlay(reighteen, , '0123'); { $ERR_DATA$ [23, "missing parameter in procedure call", ["unexpected COMMA"]] $ERR_DATA$ }
 

@@ -45,6 +45,7 @@ int loopLevel = 0;
 %union {
     char *id;
     char *string;
+    char character;
     int integer;
     double real;
     symbol *symbol;
@@ -74,6 +75,7 @@ int loopLevel = 0;
 %token <integer> INT_CONST
 %token <real> REAL_CONST 
 %token <string> STRING
+%token <character> CHAR
 
 /* Miscellaneous tokens */
 %token ASSIGN LEFTPAREN RIGHTPAREN PERIOD SEMICOLON COLON
@@ -755,15 +757,15 @@ unsigned_const          : unsigned_num
                             {
                                 $$ = $1;
                             }
+                        | CHAR
+                            {
+                                union constant_values value = { .character = $1 };
+                                $$ = createConstant(TC_CHAR, value);
+                            }
                         | STRING
                             {
-                                if (strlen($1) == 1) {
-                                    union constant_values value = { .character = $1[0] };
-                                     $$ = createConstant(TC_CHAR, value);
-                                } else {
-                                    union constant_values value = { .string = $1 };
-                                    $$ = createConstant(TC_STRING, value);
-                                }
+                                union constant_values value = { .string = $1 };
+                                $$ = createConstant(TC_STRING, value);
                             }
                         ;
 
