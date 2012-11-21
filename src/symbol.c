@@ -295,8 +295,6 @@ symbol *createSymbolType (char const *identifier, type_class type) {
       typeSymbol->desc.type_attr = typeDescription;
       break;    
   }
-  
-
 }
 
 struct const_desc *createConstDesc (union constant_values value) {
@@ -377,12 +375,6 @@ struct type_desc *createTypeDesc (type_class type) {
     case TC_SUBRANGE:
     
       break;
-    case TC_NUMBER:
-    {
-        struct tc_number *numDesc = calloc(1, sizeof(struct tc_number));
-        typeDesc->desc.number = numDesc;
-        break;
-    }
   }
 
   return typeDesc;
@@ -482,11 +474,7 @@ object_class oc, void *value){
       }
     }
     return newSymbol;
-}
- 
- 
- 
- 
+} 
  
  /**
   *
@@ -544,7 +532,6 @@ void init_table () {
   symbol *real = createSymbol("real", NULL, OC_TYPE, createTypeDesc(TC_REAL));
   addSymbol("real", real);
   
-  
   /* Constants */
   union constant_values trueval = { .boolean = TRUE_VALUE };
   addSymbol("true", createSymbol("true", boolean, OC_CONST, createConstDesc(trueval)));
@@ -554,13 +541,6 @@ void init_table () {
   addSymbol("maxint", createSymbol("maxint", integer, OC_CONST, createConstDesc(maxintval)));
   union constant_values pival = { .real = PI_VALUE };
   addSymbol("pi", createSymbol("pi", real, OC_CONST, createConstDesc(pival)));
-
-  /* Param lists for built-ins */
-  
-  
-  /* Built-in functions */
-  
-
   
   /* Procedures */
   addBuiltinProc("writeln", addParam(NULL, NULL));
@@ -568,30 +548,22 @@ void init_table () {
   addBuiltinProc("readln", addParam(NULL, NULL));
   addBuiltinProc("read", addParam(NULL, NULL));
 
-  /* Add parameter of function as symbol in symbol table? */
- 
-  symbol *numType = createSymbol(NULL, NULL, OC_TYPE, createTypeDesc(TC_NUMBER));
-
   /* Functions */
-  addBuiltinFunc("abs", numType, addFuncParam(numType));
+  addBuiltinFunc("abs", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("chr", globalLookup("char"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("cos", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("ln", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("odd", globalLookup("boolean"), addFuncParam(globalLookup("integer")));
-  addBuiltinFunc("ord", globalLookup("integer"), addFuncParam(globalLookup("integer")));
-  addBuiltinFunc("pred", globalLookup("integer"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("ord", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
+  addBuiltinFunc("pred", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("round", globalLookup("integer"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("sin", globalLookup("real"), addFuncParam(globalLookup("real")));
-  addBuiltinFunc("sqr", numType, addFuncParam(numType));
+  addBuiltinFunc("sqr", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("sqrt", globalLookup("real"), addFuncParam(globalLookup("real")));
-  addBuiltinFunc("succ", globalLookup("integer"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("succ", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("exp", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("trunc", globalLookup("integer"), addFuncParam(globalLookup("real")));
-  
-  //addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
-  //addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
-  //addSymbol("readln", createSymbol("readln", NULL, OC_PROC, NULL));
-  //addSymbol("read", createSymbol("read", NULL, OC_PROC, NULL));
+
 }
 
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {    
@@ -609,10 +581,10 @@ symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {
     return newProc;
 }
 
-GPtrArray *addFuncParam(symbol *paramSymb){
+GPtrArray *addFuncParam(symbol *paramType){
   /* Only for adding a single parameter */
   GPtrArray *param = g_ptr_array_new();
-  g_ptr_array_add(param, (gpointer) paramSymb);
+  g_ptr_array_add(param, createSymbol(NULL, paramType, OC_PARAM, createParamDesc(0)));
   return param;
 }
 symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList) {

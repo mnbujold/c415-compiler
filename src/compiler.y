@@ -59,7 +59,7 @@ int loopLevel = 0;
 %token END EXIT FUNCTION IF  
 %token NOT OF OR 
 %token PROCEDURE PROGRAM RECORD THEN
-%token TYPE VAR WHILE 
+%token TYPE VAR WHILE
 
 /* Relational tokens */
 %token ISEQUAL NOTEQUAL LESSTHAN GREATERTHAN 

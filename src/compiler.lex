@@ -164,8 +164,10 @@ writeln|write|read|readln   { yylval.id = strdup(yytext); return IOPROC; }
                                   return STRING; }
 .                               { illegalChar = yytext[0];
                                   return UNKNOWN_CHARACTER; }
-
+                                  
 %%
+/*<<EOF>>                 { return END_OF_FILE; }
+<<EOF>>             { static int once = 0; return once++ ? 0 : '\n'; }*/
 void add() {
      last_column += yyleng;
 }

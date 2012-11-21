@@ -74,12 +74,6 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
       //return array assignment compatiblity
     }
     
-    if (tcSym2 == TC_NUMBER && (tcSym1 == TC_INTEGER || tcSym1 == TC_REAL)
-     || tcSym1 == TC_NUMBER && (tcSym2 == TC_INTEGER || tcSym2 == TC_REAL)
-     || tcSym1 == TC_NUMBER && tcSym2 == TC_NUMBER) {
-            return 1;
-        }
-    
     if (tcSym1 == tcSym2) {
         if (sym1->symbol_type == sym2->symbol_type
          || sym1->symbol_type->desc.type_attr == sym2->symbol_type->desc.type_attr) {
@@ -925,13 +919,86 @@ callProc(const char *procname, GPtrArray *arguments) {
 
 symbol *
 callFunc(const char *funcname, GPtrArray *arguments) {
-    int goodCall = checkCallAndArgs(funcname, arguments, OC_FUNC, "function");
+    if (specialBuiltinFunc(funcname)) {
+        return callBuiltinFunc(funcname, arguments);
+    }
+
+    if (checkCallAndArgs(funcname, arguments, OC_FUNC, "function") == 0) {
+        return createErrorSym(OC_FUNC);
+    }
+    return globalLookup(funcname);
+}
+
+/**
+ * Checks if funcname is a special builtin.
+ */
+int
+specialBuiltinFunc(const char *funcname) {
+    if (strcmp(funcname, "abs") != 0 && strcmp(funcname, "sqr") != 0
+     && strcmp(funcname, "ord") != 0 && strcmp(funcname, "pred") != 0
+     && strcmp(funcname, "succ") != 0) {
+        return 0;
+    }
+    return globalLookup(funcname) == topLevelLookup(funcname);
+}
+
+/**
+ * Calls funcname with arguments assuming it has been identified as a special builtin.
+ */
+symbol *
+callBuiltinFunc(const char *funcname, GPtrArray *arguments) {
+    int numArgs = (arguments == NULL) ? 0 : arguments->len;
+    int numParams = globalLookup(funcname)->desc.func_attr->params->len;
+
+    if (numParams > numArgs) {
+        notEnoughParamsError("function");
+    } else if (numParams < numArgs) {
+        tooManyParamsError("function");
+    }
     
-    if (goodCall == 0) {
+    if (numArgs == 0) {
         return createErrorSym(OC_FUNC);
     }
     
-    return globalLookup(funcname);
+    symbol *arg = (symbol *) g_ptr_array_index(arguments, 0);
+    object_class arg_oc = arg->oc;
+
+    if (arg_oc == OC_TYPE) {
+        assignToError("type");
+        return createErrorSym(OC_FUNC);
+    } else if (arg_oc == OC_PROC) {
+        assignToError("procedure");
+        return createErrorSym(OC_FUNC);
+    }
+    type_class arg_tc = getTypeClass(arg);
+
+    if (arg_tc == TC_ERROR) {
+        return createErrorSym(OC_FUNC);
+    }
+ 
+    if (strcmp(funcname, "abs") == 0 || strcmp(funcname, "sqr") == 0) { //  number
+        if (arg_tc == TC_INTEGER || arg_tc == TC_REAL) {
+            return createAnonymousConst(arg, NULL);
+        }
+    } else if (strcmp(funcname, "ord") == 0) { // takes ordinal returns integer
+        if (arg_tc == TC_INTEGER || arg_tc == TC_CHAR || arg_tc == TC_SCALAR || arg_tc == TC_BOOLEAN) {
+            struct const_desc *constDesc = calloc(1, sizeof(struct const_desc));
+            constDesc->hasValue = 0;
+            
+            return createSymbol(NULL, topLevelLookup("integer"), OC_CONST, (void *) constDesc);
+        }
+    } else { // (pred or succ) ordinal
+        if (arg_tc == TC_INTEGER || arg_tc == TC_CHAR || arg_tc == TC_SCALAR || arg_tc == TC_BOOLEAN) {
+            return createAnonymousConst(arg, NULL);
+        }
+    }
+    
+    printf("funcname=%s\n", funcname);
+    printf("arg_tc=%d\n", arg_tc);
+    
+    
+    badProcArgError(1, funcname);
+    return createErrorSym(OC_FUNC);
 }
 
 /**
@@ -1045,6 +1112,11 @@ addArgument(struct pf_invok *invok, symbol *arg) {
 
 int
 checkIOProc(const char *proc_name, int showErrors) {
+    if (strcmp(proc_name, "write") != 0 && strcmp(proc_name, "writeln") != 0
+     && strcmp(proc_name, "read") != 0 && strcmp(proc_name, "readln") != 0) {
+        return 0;
+    }
+
     if (globalLookup(proc_name) != topLevelLookup(proc_name)) {
         if (showErrors == 1) {
             addTypeError("invalid procedure call (not a builtin IO procedure)");
@@ -1095,15 +1167,17 @@ createAnonymousConst(symbol *o1, symbol *o2) {
          tc2 = getTypeClass(o2);
     }
     
-    const char *numType;
+    symbol *numType;
     
     if (tc1 == TC_BOOLEAN) {
-        numType = "boolean";
+        numType = topLevelLookup("boolean");
     } else if (tc1 == TC_REAL || tc2 == TC_REAL) {
-        numType = "real";
-    } else { // integer
-        numType = "integer";
+        numType = topLevelLookup("real");
+    } else if (tc1 == TC_INTEGER) {
+        numType = topLevelLookup("integer");
+    } else if (tc1 == TC_SCALAR) {
+        numType = o1->symbol_type;
     }
     
-    return createSymbol(NULL, topLevelLookup(numType), OC_CONST, (void *) constDesc);
+    return createSymbol(NULL, numType, OC_CONST, (void *) constDesc);
 }
