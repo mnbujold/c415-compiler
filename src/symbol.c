@@ -570,7 +570,7 @@ void init_table () {
   addBuiltinFunc("chr", globalLookup("char"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("cos", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("ln", globalLookup("real"), addFuncParam(globalLookup("real")));
-  addBuiltinFunc("odd", globalLookup("integer"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("odd", globalLookup("boolean"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("ord", globalLookup("integer"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("pred", globalLookup("integer"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("round", globalLookup("integer"), addFuncParam(globalLookup("real")));
@@ -579,7 +579,8 @@ void init_table () {
   addBuiltinFunc("sqrt", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("succ", globalLookup("integer"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("exp", globalLookup("real"), addFuncParam(globalLookup("real")));
-
+  addBuiltinFunc("trunc", globalLookup("integer"), addFuncParam(globalLookup("real")));
+  
   //addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
   //addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
   //addSymbol("readln", createSymbol("readln", NULL, OC_PROC, NULL));
