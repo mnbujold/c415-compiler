@@ -61,6 +61,50 @@ if (yytext != NULL) {
 
 
 %}
+ /* comments, newlines, etc. */
+[\n\r]|(\r\n)                      	{ DB_PRINT("CR\n"); 
+                                  //lineno++;
+                                  if (prog_listing) {
+                                     fprintf(listing_file, "%s \n", errortext);
+                                     printf("{%d} %s\n",lineno, errortext);
+                                  }
+                                  lineno++;
+                                  last_column=1;
+                                  updateError(); 
+
+                                }
+[ \t]                           { 
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                                  last_column += strlen (yytext);
+                                  /* ignore whitespace */ 
+                                  }
+"//"[^\n]*""                    { /*printf("SL_COMMENT \n");*/
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);}
+
+<INITIAL>{
+"{"                             { BEGIN(IN_COMMENT); 
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                                  /*printf("ML_START\n"); */
+                                }
+}
+<IN_COMMENT>{
+"}"                             { BEGIN(INITIAL); 
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                                  /*printf("ML_END\n");*/ }
+[^}\n]+                         { errortext = appendErrorText(errortext, yytext, &errorTextLength); }
+[^}]"*"                         { errortext = appendErrorText(errortext, yytext, &errorTextLength); }
+\n                              { lineno++; 
+                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
+                                  /*printf("ML_COMMENT \n"); */
+                                }
+}
+
+
+'(\\.|[^\\'])*'			{ //lineno += strcountlines (yytext);
+				  yylval.string = strdup(yytext); 
+                                  /*printf ("lala: %s\n", yytext);*/
+                                  return STRING; }
+
  /* reserved keywords in PAL */
 "and"                           { return AND;}
 "array"                         { return ARRAY;}
@@ -127,41 +171,7 @@ writeln|write|read|readln   { yylval.id = strdup(yytext); return IOPROC; }
 ","				{ DB_PRINT("COMMA "); return COMMA;}
 ".."				{ return DOUBLEPERIOD;}
 
- /* comments, newlines, etc. */
-[\n\r]|(\r\n)                      	{ DB_PRINT("CR\n"); 
-                                  //lineno++;
-                                  if (prog_listing) {
-                                     fprintf(listing_file, "%s \n", errortext);
-                                     printf("{%d} %s\n",lineno, errortext);
-                                  }
-                                  lineno++;
-                                  last_column=1;
-                                  updateError(); 
 
-                                }
-[ \t]                           { 
-                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
-                                  last_column += strlen (yytext);
-                                  /* ignore whitespace */ 
-                                  }
-"//"[^\n]*""                    { DB_PRINT("SL_COMMENT ");
-                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);}
-
-<INITIAL>{
-"{"                             BEGIN(IN_COMMENT);
-}
-<IN_COMMENT>{
-"}"                             { BEGIN(INITIAL); }
-[^}\n]+                         { }
-"*"                             { }
-\n                              { lineno++; }
-}
-
-
-'(\\.|[^\\'])*'			{ //lineno += strcountlines (yytext);
-				  yylval.string = strdup(yytext); 
-                                  /*printf ("lala: %s\n", yytext);*/
-                                  return STRING; }
 .                               { illegalChar = yytext[0];
                                   return UNKNOWN_CHARACTER; }
                                   
