@@ -211,9 +211,13 @@ badProcArgError(int arg_num, char *proc_name) {
 
 void
 symNotRecordError(const char *id) {
-    char errMsg[25 + strlen(id)];
-    sprintf(errMsg, "symbol '%s' not a record", id);
-    addTypeError(errMsg);
+    if (id == NULL) {
+        addTypeError("symbol not a record");
+    } else {
+        char errMsg[25 + strlen(id)];
+        sprintf(errMsg, "symbol '%s' not a record", id);
+        addTypeError(errMsg);
+    }
 }
 
 void

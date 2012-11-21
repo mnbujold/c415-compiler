@@ -898,8 +898,11 @@ checkFuncValSet(symbol *func) {
 
 symbol *
 getRecordField(symbol *record, const char *fieldName) {
-    if (record->oc != OC_VAR || record->symbol_type->desc.type_attr->type != TC_RECORD) {
-        symNotRecordError();
+    object_class oc = record->oc;
+
+    if ((oc != OC_VAR && oc != OC_PARAM && oc != OC_CONST)
+      || getTypeClass(record) != TC_RECORD) {
+        symNotRecordError(record->name);
         return createErrorSym(OC_VAR);
     }
 
