@@ -27,4 +27,6 @@ void writeAllErrors(myerror *in, FILE *outFile);
 
 void add();
 int countlines (char *);
+
+int getNumErrors ();
 #endif

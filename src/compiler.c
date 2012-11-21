@@ -29,6 +29,7 @@ int errorTextLength;
 int prog_listing;
 FILE *listing_file;
 char listing_filename[1024];
+extern int numErrors;
 
 
 #ifdef DEBUG
@@ -86,6 +87,7 @@ main(int argc,char** argv)
         eList = deleteAllErrors(eList);
     }
     if (iserror) {
+        printf ("%d errors found\n", getNumErrors());
         printf("Errors exist. Compilation not successful.\n");
     } else {
         printf("Compilation successful.\n");

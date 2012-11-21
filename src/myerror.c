@@ -6,7 +6,13 @@
 
 extern int prog_listing;
 
+int numErrors = 0;
+
+int getNumErrors () {
+    return numErrors;
+}
 myerror *addError(myerror *in, const char *message, int location, int line) {
+    numErrors++;
 	myerror *sNew = NULL;
 	int errorTextLength = 0;
     line++;
@@ -27,7 +33,7 @@ myerror *addError(myerror *in, const char *message, int location, int line) {
 	} /*if*/
 	sNew->text = NULL;
 	sNew->errorTextLength = 0;
-	sNew->line = line;
+	sNew->line = line-1;
 	sNew->location = location;
 	sNew->next = NULL;
 	sNew->last = sNew;
@@ -38,6 +44,7 @@ myerror *addError(myerror *in, const char *message, int location, int line) {
 		in->last = sNew;
 	} /*if*/
 	return in;
+    //numErrors++;
 } /*addError*/
 
 char *createErrorText(int size, int *errorTextLength) {
