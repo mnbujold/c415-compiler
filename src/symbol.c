@@ -494,8 +494,11 @@ object_class oc, void *value){
  level is incremented by 1
 */
 void pushLevel () {
-  if (level >=MAX_LEVEL) {
+  //the level is equal to the level we will be at currently
+  if (level >MAX_LEVEL) {
     iserror = 1;
+    //printf ("Level: %d\n", level);
+    //showAllSymbols ();
     const char *str = "scope level is too big";
     eList = addError(eList, str, last_column, lineno);
    // return;
