@@ -86,9 +86,7 @@ if (yytext != NULL) {
 "var"				{ return VAR;}
 "while"				{ return WHILE;}
 
-"writeln"           { return WRITELN;}
-"read"              { return READ;}
-"readln"            { return READLN;}
+writeln|write|read|readln   { yylval.id = strdup(yytext); return IOPROC; }
 
  /* Numbers and Vars */
 [a-zA-Z][a-zA-Z0-9]*		{ yylval.id = strdup(yytext);  

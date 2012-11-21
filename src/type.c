@@ -1025,12 +1025,10 @@ addArgument(struct pf_invok *invok, symbol *arg) {
     return invok;
 }
 
-void checkWriteln() {
-    //printf ("In check writeln");
-    if (globalLookup("writeln") != topLevelLookup("writeln")) {
+void checkIOProc(const char *proc_name) {
+    if (globalLookup(proc_name) != topLevelLookup(proc_name)) {
         addTypeError ("invalid procedure call");
     }
-    //printf ("Leaving check writeln");
 }
 
 void

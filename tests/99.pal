@@ -144,4 +144,14 @@ aboolean[3] := 4; // Error!
 aboolean[3,5] := aboolean; // Error!
 arrayA[5, 5] := 5; // Error!
 
+read;
+readln;
+read();
+readln();
+
+write;
+writeln;
+write();
+writeln();
+
 end.

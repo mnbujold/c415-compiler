@@ -60,8 +60,6 @@ int loopLevel = 0;
 %token NOT OF OR 
 %token PROCEDURE PROGRAM RECORD THEN
 %token TYPE VAR WHILE 
-/* Special cases need special rules */
-%token WRITELN READ READLN 
 
 /* Relational tokens */
 %token ISEQUAL NOTEQUAL LESSTHAN GREATERTHAN 
@@ -82,6 +80,8 @@ int loopLevel = 0;
 %token LEFTBRACKET RIGHTBRACKET COMMA DOUBLEPERIOD 
 %token RETURN
 %token <id> ID
+/* Special cases need special rules */
+%token <id> IOPROC
 
 %token <string> UNKNOWN_CHARACTER
 
@@ -521,16 +521,14 @@ proc_invok              : plist_finvok RIGHTPAREN
                             {
                                 callProc($1, NULL);
                             }
-                        | WRITELN 
-                        //Note: we could accept write; but really that doesnt 
-                        //do anything, so we can just pretend to accept it
+                        | IOPROC
                             {
-                                checkWriteln();
+                                checkIOProc($1);
                             }
-                        | WRITELN LEFTPAREN RIGHTPAREN
+                        | IOPROC LEFTPAREN RIGHTPAREN
                             {
 
-                                callProc("writeln", NULL);
+                                callProc($1, NULL);
                             }
                         ;
 
@@ -802,10 +800,10 @@ plist_finvok            : ID LEFTPAREN parm
                                     $$ = NULL;
                                 }
                             }
-                        | WRITELN LEFTPAREN parm
+                        | IOPROC LEFTPAREN parm
                             {
                                 if ($3 != NULL) {
-                                    $$ = createArgList("writeln", $3);
+                                    $$ = createArgList($1, $3);
                                 } else {
                                     $$ = NULL;
                                 }
