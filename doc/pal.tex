@@ -56,7 +56,7 @@ To better handle error reporting in statements, we let conditionals reduce to er
 The large amount of error symbols in the program has resulted in, what we think, a fairly comprehensive syntactic error reporter, although their are still some instances of open brackets and statements eating up a lot of the input; this number of error symbols have also cause twelve shift/reduce conflicts.
 
 \section*{Symbol Table}
-We used the glib-2.0 library to implement data structures within our compiler, namely the symbol table.\\
+We used the glib-2.0 library to implement data structures within our compiler, primarily the symbol table.\\
 Our symbol table is a stack; for each new scope, we push a new level onto the stack. Lookup then looks at the top of the stack for localLookup, and begins its lookup from the top of the stack to the bottom for globalLookup. Each level of the symbol table stack is a hash table, where the symbol is retrieved using its identifier.\\
 
 \section*{Symbols}
@@ -70,11 +70,9 @@ To facilitate large scale testing and efficient reading of listing files, we cre
 When outputting program listings with the errors and line numbers appended, they are added to the program listing as comments, so the outputted program listing can be re-compiled an indefinite number of times.
 
 
-\section*{Problems}
-When printing the program listing, we start printing the line number at the first noncommented line, but we do count the number of lines correctly. If there exists a comment block at the start of the program, it is printed as a single line.
-\\
-\\
+\section*{Bugs/Features}
 Since we do not strip out comments when listing the parsed file, the listing file may not be further parsable (that is, the listing may cause additional errors if run through the compiler). This is because of block comments, in a line where an error occurred, whose closed brackets interrupt the block comment of the error message added to the listing.
+
 
 
 \end{document}

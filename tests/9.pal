@@ -2,9 +2,9 @@
     9.pal
     Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols.
     Errors:
-    16:26 illegal array range
-    17:24 missing lower or upper bound
-    19:16 input_type is already defined as a file object thing
+    16:28 illegal array range
+    17:25 missing lower or upper bound
+    19:17 input_type is already defined as a file object thing
     55:0 missing function return value assignment
     78:60 cannot call a program
 }

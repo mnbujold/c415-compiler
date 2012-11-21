@@ -51,7 +51,8 @@ cp2:
 	$(PY) $(RUNNER) -sn $(TESTS)
 	mkdir $(CP2DIR)
 	make clean
-	pdflatex doc/pal.tex
+	pdflatex -output-directory doc doc/pal.tex
+	rm -f doc/pal.log doc/pal.pdf doc/pal.aux
 	cp -r $(SOLUTION) $(SUBTESTS) $(CP2DIR)
 	tar -cvzf $(CP2DIR).tgz $(CP2DIR)
 	rm -rf $(CP2DIR) $(SUBTESTS)
@@ -59,8 +60,7 @@ cp2:
 clean:
 	rm -f pal core *.output
 	rm -f src/lex.yy.c src/*.tab.c src/*.tab.h 
-	rm -f doc/pal.log
-	rm -f doc/pal.pdf
+	rm -f doc/pal.log doc/pal.pdf doc/pal.aux
 	find . -name \*~ -type f -delete
 	find . -name \*.lst -type f -delete
 
