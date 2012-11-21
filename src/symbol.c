@@ -551,11 +551,10 @@ void init_table () {
 
   /* Param lists for built-ins */
   
-  //TODO: Finish implementing all the different param descriptions here
   
   /* Built-in functions */
   
-  //TODO: finish implementing all the different function descriptions here
+
   
   /* Procedures */
   addBuiltinProc("writeln", addParam(NULL, NULL));
