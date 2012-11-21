@@ -1051,8 +1051,8 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
         param = (symbol *) g_ptr_array_index(params, i);
         arg = (symbol *) g_ptr_array_index(arguments, i);
         
-        if (param->desc.parm_attr->varParam == 1 && (arg->oc != OC_VAR
-        || (arg->oc == OC_PARAM && arg->desc.parm_attr->varParam == 0))) {
+        if (param->desc.parm_attr->varParam == 1 && arg->oc != OC_VAR
+        && (arg->oc == OC_PARAM && arg->desc.parm_attr->varParam == 0)) {
             missingVarParamError(i + 1, procname);
             goodCall = 0;
         }
