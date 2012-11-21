@@ -154,4 +154,6 @@ writeln;
 write();
 writeln();
 
+writeln(joe); // Error!
+
 end.

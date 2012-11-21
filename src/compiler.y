@@ -523,7 +523,7 @@ proc_invok              : plist_finvok RIGHTPAREN
                             }
                         | IOPROC
                             {
-                                checkIOProc($1);
+                                checkIOProc($1, 1);
                             }
                         | IOPROC LEFTPAREN RIGHTPAREN
                             {

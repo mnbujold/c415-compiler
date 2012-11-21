@@ -213,22 +213,17 @@ type_class getArrayType (symbol *sym) {
  * if it is an array of characters, or a string
  */
 int isString (symbol *sym) {
-  if (getTypeClass (sym) == TC_ARRAY) {
-    if (getArrayType (sym) == TC_CHAR) {
-      return 1;
+    if (getTypeClass(sym) == TC_ARRAY && getArrayType(sym) == TC_CHAR) {
+        return sym->symbol_type->desc.type_attr->desc.array->minIndex == 1;
     }
-    else {
-      return 0;
-    }
-  }
-  return 0;
+    return 0;
 }
 /**
  * Gets String const from symbol
  * returns NULL if it is not a string
  */
 char *getString (symbol *sym) {
-  if (!isString) {
+  if (!isString(sym)) {
     return NULL;
   }
   
@@ -943,7 +938,6 @@ int
 checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
                  const char *callable) {
     symbol *proc = globalLookup(procname);
-    int numArgs;
  
     if (proc == NULL) {
         symNotDefinedError(procname);
@@ -960,10 +954,10 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
         return 0;
     }
     
-    if (arguments == NULL) {
-        numArgs = 0;
-    } else {
-        numArgs = arguments->len;
+    int numArgs = (arguments == NULL) ? 0 : arguments->len;
+    
+    if (checkIOProc(procname, 0) == 1) {
+        return callIOProc(procname, proc, arguments, numArgs);
     }
     
     GPtrArray *params;
@@ -1006,6 +1000,27 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
     return goodCall;
 }
 
+int
+callIOProc(const char *procname, symbol *proc, GPtrArray *arguments, int numArgs) {
+    int goodCall = 1;
+    symbol *arg;
+    type_class tc;
+    int i;
+    
+    for (i = 0; i < numArgs; i += 1) {
+        arg = (symbol *) g_ptr_array_index(arguments, i);
+        tc = getTypeClass(arg);
+        
+        if (tc != TC_INTEGER && tc != TC_REAL && tc != TC_CHAR
+         && isString(arg) == 0) {
+            badProcArgError(i + 1, procname);
+            goodCall = 0;
+        }
+    }
+    
+    return goodCall;
+}
+
 struct pf_invok *
 createArgList(const char *id, symbol *arg) {
     GPtrArray *args = g_ptr_array_new();
@@ -1025,10 +1040,15 @@ addArgument(struct pf_invok *invok, symbol *arg) {
     return invok;
 }
 
-void checkIOProc(const char *proc_name) {
+int
+checkIOProc(const char *proc_name, int showErrors) {
     if (globalLookup(proc_name) != topLevelLookup(proc_name)) {
-        addTypeError ("invalid procedure call");
+        if (showErrors == 1) {
+            addTypeError("invalid procedure call (not a builtin IO procedure)");
+        }
+        return 0;
     }
+    return 1;
 }
 
 void

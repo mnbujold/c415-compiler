@@ -182,7 +182,7 @@ void callProc(const char *procname, GPtrArray *arguments);
  */
 symbol *callFunc(const char *funcname, GPtrArray *arguments);
 
-void checkIOProc(const char *proc_name);
+int checkIOProc(const char *proc_name, int showErrors);
 
 void callProc(const char *procname, GPtrArray *arguments);
 
