@@ -160,7 +160,8 @@ struct pf_invok *createArgList(const char *id, symbol *arg);
  */
 struct pf_invok *addArgument(struct pf_invok *invok, symbol *arg);
 
-symbol *createAnonymousVar(symbol *o1, symbol *o2);
+symbol *createAnonymousConst(symbol *o1, symbol *o2);
+symbol *createBooleanConst();
 
 int isString (symbol *sym);
 char *getString (symbol *sym);

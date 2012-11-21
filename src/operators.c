@@ -37,14 +37,6 @@ int canEvaluate(symbol *operand) {
     
 }
 
-symbol *
-createBooleanConst() {
-    struct const_desc *constDec = calloc (1, sizeof (struct const_desc));
-    constDec->hasValue = 0;
-    
-    return createSymbol(NULL, topLevelLookup("boolean"), OC_CONST, (void *) constDec);
-}
-
 symbol *identity (symbol *op) {
   if (getTypeClass (op) == TC_REAL || getTypeClass (op) == TC_INTEGER) {
     return op;
@@ -73,10 +65,9 @@ symbol *inversion (symbol *op)  {
     }
     else {
       return op;
-    }
-    
+    }    
+    return createAnonymousConst(op, NULL);
   }
-  
   addTypeError ("not a real or integer");
   return createErrorSym(OC_CONST);
 }
@@ -102,13 +93,7 @@ symbol *notOp(symbol *operand) {
         union constant_values valueU = {.boolean = value}; 
         return createConstant(TC_BOOLEAN, valueU);
     }
-    
-    //TODO: This does not make any sense!
-    union constant_values valueU = {.boolean = 0}; 
-    symbol *resultSym = createConstant(TC_BOOLEAN,valueU);
-    resultSym->desc.const_attr->hasValue = 0;
-    
-    return resultSym;
+    return createBooleanConst();
 }
 
 symbol *andOp (symbol *o1, symbol *o2) {
@@ -218,9 +203,7 @@ symbol *addOp (symbol *o1, symbol *o2) {
     
   }
 
-  //TODO: createAnonymousVar not implemented, does nothing
-  //TODO: Add some way so you know it is an addition
-  return createAnonymousVar(o1, o2);
+  return createAnonymousConst(o1, o2);
 }
 
 symbol *subtractOp (symbol *o1, symbol *o2) {
@@ -278,10 +261,8 @@ symbol *subtractOp (symbol *o1, symbol *o2) {
       }
       
     }
-    
-    //TODO: createAnonymousVar not implemented, does nothing
-    //TODO: Add some way so you know it is an addition
-    return createAnonymousVar(o1, o2);
+
+    return createAnonymousConst(o1, o2);
 }
 
 symbol *multOp (symbol *o1, symbol *o2) {
@@ -335,10 +316,8 @@ symbol *multOp (symbol *o1, symbol *o2) {
     }
     
   }
-  
-  //TODO: createAnonymousVar not implemented, does nothing
-  //TODO: Add some way so you know it is an addition
-  return createAnonymousVar(o1, o2);
+
+  return createAnonymousConst(o1, o2);
 }
 
 symbol *intDivOp (symbol *o1, symbol *o2) {
@@ -361,9 +340,7 @@ symbol *intDivOp (symbol *o1, symbol *o2) {
       
     }
     
-    return createAnonymousVar(o1, o2);
-
-
+    return createAnonymousConst(o1, o2);
 }
 
 symbol *realDivOp (symbol *o1, symbol *o2) {
@@ -385,7 +362,7 @@ symbol *realDivOp (symbol *o1, symbol *o2) {
     
   }
   
-  return createAnonymousVar(o1, o2);
+  return createAnonymousConst(o1, o2);
 
 }
 
@@ -409,7 +386,7 @@ symbol *modOp (symbol *o1, symbol *o2) {
     
   }
   
-  return createAnonymousVar(o1, o2);
+  return createAnonymousConst(o1, o2);
   
 }
 

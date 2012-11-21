@@ -45,10 +45,6 @@ int
 assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
     object_class sym1_oc = sym1->oc;
     object_class sym2_oc = sym2->oc;
-    //printf ("In checking assignment compatiblity %s %s\n", sym1->name, sym2->name);
-    //printf ("Their object class and type %d %s %d %s\n", sym1_oc, sym1->symbol_type->name, sym2_oc, sym2->symbol_type->name);
-    //printf ("Object class: %d %d", sym1_oc, sym2_oc);
-
 
     if (sym1_oc != OC_VAR && sym1_oc != OC_PARAM) {
         if (showErrors != 0) {
@@ -74,7 +70,6 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
     }
 
     if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
-       //printf ("We see they are both arrays");
        return arrayAssignmentCompatible (sym1, sym2, showErrors);
       //return array assignment compatiblity
     } else if (tcSym1 == tcSym2) {
@@ -203,7 +198,6 @@ indexTypesCompatible(symbol *index1, symbol *index2) {
 type_class getArrayType (symbol *sym) {
     
     struct tc_array *arrayDescription = getArrayDescription (sym);
-    //printf ("Type of array: %d\n", getTypeClass (arrayDescription->obj_type));
     return getTypeClass (arrayDescription->obj_type);
 }
 
@@ -874,12 +868,13 @@ void
 doVarAssignment (symbol *var, symbol *expr) {
     if (assignmentCompatibleSym(var, expr, 1) == 1) {
 
-        symbol *varLookup = globalLookup(var->name);
-        
+        symbol *varLookup = localLookup(var->name);
+
         if (varLookup != NULL && varLookup->oc == OC_FUNC) {
             varLookup->desc.func_attr->returnValSet = 1;
         }
     }
+    
 }
 
 void
@@ -1071,7 +1066,36 @@ checkControlFlow(int loopLevel, const char *controlType) {
     }
 }
 
-//TODO: Should not need this for checkpoint 2...
-symbol *createAnonymousVar(symbol *o1, symbol *o2) {
-  return NULL;
+symbol *
+createBooleanConst() {
+    struct const_desc *constDesc = calloc(1, sizeof(struct const_desc));
+    constDesc->hasValue = 0;
+    
+    return createSymbol(NULL, topLevelLookup("boolean"), OC_CONST, (void *) constDesc);
+}
+
+symbol *
+createAnonymousConst(symbol *o1, symbol *o2) {
+    struct const_desc *constDesc = calloc(1, sizeof(struct const_desc));
+    constDesc->hasValue = 0;
+    type_class tc1 = getTypeClass(o1);
+    type_class tc2;
+    
+    if (o2 == NULL) {
+        tc2 = tc1;
+    } else {
+         tc2 = getTypeClass(o2);
+    }
+    
+    const char *numType;
+    
+    if (tc1 == TC_BOOLEAN) {
+        numType = "boolean";
+    } else if (tc1 == TC_REAL || tc2 == TC_REAL) {
+        numType = "real";
+    } else { // integer
+        numType = "integer";
+    }
+    
+    return createSymbol(NULL, topLevelLookup(numType), OC_CONST, (void *) constDesc);
 }

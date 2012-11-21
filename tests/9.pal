@@ -13,10 +13,10 @@ program mostness(inputtype, outputtype);
 type xType = (x1, x2, x3);
 
 var xArray : array[xType] of integer;
-    badArray : array[-2..-5] of integer; { $ERR_DATA$ [26, "illegal array range", ["lower bound is greater than upper bound"]] $ERR_DATA$ }
-    anotherBad : array[5] of char; { $ERR_DATA$ [24, "missing lower or upper bound", ["array index missing lower bound"]] $ERR_DATA$ }
+    badArray : array[-2..-5] of integer; { $ERR_DATA$ [28, "illegal array range", ["lower bound is greater than upper bound"]] $ERR_DATA$ }
+    anotherBad : array[5] of char; { $ERR_DATA$ [25, "missing lower or upper bound", ["array index missing lower bound"]] $ERR_DATA$ }
     y : xType;
-    inputtype : char; { $ERR_DATA$ [16, "input_type is already defined as a file object thing", ["symbol 'input_type' is being redefined in this level"]] $ERR_DATA$ }
+    inputtype : char; { $ERR_DATA$ [17, "input_type is already defined as a file object thing", ["symbol 'input_type' is being redefined in this level"]] $ERR_DATA$ }
 
 function canIReturn(x : xType; i : integer) : xType;
     var outputtype : char; // Legal.

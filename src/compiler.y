@@ -557,7 +557,6 @@ var                     : ID
 subscripted_var         : var LEFTBRACKET expr
                             {
                                 if ($1 != NULL && $3 != NULL) {
-                                    //printf ("Accessing the array like I should");
                                     $$ = accessArray($1, $3);
                                 } else {
                                     $$ = NULL;
@@ -576,6 +575,8 @@ subscripted_var         : var LEFTBRACKET expr
 
 expr                    : simple_expr
                             {
+                                if ($1 != NULL) {
+                                }
                                 $$ = $1;
                             }
                         | expr ISEQUAL simple_expr
@@ -819,7 +820,7 @@ plist_finvok            : ID LEFTPAREN parm
                         ;
 
 parm                    : expr
-                            {
+                            {                                
                                 $$ = $1;
                             }
                         ;

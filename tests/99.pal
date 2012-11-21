@@ -1,6 +1,6 @@
 // Get the type checking to work ...
 
-program testTypes(input, output);
+program aprogram(input, output);
 
 const aNum = 1;
       aNum = 2; // Error!
