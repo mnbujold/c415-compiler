@@ -56,18 +56,18 @@ procedure addBook(var newBook : book; charIndex : integer; revIndex : integer);
         else if (aLetter = 'x' or aLetter = 'y' or aLetter 'z') then
             rating := false
         else
-            rating := idunno
+            rating := idunno;
         theRev.good := rating;
         theRev.reviewer := revName;
         createReview := theRev;
     end;
 begin
-    book.title := title;
-    book.id := id;
-    book.author := name;
-    reviews[charIndex] := createReview(book.author[revIndex]);
-    book.reviews := reviews;
-    book.reviews[revIndex] := createReview(book.title[charIndex]);
+    newBook.title := title;
+    newBook.id := id;
+    newBook.author := name;
+    reviews[charIndex] := createReview(newBook.author[revIndex]);
+    newBook.reviews := reviews;
+    newBook.reviews[revIndex] := createReview(newBook.title[charIndex]);
 end;
     
 begin

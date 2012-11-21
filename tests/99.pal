@@ -20,7 +20,22 @@ var joe : bob;
     bar : athing;
     e11 : enum0;
     aboolean : bool;
+    arrayA : array[1..10] of integer;
+    arrayB : array[1..12] of integer;
+    arrayBminus : array[0..10] of integer;
+    arrayC : array[1..10] of real;
+    arrayD : array[1..10] of array[1..10] of integer;
+    arrayS : array['b'..'g'] of char;
 
+procedure testArrays();
+begin
+    arrayA[5] := arrayC[7];
+    arrayA[3] := arrayB[3];
+    arrayA[5] := arrayB; // Error!
+    arrayA := arrayB; // Error!
+    arrayA := arrayBminus; // Error!
+end;
+    
 procedure foo(joe : enum0; foo :enum0);
     type enum1 = (e00, e11, e02);
          joe = bool; // Error!
@@ -96,7 +111,12 @@ continue;
 exit; // Error!
 
 while asdf(joe) do // Error!
-begin
+begin {
+    char errMsg[75];
+    sprintf(errMsg, , index, max);
+    addTypeError(errMsg);
+}
+
 end;
 
 continue; // Error!
@@ -106,5 +126,22 @@ if (1) then // Error!
     
 if (text) then // Error!
     writeln;
+
+arrayA[5] := 5;
+arrayA[5.0] := 5; // Error!
+arrayS['d'] := arrayS['f'];
+arrayS['d'] := arrayS['j']; // Error!
+
+arrayD[4] := arrayA;
+arrayD[4,5] := 5;
+arrayD[4][5] := 5;
+
+arrayD[4] := 5; // Error!
+arrayD[4,5] := arrayA; // Error!
+arrayD[4,12] := 5; // Error!
+arrayD[0][5] := 5; // Error!
+aboolean[3] := 4; // Error!
+aboolean[3,5] := aboolean; // Error!
+arrayA[5, 5] := 5; // Error!
 
 end.

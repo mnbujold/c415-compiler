@@ -38,7 +38,7 @@ begin
     while counter >= 0 do
     begin
         counter := counter - (+1);  // Legal.
-        if isEven(counter) then
+        if isEven(counter) = true then
             numEven := numEven + +1; { $ERR_DATA$ [34, "unexpected addition operator", ["unexpected PLUS"]] $ERR_DATA$ }
     end;
     countEven := numEven;

@@ -8,7 +8,7 @@
     55:0 missing function return value assignment
     78:60 cannot call a program
 }
-program mostness(input_type, output_type);
+program mostness(inputtype, outputtype);
 
 type xType = (x1, x2, x3);
 
@@ -16,10 +16,10 @@ var xArray : array[xType] of integer;
     badArray : array[-2..-5] of integer; { $ERR_DATA$ [26, "illegal array range", ["lower bound is greater than upper bound"]] $ERR_DATA$ }
     anotherBad : array[5] of char; { $ERR_DATA$ [24, "missing lower or upper bound", ["array index missing lower bound"]] $ERR_DATA$ }
     y : xType;
-    input_type : char; { $ERR_DATA$ [16, "input_type is already defined as a file object thing", ["symbol 'input_type' is being redefined in this level"]] $ERR_DATA$ }
+    inputtype : char; { $ERR_DATA$ [16, "input_type is already defined as a file object thing", ["symbol 'input_type' is being redefined in this level"]] $ERR_DATA$ }
 
 function canIReturn(x : xType; i : integer) : xType;
-    var output_type : char; // Legal.
+    var outputtype : char; // Legal.
     
 begin
     if (xArray[x] = i) then
@@ -75,6 +75,6 @@ end;
 
 begin
 
-mostness(input_type, output_type); { $ERR_DATA$ [60, "cannot call a program", ["program 'mostness' cannot be called"]] $ERR_DATA$ }
+mostness(inputtype, outputtype); { $ERR_DATA$ [60, "cannot call a program", ["program 'mostness' cannot be called"]] $ERR_DATA$ }
 
 end.
