@@ -248,6 +248,7 @@ void removeSymbol (char const *);
 
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList);
 symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList);
+GPtrArray *addFuncParam(symbol *);
 
 /**
  Our symbol table will need multiple levels, so we will

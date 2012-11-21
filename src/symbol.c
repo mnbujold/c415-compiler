@@ -562,20 +562,24 @@ void init_table () {
   addBuiltinProc("readln", addParam(NULL, NULL));
   addBuiltinProc("read", addParam(NULL, NULL));
 
-  
-  addBuiltinFunc("abs", globalLookup("real"), addParam(NULL, NULL));
-  addBuiltinFunc("chr", globalLookup("char"), addParam(NULL, NULL));
-  addBuiltinFunc("cos", globalLookup("real"), addParam(NULL, NULL));
-  addBuiltinFunc("exp", globalLookup("real"), addParam(NULL, NULL));
-  addBuiltinFunc("ln", globalLookup("real"), addParam(NULL, NULL));
-  addBuiltinFunc("odd", globalLookup("integer"), addParam(NULL, NULL));
-  addBuiltinFunc("ord", globalLookup("integer"), addParam(NULL, NULL));
-  addBuiltinFunc("pred", globalLookup("integer"), addParam(NULL, NULL));
-  addBuiltinFunc("round", globalLookup("integer"), addParam(NULL, NULL));
-  addBuiltinFunc("sin", globalLookup("real"), addParam(NULL, NULL));
-  addBuiltinFunc("sqr", globalLookup("real"), addParam(NULL, NULL));
-  addBuiltinFunc("sqrt", globalLookup("real"), addParam(NULL, NULL));
-  addBuiltinFunc("succ", globalLookup("integer"), addParam(NULL, NULL));
+  /* Add parameter of function as symbol in symbol table? */
+ 
+
+  /* Functions */
+  addBuiltinFunc("abs", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("chr", globalLookup("char"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("cos", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("ln", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("odd", globalLookup("boolean"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("ord", globalLookup("integer"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("pred", globalLookup("integer"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("round", globalLookup("integer"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("sin", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("sqr", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("sqrt", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("succ", globalLookup("integer"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("exp", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("trunc", globalLookup("integer"), addFuncParam(globalLookup("real")));
   
   //addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
   //addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
@@ -584,11 +588,12 @@ void init_table () {
 }
 
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {    
-    struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
+  struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
     struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
     typeDesc->type = TC_NONE;
     typeDesc->desc.none = noneType;
-        
+
+    
     symbol *type = createTypeSym(NULL, typeDesc);
     symbol *newProc = createSymbol(id, type, OC_PROC, createProcedureDesc(paramList));
 
@@ -597,10 +602,21 @@ symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {
     return newProc;
 }
 
+GPtrArray *addFuncParam(symbol *paramSymb){
+  /* Only for adding a single parameter */
+  GPtrArray *param = g_ptr_array_new();
+  g_ptr_array_add(param, (gpointer) paramSymb);
+  return param;
+}
 symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList) {
-    symbol *newFunc = createSymbol(id, returnType, OC_FUNC,
+  symbol *paramType;
+  symbol *newFunc = createSymbol(id, returnType, OC_FUNC,
                                    createFunctionDesc(paramList, returnType));
 
+    /* Tease out parameter - all built-ins have just one, so we go with that */
+//    if(paramList)
+  //    paramType = ((symbol *) g_ptr_array_index(paramList,0))->symbol_type;
+      
     addSymbol(id, newFunc);
     
     return newFunc;
