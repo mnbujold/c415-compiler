@@ -533,8 +533,10 @@ void init_table () {
   addSymbol("char", createSymbol("char", NULL, OC_TYPE, createTypeDesc(TC_CHAR)));
   symbol *boolean = createSymbol("boolean", NULL, OC_TYPE, createTypeDesc(TC_BOOLEAN));
   addSymbol("boolean", boolean);
-  addSymbol("integer", createSymbol("integer", NULL, OC_TYPE, createTypeDesc(TC_INTEGER)));
-  addSymbol("real", createSymbol("real", NULL, OC_TYPE, createTypeDesc(TC_REAL)));
+  symbol *integer = createSymbol("integer", NULL, OC_TYPE, createTypeDesc(TC_INTEGER));
+  addSymbol("integer", integer);
+  symbol *real = createSymbol("real", NULL, OC_TYPE, createTypeDesc(TC_REAL));
+  addSymbol("real", real);
   
   
   /* Constants */
@@ -543,9 +545,9 @@ void init_table () {
   union constant_values falseval = { .boolean = FALSE_VALUE };
   addSymbol("false", createSymbol("false", boolean, OC_CONST, createConstDesc(falseval)));
   union constant_values maxintval = { .integer = MAX_INT_VALUE };
-  addSymbol("maxint", createSymbol("maxint", NULL, OC_CONST, createConstDesc(maxintval)));
+  addSymbol("maxint", createSymbol("maxint", integer, OC_CONST, createConstDesc(maxintval)));
   union constant_values pival = { .real = PI_VALUE };
-  addSymbol("pi", createSymbol("pi", NULL, OC_CONST, createConstDesc(pival)));
+  addSymbol("pi", createSymbol("pi", real, OC_CONST, createConstDesc(pival)));
 
   /* Param lists for built-ins */
   
