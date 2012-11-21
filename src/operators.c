@@ -432,14 +432,10 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
   type_class tc1 = getTypeClass (o1);
   type_class tc2 = getTypeClass (o2);
   if (tc1 == tc2) {
-    //TODO:
-    
-    //Check that they are pointing to the exact same type
-    
-    if (o1->symbol_type == o2->symbol_type) {
+    if (o1->symbol_type == o2->symbol_type
+     || o1->symbol_type->desc.type_attr == o2->symbol_type->desc.type_attr) {
       return 1;
     }
-
     return 0;
   }
   //real and integer
