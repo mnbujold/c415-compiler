@@ -26,11 +26,6 @@ i.e. it will not print out a line number for each line in the comment.
 Newlines within a string that are not escaped will screw up the line number 
 count.
 
-If the first line of the program is not a block comment, the compiler will
-print out the first line twice
-
-writeln does not take an infinite number of arguments
-
 Calling operators on the values of builtins will sometimes cause undefined behaviour
 
 Calling operators on constant vars will also cause undefined behaviour
