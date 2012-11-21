@@ -93,10 +93,7 @@ if (yytext != NULL) {
                                   /*printf("ML_END\n");*/ }
 [^}\n]+                         { errortext = appendErrorText(errortext, yytext, &errorTextLength); }
 [^}]"*"                         { errortext = appendErrorText(errortext, yytext, &errorTextLength); }
-\n                              { lineno++; 
-                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
-                                  /*printf("ML_COMMENT \n"); */
-                                }
+
 }
 
 
@@ -176,8 +173,6 @@ writeln|write|read|readln   { yylval.id = strdup(yytext); return IOPROC; }
                                   return UNKNOWN_CHARACTER; }
                                   
 %%
-/*<<EOF>>                 { return END_OF_FILE; }
-<<EOF>>             { static int once = 0; return once++ ? 0 : '\n'; }*/
 void add() {
      last_column += yyleng;
 }
