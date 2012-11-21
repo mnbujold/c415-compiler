@@ -87,7 +87,7 @@ main(int argc,char** argv)
         eList = deleteAllErrors(eList);
     }
     if (iserror) {
-        printf ("%d errors found\n", getNumErrors());
+        printf ("%d error(s) found\n", getNumErrors());
         printf("Errors exist. Compilation not successful.\n");
     } else {
         printf("Compilation successful.\n");
