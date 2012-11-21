@@ -376,7 +376,13 @@ struct type_desc *createTypeDesc (type_class type) {
       break;
     case TC_SUBRANGE:
     
-      break;    
+      break;
+    case TC_NUMBER:
+    {
+        struct tc_number *numDesc = calloc(1, sizeof(struct tc_number));
+        typeDesc->desc.number = numDesc;
+        break;
+    }
   }
 
   return typeDesc;
@@ -564,9 +570,10 @@ void init_table () {
 
   /* Add parameter of function as symbol in symbol table? */
  
+  symbol *numType = createSymbol(NULL, NULL, OC_TYPE, createTypeDesc(TC_NUMBER));
 
   /* Functions */
-  addBuiltinFunc("abs", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("abs", numType, addFuncParam(numType));
   addBuiltinFunc("chr", globalLookup("char"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("cos", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("ln", globalLookup("real"), addFuncParam(globalLookup("real")));
@@ -575,7 +582,7 @@ void init_table () {
   addBuiltinFunc("pred", globalLookup("integer"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("round", globalLookup("integer"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("sin", globalLookup("real"), addFuncParam(globalLookup("real")));
-  addBuiltinFunc("sqr", globalLookup("real"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("sqr", numType, addFuncParam(numType));
   addBuiltinFunc("sqrt", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("succ", globalLookup("integer"), addFuncParam(globalLookup("integer")));
   addBuiltinFunc("exp", globalLookup("real"), addFuncParam(globalLookup("real")));

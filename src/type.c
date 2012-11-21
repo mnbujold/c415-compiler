@@ -68,11 +68,19 @@ assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
     if (tcSym1 == TC_ERROR || tcSym2 == TC_ERROR) {
         return 1;
     }
-
+    
     if (tcSym1 == TC_ARRAY && tcSym2 == TC_ARRAY) {
        return arrayAssignmentCompatible (sym1, sym2, showErrors);
       //return array assignment compatiblity
-    } else if (tcSym1 == tcSym2) {
+    }
+    
+    if (tcSym2 == TC_NUMBER && (tcSym1 == TC_INTEGER || tcSym1 == TC_REAL)
+     || tcSym1 == TC_NUMBER && (tcSym2 == TC_INTEGER || tcSym2 == TC_REAL)
+     || tcSym1 == TC_NUMBER && tcSym2 == TC_NUMBER) {
+            return 1;
+        }
+    
+    if (tcSym1 == tcSym2) {
         if (sym1->symbol_type == sym2->symbol_type
          || sym1->symbol_type->desc.type_attr == sym2->symbol_type->desc.type_attr) {
             return 1;
