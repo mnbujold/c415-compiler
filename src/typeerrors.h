@@ -33,7 +33,8 @@ void symNotDefinedError(const char *id);
 void symNotATypeError(const char *id);
 
 /**
- * Adds a "symbol 'id' not a variable, parameter, or constant" error.
+ * Adds a "symbol 'id' not a variable, parameter, or constant" or "index is not
+ * a variable, parameter, or constant" (if id is NULL) error.
  */
 void symNotAVarParmConstError(const char *id);
 
@@ -53,14 +54,16 @@ void illArrayAssignObjError();
 void illArrayAssignIndError();
 
 /**
- * Adds an "illegal array assignment (lower bounds do not match)" error.
+ * Adds an "illegal array assignment (lower bound min1 does not match lower
+ * bound min2)" error.
  */
-void illArrayAssignMinError();
+void illArrayAssignMinError(int min1, int min2);
 
 /**
- * Adds an "illegal array assignment (upper bounds do not match)" error.
+ * Adds an "illegal array assignment (upper bounds max1 does not match upper
+ * bound max2)" error.
  */
-void illArrayAssignMaxError();
+void illArrayAssignMaxError(int max1, int max2);
 
 /**
  * Adds an "array index missing lower bound" error.
@@ -153,14 +156,29 @@ void badProcArgError(int arg_num, char *proc_name);
 void symNotRecordError(const char *id);
 
 /**
- * Adds a "symbol 'id' not an array" error.
+ * Adds a "symbol 'id' not an array"  or "symbol being accessed is not an
+ * array" (if id is NULL) error.
  */
 void symNotArrayError(const char *id);
+
+/**
+ * Adds an "array index type not compatible with type being used to access array" error.
+ */
+void illArrayAccessIndError();
+
+/**
+ * Adds an "illegal array access (index index below lower bound min)" error.
+ */
+void illArrayAccessMinError(int index, int min);
+
+/**
+ * Adds an "illegal array access (index index above upper bound max)" error.
+ */
+void illArrayAccessMaxError(int index, int max);
 
 /**
  * Adds a "'controlType' statement not in a loop" error.
  */
 void ctrlTypeNotInLoopError(const char *controlType);
 
-void incompatibleIndexError (const char *arrayID, const char *indexID);
 #endif

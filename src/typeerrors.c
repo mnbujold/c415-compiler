@@ -48,10 +48,15 @@ symNotATypeError(const char *id) {
     addTypeError(errMsg);
 }
 
-void symNotAVarParmConstError(const char *id) {
-    char errMsg[50 + strlen(id)];
-    sprintf(errMsg, "symbol '%s' not a variable, parameter, or constant", id);
-    addTypeError(errMsg);
+void
+symNotAVarParmConstError(const char *id) {
+    if (id == NULL) {
+        addTypeError("index is not a variable, parameter, or constant");
+    } else {
+        char errMsg[50 + strlen(id)];
+        sprintf(errMsg, "symbol '%s' not a variable, parameter, or constant", id);
+        addTypeError(errMsg);
+    }
 }
 
 void
@@ -72,13 +77,23 @@ illArrayAssignIndError() {
 }
 
 void
-illArrayAssignMinError() {
-    addTypeError("illegal array assignment (lower bounds do not match)");
+illArrayAssignMinError(int min1, int min2) {
+    char errMsg[100];
+    sprintf(errMsg,
+            "illegal array assignment (lower bound %d does not match lower bound %d)",
+            min1,
+            min2);
+    addTypeError(errMsg);
 }
 
 void
-illArrayAssignMaxError() {
-    addTypeError("illegal array assignment (upper bounds do not match)");
+illArrayAssignMaxError(int max1, int max2) {
+    char errMsg[100];
+    sprintf(errMsg,
+            "illegal array assignment (upper bound %d does not match upper bound %d)",
+            max1,
+            max2);
+    addTypeError(errMsg);
 }
 
 void arrayMissLowerError() {
@@ -175,7 +190,7 @@ tooManyParamsError(const char *callable) {
 
 void
 missingVarParamError(int arg_num, char *proc_name) {
-    char errMsg[75 + strlen(proc_name)];
+    char errMsg[80 + strlen(proc_name)];
     sprintf(errMsg,
             "var argument %d of '%s' call is not a variable",
             arg_num,
@@ -186,7 +201,7 @@ missingVarParamError(int arg_num, char *proc_name) {
 
 void
 badProcArgError(int arg_num, char *proc_name) {
-    char errMsg[75 + strlen(proc_name)];
+    char errMsg[80 + strlen(proc_name)];
     sprintf(errMsg,
             "argument %d of' %s' call has incompatible type",
             arg_num,
@@ -203,22 +218,32 @@ symNotRecordError(const char *id) {
 
 void
 symNotArrayError(const char *id) {
-    char errMsg[25 + strlen(id)];
-    sprintf(errMsg, "symbol '%s' not an array", id);
+    if (id == NULL) {
+        addTypeError("symbol being accessed is not an array");
+    } else {
+        char errMsg[25 + strlen(id)];
+        sprintf(errMsg, "symbol '%s' not an array", id);
+        addTypeError(errMsg);
+    }
+}
+
+void
+illArrayAccessIndError() {
+    addTypeError("array index type not compatible with type being used to access array");
+}
+
+void
+illArrayAccessMinError(int index, int min) {
+    char errMsg[75];
+    sprintf(errMsg, "illegal array access (index %d below lower bound %d)", index, min);
     addTypeError(errMsg);
 }
 
-void incompatibleIndexError (const char *arrayID, const char *indexID) {
-    //printf ("Inside incompatible index error\n");
-    //char *errMsgString = "Cannot access '%s' using '%s', incompatible index type";
-    char errMsg[75+ strlen (arrayID) + strlen (indexID)];
-    //printf ("Success");
-    
-    sprintf (errMsg, "Cannot access '%s' using '%s', incompatible index type", arrayID, indexID);
-    //printf ("Error message output: %s\n", errMsgString);
+void
+illArrayAccessMaxError(int index, int max) {
+    char errMsg[75];
+    sprintf(errMsg, "illegal array access (index %d above upper bound %d)", index, max);
     addTypeError(errMsg);
-    //printf ("Done stuff");
-    
 }
 
 void

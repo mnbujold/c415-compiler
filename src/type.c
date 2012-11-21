@@ -148,16 +148,21 @@ arrayAssignmentCompatible(symbol *sym1, symbol *sym2, int showErrors) {
         return 0; // index types not the same
     }
     
-    if (arrayType1->minIndex != arrayType2->minIndex) {
+    int minIndex1 = arrayType1->minIndex;
+    int minIndex2 = arrayType2->minIndex;
+    int maxIndex1 = arrayType1->maxIndex;
+    int maxIndex2 = arrayType2->maxIndex;
+    
+    if (minIndex1 != minIndex2) {
         if (showErrors != 0) {
-            illArrayAssignMinError();
+            illArrayAssignMinError(minIndex1, minIndex2);
         }
         return 0; // lower bounds not the same
     }
     
-    if (arrayType1->maxIndex != arrayType2->maxIndex) {
+    if (maxIndex1 != maxIndex2) {
         if (showErrors != 0) {
-            illArrayAssignMaxError();
+            illArrayAssignMaxError(maxIndex1, maxIndex2);
         }
         return 0; // upper bounds not the same
     }
@@ -624,7 +629,6 @@ createArray(symbol *indexType, symbol *objType) {
     showAllSymbols ();
 #endif
     int indexClass = indexType->desc.type_attr->type;
-    int size = 0;
 
     if (indexClass == TC_ERROR) {
         return createErrorType(NULL);
@@ -635,9 +639,13 @@ createArray(symbol *indexType, symbol *objType) {
         return createErrorType(NULL);
     }
     struct tc_subrange *subrange = indexType->desc.type_attr->desc.subrange;
-    size = subrange->high - subrange->low + 1;
+    int minIndex = subrange->low;
+    int maxIndex = subrange->high;
+    int size = maxIndex - minIndex + 1;
     
     struct tc_array *newArray = calloc(1, sizeof(struct tc_array));
+    newArray->minIndex = minIndex;
+    newArray->maxIndex = maxIndex;
     newArray->size = size;
     newArray->index_type = indexType;
     newArray->obj_type = objType;
@@ -809,92 +817,74 @@ addParam(GPtrArray *paramList, symbol *newParam) {
     return paramList;    
 }
 
-symbol *accessArray(symbol *array, symbol *index) {
+symbol *
+accessArray(symbol *array, symbol *index) {
     
-    //return createErrorSym(OC_VAR);
+    if (getTypeClass(array) == TC_ERROR || getTypeClass(index) == TC_ERROR) {
+        return createErrorSym(OC_VAR);
+    }
     
-  if (getTypeClass (array) != TC_ARRAY) {
-      symNotArrayError(array->name);
-    return createErrorType(NULL);
-  }
-  //check if index is the right indexing type
-  struct tc_array *arrayDescription = getArrayDescription(array);
-  
-  //struct tc_subrange *subrange1 = index1->desc.type_attr->desc.subrange;
-  symbol *motherType = arrayDescription->index_type->desc.type_attr->desc.subrange->mother_type;
-  if (!(index->symbol_type  == motherType)) {
-    incompatibleIndexError (array->name, index->name);
-    return createErrorType (NULL);
-  }
- // printf ("Still not segfaulting..\n");
-  
-  //check if it is within bounds for constant
-  //assume constant has value
-  if (index->oc = OC_CONST) {
-    int value = index->desc.const_attr->value.integer;
-    if (value > arrayDescription->minIndex || value < arrayDescription->maxIndex) {
-      //TODO:
-      //Er...Because arrays are not actually assigned, just return this
-      return arrayDescription->obj_type;
+    if (getTypeClass(array) != TC_ARRAY) {
+        symNotArrayError(array->name);
+        return createErrorSym(OC_VAR); // symbol not an array
     }
-    else {
-      //arrayOutOfBoundsError (); 
-      return createErrorType(NULL);
+    
+    object_class indexOC = index->oc;
+    
+    if (indexOC != OC_CONST && indexOC != OC_VAR && indexOC != OC_PARAM) {
+        symNotAVarParmConstError(NULL);
+        return createErrorSym(OC_VAR); // index not a constant, variable, or parameter
     }
-  }
-  
-  
-  //TODO: We will need to be able to access with a variable as well
-  // Or would this be a run time error?
+    struct tc_array *arrayType = array->symbol_type->desc.type_attr->desc.array;
+    symbol *motherType = arrayType->index_type->desc.type_attr->desc.subrange->mother_type;
+    symbol *accessType = index->symbol_type;
+    
+    if (motherType != accessType
+     && motherType->desc.type_attr != accessType->desc.type_attr) {
+        illArrayAccessIndError();
+        return createErrorSym(OC_VAR); // index types not the same
+    }
+    
+    if (indexOC != OC_CONST || index->desc.const_attr->hasValue != 1) {
+        return createSymbol(NULL, arrayType->obj_type, OC_VAR, (void *) createVarDesc());
+    }
+    
+    type_class indexType = getTypeClass(index);
+    union constant_values values = index->desc.const_attr->value;
+    int indexVal;
+    
+    if (indexType == TC_INTEGER) {
+        indexVal = values.integer;
+    } else if (indexType == TC_BOOLEAN) {
+        indexVal = values.boolean;
+    } else { // indexType == TC_CHAR
+        indexVal = (int) values.character;
+    }
+    
+    int minIndex = arrayType->minIndex;
+    int maxIndex = arrayType->maxIndex;
+    
+    if (indexVal < minIndex) {
+        illArrayAccessMinError(indexVal, minIndex);
+        return createErrorSym(OC_VAR); // index below lower bound
+    } else if (indexVal > maxIndex) {
+        illArrayAccessMaxError(indexVal, maxIndex);
+        return createErrorSym(OC_VAR); // index above upper bound
+    }
+    
+    return createSymbol(NULL, arrayType->obj_type, OC_VAR, (void *) createVarDesc());
 }
 
-symbol *recordAccess (symbol *record, symbol *key) {
-  
-  //check that record is a record
-  if (getTypeClass (record) != TC_RECORD) {
-    addTypeError ("Trying to access something that is not a record");
-    return createErrorType(NULL);
+void
+doVarAssignment (symbol *var, symbol *expr) {
+    if (assignmentCompatibleSym(var, expr, 1) == 1) {
 
-  }
-  GPtrArray *fieldList = record->desc.type_attr->desc.record->field_list;
-  int numElements = fieldList->len;
-  int i = 0;
-  const char *keyString = key->name;
-  while (i < numElements) {
-    symbol *element = (symbol *) g_ptr_array_index (fieldList, i);
-    const char *elementString = element->name;
-    if (strcmp (keyString, elementString) == 0) {
-      return element;
+        symbol *varLookup = globalLookup(var->name);
+        
+        if (varLookup != NULL && varLookup->oc == OC_FUNC) {
+            varLookup->desc.func_attr->returnValSet = 1;
+        }
     }
-    i++;
-  }
-  //otherwise not in here, return error
-  return createErrorType(NULL);
-  
-  
-}
-
-
-void doVarAssignment (symbol *var, symbol *expr) {
-//   if (var->oc != OC_VAR) {
-//     assignmentError ();
-//   }
-
-//  printf ("In do var assignment %s %s\n", var->name, expr->name);
-  if (assignmentCompatibleSym(var, expr, 1) == 1) {
-    //What does it even mean to assign right now...
-    //Point to the expression, as far as I can tell
-
-    symbol *varLookup = globalLookup(var->name);
-    
-    if (varLookup != NULL && varLookup->oc == OC_FUNC) {
-        varLookup->desc.func_attr->returnValSet = 1;
-    }    
-    //var->desc.var_attr->expression = expr;
-  } else {
-    //They are not assignment compatible, give error
-    // do nothing assignmentCompatibilityError();
-  }
 }
 
 void
@@ -905,7 +895,6 @@ checkFuncValSet(symbol *func) {
         missFuncRetError();
     }
 }
-
 
 symbol *
 getRecordField(symbol *record, const char *fieldName) {

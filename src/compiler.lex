@@ -37,9 +37,9 @@ void updateError(void) {
     if(prog_listing)
       writeAllErrors(eList,listing_file);
     eList = deleteAllErrors(eList);
-	  oldlineno = lineno;
-		memset(errortext, '\0', errorTextLength);
-	} 
+    oldlineno = lineno;
+    memset(errortext, '\0', errorTextLength);
+  } 
 } 
 
 
@@ -47,6 +47,7 @@ void updateError(void) {
 
 %option yylineno 
 
+%s IN_COMMENT
 %%
 
 %{
@@ -147,10 +148,18 @@ if (yytext != NULL) {
                                   }
 "//"[^\n]*""                    { DB_PRINT("SL_COMMENT ");
                                   errortext = appendErrorText(errortext, yytext, &errorTextLength);}
-"{"[^}]*"}"		        { lineno += strcountlines(yytext);
-                                  errortext = appendErrorText(errortext, yytext, &errorTextLength);
-                                  /* do nothing, a block comment */ 
-                                }
+
+<INITIAL>{
+"{"                             BEGIN(IN_COMMENT);
+}
+<IN_COMMENT>{
+"}"                             { BEGIN(INITIAL); }
+[^}\n]+                         { }
+"*"                             { }
+\n                              { lineno++; }
+}
+
+
 '(\\.|[^\\'])*'			{ //lineno += strcountlines (yytext);
 				  yylval.string = strdup(yytext); 
                                   /*printf ("lala: %s\n", yytext);*/

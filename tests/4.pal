@@ -33,7 +33,7 @@ begin
         writeln(num1, ' == ', num2);
     
     if incorrect(num1) then { $ERR_DATA$ [22, "second parameter missing", ["missing second parameter of function correct"]] $ERR_DATA$ }
-        writeln(num1 ' != ', num2);
+        writeln(num1, ' != ', num2);
 end;
 
 begin

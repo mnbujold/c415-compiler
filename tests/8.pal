@@ -130,7 +130,7 @@ begin
 end;
 
 // but 16 more is definitely illegal!
-procedure layer1(var x : integer);
+procedure layer11(var x : integer);
     procedure layer2(var x : integer);
         procedure layer3(var x : integer);
             procedure layer4(var x : integer);
@@ -204,7 +204,7 @@ y := a2[e1]; { $ERR_DATA$ [3, "illegal array indexing (enumerated type for integ
 x := a1[i]; { $ERR_DATA$ [3, "illegal array indexing (integer for enumerated type)", ["illegal integer indexing of enum indexed array"]] $ERR_DATA$ }
 y := a2[e]; { $ERR_DATA$ [3, "illegal array indexing (enumerated type for integer)", ["illegal enum indexing of integer indexed array"]] $ERR_DATA$ }
 
-a0 := a1; // Legal, just for fun.
+a0 := a2; // Legal, just for fun.
 
 e := 1; { $ERR_DATA$ [3, "illegal assignment of integer to enumerated type", ["illegal enum assignment"]] $ERR_DATA$ }
 i := e1; { $ERR_DATA$ [3, "illegal assignment of enumerated type to integer", ["illegal integer assignment"]] $ERR_DATA$ }

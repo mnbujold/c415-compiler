@@ -3,9 +3,9 @@
     Tests syntax of invalid function and procedure calls and definitions.
     Errors:
     20:18 incomplete parameter definition in function header
-    29:12 incompatible array assignment, arrays cannot be indexed by reals, param1 is a real
-    30:22 missing end parenthesis in function call
-    42:23 missing parameter in procedure call
+    29:12 illegal array access, array index type does not match index
+    31:22 missing end paranthesis in function call
+    43:23 missing parameter in procedure call
 }
 program syntactical(hello, goodbye); 
 
@@ -26,7 +26,7 @@ procedure andAllPlay(var param1 : fake; param2 : realEnum; param3 : stringy);
     const ABCs = 'abcdefghijklmnopqrstuvwxyz';
     var variable : integer;
 begin
-    param3[param1] := ABCs[14];
+    param3[param1] := ABCs[14]; { $ERR_DATA$ [12, "illegal array access, array index type does not match index", ["illegal array access"]] $ERR_DATA$ }
     
     param1 := noWork(; { $ERR_DATA$ [22, "missing end paranthesis in function call", ["unexpected SEMICOLON"]] $ERR_DATA$ }
 end;

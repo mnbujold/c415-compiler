@@ -247,6 +247,7 @@ symbol *createErrorSym(object_class);
 void removeSymbol (char const *);
 
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList);
+symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList);
 
 /**
  Our symbol table will need multiple levels, so we will

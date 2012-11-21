@@ -547,19 +547,6 @@ void init_table () {
   /* Param lists for built-ins */
   
   //TODO: Finish implementing all the different param descriptions here
-  addSymbol("abs_param", createSymbol("abs_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("chr_param", createSymbol("chr_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("cos_param", createSymbol("cos_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("exp_param", createSymbol("exp_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("ln_param", createSymbol("ln_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("odd_param", createSymbol("odd_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("ord_param", createSymbol("ord_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("pred_param", createSymbol("pred_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("round_param", createSymbol("round_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("sin_param", createSymbol("sin_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("sqr_param", createSymbol("sqr_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("sqrt_param", createSymbol("sqrt_param", NULL, OC_PARAM, createParamDesc(0)));
-  addSymbol("succ_param", createSymbol("succ_param", NULL, OC_PARAM, createParamDesc(0)));
   
   /* Built-in functions */
   
@@ -570,19 +557,21 @@ void init_table () {
   addBuiltinProc("write", addParam(NULL, NULL));
   addBuiltinProc("readln", addParam(NULL, NULL));
   addBuiltinProc("read", addParam(NULL, NULL));
-  addBuiltinProc("abs", addParam(NULL, NULL));
-  addBuiltinProc("chr", addParam(NULL, NULL));
-  addBuiltinProc("cos", addParam(NULL, NULL));
-  addBuiltinProc("exp", addParam(NULL, NULL));
-  addBuiltinProc("ln", addParam(NULL, NULL));
-  addBuiltinProc("odd", addParam(NULL, NULL));
-  addBuiltinProc("ord", addParam(NULL, NULL));
-  addBuiltinProc("pred", addParam(NULL, NULL));
-  addBuiltinProc("round", addParam(NULL, NULL));
-  addBuiltinProc("sin", addParam(NULL, NULL));
-  addBuiltinProc("sqr", addParam(NULL, NULL));
-  addBuiltinProc("sqrt", addParam(NULL, NULL));
-  addBuiltinProc("succ", addParam(NULL, NULL));
+
+  
+  addBuiltinFunc("abs", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("chr", globalLookup("char"), addParam(NULL, NULL));
+  addBuiltinFunc("cos", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("exp", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("ln", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("odd", globalLookup("integer"), addParam(NULL, NULL));
+  addBuiltinFunc("ord", globalLookup("integer"), addParam(NULL, NULL));
+  addBuiltinFunc("pred", globalLookup("integer"), addParam(NULL, NULL));
+  addBuiltinFunc("round", globalLookup("integer"), addParam(NULL, NULL));
+  addBuiltinFunc("sin", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("sqr", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("sqrt", globalLookup("real"), addParam(NULL, NULL));
+  addBuiltinFunc("succ", globalLookup("integer"), addParam(NULL, NULL));
   
   //addSymbol("writeln", createSymbol("writeln", NULL, OC_PROC, NULL)); 
   //addSymbol("write", createSymbol("write", NULL, OC_PROC, NULL));
@@ -604,8 +593,7 @@ symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {
     return newProc;
 }
 
-symbol *
-addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList) {
+symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList) {
     symbol *newFunc = createSymbol(id, returnType, OC_FUNC,
                                    createFunctionDesc(paramList, returnType));
 

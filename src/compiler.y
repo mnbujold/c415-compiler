@@ -765,7 +765,6 @@ unsigned_const          : unsigned_num
                                     union constant_values value = { .string = $1 };
                                     $$ = createConstant(TC_STRING, value);
                                 }
-                                
                             }
                         ;
 
