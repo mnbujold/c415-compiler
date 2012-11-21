@@ -141,7 +141,7 @@ duplicateFieldError(const char *id) {
 
 void
 opNotBooleanError() {
-    addTypeError("operator not of type boolean");
+    addTypeError("operand not of type boolean");
 }
 
 void

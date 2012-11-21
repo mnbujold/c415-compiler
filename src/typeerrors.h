@@ -101,7 +101,7 @@ void arrayIndexTypeError();
 void duplicateFieldError(const char *id);
 
 /**
- * Adds a "operator not of type boolean" error.
+ * Adds a "operand not of type boolean" error.
  */
 void opNotBooleanError();
 

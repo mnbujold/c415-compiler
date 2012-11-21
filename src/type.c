@@ -254,7 +254,7 @@ createConstant(type_class type, union constant_values value) {
     } else if (type == TC_CHAR) {
         constSym->symbol_type = topLevelLookup("char");
     } else if (type == TC_BOOLEAN) {
-        constSym->symbol_type = topLevelLookup("boolean"); 
+        constSym->symbol_type = topLevelLookup("boolean");
     } else if (type == TC_STRING) {
         constSym->symbol_type = stringToArray(value.string);
     } else {

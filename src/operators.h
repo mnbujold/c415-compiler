@@ -14,6 +14,10 @@
  */
 int canEvaluate(symbol *operand);
 
+/**
+ * Returns a variable of type boolean.
+ */
+symbol *createBooleanConst();
 
 /******************
  * Operators to negate and identity for a number

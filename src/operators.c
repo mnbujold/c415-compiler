@@ -10,6 +10,7 @@
 #include "symbol.h"
 #include "type.h"
 #include "typeerrors.h"
+#include "operators.h"
 
 
 /******************
@@ -19,6 +20,11 @@ int canEvaluate(symbol *operand) {
     if (operand == NULL) {
         return 0;
     }
+    
+    if (getTypeClass(operand) == TC_ERROR) {
+        return 0;
+    }
+    
     int oc = operand->oc;
     if (oc == OC_CONST) {
       return operand->desc.const_attr->hasValue;
@@ -29,6 +35,14 @@ int canEvaluate(symbol *operand) {
     //evaluate functions taking constants
     return 0;
     
+}
+
+symbol *
+createBooleanConst() {
+    struct const_desc *constDec = calloc (1, sizeof (struct const_desc));
+    constDec->hasValue = 0;
+    
+    return createSymbol(NULL, topLevelLookup("boolean"), OC_CONST, (void *) constDec);
 }
 
 symbol *identity (symbol *op) {
@@ -115,7 +129,7 @@ symbol *andOp (symbol *o1, symbol *o2) {
     return createConstant (TC_BOOLEAN, resultValue);
     
   }
-  
+  return createBooleanConst();
 }
 
 symbol *orOp (symbol *o1, symbol *o2){
@@ -133,6 +147,7 @@ symbol *orOp (symbol *o1, symbol *o2){
     return createConstant (TC_BOOLEAN, resultValue);
     
   }
+  return createBooleanConst();
 }
 
 /*******************
@@ -403,6 +418,9 @@ symbol *modOp (symbol *o1, symbol *o2) {
  * comparison operators
  * *********************/
 int validComparisonOperator (symbol *operand) {
+    if (getTypeClass (operand) == TC_ERROR) {
+        return 1;
+    }
   if (getTypeClass (operand) == TC_REAL) {
     return 1;
   }
@@ -534,11 +552,12 @@ symbol *equalOp (symbol *o1, symbol *o2) {
       return createConstant (TC_BOOLEAN, resultValue);
 
     }
-    
-    
+
   }
-  return createAnonymousVar(o1, o2);
+  return createBooleanConst();
 }
+
+
 symbol *notEqualOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
     addTypeError ("operands cannot be compared");
@@ -599,7 +618,9 @@ symbol *notEqualOp (symbol *o1, symbol *o2) {
     
     
   }
+  return createBooleanConst();
 }
+
 symbol *lessThanOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
     addTypeError ("operands cannot be compared");
@@ -661,7 +682,9 @@ symbol *lessThanOp (symbol *o1, symbol *o2) {
     
     
   }
+  return createBooleanConst();
 }
+
 symbol *greaterThanOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
     addTypeError ("operands cannot be compared");
@@ -720,7 +743,9 @@ symbol *greaterThanOp (symbol *o1, symbol *o2) {
     
     
   }
+  return createBooleanConst();
 }
+
 symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
     addTypeError ("operands cannot be compared");
@@ -782,7 +807,9 @@ symbol *greaterThanEqualOp (symbol *o1, symbol *o2) {
     
     
   }
+  return createBooleanConst();
 }
+
 symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
   if (!validComparisonOperator (o1) || !validComparisonOperator (o2)) {
     addTypeError ("operands cannot be compared");
@@ -838,7 +865,7 @@ symbol *lessThanEqualOp (symbol *o1, symbol *o2) {
       return createConstant (TC_BOOLEAN, resultValue);
 
     }
-    
-    
+
   }
+  return createBooleanConst();
 }
