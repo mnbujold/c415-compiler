@@ -825,19 +825,9 @@ parm                    : expr
                             }
                         ;
 
-struct_stat             : IF expr THEN matched_stat ELSE stat
-                            {
-                                if ($2 != NULL) {
-                                    checkConditional($2);
-                                }
-                            }
+struct_stat             : if_header THEN matched_stat ELSE stat
                         | error ELSE stat /* ERROR */
-                        | IF expr THEN stat
-                            {
-                                if ($2 != NULL) {
-                                    checkConditional($2);
-                                }
-                            }
+                        | if_header THEN stat
                         | error THEN stat /* ERROR */
                         | while_header stat
                             {
@@ -855,12 +845,7 @@ struct_stat             : IF expr THEN matched_stat ELSE stat
                         ;
 
 matched_stat            : simple_stat
-                        | IF expr THEN matched_stat ELSE matched_stat
-                            {
-                                if ($2 != NULL) {
-                                    checkConditional($2);
-                                }
-                            }
+                        | if_header THEN matched_stat ELSE matched_stat
                         | error ELSE matched_stat /* ERROR */
                         | while_header matched_stat
                             {
@@ -877,6 +862,14 @@ matched_stat            : simple_stat
                             }
                         ;
 
+if_header               : IF expr
+                            {
+                                if ($2 != NULL) {
+                                    checkConditional($2);
+                                }
+                            }
+                        ;
+                        
 while_header            : WHILE expr DO
                             {
                                 if ($2 != NULL) {
