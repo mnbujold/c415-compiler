@@ -574,41 +574,129 @@ void init_table () {
 
 symbol *evaluateBuiltin(const char *name, symbol *arg) {
 
-    const_desc *argumentDescription = arg->desc.const_attr;
+    struct const_desc *argumentDescription = arg->desc.const_attr;
     if (strcmp (name, "odd") == 0) {
-        int argument = argumentDescription->values.integer;
+        int argument = argumentDescription->value.integer;
         int result = argument % 2;
         union constant_values resultValue = {.boolean = result};
         return createConstant(TC_BOOLEAN, resultValue);
     }
     else if (strcmp (name, "chr")== 0) {
-        char argument = argumentDescription->values.character;
+        char argument = argumentDescription->value.character;
         int result = argument;
         union constant_values resultValue = {.integer = result};
         return createConstant (TC_INTEGER, resultValue);
         
     }
     else if (strcmp (name, "round") == 0) {
-        double argument = argumentDescription->values.real;
+        double argument = argumentDescription->value.real;
         int result = roundl (argument);
         union constant_values resultValue = {.integer = result};
         return createConstant (TC_INTEGER, resultValue);
     }
     else if (strcmp (name, "trunc") ==0) {
-        double argument = argumentDescription->values.real;
+        double argument = argumentDescription->value.real;
         int result = (int) argument;
         union constant_values resultValue = {.integer = result};
         return createConstant (TC_INTEGER, resultValue);
     }
     else if (strcmp (name, "ord") == 0) {
-        int argument = argumentDescription->values.integer;
+        int argument = argumentDescription->value.integer;
         union constant_values resultValue = {.integer = argument};
         return createConstant (TC_INTEGER, resultValue);
         
     }
     else if (strcmp (name, "pred") == 0) {
+        type_class tc = getTypeClass(arg);
+        
+        if (tc == TC_INTEGER) {
+            int value = argumentDescription->value.integer;
+            
+            if (value <= (-1 * MAX_INT_VALUE)) {
+                addTypeError("there is no valid predecessor of this integer");
+                return createErrorSym(OC_CONST);
+            }
+            
+            union constant_values resultValue = {.integer = (value - 1)};
+            return createConstant(TC_INTEGER, resultValue);
+        } else if (tc == TC_BOOLEAN) {
+            int value = argumentDescription->value.boolean;
+            
+            if (value <= 0) {
+                addTypeError("there is no valid predecessor of this boolean");
+                return createErrorSym(OC_CONST);
+            }
+            
+            return globalLookup("false");
+            
+        } else if (tc == TC_CHAR) {
+            int value = argumentDescription->value.character;
+            
+            if (value <= 0) {
+                addTypeError("there is no valid predecessor of this character");
+                return createErrorSym(OC_CONST);
+            }
+            
+            union constant_values resultValue = {.character = (char) (value - 1)};
+            return createConstant(TC_CHAR, resultValue);
+        }
+        // tc == TC_SCALAR
+        int value = argumentDescription->value.integer;
+        
+        if (value <= 0) {
+            addTypeError("there is no valid predecessor of this scalar");
+            return createErrorSym(OC_CONST);
+        }
+        
+        union constant_values resultValue = {.integer = (value - 1)};
+        return createSymbol(NULL, arg->symbol_type, OC_CONST, (void *) createConstDesc(resultValue));
     }
     else if (strcmp (name, "succ") == 0) {
+        type_class tc = getTypeClass(arg);
+        
+        if (tc == TC_INTEGER) {
+            int value = argumentDescription->value.integer;
+            
+            if (value >= MAX_INT_VALUE) {
+                addTypeError("there is no valid successor of this integer");
+                return createErrorSym(OC_CONST);
+            }
+            
+            union constant_values resultValue = {.integer = (value + 1)};
+            return createConstant(TC_INTEGER, resultValue);
+        } else if (tc == TC_BOOLEAN) {
+            int value = argumentDescription->value.boolean;
+            
+            if (value >= 1) {
+                addTypeError("there is no valid successor of this boolean");
+                return createErrorSym(OC_CONST);
+            }
+            
+            return globalLookup("true");
+            
+        } else if (tc == TC_CHAR) {
+            int value = argumentDescription->value.character;
+            
+            if (value >= MAX_CHAR_VALUE) {
+                addTypeError("there is no valid successor of this character");
+                return createErrorSym(OC_CONST);
+            }
+            
+            union constant_values resultValue = {.character = (char) (value + 1)};
+            return createConstant(TC_CHAR, resultValue);
+        }
+        // tc == TC_SCALAR
+        int value = argumentDescription->value.integer;
+        GPtrArray *constList = arg->symbol_type->desc.type_attr->desc.scalar->const_list;
+        int listLen = (constList == NULL) ? 0 : (constList->len - 1);
+        
+        if (value >= listLen) {
+            addTypeError("there is no valid successor of this scalar");
+            return createErrorSym(OC_CONST);
+        }
+        
+        union constant_values resultValue = {.integer = (value + 1)};
+        return createSymbol(NULL, arg->symbol_type, OC_CONST, (void *) createConstDesc(resultValue));
     }
     else if (strcmp (name, "abs") == 0) {
     }

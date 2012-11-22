@@ -721,7 +721,7 @@ createArrayIndex(symbol *low, symbol *high) {
             highValue = 1;
         } else if (type == TC_CHAR) {
             lowValue = 0;
-            highValue = 255; // 2^8 - 1 = maximum char value
+            highValue = MAX_CHAR_VALUE;
         } else if (type == TC_SCALAR) {
             GPtrArray *list = high->desc.type_attr->desc.scalar->const_list;
             lowValue = ((symbol *) g_ptr_array_index(list, 0))->desc.const_attr->value.integer;
@@ -929,6 +929,7 @@ callFunc(const char *funcname, GPtrArray *arguments) {
     }
     
     if (implementedBuiltinFunction(funcname)) {
+        symbol *arg = (symbol *) g_ptr_array_index(arguments, 0);
         if (canEvaluate(arg)) {
             return evaluateBuiltin(funcname, arg);
         }
