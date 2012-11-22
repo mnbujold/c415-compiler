@@ -5,7 +5,7 @@
  */
  
  
-#include <math.h>
+
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -575,6 +575,7 @@ void init_table () {
 symbol *evaluateBuiltin(const char *name, symbol *arg) {
 
     struct const_desc *argumentDescription = arg->desc.const_attr;
+
     if (strcmp (name, "odd") == 0) {
         int argument = argumentDescription->value.integer;
         int result = argument % 2;
@@ -582,15 +583,21 @@ symbol *evaluateBuiltin(const char *name, symbol *arg) {
         return createConstant(TC_BOOLEAN, resultValue);
     }
     else if (strcmp (name, "chr")== 0) {
-        char argument = argumentDescription->value.character;
-        int result = argument;
-        union constant_values resultValue = {.integer = result};
-        return createConstant (TC_INTEGER, resultValue);
-        
+        int argument = argumentDescription->value.integer;
+        if (argument > 255 || argument < 0) {
+            addTypeError ("no valid character for this integer value");
+            return createErrorSym(OC_CONST);
+            //error, this is not a valid "byte"
+            //we are faking bytes since there are no bytes in pascal
+        }
+        char result = (char) argument;
+        //printf ("Here is the result: %c\n", result);
+        union constant_values resultValue = {.character = result};
+        return createConstant (TC_CHAR, resultValue);        
     }
     else if (strcmp (name, "round") == 0) {
         double argument = argumentDescription->value.real;
-        int result = roundl (argument);
+        int result = myround (argument);
         union constant_values resultValue = {.integer = result};
         return createConstant (TC_INTEGER, resultValue);
     }
@@ -602,9 +609,13 @@ symbol *evaluateBuiltin(const char *name, symbol *arg) {
     }
     else if (strcmp (name, "ord") == 0) {
         int argument = argumentDescription->value.integer;
+
+        if (argument < 0) {
+            addTypeError ("ord cannot be called on a negative value");
+            return createErrorSym(OC_CONST);
+        }
         union constant_values resultValue = {.integer = argument};
         return createConstant (TC_INTEGER, resultValue);
-        
     }
     else if (strcmp (name, "pred") == 0) {
         type_class tc = getTypeClass(arg);
@@ -699,14 +710,52 @@ symbol *evaluateBuiltin(const char *name, symbol *arg) {
         return createSymbol(NULL, arg->symbol_type, OC_CONST, (void *) createConstDesc(resultValue));
     }
     else if (strcmp (name, "abs") == 0) {
+        type_class tc = getTypeClass (arg);
+        if (tc == TC_REAL) {
+            double argument = argumentDescription->value.real;
+            if (argument < 0) {
+                argument = argument * -1;
+            }
+            union constant_values resultValue = {.real = argument};
+            return createConstant (TC_REAL, resultValue);
+        }
+        else if (tc == TC_INTEGER) {
+            int argument = argumentDescription->value.integer;
+            if (argument < 0) {
+                argument = argument * -1;
+            }
+            union constant_values resultValue = {.integer = argument};
+            return createConstant (TC_INTEGER, resultValue);
+        }
     }
     else if (strcmp (name, "sqr") == 0) {
+        type_class tc = getTypeClass (arg);
+        if (tc == TC_REAL) {
+            double argument = argumentDescription->value.real;
+            double result = argument * argument;
+       
+            union constant_values resultValue = {.real = result};
+            return createConstant (TC_REAL, resultValue);
+        }
+        else if (tc == TC_INTEGER) {
+            int argument = argumentDescription->value.integer;
+
+            int result = argument * argument;
+
+            union constant_values resultValue = {.integer = result};
+            return createConstant (TC_INTEGER, resultValue);
+        }        
     }
     else {
         //BAD, you should never call a builtin that does
         //not exist
     }
         
+}
+
+int myround(double number)
+{
+    return (number >= 0) ? (int)(number + 0.5) : (int)(number - 0.5);
 }
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {    
   struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));

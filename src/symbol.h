@@ -251,6 +251,8 @@ void removeSymbol (char const *);
 
 symbol *evaluateBuiltin(const char *name, symbol *arg);
 
+int myround(double number);
+
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList);
 symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList);
 GPtrArray *addFuncParam(symbol *);
