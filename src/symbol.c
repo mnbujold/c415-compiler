@@ -584,8 +584,8 @@ symbol *evaluateBuiltin(const char *name, symbol *arg) {
     }
     else if (strcmp (name, "chr")== 0) {
         int argument = argumentDescription->value.integer;
-        if (argument > 255 || argument < 0) {
-            addTypeError ("no valid character for this integer value");
+        if (argument > MAX_CHAR_VALUE || argument < 0) {
+            addTypeError ("there is no valid character for this integer value");
             return createErrorSym(OC_CONST);
             //error, this is not a valid "byte"
             //we are faking bytes since there are no bytes in pascal

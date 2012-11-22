@@ -51,7 +51,7 @@ function funVarStuff() : integer;
         int := 3;
     end;
 begin
-    varStuff(funVarStuff);
+    varStuff(funVarStuff);2147483647
 end;{ $ERR_DATA$ [0, "missing function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
 
 function correctReturn(int : integer) : boolean;
@@ -68,9 +68,23 @@ begin
 end;
 
 procedure testAllBuiltins();
+    const aww = 2147483647;
+          waa = '';
+
+    type sclist = (d1,d2,d3,d4);
+          
     var a: integer;
+        b3 : char;
+        c:sclist;
 begin
-    
+    a := succ(aww); // Error!
+    b3 := pred(waa); // Error!
+    b3 := chr(256); // Error!
+    b3 := pred(chr(0)); // Error!
+    c := succ(true); // Error!
+    c := pred(false); // Error!
+    c := succ(d4); // Error!
+    c := pred(d1); // Error!
 end;
 
 begin
