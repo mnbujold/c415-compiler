@@ -69,6 +69,8 @@ begin
     a7 := a8; { $ERR_DATA$ [8, "illegal array assignment (index bounds not the same)", ["illegal array assignment to array with different lower bound"]] $ERR_DATA$ }
     a8 := a9; { $ERR_DATA$ [8, "illegal array assignment (index types not the same)", ["illegal array assignment to array with incompatible index type"]] $ERR_DATA$ }
 
+    arrayAssignment := true;
+    
 end;
 
 // 14 more levels of scoping is legal ...

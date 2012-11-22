@@ -29,7 +29,7 @@ var joe : bob;
 
 procedure testArrays();
 begin
-    arrayA[5] := arrayC[7];
+    arrayA[5] := arrayC[7]; // Error!
     arrayA[3] := arrayB[3];
     arrayA[5] := arrayB; // Error!
     arrayA := arrayB; // Error!
@@ -96,7 +96,7 @@ exit;
 end;
 
 wilek aboolean do // Error!
-exit;
+exit; // Error!
 
 while aboolean do
 begin
