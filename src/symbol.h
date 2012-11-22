@@ -247,6 +247,9 @@ symbol *createErrorSym(object_class);
  
 void removeSymbol (char const *);
 
+
+symbol *evaluateBuiltin(const char *name, symbol *arg);
+
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList);
 symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList);
 GPtrArray *addFuncParam(symbol *);

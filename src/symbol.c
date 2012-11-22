@@ -5,6 +5,7 @@
  */
  
  
+#include <math.h>
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -566,6 +567,59 @@ void init_table () {
 
 }
 
+
+//return a symbol with the result of the evaluation
+//we are assuming here that type checking has been done, so this will
+//always return successfully
+
+symbol *evaluateBuiltin(const char *name, symbol *arg) {
+
+    const_desc *argumentDescription = arg->desc.const_attr;
+    if (strcmp (name, "odd") == 0) {
+        int argument = argumentDescription->values.integer;
+        int result = argument % 2;
+        union constant_values resultValue = {.boolean = result};
+        return createConstant(TC_BOOLEAN, resultValue);
+    }
+    else if (strcmp (name, "chr")== 0) {
+        char argument = argumentDescription->values.character;
+        int result = argument;
+        union constant_values resultValue = {.integer = result};
+        return createConstant (TC_INTEGER, resultValue);
+        
+    }
+    else if (strcmp (name, "round") == 0) {
+        double argument = argumentDescription->values.real;
+        int result = roundl (argument);
+        union constant_values resultValue = {.integer = result};
+        return createConstant (TC_INTEGER, resultValue);
+    }
+    else if (strcmp (name, "trunc") ==0) {
+        double argument = argumentDescription->values.real;
+        int result = (int) argument;
+        union constant_values resultValue = {.integer = result};
+        return createConstant (TC_INTEGER, resultValue);
+    }
+    else if (strcmp (name, "ord") == 0) {
+        int argument = argumentDescription->values.integer;
+        union constant_values resultValue = {.integer = argument};
+        return createConstant (TC_INTEGER, resultValue);
+        
+    }
+    else if (strcmp (name, "pred") == 0) {
+    }
+    else if (strcmp (name, "succ") == 0) {
+    }
+    else if (strcmp (name, "abs") == 0) {
+    }
+    else if (strcmp (name, "sqr") == 0) {
+    }
+    else {
+        //BAD, you should never call a builtin that does
+        //not exist
+    }
+        
+}
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {    
   struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
     struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));
