@@ -929,6 +929,7 @@ callFunc(const char *funcname, GPtrArray *arguments) {
     }
     
     if (implementedBuiltinFunction(funcname)) {
+        symbol *arg = (symbol *) g_ptr_array_index(arguments, 0);
         if (canEvaluate(arg)) {
             return evaluateBuiltin(funcname, arg);
         }

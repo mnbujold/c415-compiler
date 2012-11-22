@@ -50,7 +50,7 @@ function arrayAssignment() : boolean;
         a3 : array[et1] of char;
         a4 : array[et2] of char;
         a5 : array[ec1..ec4] of char;
-        a6 : array[ord(ec1)..10] of char;
+        a6 : array[ord(ec2)..10] of char;
         a7 : array[ec1..ec3] of char;
         a8 : array[ec2..ec4] of char;
         a9 : array[2..4] of char;

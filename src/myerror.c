@@ -33,7 +33,7 @@ myerror *addError(myerror *in, const char *message, int location, int line) {
 	} /*if*/
 	sNew->text = NULL;
 	sNew->errorTextLength = 0;
-	sNew->line = line-1;
+	sNew->line = line;
 	sNew->location = location;
 	sNew->next = NULL;
 	sNew->last = sNew;
