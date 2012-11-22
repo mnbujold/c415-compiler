@@ -551,19 +551,19 @@ void init_table () {
 
   /* Functions */
   addBuiltinFunc("abs", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
-  addBuiltinFunc("chr", globalLookup("char"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("chr", globalLookup("char"), addFuncParam(globalLookup("integer"))); // implemented
   addBuiltinFunc("cos", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("ln", globalLookup("real"), addFuncParam(globalLookup("real")));
-  addBuiltinFunc("odd", globalLookup("boolean"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("odd", globalLookup("boolean"), addFuncParam(globalLookup("integer"))); // implemented
   addBuiltinFunc("ord", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("pred", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
-  addBuiltinFunc("round", globalLookup("integer"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("round", globalLookup("integer"), addFuncParam(globalLookup("real"))); // implemented
   addBuiltinFunc("sin", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("sqr", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("sqrt", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("succ", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("exp", globalLookup("real"), addFuncParam(globalLookup("real")));
-  addBuiltinFunc("trunc", globalLookup("integer"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("trunc", globalLookup("integer"), addFuncParam(globalLookup("real"))); // implemented
 
 }
 

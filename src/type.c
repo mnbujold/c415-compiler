@@ -927,6 +927,13 @@ callFunc(const char *funcname, GPtrArray *arguments) {
     if (checkCallAndArgs(funcname, arguments, OC_FUNC, "function") == 0) {
         return createErrorSym(OC_FUNC);
     }
+    
+    if (implementedBuiltinFunction(funcname)) {
+        if (canEvaluate(arg)) {
+            return evaluateBuiltin(funcname, arg);
+        }
+    }
+    
     return globalLookup(funcname);
 }
 
@@ -940,6 +947,19 @@ specialBuiltinFunc(const char *funcname) {
      && strcmp(funcname, "succ") != 0) {
         return 0;
     }
+    return globalLookup(funcname) == topLevelLookup(funcname);
+}
+
+int
+implementedBuiltinFunction(const char *funcname) {
+    if (strcmp(funcname, "abs") != 0 && strcmp(funcname, "sqr") != 0
+     && strcmp(funcname, "ord") != 0 && strcmp(funcname, "pred") != 0
+     && strcmp(funcname, "succ") != 0 && strcmp(funcname, "chr") != 0
+     && strcmp(funcname, "odd") != 0 && strcmp(funcname, "round") != 0
+     && strcmp(funcname, "trunc") != 0) {
+        return 0;
+    }
+    
     return globalLookup(funcname) == topLevelLookup(funcname);
 }
 
@@ -979,10 +999,16 @@ callBuiltinFunc(const char *funcname, GPtrArray *arguments) {
  
     if (strcmp(funcname, "abs") == 0 || strcmp(funcname, "sqr") == 0) { //  number
         if (arg_tc == TC_INTEGER || arg_tc == TC_REAL) {
+            if (canEvaluate(arg)) {
+                return evaluateBuiltin(funcname, arg);
+            }
             return createAnonymousConst(arg, NULL);
         }
     } else if (strcmp(funcname, "ord") == 0) { // takes ordinal returns integer
         if (arg_tc == TC_INTEGER || arg_tc == TC_CHAR || arg_tc == TC_SCALAR || arg_tc == TC_BOOLEAN) {
+            if (canEvaluate(arg)) {
+                return evaluateBuiltin(funcname, arg);
+            }
             struct const_desc *constDesc = calloc(1, sizeof(struct const_desc));
             constDesc->hasValue = 0;
             
@@ -990,6 +1016,9 @@ callBuiltinFunc(const char *funcname, GPtrArray *arguments) {
         }
     } else { // (pred or succ) ordinal
         if (arg_tc == TC_INTEGER || arg_tc == TC_CHAR || arg_tc == TC_SCALAR || arg_tc == TC_BOOLEAN) {
+            if (canEvaluate(arg)) {
+                return evaluateBuiltin(funcname, arg);
+            }
             return createAnonymousConst(arg, NULL);
         }
     }

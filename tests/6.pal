@@ -95,7 +95,7 @@ begin
     writeln('stop (y/n)?');
     read(stop);
     
-    abadrecord.boolean := idunno;
+    abadrecord.french := idunno;
     
     index := index + 1;
     another.field3 := index; { $ERR_DATA$ [23, "not a field of the 'another' record", ["symbol 'field3' is not a field of record 'another'"]] $ERR_DATA$ }
