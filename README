@@ -19,14 +19,8 @@ University representatives accordingly.
 
 Known Issues:
 
-When printing out block comments in the program listing, the line number 
-prepended to the comment will only show the last line number of the comment; 
-i.e. it will not print out a line number for each line in the comment.
-
 Newlines within a string that are not escaped will screw up the line number 
 count.
 
-Calling operators on the values of builtins will sometimes cause undefined behaviour
-
-Calling operators on constant vars will also cause undefined behaviour
-
+Calling chr () on 255 and greater will cause undefined behaviour, specific to the implementation of C
+on the machine (eg little endian or big endian integer representation)
