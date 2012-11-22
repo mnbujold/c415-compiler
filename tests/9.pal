@@ -51,7 +51,7 @@ function funVarStuff() : integer;
         int := 3;
     end;
 begin
-    varStuff(funVarStuff);2147483647
+    varStuff(funVarStuff);
 end;{ $ERR_DATA$ [0, "missing function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
 
 function correctReturn(int : integer) : boolean;
@@ -74,17 +74,27 @@ procedure testAllBuiltins();
     type sclist = (d1,d2,d3,d4);
           
     var a: integer;
+        b : boolean;
+
         b3 : char;
         c:sclist;
 begin
-    a := succ(aww); // Error!
-    b3 := pred(waa); // Error!
-    b3 := chr(256); // Error!
-    b3 := pred(chr(0)); // Error!
-    c := succ(true); // Error!
-    c := pred(false); // Error!
-    c := succ(d4); // Error!
-    c := pred(d1); // Error!
+
+    a := sqr (ord (chr(87)));
+    a := abs (round (8.123 + 2));
+    a := abs (trunc (8.123));
+    a := pred (succ (ord ('b')));
+    b := odd (succ (ord ('c')));
+    
+    
+    a := succ(aww); { $ERR_DATA$ [18, "cannot go higher than maxint", ["there is no valid successor of this integer"]] $ERR_DATA$ }
+    b3 := pred(waa); { $ERR_DATA$ [19, "cannot go lower than null char", ["there is no valid predecessor of this character"]] $ERR_DATA$ }
+    b3 := chr(256); { $ERR_DATA$ [22, "cannot convert 256 to a valid character", ["there is no valid character for this integer value"]] $ERR_DATA$ }
+    b3 := pred(chr(0)); { $ERR_DATA$ [19, "no predecessor of null char", ["there is no valid predecessor of this character"]] $ERR_DATA$ }
+    c := succ(true); { $ERR_DATA$ [20, "no successor of true", ["there is no valid successor of this boolean"]] $ERR_DATA$ }
+    c := pred(false); { $ERR_DATA$ [17, "no predecessor of false", ["there is no valid predecessor of this boolean"]] $ERR_DATA$ }
+    c := succ(d4); { $ERR_DATA$ [17, "no successor of d4", ["there is no valid successor of this scalar"]] $ERR_DATA$ }
+    c := pred(d1); { $ERR_DATA$ [17, "no predecessor of d1", ["there is no valid predecessor of this scalar"]] $ERR_DATA$ }
 end;
 
 begin
