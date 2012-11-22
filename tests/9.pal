@@ -41,7 +41,7 @@ begin
     while false do
         returnValue := 0;
 
-    if doIReturn(y = x1) then
+    if doIReturn(y = x1) = 1 then
         returnValue := 5
 end; // Should be an error, but ISN'T for cp2 (missing return value for at least one condition)
 
