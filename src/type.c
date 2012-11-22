@@ -754,7 +754,7 @@ createRecord(GPtrArray *fieldList) {
     struct type_desc *newType = calloc(1, sizeof(struct type_desc));
     newType->type = TC_RECORD;
     newType->desc.record = newRecord;
-    
+
     return createTypeSym(NULL, newType);
 }
 
@@ -774,7 +774,7 @@ addField(GPtrArray *fieldList, symbol *newField) {
         }
     }
     g_ptr_array_add(fieldList, newField); // Added in 'correct' order. REVERSE
-    
+
     return fieldList;
 }
 
@@ -908,6 +908,8 @@ getRecordField(symbol *record, const char *fieldName) {
             return currField;
         }
     }
+    fieldNotInRecordError(record->name, fieldName);
+    
     return createErrorSym(OC_VAR);
 }
 

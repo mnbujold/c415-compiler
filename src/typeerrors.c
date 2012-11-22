@@ -36,8 +36,10 @@ symExistsError(const char *id) {
 
 void
 symNotDefinedError(const char *id) {
-    char errMsg[25 + strlen(id)];
-    sprintf(errMsg, "no '%s' symbol defined", id);
+    char errMsg[80 + strlen(id)];
+    sprintf(errMsg,
+            "no '%s' symbol defined; subsequent errors with this symbol will be ignored",
+            id);
     addTypeError(errMsg);
 }
 
@@ -136,6 +138,13 @@ void
 duplicateFieldError(const char *id) {
     char errMsg[25 + strlen(id)];
     sprintf(errMsg, "duplicate field '%s'", id);
+    addTypeError(errMsg);
+}
+
+void
+fieldNotInRecordError(const char *record, const char *field) {
+    char errMsg[30 + strlen(field) + strlen(record)];
+    sprintf(errMsg, "record '%s' does not have field '%s'", record, field);
     addTypeError(errMsg);
 }
 

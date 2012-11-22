@@ -23,7 +23,8 @@ void typeNotDefinedError(const char *id);
 void symExistsError(const char *id);
 
 /**
- * Adds a "no 'id' symbol defined" error.
+ * Adds a "no 'id' symbol defined; subsequent errors with this symbol will be
+ * ignored" error.
  */
 void symNotDefinedError(const char *id);
 
@@ -99,6 +100,11 @@ void arrayIndexTypeError();
  * Adds a "duplicate field 'id'" error.
  */
 void duplicateFieldError(const char *id);
+
+/**
+ * Adds a "record 'record' does not have field 'field'" error.
+ */
+void fieldNotInRecordError(const char *field, const char *record);
 
 /**
  * Adds a "operand not of type boolean" error.

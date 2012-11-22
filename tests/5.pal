@@ -47,7 +47,7 @@ procedure redefineStuff(aChar : char);
     
 begin
     tim := joe; { $ERR_DATA$ [9, "illegal string assignment (upper bound not the same)", ["illegal string assignment to string with different upper bound"]] $ERR_DATA$ }
-    bob[FALSEINT] := char;
+    bob[FALSEINT] := aChar;
 end;
 
 begin
