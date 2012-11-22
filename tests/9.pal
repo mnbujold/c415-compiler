@@ -69,8 +69,13 @@ end;
 
 procedure testAllBuiltins();
     var a: integer;
+    b: boolean;
 begin
-    
+    a := sqr (ord (chr(87)));
+    a := abs (round (8.123 + 2));
+    a := abs (trunc (8.123));
+    a := pred (succ (ord ('b')));
+    b := odd (succ (ord ('c')));
 end;
 
 begin
