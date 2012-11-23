@@ -2,9 +2,8 @@
     7.pal
     Tests invalid type and constant definitions.
     Errors:
-    17:24 true already used in this scope
-    19:24 enum0 already defined as an enum
-    21:24 char already used in this scope
+    18:24 enum0 already defined as an enum
+    20:24 char already used in this scope
 }
 program typesAndConsts(io, oi);
 

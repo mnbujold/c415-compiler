@@ -5,14 +5,14 @@
     68:8 illegal array assignment (index bounds not the same)
     69:8 illegal array assignment (index bounds not the same)
     70:8 illegal array assignment (index types not the same)
-    147:57 too many levels of scoping
-    148:57 too many levels of scoping
-    202:3 illegal array indexing (integer for enumerated type)
-    203:3 illegal array indexing (enumerated type for integer)
+    149:57 too many levels of scoping
+    150:57 too many levels of scoping
     204:3 illegal array indexing (integer for enumerated type)
     205:3 illegal array indexing (enumerated type for integer)
-    209:3 illegal assignment of integer to enumerated type
-    210:3 illegal assignment of enumerated type to integer
+    206:3 illegal array indexing (integer for enumerated type)
+    207:3 illegal array indexing (enumerated type for integer)
+    211:3 illegal assignment of integer to enumerated type
+    212:3 illegal assignment of enumerated type to integer
 }
 
 // Layer -1 is the built-ins.

@@ -2,11 +2,19 @@
     9.pal
     Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols.
     Errors:
-    16:28 illegal array range
-    17:25 missing lower or upper bound
-    19:17 input_type is already defined as a file object thing
-    55:0 missing function return value assignment
-    78:60 cannot call a program
+    24:28 illegal array range
+    25:25 missing lower or upper bound
+    27:17 input_type is already defined as a file object thing
+    63:0 missing function return value assignment
+    98:18 cannot go higher than maxint
+    99:19 cannot go lower than null char
+    100:22 cannot convert 256 to a valid character
+    101:19 no predecessor of null char
+    102:20 no successor of true
+    103:17 no predecessor of false
+    104:17 no successor of d4
+    105:17 no predecessor of d1
+    110:60 cannot call a program
 }
 program mostness(inputtype, outputtype);
 
