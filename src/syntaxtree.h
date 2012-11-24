@@ -5,6 +5,9 @@
 #ifndef SYNTAXTREE_H
 #define SYNTAXTREE_H
 
+GNode *syntaxTree;
+GNode *currentNode;
+
 // It's like a mini-grammar!
 
 enum node_type {            // Children:
@@ -70,5 +73,32 @@ struct node_info {
     node_type type;
     symbol *symbol;
 };
+
+typedef struct node_info node_info;
+
+/**
+ * Initializes the head of the syntax tree to a NT_PROGRAM node and sets it to
+ * the current working node.
+ */
+void initSyntaxTree();
+
+/**
+ * Adds a node of node_type type as a child of the current working node of the
+ * tree and changes the current working node to the added child.
+ */
+void addNode(node_type type);
+
+/**
+ * Adds a node of node_type NT_SYMBOL with symbol as a child of the current
+ * working node of the tree and changes the current working node to the added
+ * child.
+ */
+void addSymbolNode(symbol *symbol);
+
+/**
+ * Changes the current working node of the tree to the parent of the current
+ * node.
+ */
+void moveUp();
 
 #endif
