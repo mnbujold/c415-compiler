@@ -1,70 +1,71 @@
 #include <glib.h>
 
 #include "symbol.h"
+#include "type.h"
 
 #ifndef SYNTAXTREE_H
 #define SYNTAXTREE_H
 
-GNode *syntaxTree = NULL;
+GNode *syntaxTree;
 
 // It's like a mini-grammar!
 
 enum node_type {            // Children:
-    NT_PROGRAM,             // NT_DECLS NT_STAT_LIST
+    NT_PROGRAM,             //  0 NT_DECLS NT_STAT_LIST
     
-    NT_DECLS,               // NT_VAR_DECL_LIST NT_PROC_DECL_LIST
+    NT_DECLS,               //  1 NT_VAR_DECL_LIST NT_PROC_DECL_LIST
     
-    NT_VAR_DECL_LIST,       // NT_SYMBOL ... NT_SYMBOL
+    NT_VAR_DECL_LIST,       //  2 NT_SYMBOL ... NT_SYMBOL
     
-    NT_PROC_DECL_LIST,      // NT_PROC_DECL ... NT_PROC_DECL
-    NT_PROC_DECL,           // NT_SYMBOL NT_DECLS NT_STAT_LIST
+    NT_PROC_DECL_LIST,      //  3 NT_PROC_DECL ... NT_PROC_DECL
+    NT_PROC_DECL,           //  4 NT_SYMBOL NT_DECLS NT_STAT_LIST
     
-    NT_STAT_LIST,           // NT_STAT ... NT_STAT
-    NT_STAT,                // NT_ASSIGNMENT or NT_PROC_INVOK or NT_IF or NT_IF_ELSE or NT_WHILE or NT_CONTINUE or NT_EXIT
+    NT_STAT_LIST,           //  5 NT_STAT ... NT_STAT
+    NT_STAT,                //  6 NT_ASSIGNMENT or NT_PROC_INVOK or NT_IF or NT_IF_ELSE or NT_WHILE or NT_CONTINUE or NT_EXIT
     
-    NT_ASSIGNMENT,          // NT_VAR NT_EXPR
-    NT_VAR,                 // NT_SYMBOL or NT_ARRAY_ACCESS or NT_RECORD_ACCESS
-    NT_ARRAY_ACCESS,        // NT_VAR (base array variable) NT_EXPR ... NT_EXPR (index ... index)
+    NT_ASSIGNMENT,          //  7 NT_VAR NT_EXPR
+    NT_VAR,                 //  8 NT_SYMBOL or NT_ARRAY_ACCESS or NT_RECORD_ACCESS
+    NT_ARRAY_ACCESS,        //  9 NT_VAR (base array variable) NT_EXPR ... NT_EXPR (index ... index)
     
-    NT_EXPR,                // NT_VAR or NT_FUNC_INVOK or (operation)
+    NT_EXPR,                // 10 NT_VAR or NT_FUNC_INVOK or (operation)
     
-    NT_ISEQUAL,             // NT_EXPR NT_EXPR
-    NT_NOTEQUAL,            // NT_EXPR NT_EXPR
-    NT_LESSTHAN,            // NT_EXPR NT_EXPR
-    NT_GREATERTHAN,         // NT_EXPR NT_EXPR
-    NT_LESSTHANEQUALS,      // NT_EXPR NT_EXPR
-    NT_GREATERTHANEQUALS,   // NT_EXPR NT_EXPR
-    NT_AND,                 // NT_EXPR NT_EXPR
-    NT_OR,                  // NT_EXPR NT_EXPR
-    NT_NOT,                 // NT_EXPR
-    NT_PLUS,                // NT_EXPR NT_EXPR
-    NT_MINUS,               // NT_EXPR NT_EXPR
-    NT_MULTIPLY,            // NT_EXPR NT_EXPR
-    NT_DIVIDE,              // NT_EXPR NT_EXPR
-    NT_DIV,                 // NT_EXPR NT_EXPR
-    NT_MOD,                 // NT_EXPR NT_EXPR
-    NT_IDENTITY,            // NT_EXPR
-    NT_INVERSION,           // NT_EXPR
+    NT_ISEQUAL,             // 11 NT_EXPR NT_EXPR
+    NT_NOTEQUAL,            // 12 NT_EXPR NT_EXPR
+    NT_LESSTHAN,            // 13 NT_EXPR NT_EXPR
+    NT_GREATERTHAN,         // 14 NT_EXPR NT_EXPR
+    NT_LESSTHANEQUALS,      // 15 NT_EXPR NT_EXPR
+    NT_GREATERTHANEQUALS,   // 16 NT_EXPR NT_EXPR
+    NT_AND,                 // 17 NT_EXPR NT_EXPR
+    NT_OR,                  // 18 NT_EXPR NT_EXPR
+    NT_NOT,                 // 19 NT_EXPR
+    NT_PLUS,                // 20 NT_EXPR NT_EXPR
+    NT_MINUS,               // 21 NT_EXPR NT_EXPR
+    NT_MULTIPLY,            // 22 NT_EXPR NT_EXPR
+    NT_DIVIDE,              // 23 NT_EXPR NT_EXPR
+    NT_DIV,                 // 24 NT_EXPR NT_EXPR
+    NT_MOD,                 // 25 NT_EXPR NT_EXPR
+    NT_IDENTITY,            // 26 NT_EXPR
+    NT_INVERSION,           // 27 NT_EXPR
     
-    NT_PROC_INVOK,          // NT_SYMBOL (procedure) NT_EXPR ... NT_EXPR (argument ... argument)
-    NT_FUNC_INVOK,          // NT_SYMBOL (function) NT_EXPR ... NT_EXPR (argument ... argument)
+    NT_PROC_INVOK,          // 28 NT_SYMBOL (procedure) NT_EXPR ... NT_EXPR (argument ... argument)
+    NT_FUNC_INVOK,          // 29 NT_SYMBOL (function) NT_EXPR ... NT_EXPR (argument ... argument)
     
-    NT_RECORD_ACCESS,       // NT_SYMBOL (record) NT_SYMBOL (field)
+    NT_RECORD_ACCESS,       // 30 NT_SYMBOL (record) NT_SYMBOL (field)
     
-    NT_SYMBOL,              // none
+    NT_SYMBOL,              // 31 none
     
-    NT_IF,                  // NT_EXPR NT_STAT_LIST
-    NT_IF_ELSE,             // NT_EXPR NT_STAT_LIST (if statements) NT_STAT_LIST (else statements)
+    NT_IF,                  // 32 NT_EXPR NT_STAT_LIST
+    NT_IF_ELSE,             // 33 NT_EXPR NT_STAT_LIST (if statements) NT_STAT_LIST (else statements)
     
-    NT_WHILE,               // NT_EXPR NT_STAT_LIST
+    NT_WHILE,               // 34 NT_EXPR NT_STAT_LIST
     
-    NT_CONTINUE,            // none
-    NT_EXIT,                // none
-    NT_NONE,                // none (should never occur)
+    NT_CONTINUE,            // 35 none
+    NT_EXIT,                // 36 none
+    NT_NONE,                // 37 none (should never occur)
     
     // Now, some more just for me:
     NT_VAR_DECL_PART, NT_PROC_DECL_PART, NT_PROC_HEADING, NT_COMPOUND_STAT,
-    NT_SIMPLE_STAT, NT_PLIST_FINVOK    
+    NT_SIMPLE_STAT, NT_PLIST_FINVOK    // 38 - 44
 };
 
 typedef enum node_type node_type;
@@ -111,35 +112,5 @@ symbol *extractType(GNode *node);
 struct pf_invok *extractPF_Invok(GNode *node);
 const char *extractID(GNode *node);
 GPtrArray *extractParamList(GNode *node);
-
-/**
- * Initializes the head of the syntax tree to a NT_PROGRAM node and sets it to
- * the current working node.
- */
-// void initSyntaxTree();
-
-/**
- * Adds a node of node_type type as a child of the current working node of the
- * tree and changes the current working node to the added child.
- */
-// void addNode(node_type type);
-
-/**
- * Adds a node of node_type NT_SYMBOL with symbol as a child of the current
- * working node of the tree and changes the current working node to the added
- * child.
- */
-// void addSymbolNode(symbol *symbol);
-
-/**
- * Changes the current working node of the tree to the parent of the current
- * node.
- */
-// void moveUp();
-
-/**
- * Returns the node_type of the current working node of the tree.
- */
-// node_type getCurrentType();
 
 #endif

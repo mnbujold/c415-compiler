@@ -30,24 +30,32 @@ getSyntaxTree() {
 
 node_type
 getNodeType(GNode *node) {
-    if (node == NULL || node->((rule_and_node *)data)->node->hasNode == 0) {
+    if (node == NULL) {
         return NT_NONE;
     }
-    return node->((rule_and_node *)data)->node->type;
+    rule_and_node *data = node->data;
+        
+    if (data->hasNode == 0) {
+        return NT_NONE;
+    }
+    
+    return data->node->type;
 }
 
 GNode *
 createNode(node_type type, GNode *n_args, ...) {
     GNode *newNode = createNewNode(type, NULL, NULL);
-    int i;
     va_list argList;
     
     va_start(argList, n_args);
     
-    for (i = 0; i < n_args; i += 0) {
-        g_node_append(newNode, va_arg(argList, GNode *));
-    }
+    GNode *arg = va_arg(argList, GNode *);
     
+    while(arg != NULL) {
+        g_node_append(newNode, arg);        
+        arg = va_arg(argList, GNode *);
+    }
+
     return newNode;
 }
 
@@ -64,13 +72,15 @@ createSymbolNode(symbol *symbol) {
 GNode *
 createPF_InvokNode(struct pf_invok *pf_invok, GNode *n_args, ...) {
     GNode *newNode = createNewNode(NT_PLIST_FINVOK, NULL, pf_invok);
-    int i;
     va_list argList;
     
     va_start(argList, n_args);
     
-    for (i = 0; i < n_args; i += 0) {
-        g_node_append(newNode, va_arg(argList, GNode *));
+    GNode *arg = va_arg(argList, GNode *);
+    
+    while(arg != NULL) {
+        g_node_append(newNode, arg);        
+        arg = va_arg(argList, GNode *);
     }
     
     return newNode;    
@@ -79,13 +89,15 @@ createPF_InvokNode(struct pf_invok *pf_invok, GNode *n_args, ...) {
 GNode *
 createArrayNode(symbol *result, GNode *n_args, ...) {
     GNode *newNode = createNewNode(NT_ARRAY_ACCESS, result, NULL);
-    int i;
     va_list argList;
     
     va_start(argList, n_args);
     
-    for (i = 0; i < n_args; i += 0) {
-        g_node_append(newNode, va_arg(argList, GNode *));
+    GNode *arg = va_arg(argList, GNode *);
+    
+    while(arg != NULL) {
+        g_node_append(newNode, arg);        
+        arg = va_arg(argList, GNode *);
     }
     
     return newNode;
@@ -94,13 +106,15 @@ createArrayNode(symbol *result, GNode *n_args, ...) {
 GNode *
 createExprNode(node_type type, symbol *result, GNode *n_args, ...) {
     GNode *newNode = createNewNode(type, result, NULL);
-    int i;
     va_list argList;
     
     va_start(argList, n_args);
     
-    for (i = 0; i < n_args; i += 0) {
-        g_node_append(newNode, va_arg(argList, GNode *));
+    GNode *arg = va_arg(argList, GNode *);
+    
+    while(arg != NULL) {
+        g_node_append(newNode, arg);        
+        arg = va_arg(argList, GNode *);
     }
     
     return newNode;
@@ -113,61 +127,40 @@ createSingleExprNode(node_type type, symbol *result) {
 
 symbol *
 extractSymbol(GNode *node) {
-    return node->((rule_and_node *)data)->rule.symbol;
+    rule_and_node *data = node->data;
+    
+    return data->rule.symbol;
 }
 
 symbol *
 extractType(GNode *node) {
-    return node->((rule_and_node *)data)->rule.symbol->type;
+    rule_and_node *data = node->data;
+    
+    return data->rule.symbol->symbol_type;
 }
 
 struct pf_invok *
 extractPF_Invok(GNode *node) {
-    return node->((rule_and_node *)data)->rule.pf_invok;
+    rule_and_node *data = node->data;
+    
+    return data->rule.pf_invok;
 }
 
 const char *
 extractID(GNode *node) {
-    return node->((rule_and_node *)data)->rule.pf_invok->id;
+    rule_and_node *data = node->data;
+    
+    return data->rule.pf_invok->id;
 }
 
 GPtrArray *
 extractParamList(GNode *node) {
-    return node->((rule_and_node *)data)->rule.pf_invok->paramList;
+    rule_and_node *data = node->data;
+    
+    return data->rule.pf_invok->paramList;
 }
 
 GNode *
 getProcNode(const char *procname) {
     return createSymbolNode(globalLookup(procname));
 }
-
-// 
-// void
-// initSyntaxTree() {
-//     syntaxTree = g_node_new(createNode(NT_PROGRAM, NULL));
-//     currentNode = syntaxTree;
-// }
-// 
-// void
-// addNode(node_type type) {
-//     GNode *child = createNode(type, NULL);
-//     g_node_append(currentNode, child);
-//     
-//     currentNode = child;
-// }
-// 
-// void
-// addSymbolNode(symbol *symbol) {
-//     GNode *child = createNode(NT_SYMBOL, symbol);
-//     g_node_append(currentNode, child);
-//     
-//     currentNode = child;
-// }
-// 
-// void
-// moveUp(){
-//     GNode *parent = currentNode->parent;
-//     if (parent != NULL) {
-//         currentNode = parent;
-//     }
-// }
