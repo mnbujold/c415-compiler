@@ -189,16 +189,14 @@ symbol *callBuiltinFunc(const char *funcname, GPtrArray *arguments);
 
 int checkIOProc(const char *proc_name, int showErrors);
 
-void callProc(const char *procname, GPtrArray *arguments);
-
 /**
  * Checks that expr has a boolean type.
  */
-void checkConditional(symbol *expr);
+int checkConditional(symbol *expr);
 
 /**
  * Checks that the controlType statement is in a loop.
  */
-void checkControlFlow(int loopLevel, const char *controlType);
+int checkControlFlow(int loopLevel, const char *controlType);
 
 #endif

@@ -50,7 +50,7 @@ GNode *currentNode = NULL;
     char character;
     int integer;
     double real;
-    rule_and_node *node;
+    GNode *node;
     symbol *symbol;
     GPtrArray *garray;
     struct pf_invok *pf_invok;
@@ -96,22 +96,22 @@ GNode *currentNode = NULL;
 %type <symbol> simple_type
 %type <garray> scalar_type scalar_list field_list 
 %type <symbol> field
-%type <symbol> var_decl
-%type <symbol> var subscripted_var parm
-%type <symbol> expr simple_expr term factor unsigned_const unsigned_num
-%type <symbol> proc_heading
+/* %type <symbol> var_decl */
+/* %type <symbol> var subscripted_var parm */
+/* %type <symbol> expr simple_expr term factor unsigned_const unsigned_num */
+/* %type <symbol> proc_heading */
 %type <garray> f_parm_decl f_parm_list
 %type <symbol> f_parm
-%type <pf_invok> plist_finvok
-%type <symbol> func_invok
+/* %type <pf_invok> plist_finvok */
+/* %type <symbol> func_invok */
 
-/* %type <node> program decls */
-/* %type <node> var_decl_part var_decl_list var_decl */
-/* %type <node> proc_decl_part proc_decl_list proc_heading */
-/* %type <node> compound_stat stat_list stat simple_stat struct_stat */
-/* %type <node> stat_assignment proc_invok var plist_finvok subscripted_var */
-/* %type <node> expr simple_expr term factor parm unsigned_const unsigned_num func_invok parm */
-/* %type <node> matched_stat if_header while_header */
+%type <node> program decls
+%type <node> var_decl_part var_decl_list var_decl
+%type <node> proc_decl_part proc_decl_list proc_decl proc_heading
+%type <node> compound_stat stat_list stat simple_stat struct_stat
+%type <node> stat_assignment proc_invok var plist_finvok subscripted_var
+%type <node> expr simple_expr term factor unsigned_const unsigned_num func_invok parm
+%type <node> matched_stat if_header while_header
 
 %left LEFTBRACKET ISEQUAL
 
@@ -172,7 +172,7 @@ const_decl_list         : const_decl
 
 const_decl              : ID ISEQUAL expr
                             {
-                                addNewConst($1, $3);
+                                addNewConst($1, extractSymbol($3));
                             }
                         | error /* ERROR */ 
                         ;
@@ -310,8 +310,9 @@ array_type              : ID
                             }
                         | expr DOUBLEPERIOD expr
                             {
-                                if ($1 != NULL && $3 != NULL) {
-                                    $$ = createArrayIndex($1, $3);
+                                if (getNodeType($1) != NT_NONE
+                                 && getNodeType($3) != NT_NONE) {
+                                    $$ = createArrayIndex(extractSymbol($1), extractSymbol($3));
                                 } else {
                                     $$ = NULL;
                                 }
@@ -355,7 +356,7 @@ field                   : ID COLON type
 
 var_decl_part           : /* empty */
                             {
-                                $$ = createNode(NT_VAR_DECL_PART);
+                                $$ = createSingleNode(NT_VAR_DECL_PART);
                             }
                         | VAR var_decl_list SEMICOLON
                             {
@@ -363,7 +364,7 @@ var_decl_part           : /* empty */
                             }
                         | error /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         ;
 
@@ -383,7 +384,7 @@ var_decl                : ID COLON type
                                     $$ = createSymbolNode(addNewVar($1, $3));
                                 } else {
                                     $$ = NULL;
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | ID COMMA var_decl
@@ -391,18 +392,18 @@ var_decl                : ID COLON type
                                 if (getNodeType($3) != NT_NONE) {
                                     $$ = createSymbolNode(addNewVar($1, extractType($3)));
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | error /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         ;
 
 proc_decl_part          : /* empty */
                             {
-                                $$ = createNode(NT_PROC_DECL_PART);
+                                $$ = createSingleNode(NT_PROC_DECL_PART);
                             }
                         | proc_decl_list
                             {
@@ -426,59 +427,59 @@ proc_decl               : proc_heading decls compound_stat SEMICOLON
                                     checkFuncValSet(extractSymbol($1));
                                     $$ = createNode(NT_PROC_DECL, $1, $2, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                                 popLevel();
                             }
                         | error SEMICOLON /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                                 popLevel();
                             }
                         ;
                         
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                             {
-                                if (getNodeType($3) != NT_NONE) {
-                                    $$ = createNode(NT_PROC_HEADING, addNewProc($2, $3));
+                                if ($3 != NULL) {
+                                    $$ = createSymbolNode(addNewProc($2, $3));
                                 } else {
                                     addNewProc($2, NULL);
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | FUNCTION ID f_parm_decl COLON ID SEMICOLON
                             {
                                 if ($3 != NULL) {
-                                    $$ = createNode(NT_PROC_HEADING, addNewFunc($2, $5, $3));
+                                    $$ = createSymbolNode(addNewFunc($2, $5, $3));
                                 } else {
                                     addNewFunc($2, $5, NULL);
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | PROCEDURE ID error SEMICOLON /* ERROR */
                             {
                                 addNewProc($2, NULL);
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | FUNCTION ID error SEMICOLON /* ERROR */
                             {
                                 addNewFunc($2, NULL, NULL);
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | PROCEDURE error SEMICOLON /* ERROR */
                             {
                                 pushLevel();
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | FUNCTION error SEMICOLON /* ERROR */
                             {
                                 pushLevel();
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | error /* ERROR */
                             {
                                 pushLevel();
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         ;
 
@@ -537,7 +538,7 @@ compound_stat           : BEGIN_ stat_list END
                                 if (getNodeType($2) != NT_NONE) {
                                     $$ = createNode(NT_COMPOUND_STAT, $2);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
@@ -547,7 +548,7 @@ stat_list               : stat
                                 if (getNodeType($1) != NT_NONE) {
                                     $$ = createNode(NT_STAT_LIST, $1);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | stat_list SEMICOLON stat
@@ -555,12 +556,12 @@ stat_list               : stat
                                 if (getNodeType($3) != NT_NONE) {
                                     $$ = createNode(NT_STAT_LIST, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | error SEMICOLON stat /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         ;
 
@@ -569,7 +570,7 @@ stat                    : simple_stat
                                 if (getNodeType($1) != NT_NONE) {
                                     $$ = createNode(NT_STAT, $1);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | struct_stat
@@ -577,21 +578,21 @@ stat                    : simple_stat
                                 if (getNodeType($1) != NT_NONE) {
                                     $$ = createNode(NT_STAT, $1);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
 
 simple_stat             : /* empty */
                             {
-                                $$ = createNode(NT_SIMPLE_STAT);
+                                $$ = createSingleNode(NT_SIMPLE_STAT);
                             }
                         | stat_assignment
                             {
                                 if (getNodeType($1) != NT_NONE) {
                                     $$ = createNode(NT_SIMPLE_STAT, $1);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | proc_invok
@@ -599,7 +600,7 @@ simple_stat             : /* empty */
                                 if (getNodeType($1) != NT_NONE) {
                                     $$ = createNode(NT_SIMPLE_STAT, $1);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | compound_stat
@@ -607,7 +608,7 @@ simple_stat             : /* empty */
                                 if (getNodeType($1) != NT_NONE) {
                                     $$ = createNode(NT_SIMPLE_STAT, $1);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
@@ -621,12 +622,12 @@ stat_assignment         : var ASSIGN expr
                                     doVarAssignment(extractSymbol($1), extractSymbol($3));
                                     $$ = createNode(NT_ASSIGNMENT, $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | error /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         ;
                         
@@ -636,10 +637,10 @@ proc_invok              : plist_finvok RIGHTPAREN
                                     if (callProc(extractID($1), extractParamList($1))) {
                                         $$ = createNode(NT_PROC_INVOK, $1);
                                     } else {
-                                        $$ = createNode(NT_NONE);
+                                        $$ = createSingleNode(NT_NONE);
                                     }
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | ID LEFTPAREN RIGHTPAREN
@@ -647,7 +648,7 @@ proc_invok              : plist_finvok RIGHTPAREN
                                 if (callProc($1, NULL)) {
                                     $$ = createNode(NT_PROC_INVOK, getProcNode($1));
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | IOPROC
@@ -655,7 +656,7 @@ proc_invok              : plist_finvok RIGHTPAREN
                                 if (checkIOProc($1, 1)) {
                                     $$ = createNode(NT_PROC_INVOK, getProcNode($1));
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | IOPROC LEFTPAREN RIGHTPAREN
@@ -663,7 +664,7 @@ proc_invok              : plist_finvok RIGHTPAREN
                                 if (callProc($1, NULL)) {
                                     $$ = createNode(NT_PROC_INVOK, getProcNode($1));
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
@@ -677,7 +678,7 @@ var                     : ID
                                 if (getNodeType($1) != NT_NONE) {
                                     $$ = createNode(NT_VAR, $1, getRecordField(extractSymbol($1), $3));
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | subscripted_var RIGHTBRACKET
@@ -686,7 +687,7 @@ var                     : ID
                             }
                         | error RIGHTBRACKET /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         ;
 
@@ -696,7 +697,7 @@ subscripted_var         : var LEFTBRACKET expr
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createArrayNode(accessArray(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                                 DEBUG_PRINT (("In subscripted var"));
                             }
@@ -706,7 +707,7 @@ subscripted_var         : var LEFTBRACKET expr
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createArrayNode(accessArray(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
@@ -721,7 +722,7 @@ expr                    : simple_expr
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_ISEQUAL, equalOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | expr NOTEQUAL simple_expr
@@ -730,7 +731,7 @@ expr                    : simple_expr
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_NOTEQUAL, notEqualOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | expr LESSTHANEQUALS simple_expr
@@ -739,7 +740,7 @@ expr                    : simple_expr
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_LESSTHANEQUALS, lessThanEqualOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | expr LESSTHAN simple_expr
@@ -748,7 +749,7 @@ expr                    : simple_expr
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_LESSTHAN, lessThanOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | expr GREATERTHANEQUALS simple_expr
@@ -757,7 +758,7 @@ expr                    : simple_expr
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_GREATERTHANEQUALS, greaterThanEqualOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | expr GREATERTHAN simple_expr
@@ -766,7 +767,7 @@ expr                    : simple_expr
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_GREATERTHAN, greaterThanOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
@@ -780,7 +781,7 @@ simple_expr             : term
                                 if (getNodeType($2) != NT_NONE) {
                                     $$ = createExprNode(NT_IDENTITY, identity(extractSymbol($2)), $2);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | MINUS term
@@ -788,7 +789,7 @@ simple_expr             : term
                                 if (getNodeType($2) != NT_NONE) {
                                     $$ = createExprNode(NT_INVERSION, inversion(extractSymbol($2)), $2);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | simple_expr PLUS term
@@ -797,7 +798,7 @@ simple_expr             : term
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_PLUS, addOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | simple_expr MINUS term
@@ -806,7 +807,7 @@ simple_expr             : term
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_MINUS, subtractOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | simple_expr OR term
@@ -815,7 +816,7 @@ simple_expr             : term
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_OR, orOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
@@ -829,7 +830,7 @@ term                    : factor
                                 if ($1 != NULL && $3 != NULL) {
                                     $$ = createExprNode(NT_MULTIPLY, multOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | term DIVIDE factor
@@ -838,7 +839,7 @@ term                    : factor
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_DIVIDE, realDivOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | term DIV factor
@@ -847,7 +848,7 @@ term                    : factor
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_DIV, intDivOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | term MOD factor
@@ -856,7 +857,7 @@ term                    : factor
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_MOD, modOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | term AND factor
@@ -865,12 +866,12 @@ term                    : factor
                                  && getNodeType($3) != NT_NONE) {
                                     $$ = createExprNode(NT_AND, andOp(extractSymbol($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | error /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         ;
 
@@ -888,7 +889,7 @@ factor                  : var
                             }
                         | LEFTPAREN error RIGHTPAREN /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | func_invok
                             {
@@ -899,7 +900,7 @@ factor                  : var
                                 if (getNodeType($2) != NT_NONE) {
                                     $$ = createExprNode(NT_NOT, notOp(extractSymbol($2)), $2);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
@@ -907,80 +908,68 @@ factor                  : var
 unsigned_const          : unsigned_num
                             {
                                 $$ = $1;
-                                $$ = createNode(NT_UNSIGNED_CONST, $1);
                             }
                         | CHAR
                             {
                                 union constant_values value = { .character = $1 };
-                                $$ = createConstant(TC_CHAR, value);
-                                $$ = createNode(NT_SYMBOL, $$);
+                                $$ = createSymbolNode(createConstant(TC_CHAR, value));
                             }
                         | STRING
                             {
                                 union constant_values value = { .string = $1 };
-                                $$ = createConstant(TC_STRING, value);
-                                $$ = createNode(NT_SYMBOL, $$);
+                                $$ = createSymbolNode(createConstant(TC_STRING, value));
                             }
                         ;
 
 unsigned_num            : INT_CONST
                             {                                
                                 union constant_values value = { .integer = $1 };
-                                $$ = createConstant(TC_INTEGER, value);
-                                $$ = createNode(NT_SYMBOL, $$);
+                                $$ = createSymbolNode(createConstant(TC_INTEGER, value));
                             }
                         | REAL_CONST
                             {                                
                                 union constant_values value = { .real = $1 };
-                                $$ = createConstant(TC_REAL, value);
-                                $$ = createNode(NT_SYMBOL, $$);
+                                $$ = createSymbolNode(createConstant(TC_REAL, value));
                             }
                         ;
 
 func_invok              : plist_finvok RIGHTPAREN
                             {
-                                if ($1 != NULL) {
-                                    $$ = callFunc($1->id, $1->paramList);
-                                    $$ = createNode(NT_FUNC_INVOK, $$);
+                                if (getNodeType($1) != NT_NONE) {
+                                    $$ = createExprNode(NT_FUNC_INVOK, callFunc(extractID($1), extractParamList($1)), $1);
                                 } else {
-                                    $$ = NULL;
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | ID LEFTPAREN RIGHTPAREN
                             {
-                                $$ = callFunc($1, NULL);
-                                $$ = createNode(NT_FUNC_INVOK, $$);
+                                $$ = createSingleExprNode(NT_FUNC_INVOK, callFunc($1, NULL));
                             }
                         ;
 
 plist_finvok            : ID LEFTPAREN parm
                             {
-                                if ($3 != NULL) {
-                                    $$ = createArgList($1, $3);
-                                    $$ = createNode(NT_PLIST_FINVOK, $$);
+                                if (getNodeType($3) != NT_NONE) {
+                                    $$ = createPF_InvokNode(createArgList($1, extractSymbol($3)), getProcNode($1), $3);
                                 } else {
-                                    $$ = NULL;
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | IOPROC LEFTPAREN parm
                             {
-                                if ($3 != NULL) {
-                                    $$ = createArgList($1, $3);
-                                    $$ = createNode(NT_PLIST_FINVOK, $$);
+                                if (getNodeType($3) != NT_NONE) {
+                                    $$ = createPF_InvokNode(createArgList($1, extractSymbol($3)), getProcNode($1), $3);
                                 } else {
-                                    $$ = NULL;
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         | plist_finvok COMMA parm
                             {
-                                if ($1 != NULL && $3 != NULL) {
-                                    $$ = addArgument($1, $3);
-                                    $$ = createNode(NT_PLIST_FINVOK, $$);
+                                if (getNodeType($1) != NT_NONE
+                                 && getNodeType($3) != NT_NONE) {
+                                    $$ = createPF_InvokNode(addArgument(extractPF_Invok($1), extractSymbol($3)), $1, $3);
                                 } else {
-                                    $$ = NULL;
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
@@ -988,17 +977,16 @@ plist_finvok            : ID LEFTPAREN parm
 parm                    : expr
                             {                                
                                 $$ = $1;
-                                $$ = createNode(NT_EXPR, $1);
                             }
                         ;
 
 struct_stat             : if_header THEN matched_stat ELSE stat
                             {
-                                $$ = createNode(NT_IF, $1, $3, $5);
+                                $$ = createNode(NT_IF_ELSE, $1, $3, $5);
                             }
                         | error ELSE stat /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | if_header THEN stat
                             {
@@ -1006,7 +994,7 @@ struct_stat             : if_header THEN matched_stat ELSE stat
                             }
                         | error THEN stat /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | while_header stat
                             {
@@ -1015,15 +1003,23 @@ struct_stat             : if_header THEN matched_stat ELSE stat
                             }
                         | error DO stat /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | CONTINUE
                             {
-                                checkControlFlow(loopLevel, "continue");
+                                if (checkControlFlow(loopLevel, "continue")) {
+                                    $$ = createSingleNode(NT_CONTINUE);
+                                } else {
+                                    $$ = createSingleNode(NT_NONE);
+                                }
                             }
                         | EXIT
                             {
-                                checkControlFlow(loopLevel, "exit");
+                                if (checkControlFlow(loopLevel, "exit")) {
+                                    $$ = createSingleNode(NT_EXIT);
+                                } else {
+                                    $$ = createSingleNode(NT_NONE);
+                                }
                             }
                         ;
 
@@ -1033,11 +1029,11 @@ matched_stat            : simple_stat
                             }
                         | if_header THEN matched_stat ELSE matched_stat
                             {
-                                $$ = createNode(NT_IF, $1, $3, $5);
+                                $$ = createNode(NT_IF_ELSE, $1, $3, $5);
                             }
                         | error ELSE matched_stat /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | while_header matched_stat
                             {
@@ -1046,38 +1042,42 @@ matched_stat            : simple_stat
                             }
                         | error DO matched_stat /* ERROR */
                             {
-                                $$ = createNode(NT_NONE);
+                                $$ = createSingleNode(NT_NONE);
                             }
                         | CONTINUE
                             {
-                                checkControlFlow(loopLevel, "continue");
-                                $$ = createNode(NT_CONTINUE);
+                                if (checkControlFlow(loopLevel, "continue")) {
+                                    $$ = createSingleNode(NT_CONTINUE);
+                                } else {
+                                    $$ = createSingleNode(NT_NONE);
+                                }
                             }
                         | EXIT
                             {
-                                checkControlFlow(loopLevel, "exit");
-                                $$ = createNode(NT_EXIT);
+                                if (checkControlFlow(loopLevel, "exit")) {
+                                    $$ = createSingleNode(NT_EXIT);
+                                } else {
+                                    $$ = createSingleNode(NT_NONE);
+                                }
                             }
                         ;
 
 if_header               : IF expr
                             {
-                                if ($2 != NULL) {
-                                    checkConditional($2);
+                                if (getNodeType($2) != NT_NONE && checkConditional(extractSymbol($2))) {
                                     $$ = createNode(NT_EXPR, $2);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                             }
                         ;
                         
 while_header            : WHILE expr DO
                             {
-                                if ($2 != NULL) {
-                                    checkConditional($2);
+                                if (getNodeType($2) != NT_NONE && checkConditional(extractSymbol($2))) {
                                     $$ = createNode(NT_EXPR, $2);
                                 } else {
-                                    $$ = createNode(NT_NONE);
+                                    $$ = createSingleNode(NT_NONE);
                                 }
                                 loopLevel += 1;
                             }                            

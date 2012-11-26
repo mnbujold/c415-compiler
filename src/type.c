@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include "type.h"
 #include "symbol.h"
-#include ""
 #include "typeerrors.h"
 #include "debug.h"
 
@@ -363,6 +362,9 @@ addNewVar(const char *id, symbol *type) {
 symbol *
 addNewConst(const char *id, symbol *result) {
     if (localLookup(id) == NULL) {
+        if (result == NULL) {
+            result = createErrorSym(OC_CONST);
+        }
         result->name = id;
         addSymbol(id, result);
     } else {
@@ -1157,24 +1159,29 @@ checkIOProc(const char *proc_name, int showErrors) {
     return 1;
 }
 
-void
+int
 checkConditional(symbol *expr) {
     if (expr->symbol_type == NULL) {
         addTypeError("conditional cannot be a type");
+        return 0;
     } else {
         type_class type = expr->symbol_type->desc.type_attr->type;
         
         if (type != TC_ERROR && type != TC_BOOLEAN) {
             addTypeError("conditional is not of boolean type");
+            return 0;
         }
     }
+    return 1;
 }
 
-void
+int
 checkControlFlow(int loopLevel, const char *controlType) {
     if (loopLevel <= 0) {
         ctrlTypeNotInLoopError(controlType);
+        return 0;
     }
+    return 1;
 }
 
 symbol *
