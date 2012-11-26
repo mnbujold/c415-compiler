@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "type.h"
 #include "symbol.h"
+#include ""
 #include "typeerrors.h"
 #include "debug.h"
 
@@ -340,6 +341,7 @@ addNewType(const char *id, symbol *type) {
 
 symbol *
 addNewVar(const char *id, symbol *type) {
+    symbol *newVar;
     if (localLookup(id) == NULL) {
         if (type == NULL) {
             typeNotDefinedError(id);
@@ -348,13 +350,14 @@ addNewVar(const char *id, symbol *type) {
                 && globalLookup(type->name) != NULL) { // A named type. Need to bring into local scope.
             addSymbol(type->name, type);
         }
-        symbol *newVar = createSymbol(id, type, OC_VAR, (void *) createVarDesc());
+        newVar = createSymbol(id, type, OC_VAR, (void *) createVarDesc());
         
         addSymbol(id, newVar);
     } else {
+        newVar = createSymbol(NULL, type, OC_VAR, (void *) createVarDesc());
         symExistsError(id);
     }
-    return type;
+    return newVar;
 }
 
 symbol *
@@ -913,9 +916,9 @@ getRecordField(symbol *record, const char *fieldName) {
     return createErrorSym(OC_VAR);
 }
 
-void
+int
 callProc(const char *procname, GPtrArray *arguments) {
-    checkCallAndArgs(procname, arguments, OC_PROC, "procedure");
+    return checkCallAndArgs(procname, arguments, OC_PROC, "procedure");
 }
 
 symbol *

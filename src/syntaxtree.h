@@ -5,8 +5,7 @@
 #ifndef SYNTAXTREE_H
 #define SYNTAXTREE_H
 
-GNode *syntaxTree;
-GNode *currentNode;
+GNode *syntaxTree = NULL;
 
 // It's like a mini-grammar!
 
@@ -21,7 +20,7 @@ enum node_type {            // Children:
     NT_PROC_DECL,           // NT_SYMBOL DECL NT_STAT_LIST
     
     NT_STAT_LIST,           // NT_STATEMENT ... NT_STATEMENT
-    NT_STATEMENT,           // NT_ASSIGNMENT or NT_PROC_INVOK or NT_IF or NT_WHILE or NT_CONTINUE or NT_EXIT
+    NT_STATEMENT,           // NT_ASSIGNMENT or NT_PROC_INVOK or NT_IF or NT_IF_ELSE or NT_WHILE or NT_CONTINUE or NT_EXIT
     
     NT_ASSIGNMENT,          // NT_VAR NT_EXPR
     NT_VAR,                 // NT_SYMBOL or NT_ARRAY_ACCESS or NT_RECORD_ACCESS
@@ -55,12 +54,13 @@ enum node_type {            // Children:
     NT_SYMBOL,              // none
     
     NT_IF,                  // NT_EXPR NT_STAT_LIST
+    NT_IF_ELSE,             // NT_EXPR NT_STAT_LIST (if statements) NT_STAT_LIST (else statements)
     
     NT_WHILE,               // NT_EXPR NT_STAT_LIST
     
     NT_CONTINUE,            // none
     NT_EXIT,                // none
-    NT_NONE                 // none (may never occur)
+    NT_NONE                 // none (should never occur)
 };
 
 typedef enum node_type node_type;
@@ -76,29 +76,64 @@ struct node_info {
 
 typedef struct node_info node_info;
 
+struct rule_and_node {
+    int hasNode;
+    node_info *node;
+    union rule {
+        symbol *symbol;
+        GArray *garray;
+        struct pf_invok *pf_invok;
+    };
+}
+
+typedef struct rule_and_node rule_and_node;
+
+node_type getNodeType(GNode *node);
+
+GNode *createNode(node_type type, GNode *n args, ...);
+
+GNode *createSymbolNode(symbol *symbol);
+GNode *createPF_InvokNode(struct pf_invok *pf_invok);
+GNode *createGArrayNode(GPtrArray *garray);
+
+GNode *createArrayNode(symbol *result, GNode *n args, ...);
+GNode *createExprNode(node_type type, symbol *result, GNode *n args, ...);
+
+GNode *getProcNode(const char *procname);
+
+symbol *extractSymbol(GNode *node);
+symbol *extractType(GNode *node);
+const char *extractID(GNode *node);
+GPtrArray *extractParamList(GNode *node);
+
 /**
  * Initializes the head of the syntax tree to a NT_PROGRAM node and sets it to
  * the current working node.
  */
-void initSyntaxTree();
+// void initSyntaxTree();
 
 /**
  * Adds a node of node_type type as a child of the current working node of the
  * tree and changes the current working node to the added child.
  */
-void addNode(node_type type);
+// void addNode(node_type type);
 
 /**
  * Adds a node of node_type NT_SYMBOL with symbol as a child of the current
  * working node of the tree and changes the current working node to the added
  * child.
  */
-void addSymbolNode(symbol *symbol);
+// void addSymbolNode(symbol *symbol);
 
 /**
  * Changes the current working node of the tree to the parent of the current
  * node.
  */
-void moveUp();
+// void moveUp();
+
+/**
+ * Returns the node_type of the current working node of the tree.
+ */
+// node_type getCurrentType();
 
 #endif

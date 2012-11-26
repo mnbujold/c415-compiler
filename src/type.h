@@ -175,7 +175,7 @@ symbol *getRecordField(symbol *record, const char *fieldName);
 /**
  * Checks that arguments are compatible with a procname procedure call.
  */
-void callProc(const char *procname, GPtrArray *arguments);
+int callProc(const char *procname, GPtrArray *arguments);
 
 /**
  * Checks that arguments are compatible with a funcname function call and
