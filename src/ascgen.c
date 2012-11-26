@@ -38,6 +38,8 @@ void genASCCode (GNode *tree, char *fileName) {
 }
 
 
+
+
 void addVariables(GNode *varDeclNode) {
     //node must be of type NT_VAR_DECL_LIST
     if (getNodeType (varDeclNode) != NT_VAR_DECL_LIST) {
