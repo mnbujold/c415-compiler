@@ -3,11 +3,13 @@
  * Author: Daniel Chui
  */
 
- FILE *output;
+
 #include <glib.h>
  
 #include "ascgen.h"
-
+FILE *output;
+//somethign to store labels
+//somethign to store registers we are using
 
 void genASCCode (GNode *tree, char *fileName) {
   //open the file up here and any other stuff
@@ -19,8 +21,14 @@ void genASCCode (GNode *tree, char *fileName) {
   if (node_type != NT_PROGRAM ||g_node_n_children (tree) != 2 ) {
       //exit gracefully. The syntax tree is malformed
   }
+  GNode *declarations = tree->children;
+  if (getNodeType (declarations) == NT_DECLS) {
+      addVariables (declarations->children);
+      //recursively call this function, but without file output
+  }
   
   //do the declarations stuff here
+  
   //if decl list is null, then do nothing
   
   //code for statements
@@ -52,14 +60,14 @@ void variableIterator (GNode *node, gpointer data) {
     symbol *symbol = getSymbol (node);
     type_class varType = getTypeClass (symbol);
     if (varType == TC_INTEGER) {
-        generateFormattedInstruction ("CONSTI 0");
+        pushConstantInt (0);
         
     }
     else if (varType == TC_REAL) {
-        generateFormattedInstruction("CONSTR 0");
+        pushConstantReal (0);
     }
     else if (varType == TC_BOOLEAN) {
-        generateFormattedInstruction("CONSTI 0");
+        pushConstantInt (0);
     }
     else {
         
@@ -88,9 +96,18 @@ symbol *getSymbol (GNode *node) {
 
 void pushConstantInt (int constant) {
     //sprintf (
+    char instruction[strlen ("CONSTI") + 11];
+    sprintf (instruction, "CONSTI %d", constant);
+    generateFormattedInstruction (instruction);
     //generateFormattedInstruction(
 }
 
+void pushConstantReal (double constant) {
+    char instruction [strlen ("CONSTR") + 11];
+    sprintf (instruction, "CONSTR %d", constant);
+    generateFormattedInstruction (instruction);
+    
+}
 
 /**
  * generateFormattedInstructino prints the instruction

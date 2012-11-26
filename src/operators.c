@@ -344,7 +344,10 @@ symbol *intDivOp (symbol *o1, symbol *o2) {
 }
 
 symbol *realDivOp (symbol *o1, symbol *o2) {
-  if (getTypeClass (o1) != TC_REAL || getTypeClass (o2) != TC_REAL) {
+    type_class o1Type = getTypeClass (o1);
+    type_class o2Type = getTypeClass (o2);
+    printf ("%d %d\n",o1Type, o2Type);
+    if ((o1Type != TC_REAL && o1Type != TC_INTEGER)|| (o2Type != TC_REAL && o2Type != TC_INTEGER) ) {
     addTypeError ("operand not of type real");
     return createErrorSym(OC_CONST);
   }
