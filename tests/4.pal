@@ -23,7 +23,7 @@ begin
         change := -1 * test // now they aren't!
 end; { $ERR_DATA$ [0, "missing function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
 
-procedure displayCorrectness(num1 : integer; num2 : integer);
+procedure displayCorrectness(num1 : integer; var num2 : integer);
     var correctness : boolean; // Just hanging out ...
         badNum : real;
 begin
@@ -40,7 +40,7 @@ begin
 
 read(x, y);
 
-while (x <> 0 and y <> 0) do
+while (x <> 0) and (y <> 0) do
 begin
     displayCorrectness(x, y);
     read(x, y);

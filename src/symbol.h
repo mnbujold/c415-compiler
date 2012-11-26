@@ -12,6 +12,7 @@
 
 #define PI_VALUE 3.14159265358979
 #define MAX_INT_VALUE 2147483647
+#define MAX_CHAR_VALUE 255
 #define FALSE_VALUE 0
 #define TRUE_VALUE !FALSE_VALUE
 
@@ -246,6 +247,11 @@ type_class getTypeClass (symbol *);
 symbol *createErrorSym(object_class);
  
 void removeSymbol (char const *);
+
+
+symbol *evaluateBuiltin(const char *name, symbol *arg);
+
+int myround(double number);
 
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList);
 symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList);

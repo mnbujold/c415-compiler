@@ -5,6 +5,7 @@
  */
  
  
+
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -550,22 +551,212 @@ void init_table () {
 
   /* Functions */
   addBuiltinFunc("abs", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
-  addBuiltinFunc("chr", globalLookup("char"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("chr", globalLookup("char"), addFuncParam(globalLookup("integer"))); // implemented
   addBuiltinFunc("cos", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("ln", globalLookup("real"), addFuncParam(globalLookup("real")));
-  addBuiltinFunc("odd", globalLookup("boolean"), addFuncParam(globalLookup("integer")));
+  addBuiltinFunc("odd", globalLookup("boolean"), addFuncParam(globalLookup("integer"))); // implemented
   addBuiltinFunc("ord", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("pred", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
-  addBuiltinFunc("round", globalLookup("integer"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("round", globalLookup("integer"), addFuncParam(globalLookup("real"))); // implemented
   addBuiltinFunc("sin", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("sqr", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("sqrt", globalLookup("real"), addFuncParam(globalLookup("real")));
   addBuiltinFunc("succ", globalLookup("integer"), addFuncParam(globalLookup("integer"))); // check later
   addBuiltinFunc("exp", globalLookup("real"), addFuncParam(globalLookup("real")));
-  addBuiltinFunc("trunc", globalLookup("integer"), addFuncParam(globalLookup("real")));
+  addBuiltinFunc("trunc", globalLookup("integer"), addFuncParam(globalLookup("real"))); // implemented
 
 }
 
+
+//return a symbol with the result of the evaluation
+//we are assuming here that type checking has been done, so this will
+//always return successfully
+
+symbol *evaluateBuiltin(const char *name, symbol *arg) {
+
+    struct const_desc *argumentDescription = arg->desc.const_attr;
+
+    if (strcmp (name, "odd") == 0) {
+        int argument = argumentDescription->value.integer;
+        int result = argument % 2;
+        union constant_values resultValue = {.boolean = result};
+        return createConstant(TC_BOOLEAN, resultValue);
+    }
+    else if (strcmp (name, "chr")== 0) {
+        int argument = argumentDescription->value.integer;
+        if (argument > MAX_CHAR_VALUE || argument < 0) {
+            addTypeError ("there is no valid character for this integer value");
+            return createErrorSym(OC_CONST);
+            //error, this is not a valid "byte"
+            //we are faking bytes since there are no bytes in pascal
+        }
+        char result = (char) argument;
+        //printf ("Here is the result: %c\n", result);
+        union constant_values resultValue = {.character = result};
+        return createConstant (TC_CHAR, resultValue);        
+    }
+    else if (strcmp (name, "round") == 0) {
+        double argument = argumentDescription->value.real;
+        int result = myround (argument);
+        union constant_values resultValue = {.integer = result};
+        return createConstant (TC_INTEGER, resultValue);
+    }
+    else if (strcmp (name, "trunc") ==0) {
+        double argument = argumentDescription->value.real;
+        int result = (int) argument;
+        union constant_values resultValue = {.integer = result};
+        return createConstant (TC_INTEGER, resultValue);
+    }
+    else if (strcmp (name, "ord") == 0) {
+        int argument = argumentDescription->value.integer;
+
+        if (argument < 0) {
+            addTypeError ("ord cannot be called on a negative value");
+            return createErrorSym(OC_CONST);
+        }
+        union constant_values resultValue = {.integer = argument};
+        return createConstant (TC_INTEGER, resultValue);
+    }
+    else if (strcmp (name, "pred") == 0) {
+        type_class tc = getTypeClass(arg);
+        
+        if (tc == TC_INTEGER) {
+            int value = argumentDescription->value.integer;
+            
+            if (value <= (-1 * MAX_INT_VALUE)) {
+                addTypeError("there is no valid predecessor of this integer");
+                return createErrorSym(OC_CONST);
+            }
+            
+            union constant_values resultValue = {.integer = (value - 1)};
+            return createConstant(TC_INTEGER, resultValue);
+        } else if (tc == TC_BOOLEAN) {
+            int value = argumentDescription->value.boolean;
+            
+            if (value <= 0) {
+                addTypeError("there is no valid predecessor of this boolean");
+                return createErrorSym(OC_CONST);
+            }
+            
+            return globalLookup("false");
+            
+        } else if (tc == TC_CHAR) {
+            int value = argumentDescription->value.character;
+            
+            if (value <= 0) {
+                addTypeError("there is no valid predecessor of this character");
+                return createErrorSym(OC_CONST);
+            }
+            
+            union constant_values resultValue = {.character = (char) (value - 1)};
+            return createConstant(TC_CHAR, resultValue);
+        }
+        // tc == TC_SCALAR
+        int value = argumentDescription->value.integer;
+        
+        if (value <= 0) {
+            addTypeError("there is no valid predecessor of this scalar");
+            return createErrorSym(OC_CONST);
+        }
+        
+        union constant_values resultValue = {.integer = (value - 1)};
+        return createSymbol(NULL, arg->symbol_type, OC_CONST, (void *) createConstDesc(resultValue));
+    }
+    else if (strcmp (name, "succ") == 0) {
+        type_class tc = getTypeClass(arg);
+        
+        if (tc == TC_INTEGER) {
+            int value = argumentDescription->value.integer;
+            
+            if (value >= MAX_INT_VALUE) {
+                addTypeError("there is no valid successor of this integer");
+                return createErrorSym(OC_CONST);
+            }
+            
+            union constant_values resultValue = {.integer = (value + 1)};
+            return createConstant(TC_INTEGER, resultValue);
+        } else if (tc == TC_BOOLEAN) {
+            int value = argumentDescription->value.boolean;
+            
+            if (value >= 1) {
+                addTypeError("there is no valid successor of this boolean");
+                return createErrorSym(OC_CONST);
+            }
+            
+            return globalLookup("true");
+            
+        } else if (tc == TC_CHAR) {
+            int value = argumentDescription->value.character;
+            
+            if (value >= MAX_CHAR_VALUE) {
+                addTypeError("there is no valid successor of this character");
+                return createErrorSym(OC_CONST);
+            }
+            
+            union constant_values resultValue = {.character = (char) (value + 1)};
+            return createConstant(TC_CHAR, resultValue);
+        }
+        // tc == TC_SCALAR
+        int value = argumentDescription->value.integer;
+        GPtrArray *constList = arg->symbol_type->desc.type_attr->desc.scalar->const_list;
+        int listLen = (constList == NULL) ? 0 : (constList->len - 1);
+        
+        if (value >= listLen) {
+            addTypeError("there is no valid successor of this scalar");
+            return createErrorSym(OC_CONST);
+        }
+        
+        union constant_values resultValue = {.integer = (value + 1)};
+        return createSymbol(NULL, arg->symbol_type, OC_CONST, (void *) createConstDesc(resultValue));
+    }
+    else if (strcmp (name, "abs") == 0) {
+        type_class tc = getTypeClass (arg);
+        if (tc == TC_REAL) {
+            double argument = argumentDescription->value.real;
+            if (argument < 0) {
+                argument = argument * -1;
+            }
+            union constant_values resultValue = {.real = argument};
+            return createConstant (TC_REAL, resultValue);
+        }
+        else if (tc == TC_INTEGER) {
+            int argument = argumentDescription->value.integer;
+            if (argument < 0) {
+                argument = argument * -1;
+            }
+            union constant_values resultValue = {.integer = argument};
+            return createConstant (TC_INTEGER, resultValue);
+        }
+    }
+    else if (strcmp (name, "sqr") == 0) {
+        type_class tc = getTypeClass (arg);
+        if (tc == TC_REAL) {
+            double argument = argumentDescription->value.real;
+            double result = argument * argument;
+       
+            union constant_values resultValue = {.real = result};
+            return createConstant (TC_REAL, resultValue);
+        }
+        else if (tc == TC_INTEGER) {
+            int argument = argumentDescription->value.integer;
+
+            int result = argument * argument;
+
+            union constant_values resultValue = {.integer = result};
+            return createConstant (TC_INTEGER, resultValue);
+        }        
+    }
+    else {
+        //BAD, you should never call a builtin that does
+        //not exist
+    }
+        
+}
+
+int myround(double number)
+{
+    return (number >= 0) ? (int)(number + 0.5) : (int)(number - 0.5);
+}
 symbol *addBuiltinProc(const char *id, GPtrArray *paramList) {    
   struct tc_none *noneType = calloc(1, (sizeof(struct tc_none)));
     struct type_desc *typeDesc = calloc(1, (sizeof(struct type_desc)));

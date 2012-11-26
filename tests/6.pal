@@ -3,8 +3,8 @@
     Tests invalid record definitions and calls.
     Errors:
     30:37 field already defined
-    78:16 illegal assignment of real to integer
-    98:23 not a field of the 'another' record
+    79:16 illegal assignment of real to integer
+    101:23 not a field of the 'another' record
 }
 program recordings(useless, parameters);
 
@@ -41,6 +41,7 @@ var lib : array[1..20] of book;
     id, index : integer;
     stop : char;
     another : problemRecord;
+    abadrecord : badRecord;
 
 procedure addBook(var newBook : book; charIndex : integer; revIndex : integer);
     
@@ -51,9 +52,9 @@ procedure addBook(var newBook : book; charIndex : integer; revIndex : integer);
         var rating : boolean;
             theRev : review;
     begin
-        if (aLetter = 'a' or aLetter = 'b' or aLetter = 'c') then
+        if (aLetter = 'a') or (aLetter = 'b') or (aLetter = 'c') then
             rating := true
-        else if (aLetter = 'x' or aLetter = 'y' or aLetter 'z') then
+        else if (aLetter = 'x') or (aLetter = 'y') or (aLetter = 'z') then
             rating := false
         else
             rating := idunno;
@@ -93,6 +94,8 @@ begin
     
     writeln('stop (y/n)?');
     read(stop);
+    
+    abadrecord.french := idunno;
     
     index := index + 1;
     another.field3 := index; { $ERR_DATA$ [23, "not a field of the 'another' record", ["symbol 'field3' is not a field of record 'another'"]] $ERR_DATA$ }

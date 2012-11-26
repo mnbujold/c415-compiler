@@ -184,6 +184,7 @@ void callProc(const char *procname, GPtrArray *arguments);
 symbol *callFunc(const char *funcname, GPtrArray *arguments);
 
 int specialBuiltinFunc(const char *funcname);
+int implementedBuiltinFunction(const char *funcname);
 symbol *callBuiltinFunc(const char *funcname, GPtrArray *arguments);
 
 int checkIOProc(const char *proc_name, int showErrors);

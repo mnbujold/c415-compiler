@@ -2,11 +2,19 @@
     9.pal
     Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols.
     Errors:
-    16:28 illegal array range
-    17:25 missing lower or upper bound
-    19:17 input_type is already defined as a file object thing
-    55:0 missing function return value assignment
-    78:60 cannot call a program
+    24:28 illegal array range
+    25:25 missing lower or upper bound
+    27:17 input_type is already defined as a file object thing
+    63:0 missing function return value assignment
+    98:18 cannot go higher than maxint
+    99:19 cannot go lower than null char
+    100:22 cannot convert 256 to a valid character
+    101:19 no predecessor of null char
+    102:20 no successor of true
+    103:17 no predecessor of false
+    104:17 no successor of d4
+    105:17 no predecessor of d1
+    110:60 cannot call a program
 }
 program mostness(inputtype, outputtype);
 
@@ -41,7 +49,7 @@ begin
     while false do
         returnValue := 0;
 
-    if doIReturn(y = x1) then
+    if doIReturn(y = x1) = 1 then
         returnValue := 5
 end; // Should be an error, but ISN'T for cp2 (missing return value for at least one condition)
 
@@ -68,9 +76,33 @@ begin
 end;
 
 procedure testAllBuiltins();
+    const aww = 2147483647;
+          waa = '';
+
+    type sclist = (d1,d2,d3,d4);
+          
     var a: integer;
+        b : boolean;
+
+        b3 : char;
+        c:sclist;
 begin
+
+    a := sqr (ord (chr(87)));
+    a := abs (round (8.123 + 2));
+    a := abs (trunc (8.123));
+    a := pred (succ (ord ('b')));
+    b := odd (succ (ord ('c')));
     
+    
+    a := succ(aww); { $ERR_DATA$ [18, "cannot go higher than maxint", ["there is no valid successor of this integer"]] $ERR_DATA$ }
+    b3 := pred(waa); { $ERR_DATA$ [19, "cannot go lower than null char", ["there is no valid predecessor of this character"]] $ERR_DATA$ }
+    b3 := chr(256); { $ERR_DATA$ [22, "cannot convert 256 to a valid character", ["there is no valid character for this integer value"]] $ERR_DATA$ }
+    b3 := pred(chr(0)); { $ERR_DATA$ [19, "no predecessor of null char", ["there is no valid predecessor of this character"]] $ERR_DATA$ }
+    c := succ(true); { $ERR_DATA$ [20, "no successor of true", ["there is no valid successor of this boolean"]] $ERR_DATA$ }
+    c := pred(false); { $ERR_DATA$ [17, "no predecessor of false", ["there is no valid predecessor of this boolean"]] $ERR_DATA$ }
+    c := succ(d4); { $ERR_DATA$ [17, "no successor of d4", ["there is no valid successor of this scalar"]] $ERR_DATA$ }
+    c := pred(d1); { $ERR_DATA$ [17, "no predecessor of d1", ["there is no valid predecessor of this scalar"]] $ERR_DATA$ }
 end;
 
 begin

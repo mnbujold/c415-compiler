@@ -721,7 +721,7 @@ createArrayIndex(symbol *low, symbol *high) {
             highValue = 1;
         } else if (type == TC_CHAR) {
             lowValue = 0;
-            highValue = 255; // 2^8 - 1 = maximum char value
+            highValue = MAX_CHAR_VALUE;
         } else if (type == TC_SCALAR) {
             GPtrArray *list = high->desc.type_attr->desc.scalar->const_list;
             lowValue = ((symbol *) g_ptr_array_index(list, 0))->desc.const_attr->value.integer;
@@ -754,7 +754,7 @@ createRecord(GPtrArray *fieldList) {
     struct type_desc *newType = calloc(1, sizeof(struct type_desc));
     newType->type = TC_RECORD;
     newType->desc.record = newRecord;
-    
+
     return createTypeSym(NULL, newType);
 }
 
@@ -774,7 +774,7 @@ addField(GPtrArray *fieldList, symbol *newField) {
         }
     }
     g_ptr_array_add(fieldList, newField); // Added in 'correct' order. REVERSE
-    
+
     return fieldList;
 }
 
@@ -908,6 +908,8 @@ getRecordField(symbol *record, const char *fieldName) {
             return currField;
         }
     }
+    fieldNotInRecordError(record->name, fieldName);
+    
     return createErrorSym(OC_VAR);
 }
 
@@ -925,6 +927,14 @@ callFunc(const char *funcname, GPtrArray *arguments) {
     if (checkCallAndArgs(funcname, arguments, OC_FUNC, "function") == 0) {
         return createErrorSym(OC_FUNC);
     }
+    
+    if (implementedBuiltinFunction(funcname)) {
+        symbol *arg = (symbol *) g_ptr_array_index(arguments, 0);
+        if (canEvaluate(arg)) {
+            return evaluateBuiltin(funcname, arg);
+        }
+    }
+    
     return globalLookup(funcname);
 }
 
@@ -938,6 +948,19 @@ specialBuiltinFunc(const char *funcname) {
      && strcmp(funcname, "succ") != 0) {
         return 0;
     }
+    return globalLookup(funcname) == topLevelLookup(funcname);
+}
+
+int
+implementedBuiltinFunction(const char *funcname) {
+    if (strcmp(funcname, "abs") != 0 && strcmp(funcname, "sqr") != 0
+     && strcmp(funcname, "ord") != 0 && strcmp(funcname, "pred") != 0
+     && strcmp(funcname, "succ") != 0 && strcmp(funcname, "chr") != 0
+     && strcmp(funcname, "odd") != 0 && strcmp(funcname, "round") != 0
+     && strcmp(funcname, "trunc") != 0) {
+        return 0;
+    }
+    
     return globalLookup(funcname) == topLevelLookup(funcname);
 }
 
@@ -977,10 +1000,16 @@ callBuiltinFunc(const char *funcname, GPtrArray *arguments) {
  
     if (strcmp(funcname, "abs") == 0 || strcmp(funcname, "sqr") == 0) { //  number
         if (arg_tc == TC_INTEGER || arg_tc == TC_REAL) {
+            if (canEvaluate(arg)) {
+                return evaluateBuiltin(funcname, arg);
+            }
             return createAnonymousConst(arg, NULL);
         }
     } else if (strcmp(funcname, "ord") == 0) { // takes ordinal returns integer
         if (arg_tc == TC_INTEGER || arg_tc == TC_CHAR || arg_tc == TC_SCALAR || arg_tc == TC_BOOLEAN) {
+            if (canEvaluate(arg)) {
+                return evaluateBuiltin(funcname, arg);
+            }
             struct const_desc *constDesc = calloc(1, sizeof(struct const_desc));
             constDesc->hasValue = 0;
             
@@ -988,6 +1017,9 @@ callBuiltinFunc(const char *funcname, GPtrArray *arguments) {
         }
     } else { // (pred or succ) ordinal
         if (arg_tc == TC_INTEGER || arg_tc == TC_CHAR || arg_tc == TC_SCALAR || arg_tc == TC_BOOLEAN) {
+            if (canEvaluate(arg)) {
+                return evaluateBuiltin(funcname, arg);
+            }
             return createAnonymousConst(arg, NULL);
         }
     }
@@ -1051,12 +1083,13 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
         param = (symbol *) g_ptr_array_index(params, i);
         arg = (symbol *) g_ptr_array_index(arguments, i);
         
-        if (param->desc.parm_attr->varParam == 1 && arg->oc != OC_VAR) {
+        if (param->desc.parm_attr->varParam == 1 && arg->oc != OC_VAR
+        && (arg->oc == OC_PARAM && arg->desc.parm_attr->varParam == 0)) {
             missingVarParamError(i + 1, procname);
             goodCall = 0;
         }
         
-        if (assignmentCompatibleSym(param, arg, 1) != 1) {
+        if (assignmentCompatibleSym(param, arg, 0) != 1) {
             badProcArgError(i + 1, procname);
             goodCall = 0;
         }

@@ -33,7 +33,7 @@ myerror *addError(myerror *in, const char *message, int location, int line) {
 	} /*if*/
 	sNew->text = NULL;
 	sNew->errorTextLength = 0;
-	sNew->line = line-1;
+	sNew->line = line - 1;
 	sNew->location = location;
 	sNew->next = NULL;
 	sNew->last = sNew;
@@ -133,10 +133,11 @@ void updateErrorText(myerror *in, char *text) {
 void showAllErrors(myerror *in) {
 	int nTemp = 0;
 	if(in == NULL) return;
+    //int number = 0;
 	while(in != NULL) {
           if(prog_listing)
             printf ("{\n");
-		printf("Error! %d:%d - %s\n", in->line, in->location, in->message);
+		printf("Error %d! %d:%d - %s\n",numErrors, in->line, in->location, in->message);
         if (in->text != NULL) {
             printf("%s\n", in->text);
         }
@@ -147,6 +148,7 @@ void showAllErrors(myerror *in) {
 		} /*while*/
 		printf("^\n");
 		in = in->next;
+
 	} /* while */
         if(prog_listing)
           printf("}\n");
