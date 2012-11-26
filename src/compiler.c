@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <glib.h>
 
+#include <signal.h>
+#include <stdbool.h>
+
 #include "symbol.h"
 #include "builtin.h"
 
@@ -12,6 +15,8 @@
 #include "compiler.tab.h"
 
 #include "myerror.h"
+
+#include "ascgen.h"
 
 
 
@@ -38,12 +43,33 @@ extern int numErrors;
 # define DEBUG_PRINT(x) do {} while (0)
 #endif
 
+
+
+bool segv_detected = false;
+
+void setHandler (void* handler) {
+    struct sigaction* newAction;
+    newAction = malloc (sizeof (struct sigaction));
+    newAction-> sa_handler = (handler);
+    sigaction (SIGSEGV, newAction, NULL);
+    
+}
+
+static void my_handler (int signalNum) {
+    segv_detected = true;
+    printf ("Fatal error encountered! Exiting gracefully\n");
+    setHandler (SIG_DFL);
+    exit (1);
+}
+
+
 /*
  	Initialize all the variables used in the calculator program
 	Start the parser
 */
 main(int argc,char** argv)
 {
+    setHandler (my_handler);
   DEBUG_PRINT (("Hello, testing debug: %d\n", 1));
     prog_listing = 1;
     setvbuf(stdout, (char*) _IONBF, 0, 0);
@@ -95,6 +121,7 @@ main(int argc,char** argv)
         printf ("%d error(s) found.\n", getNumErrors());
         printf("Errors exist. Compilation not successful.\n");
     } else {
+        //genASCCode(getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
     } 
     
@@ -104,6 +131,7 @@ main(int argc,char** argv)
 #endif
     free_symbol_table();
     free(errortext);
+    setHandler (SIG_DFL);
     return 0;
 }
 
@@ -159,6 +187,9 @@ void usage(void){
   printf("-c Compiles program into ASC code, but does not execute it.\n");
   exit(-1);
 }
+
+
+
 
   
 
