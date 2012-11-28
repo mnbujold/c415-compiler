@@ -202,6 +202,7 @@ int strcountlines (char *string) {
   //printf ("Number of newlines: %d\n", count);
   return count;
 }
+
 /**
 *Count the number of lines in a block comment
 **/
