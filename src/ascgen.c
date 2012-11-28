@@ -47,9 +47,10 @@ void genASCCode (GNode *tree, char *fileName) {
   
   //start generating code
   
-  node_type nodeType = ((node_info*)tree->data)->type; 
+  node_type nodeType = getNodeType(tree); 
   if (nodeType != NT_PROGRAM ||g_node_n_children (tree) != 2 ) {
       //exit gracefully. The syntax tree is malformed
+      printf ("head is of type %d, or does nto have 2 children\n", nodeType);
   }
   
   genCodeForFunctionNode (tree);
@@ -62,15 +63,21 @@ void genASCCode (GNode *tree, char *fileName) {
  * Node must be of type PROGRAM, PROC, or FUNC
  */
 void genCodeForFunctionNode(GNode *node) {
+    printf ("In gen code for function %d\n", getNodeType(node));
     
-    if (getNodeType (node) != NT_PROGRAM || NT_PROC_DECL) {
+    
+    if (getNodeType (node) != NT_PROGRAM || getNodeType(node) != NT_PROC_DECL) {
         //invalid node type, exit
+        printf ("Invalid node type: not program or proc decl\n");
     }
 
     //need to do this for the program
     
     GNode *declarations = node->children;
     if (getNodeType (declarations) == NT_DECLS) {
+        
+        //TODO: The syntax tree for proc decl and program are different!
+        //Consider the 2 cases
         //potentially unsafe, as children returns first child
         //if the first child is not the var_decl_list for some reason
         //this will not work
@@ -101,8 +108,11 @@ void genCodeForFunctionNode(GNode *node) {
  */
 void addVariables(GNode *varDeclNode) {
     //node must be of type NT_VAR_DECL_LIST
+    printf ("Number of children: %d\n", g_node_n_children(varDeclNode));
     if (getNodeType (varDeclNode) != NT_VAR_DECL_LIST) {
         //uh oh... boo boo
+        printf ("Is not of type var decl list\n");
+        printf ("Is of  type: %d\n", getNodeType(varDeclNode));
     }
 
     int numVariables = g_node_n_children (varDeclNode);
@@ -124,6 +134,7 @@ void variableIterator (GNode *node, gpointer data) {
     symbol *symbol = getSymbol (node);
     type_class varType = getTypeClass (symbol);
     if (varType == TC_INTEGER) {
+        printf ("Is an integer\n");
         pushConstantInt (0);
         
     }
@@ -135,6 +146,7 @@ void variableIterator (GNode *node, gpointer data) {
     }
     else {
         //TODO: Need to do for arrays
+        printf ("error, not yet implemented\n");
         DEBUG_PRINT (("Not implemented yet"));
     }
     
