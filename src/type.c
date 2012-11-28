@@ -873,7 +873,6 @@ accessArray(symbol *array, symbol *index) {
 void
 doVarAssignment (symbol *var, symbol *expr) {
     if (assignmentCompatibleSym(var, expr, 1) == 1) {
-
         symbol *varLookup = localLookup(var->name);
 
         if (varLookup != NULL && varLookup->oc == OC_FUNC) {

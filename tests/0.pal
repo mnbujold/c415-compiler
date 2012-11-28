@@ -29,8 +29,8 @@ function countEven() : integer;
     begin
         if (number mod 2) = 0 then
             isEven := true
-        else
-            isEven := false
+        else counter := 0;
+            isEven := false;
     end;
 begin
     counter := abs(number) + 1;
