@@ -311,8 +311,7 @@ array_type              : ID
                             }
                         | expr DOUBLEPERIOD expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
 
                                     $$ = createArrayIndex(extractSymbol($1), extractSymbol($3));
                                 } else {
@@ -424,7 +423,7 @@ proc_decl_list          : proc_decl
 
 proc_decl               : proc_heading decls compound_stat SEMICOLON
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(1, $1, NULL)) {
                                     checkFuncValSet(extractSymbol($1));
                                     $$ = createNode(NT_PROC_DECL, $1, $2, $3, NULL);
                                 } else {
@@ -453,8 +452,7 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                 if ($3 != NULL) {
                                     $$ = createSymbolNode(addNewFunc($2, $5, $3));
                                 } else {
-                                    addNewFunc($2, $5, NULL);
-                                    $$ = createSingleNode(NT_NONE);
+                                    $$ = createSingleExprNode(NT_NONE, addNewFunc($2, $5, NULL));
                                 }
                             }
                         | PROCEDURE ID error SEMICOLON /* ERROR */
@@ -536,7 +534,7 @@ f_parm                  : ID COLON ID
 
 compound_stat           : BEGIN_ stat_list END
                             {
-                                if (getNodeType($2) != NT_NONE) {
+                                if (noError(0, $2, NULL)) {
                                     $$ = createNode(NT_COMPOUND_STAT, $2, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -546,7 +544,7 @@ compound_stat           : BEGIN_ stat_list END
 
 stat_list               : stat
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(0, $1, NULL)) {
                                     $$ = createNode(NT_STAT_LIST, $1, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -554,7 +552,7 @@ stat_list               : stat
                             }
                         | stat_list SEMICOLON stat
                             {
-                                if (getNodeType($3) != NT_NONE) {
+                                if (noError(0, $3, NULL)) {
                                     $$ = createNode(NT_STAT_LIST, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -568,7 +566,7 @@ stat_list               : stat
 
 stat                    : simple_stat
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(0, $1, NULL)) {
                                     $$ = createNode(NT_STAT, $1, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -576,7 +574,7 @@ stat                    : simple_stat
                             }
                         | struct_stat
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(0, $1, NULL)) {
                                     $$ = createNode(NT_STAT, $1, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -590,7 +588,7 @@ simple_stat             : /* empty */
                             }
                         | stat_assignment
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(0, $1, NULL)) {
                                     $$ = createNode(NT_SIMPLE_STAT, $1, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -598,7 +596,7 @@ simple_stat             : /* empty */
                             }
                         | proc_invok
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(0, $1, NULL)) {
                                     $$ = createNode(NT_SIMPLE_STAT, $1, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -606,7 +604,7 @@ simple_stat             : /* empty */
                             }
                         | compound_stat
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(0, $1, NULL)) {
                                     $$ = createNode(NT_SIMPLE_STAT, $1, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -616,10 +614,7 @@ simple_stat             : /* empty */
 
 stat_assignment         : var ASSIGN expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE
-                                 && extractSymbol($1) != NULL
-                                 && extractSymbol($3) != NULL) {
+                                if (noError(1, $1, $3, NULL)) {
                                     doVarAssignment(extractSymbol($1), extractSymbol($3));
                                     $$ = createNode(NT_ASSIGNMENT, $1, $3, NULL);
                                 } else {
@@ -634,7 +629,7 @@ stat_assignment         : var ASSIGN expr
                         
 proc_invok              : plist_finvok RIGHTPAREN
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(1, $1, NULL)) {
                                     if (callProc(extractID($1), extractParamList($1))) {
                                         $$ = createNode(NT_PROC_INVOK, $1, NULL);
                                     } else {
@@ -672,12 +667,14 @@ proc_invok              : plist_finvok RIGHTPAREN
 
 var                     : ID
                             {
-                                $$ = createNode(NT_VAR, createSymbolNode(getVarSymbol($1)), NULL);
+                                symbol *tmpVar = getVarSymbol($1);
+                                $$ = createExprNode(NT_VAR, tmpVar, createSymbolNode(tmpVar), NULL);
                             }
                         | var PERIOD ID
                             {
-                                if (getNodeType($1) != NT_NONE) {
-                                    $$ = createNode(NT_VAR, $1, getRecordField(extractSymbol($1), $3), NULL);
+                                if (noError(1, $1, NULL)) {
+                                    symbol *tmpField = getRecordField(extractSymbol($1), $3);
+                                    $$ = createExprNode(NT_VAR, tmpField, $1, createSymbolNode(tmpField), NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
                                 }
@@ -694,8 +691,7 @@ var                     : ID
 
 subscripted_var         : var LEFTBRACKET expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createArrayNode(accessArray(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -704,8 +700,7 @@ subscripted_var         : var LEFTBRACKET expr
                             }
                         | subscripted_var COMMA expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createArrayNode(accessArray(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -719,8 +714,7 @@ expr                    : simple_expr
                             }
                         | expr ISEQUAL simple_expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_ISEQUAL, equalOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -728,8 +722,7 @@ expr                    : simple_expr
                             }
                         | expr NOTEQUAL simple_expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_NOTEQUAL, notEqualOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -737,8 +730,7 @@ expr                    : simple_expr
                             }
                         | expr LESSTHANEQUALS simple_expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_LESSTHANEQUALS, lessThanEqualOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -746,8 +738,7 @@ expr                    : simple_expr
                             }
                         | expr LESSTHAN simple_expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_LESSTHAN, lessThanOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -755,8 +746,7 @@ expr                    : simple_expr
                             }
                         | expr GREATERTHANEQUALS simple_expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_GREATERTHANEQUALS, greaterThanEqualOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -764,8 +754,7 @@ expr                    : simple_expr
                             }
                         | expr GREATERTHAN simple_expr
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_GREATERTHAN, greaterThanOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -779,7 +768,7 @@ simple_expr             : term
                             }
                         | PLUS term
                             {
-                                if (getNodeType($2) != NT_NONE) {
+                                if (noError(1, $2, NULL)) {
                                     $$ = createExprNode(NT_IDENTITY, identity(extractSymbol($2)), $2, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -787,7 +776,7 @@ simple_expr             : term
                             }
                         | MINUS term
                             {
-                                if (getNodeType($2) != NT_NONE) {
+                                if (noError(1, $2, NULL)) {
                                     $$ = createExprNode(NT_INVERSION, inversion(extractSymbol($2)), $2, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -795,8 +784,7 @@ simple_expr             : term
                             }
                         | simple_expr PLUS term
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_PLUS, addOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -804,8 +792,7 @@ simple_expr             : term
                             }
                         | simple_expr MINUS term
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_MINUS, subtractOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -813,8 +800,7 @@ simple_expr             : term
                             }
                         | simple_expr OR term
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_OR, orOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -828,7 +814,7 @@ term                    : factor
                             }
                         | term MULTIPLY factor
                             {
-                                if ($1 != NULL && $3 != NULL) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_MULTIPLY, multOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -836,8 +822,7 @@ term                    : factor
                             }
                         | term DIVIDE factor
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_DIVIDE, realDivOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -845,8 +830,7 @@ term                    : factor
                             }
                         | term DIV factor
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_DIV, intDivOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -854,8 +838,7 @@ term                    : factor
                             }
                         | term MOD factor
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_MOD, modOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -863,8 +846,7 @@ term                    : factor
                             }
                         | term AND factor
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createExprNode(NT_AND, andOp(extractSymbol($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -898,7 +880,7 @@ factor                  : var
                             }
                         | NOT factor
                             {
-                                if (getNodeType($2) != NT_NONE) {
+                                if (noError(1, $2, NULL)) {
                                     $$ = createExprNode(NT_NOT, notOp(extractSymbol($2)), $2, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -936,7 +918,7 @@ unsigned_num            : INT_CONST
 
 func_invok              : plist_finvok RIGHTPAREN
                             {
-                                if (getNodeType($1) != NT_NONE) {
+                                if (noError(1, $1, NULL)) {
                                     $$ = createExprNode(NT_FUNC_INVOK, callFunc(extractID($1), extractParamList($1)), $1, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -950,7 +932,7 @@ func_invok              : plist_finvok RIGHTPAREN
 
 plist_finvok            : ID LEFTPAREN parm
                             {
-                                if (getNodeType($3) != NT_NONE) {
+                                if (noError(1, $3, NULL)) {
                                     $$ = createPF_InvokNode(createArgList($1, extractSymbol($3)), getProcNode($1), $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -958,7 +940,7 @@ plist_finvok            : ID LEFTPAREN parm
                             }
                         | IOPROC LEFTPAREN parm
                             {
-                                if (getNodeType($3) != NT_NONE) {
+                                if (noError(1, $3, NULL)) {
                                     $$ = createPF_InvokNode(createArgList($1, extractSymbol($3)), getProcNode($1), $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -966,8 +948,7 @@ plist_finvok            : ID LEFTPAREN parm
                             }
                         | plist_finvok COMMA parm
                             {
-                                if (getNodeType($1) != NT_NONE
-                                 && getNodeType($3) != NT_NONE) {
+                                if (noError(1, $1, $3, NULL)) {
                                     $$ = createPF_InvokNode(addArgument(extractPF_Invok($1), extractSymbol($3)), $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -1065,7 +1046,7 @@ matched_stat            : simple_stat
 
 if_header               : IF expr
                             {
-                                if (getNodeType($2) != NT_NONE && checkConditional(extractSymbol($2))) {
+                                if (noError(1, $2, NULL) && checkConditional(extractSymbol($2))) {
                                     $$ = createNode(NT_EXPR, $2, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -1075,7 +1056,7 @@ if_header               : IF expr
                         
 while_header            : WHILE expr DO
                             {
-                                if (getNodeType($2) != NT_NONE && checkConditional(extractSymbol($2))) {
+                                if (noError(1, $2, NULL) && checkConditional(extractSymbol($2))) {
                                     $$ = createNode(NT_EXPR, $2, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);

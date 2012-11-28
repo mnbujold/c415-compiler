@@ -96,6 +96,8 @@ GNode *getSyntaxTree();
 
 node_type getNodeType(GNode *node);
 
+int noError(int checkSymbol, GNode *n_args, ...);
+
 GNode *createNode(node_type type, GNode *n_args, ...);
 GNode *createSingleNode(node_type type);
 

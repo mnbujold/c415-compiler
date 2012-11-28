@@ -2,6 +2,11 @@
 #include <stdarg.h>
 #include <glib.h>
 
+
+
+#include <stdio.h>
+
+
 #include "syntaxtree.h"
 
 GNode *
@@ -42,14 +47,31 @@ getNodeType(GNode *node) {
     return data->node->type;
 }
 
+int
+noError(int checkSymbol, GNode *n_args, ...) {
+    va_list argList;    
+    va_start(argList, n_args);
+    
+    GNode *arg = n_args;
+    
+    while(arg != NULL) {
+        if (getNodeType(arg) == NT_NONE
+         || (checkSymbol == 1 && extractSymbol(arg) == NULL)) {
+            return 0;
+        }
+        arg = va_arg(argList, GNode *);
+    }
+
+    return 1;
+}
+
 GNode *
 createNode(node_type type, GNode *n_args, ...) {
     GNode *newNode = createNewNode(type, NULL, NULL);
     va_list argList;
-    
     va_start(argList, n_args);
     
-    GNode *arg = va_arg(argList, GNode *);
+    GNode *arg = n_args;
     
     while(arg != NULL) {
         g_node_append(newNode, arg);        
@@ -73,10 +95,9 @@ GNode *
 createPF_InvokNode(struct pf_invok *pf_invok, GNode *n_args, ...) {
     GNode *newNode = createNewNode(NT_PLIST_FINVOK, NULL, pf_invok);
     va_list argList;
-    
     va_start(argList, n_args);
     
-    GNode *arg = va_arg(argList, GNode *);
+    GNode *arg = n_args;
     
     while(arg != NULL) {
         g_node_append(newNode, arg);        
@@ -90,10 +111,9 @@ GNode *
 createArrayNode(symbol *result, GNode *n_args, ...) {
     GNode *newNode = createNewNode(NT_ARRAY_ACCESS, result, NULL);
     va_list argList;
-    
     va_start(argList, n_args);
     
-    GNode *arg = va_arg(argList, GNode *);
+    GNode *arg = n_args;
     
     while(arg != NULL) {
         g_node_append(newNode, arg);        
@@ -107,10 +127,9 @@ GNode *
 createExprNode(node_type type, symbol *result, GNode *n_args, ...) {
     GNode *newNode = createNewNode(type, result, NULL);
     va_list argList;
-    
     va_start(argList, n_args);
     
-    GNode *arg = va_arg(argList, GNode *);
+    GNode *arg = n_args;
     
     while(arg != NULL) {
         g_node_append(newNode, arg);        
