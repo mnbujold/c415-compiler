@@ -2,11 +2,6 @@
 #include <stdarg.h>
 #include <glib.h>
 
-
-
-#include <stdio.h>
-
-
 #include "syntaxtree.h"
 
 GNode *
