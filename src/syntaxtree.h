@@ -56,7 +56,7 @@ enum node_type {            // Children:
     
     NT_IF,                  // 32 NT_EXPR NT_STAT_LIST
     NT_IF_ELSE,             // 33 NT_EXPR NT_STAT_LIST (if statements) NT_STAT_LIST (else statements)
-    
+   
     NT_WHILE,               // 34 NT_EXPR NT_STAT_LIST
     
     NT_CONTINUE,            // 35 none

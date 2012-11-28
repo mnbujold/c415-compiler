@@ -16,6 +16,8 @@
 
 #include "myerror.h"
 
+#include "syntaxtree.h"
+
 #include "ascgen.h"
 
 
@@ -121,7 +123,7 @@ main(int argc,char** argv)
         printf ("%d error(s) found.\n", getNumErrors());
         printf("Errors exist. Compilation not successful.\n");
     } else {
-        //genASCCode(getSyntaxTree(), "test.asc");
+        genASCCode(getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
     } 
     
