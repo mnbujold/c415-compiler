@@ -59,7 +59,12 @@ void setHandler (void* handler) {
 
 static void my_handler (int signalNum) {
     segv_detected = true;
-    printf ("Fatal error encountered! Exiting gracefully\n");
+    if (iserror) {
+        printf ("Fatal error encountered! Exiting gracefully\n");
+    }
+    else {
+        printf ("Fatal exception encountered during code generation\n");
+    }
     setHandler (SIG_DFL);
     exit (1);
 }
