@@ -156,7 +156,9 @@ void variableIterator (GNode *node, gpointer data) {
     else if (varType == TC_BOOLEAN) {
         pushConstantInt (0);
     }
-    else {
+    else if (varType == TC_STRING){
+        //TODO: Need to do for arrays (eg. TC_STRING, TC_ARRAY, TC_RECORD)
+      printf("length: %d\n", symbol->desc.type_attr->desc.string->len);
         //TODO: Need to do for arrays
         printf ("error, this kind of variable not yet implemented\n");
         DEBUG_PRINT (("Not implemented yet"));
