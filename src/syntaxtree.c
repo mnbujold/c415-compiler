@@ -1,8 +1,24 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include <glib.h>
 
 #include "syntaxtree.h"
+
+void
+displayOldTree(GNode *head, int level) {
+    if (head->children == NULL) {
+        printf("type at leaf: %d\n", getNodeType(head->children));
+        return;
+    }
+    printf("type: %d\n", getNodeType(head));
+    GNode *sibling = head->children;
+    
+    while (sibling != NULL) {
+        printf("at level: %d\n", level);
+        displayOldTree(sibling, level + 1);
+    }
+}
 
 GNode *
 createNewNode(node_type type, symbol *symbol, struct pf_invok *pf_invok) {
@@ -24,8 +40,97 @@ createNewNode(node_type type, symbol *symbol, struct pf_invok *pf_invok) {
 }
 
 GNode *
+createNewNiceNode(node_type type, symbol *symbol) {
+    node_info *data = calloc(1, sizeof(node_info));
+    data->type = type;
+    data->symbol = symbol;
+    
+    return g_node_new(data);
+}
+
+GNode *
+niceify(GNode *node) {
+    rule_and_node *oldData = node->data;
+    node->data = oldData->node;
+    
+    return node;
+}
+
+GNode *
+changeType(GNode *node, node_type newType) {
+    node_info *data = node->data;
+    data->type = newType;
+    
+    return node;
+}
+
+int
+symbolEnd(GNode *node) {
+    return getNodeType(node) == NT_SYMBOL;
+}
+
+GNode *
 getSyntaxTree() {
-    return syntaxTree; // ... sooo not finished!
+    displayOldTree(syntaxTree, 0);
+    
+    niceify(syntaxTree);
+    createStatList(createDecls(syntaxTree->children)->next);
+        
+    return syntaxTree;
+}
+
+GNode *
+createDecls(GNode *decls) {
+    niceify(decls);
+    createProcDeclsList(createDeclsList(decls->children)->next);
+    
+    printf("done creating decls\n");
+    
+    return decls;
+}
+
+GNode *
+createDeclsList(GNode *declsPart) {
+    if (declsPart->children == NULL) {
+        niceify(declsPart);
+        changeType(declsPart, NT_VAR_DECL_LIST);
+                
+        return declsPart;
+    }
+    
+    GNode *declsList = declsPart->children;
+//     int (*endTree)(GNode *) = ;
+    
+    collapseNode(declsPart);
+    flattenTree(declsList, &symbolEnd);
+//     flattenTree(declsList, endTree);
+    niceify(declsList);
+    GNode *sibling = declsList->children;
+    
+    while (sibling != NULL) {
+        niceify(sibling);
+        sibling = sibling->next;
+    }
+    
+    printf("done creating decls list\n");
+    
+    return declsList;
+}
+
+GNode *
+createProcDeclsList(GNode *procPart) {
+    niceify(procPart);
+    procPart->children = NULL;
+    
+    return procPart;
+}
+
+GNode *
+createStatList(GNode *cmpStat) {
+    niceify(cmpStat);
+    cmpStat->children = NULL;
+    
+    return cmpStat;
 }
 
 GNode *
@@ -49,7 +154,51 @@ collapseNode(GNode *node) {
     node->children = NULL;
     g_node_destroy(node);
     
+    printf("done collapsing a node\n");
+    
     return newParent;
+}
+
+/**
+ * Assumes:
+ *      head
+ *  |           \
+ * next_head    target
+ * |         \   
+ * |            \
+ * next_head     target
+ * ...
+ */
+GNode *
+flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
+    GNode *currNode = head->children;
+    GNode *nodeToRemove = head->children;
+    
+    // flatten the list until treeEnd() is true
+    while ((*treeEnd)(currNode) == 0) {
+        g_node_prepend(head, currNode->next);
+        
+        currNode = currNode->children;
+    }
+
+    GNode *sibling = currNode->next;
+    
+    // add siblings of last node first
+    while (sibling != NULL) {
+        g_node_prepend(head, sibling);
+        
+        sibling = sibling->next;
+    }
+    
+    // add last node first
+    g_node_prepend(head, currNode);
+    
+    // remove the head link tree
+    g_node_unlink(nodeToRemove);   
+    
+    printf("done flattening a tree\n");
+    
+    return head;
 }
 
 node_type
