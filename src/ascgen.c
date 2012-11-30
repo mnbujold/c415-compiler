@@ -28,11 +28,15 @@ int *registers;
 
 //store the current scope. we will need this for labels
 int scope;
+GQueue* labelStack = NULL;
+GHashTable *variableAddressTable = NULL;
 
 void genASCCode (GNode *tree, char *fileName) {
 
     //Initialize our own tracking tools we will need for generating code
 
+    labelStack = g_queue_new ();
+    variableAddressTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     registers = calloc (NUM_ASC_REGISTERS, sizeof (int));
     scope = 0;
     

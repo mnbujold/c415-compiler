@@ -1,0 +1,17 @@
+{
+Tests if the compiler allocates the space for vars correctly
+}
+program correct (input, output);
+
+type tf = (true, false);
+
+var 
+    numOdd: real;
+    numEven: real;
+    numReal: real;
+    chararray: array [1..10] of char;
+    bool: tf;
+    
+    begin
+        writeln;
+    end.

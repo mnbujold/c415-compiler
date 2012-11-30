@@ -18,7 +18,7 @@ void genASCCode (GNode *tree, char *fileName);
  * Generate code for a function declaration, procedure declaration, or for program
  * Note that for the purposes of this code, a program is considered a procedure
  */
-void genCodeForFunctionNode(GNode *node);
+void genCodeForFunctionNode(GNode *node, int scope);
 
 void addVariables(GNode *varDeclNode);
 void variableIterator (GNode *node, gpointer data);
