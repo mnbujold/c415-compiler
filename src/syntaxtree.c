@@ -28,6 +28,30 @@ getSyntaxTree() {
     return syntaxTree; // ... sooo not finished!
 }
 
+GNode *
+collapseNode(GNode *node) {
+    GNode *newParent = node->parent;
+    int numChildren = g_node_n_children(node);
+    int i;
+    
+    // children of node point to node's parent:
+    for (i = 0; i < numChildren; i += 1) {
+        g_node_nth_child(node, i)->parent = newParent;
+    }
+    
+    // parent of node points to node's children
+    newParent->children = node->children;
+    
+    // free only node
+    node->next = NULL;
+    node->prev = NULL;
+    node->parent = NULL;
+    node->children = NULL;
+    g_node_destroy(node);
+    
+    return newParent;
+}
+
 node_type
 getNodeType(GNode *node) {
     if (node == NULL) {

@@ -93,6 +93,7 @@ struct rule_and_node {
 typedef struct rule_and_node rule_and_node;
 
 GNode *getSyntaxTree();
+GNode *collapseNode(GNode *node);
 
 node_type getNodeType(GNode *node);
 
