@@ -5,6 +5,13 @@
 
 #include "syntaxtree.h"
 
+node_type
+getNiceType(GNode *node) {
+    node_info *data = node->data;
+    
+    return data->type;
+}
+
 void
 displayOldTree(GNode *head, int level) {
     if (head->children == NULL) {
@@ -21,14 +28,8 @@ displayOldTree(GNode *head, int level) {
     }
 }
 
-node_type
-getNiceType(GNode *node) {
-    node_info *data = node->data;
-    
-    return data->type;
-}
-
-void displayNewTree(GNode *head, int level) {
+void
+displayNewTree(GNode *head, int level) {
     if (head->children == NULL) {
         printf("type at leaf: %d\n", getNiceType(head));
         return;
@@ -41,6 +42,16 @@ void displayNewTree(GNode *head, int level) {
         displayNewTree(sibling, level + 1);
         sibling = sibling->next;
     }
+}
+
+void
+displayNodeInfo(GNode *node) {
+    printf("myself:%p\n", node);
+    printf("parent:%p\n", node->parent);
+    printf("next:%p\n", node->next);
+    printf("prev:%p\n", node->prev);
+    printf("children:%p\n", node->children);
+    printf("node_type:%d\n", getNodeType(node));
 }
 
 GNode *
@@ -133,8 +144,6 @@ createDecls(GNode *decls) {
     niceify(decls);
     createProcDeclsList(createDeclsList(decls->children)->next);
     
-//     printf("done creating decls\n");
-    
     return decls;
 }
 
@@ -164,14 +173,9 @@ createDeclsList(GNode *declsPart) {
 
 GNode *
 createProcDeclsList(GNode *procPart) {
-    
-//     printf("about to create proc decls list\n");
-    
     niceify(procPart);
     procPart->children = NULL;
-    
-//     printf("done creating proc decls list\n");
-    
+
     return procPart;
 }
 
@@ -181,15 +185,6 @@ createStatList(GNode *cmpStat) {
     cmpStat->children = NULL;
     
     return cmpStat;
-}
-
-void displayNodeInfo(GNode *node) {
-    printf("myself:%p\n", node);
-    printf("parent:%p\n", node->parent);
-    printf("next:%p\n", node->next);
-    printf("prev:%p\n", node->prev);
-    printf("children:%p\n", node->children);
-    printf("node_type:%d\n", getNodeType(node));
 }
 
 GNode *
@@ -207,21 +202,6 @@ collapseNode(GNode *node) {
         
         sibling = sibling->next;
     }
-    
-//     displayNodeInfo(newParent);
-//     displayNodeInfo(node);
-     // children of node point to node's parent
-//     while (sibling != NULL) {
-        
-//     printf("maybe it's ...\n");
-//     displayNodeInfo(sibling);
-        
-        
-//     printf("here!\n");
-//     displayNodeInfo(sibling);
-    
-//         break;
-//     }
     
     return newParent;
 }
@@ -259,13 +239,9 @@ flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
     // add last node first
     prependNode(head, currNode);
 
-//     printf("is it ...\n");
-    
     // remove the head link tree
     g_node_unlink(nodeToRemove);   
 
-//     printf("here?\n");
-    
     return head;
 }
 
