@@ -375,7 +375,7 @@ var_decl_list           : var_decl
                             }
                         | var_decl_list SEMICOLON var_decl
                             {
-                                $$ = createNode(NT_VAR_DECL_LIST, $3, NULL);
+                                $$ = createNode(NT_VAR_DECL_LIST, $1, $3, NULL);
                             }
                         ;
 
@@ -417,7 +417,7 @@ proc_decl_list          : proc_decl
                             }
                         | proc_decl_list proc_decl
                             {
-                                $$ = createNode(NT_PROC_DECL_LIST, $2, NULL);
+                                $$ = createNode(NT_PROC_DECL_LIST, $1, $2, NULL);
                             }
                         ;
 
@@ -553,7 +553,7 @@ stat_list               : stat
                         | stat_list SEMICOLON stat
                             {
                                 if (noError(0, $3, NULL)) {
-                                    $$ = createNode(NT_STAT_LIST, $3, NULL);
+                                    $$ = createNode(NT_STAT_LIST, $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
                                 }
