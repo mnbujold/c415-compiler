@@ -128,7 +128,7 @@ main(int argc,char** argv)
     } 
     
 #if DEBUG
-    showAllSymbols();
+   // showAllSymbols();
 
 #endif
     free_symbol_table();

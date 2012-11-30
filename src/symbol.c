@@ -383,7 +383,6 @@ struct type_desc *createTypeDesc (type_class type) {
 
   type_class getTypeClass (symbol *theSymbol) {
 
-    DEBUG_PRINT (("In get type class\n"));
     symbol *tempSymbol = theSymbol;
 
     while (tempSymbol != NULL){

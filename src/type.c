@@ -43,9 +43,10 @@ compatible(struct type_desc *type1, struct type_desc *type2) {
  */
 int
 assignmentCompatibleSym(symbol *sym1, symbol *sym2, int showErrors) {
+    //printf ("In assignment compatible sym\n");
     object_class sym1_oc = sym1->oc;
     object_class sym2_oc = sym2->oc;
-
+    //printf ("Object class: %d\n", sym1_oc);
     if (sym1_oc != OC_VAR && sym1_oc != OC_PARAM) {
         if (showErrors != 0) {
             assignNotVarParamError();
@@ -872,6 +873,7 @@ accessArray(symbol *array, symbol *index) {
 
 void
 doVarAssignment (symbol *var, symbol *expr) {
+    //printf ("In do var assignment\n");
     if (assignmentCompatibleSym(var, expr, 1) == 1) {
         symbol *varLookup = localLookup(var->name);
 
