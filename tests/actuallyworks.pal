@@ -8,10 +8,11 @@ type tf = (true, false);
 var 
     numOdd: real;
     numEven: real;
-    numReal: real;
+    numReal: integer;
     chararray: array [1..10] of char;
     bool: tf;
     
     begin
         writeln;
     end.
+    

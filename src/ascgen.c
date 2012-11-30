@@ -50,7 +50,7 @@ void genASCCode (GNode *tree, char *fileName) {
   
   //start generating code
   
-  node_type nodeType = getNodeType(tree); 
+  node_type nodeType = getNiceType(tree); 
   if (nodeType != NT_PROGRAM ||g_node_n_children (tree) != 2 ) {
       //exit gracefully. The syntax tree is malformed
       printf ("head is of type %d, or does nto have 2 children\n", nodeType);
@@ -66,11 +66,11 @@ void genASCCode (GNode *tree, char *fileName) {
  * Node must be of type PROGRAM, PROC, or FUNC
  */
 void genCodeForFunctionNode(GNode *node, int scope) {
-    printf ("In gen code for function %d\n", getNodeType(node));
+    printf ("In gen code for function %d\n", getNiceType(node));
     
     //consider program a special case of a procedure declaration
     
-    if (getNodeType (node) == NT_PROGRAM) {
+    if (getNiceType (node) == NT_PROGRAM) {
     //need to do this for the program
         
         GNode *declarations = node->children;
@@ -78,7 +78,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         
         GNode *varDeclarationsList = declarations->children;
         GNode *procDeclarations = declarations->children->next;
-        if (getNodeType (declarations) == NT_DECLS) {
+        if (getNiceType (declarations) == NT_DECLS) {
                         
             //TODO: Actually, we need to add the parameters first
            varDeclarationsList = declarations->children;
@@ -107,14 +107,14 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         }
         
     }
-    else if (getNodeType(node) == NT_PROC_DECL) {
+    else if (getNiceType(node) == NT_PROC_DECL) {
         
         GNode *declarations = node->children;
         GNode *statements = node->children->next;
         
         //TODO Get the parameters here somehow. 
         //will likely take form of PUSH -3[X] where X is calling register
-        if (getNodeType (declarations) == NT_DECLS) {
+        if (getNiceType (declarations) == NT_DECLS) {
             
             //TODO: The syntax tree for proc decl and program are different!
             //Consider the 2 cases
@@ -154,7 +154,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         
     }
     else {
-        printf ("Invalid node type: not program or proc decl: %d\n", getNodeType (node));
+        printf ("Invalid node type: not program or proc decl: %d\n", getNiceType (node));
     }
     //TODO: WHAT ORDER do I generate the code in!?
 }
@@ -187,10 +187,10 @@ genCodeForFunctionCall() {
 void addVariables(GNode *varDeclNode) {
     //node must be of type NT_VAR_DECL_LIST
     printf ("Number of children: %d\n", g_node_n_children(varDeclNode));
-    if (getNodeType (varDeclNode) != NT_VAR_DECL_LIST) {
+    if (getNiceType (varDeclNode) != NT_VAR_DECL_LIST) {
         //uh oh... boo boo
         printf ("Is not of type var decl list\n");
-        printf ("Is of  type: %d\n", getNodeType(varDeclNode));
+        printf ("Is of  type: %d\n", getNiceType(varDeclNode));
     }
 
     int numVariables = g_node_n_children (varDeclNode);
@@ -238,7 +238,7 @@ void variableIterator (GNode *node, gpointer data) {
 }
 
 
-// int getNodeType (GNode *node) {
+// int getNiceType (GNode *node) {
 //     return node->node_info->type;
 // }
 
@@ -247,7 +247,7 @@ void variableIterator (GNode *node, gpointer data) {
  * Generate code for a GNode of type statement_list
  */
 void genCodeForStatementList (GNode *statementList) {
-    if (getNodeType(statementList) != NT_STAT_LIST) {
+    if (getNiceType(statementList) != NT_STAT_LIST) {
         printf ("Node is not of type statement\n");
         
     }
@@ -262,7 +262,7 @@ void genCodeForStatementList (GNode *statementList) {
     
 }
 void genCodeForStatement(GNode *statement) {
-    node_type statementType = getNodeType(statement);
+    node_type statementType = getNiceType(statement);
     switch (statementType) {
         case NT_ASSIGNMENT:
         {
@@ -309,7 +309,7 @@ void generateString () {
 }
 symbol *getSymbol (GNode *node) {
     
-    if (getNodeType(node) == NT_SYMBOL) {
+    if (getNiceType(node) == NT_SYMBOL) {
         return ((node_info*)node->data)->symbol;
     }
     return NULL;
