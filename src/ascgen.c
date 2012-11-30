@@ -53,7 +53,7 @@ void genASCCode (GNode *tree, char *fileName) {
       printf ("head is of type %d, or does nto have 2 children\n", nodeType);
   }
   
-  genCodeForFunctionNode (tree);
+  genCodeForFunctionNode (tree, scope);
   
   
   
@@ -62,13 +62,13 @@ void genASCCode (GNode *tree, char *fileName) {
 /**
  * Node must be of type PROGRAM, PROC, or FUNC
  */
-void genCodeForFunctionNode(GNode *node) {
+void genCodeForFunctionNode(GNode *node, int scope) {
     printf ("In gen code for function %d\n", getNodeType(node));
     
     
-    if (getNodeType (node) != NT_PROGRAM || getNodeType(node) != NT_PROC_DECL) {
+    if (getNodeType (node) != NT_PROGRAM && getNodeType(node) != NT_PROC_DECL) {
         //invalid node type, exit
-        printf ("Invalid node type: not program or proc decl\n");
+        printf ("Invalid node type: not program or proc decl: %d\n", getNodeType (node));
     }
 
     //need to do this for the program
@@ -81,13 +81,25 @@ void genCodeForFunctionNode(GNode *node) {
         //potentially unsafe, as children returns first child
         //if the first child is not the var_decl_list for some reason
         //this will not work
-        addVariables (declarations->children);
+        addVariables (declarations->children); //pass in the var_decl_list
+        
+        
+        
+        
         GNode *procedureDeclarations = declarations->children->next;
         
         //get the number of children
         
-        //recursively call genCodeForFunction Node to generate for nested stuff
         
+        
+        
+        //recursively call genCodeForFunction Node to generate for nested stuff
+        //foreach function declaration
+        
+        //TODO: Get the procedure declarateions, iterate through, and for each one, generate
+        //code
+        GNode *funcNode = NULL;
+        genCodeForFunctionNode (funcNode, scope+1);
         
         //TODO: WHAT ORDER do I generate the code in!?
     }
@@ -146,7 +158,7 @@ void variableIterator (GNode *node, gpointer data) {
     }
     else {
         //TODO: Need to do for arrays
-        printf ("error, not yet implemented\n");
+        printf ("error, this kind of variable not yet implemented\n");
         DEBUG_PRINT (("Not implemented yet"));
     }
     
@@ -158,6 +170,12 @@ void variableIterator (GNode *node, gpointer data) {
 // int getNodeType (GNode *node) {
 //     return node->node_info->type;
 // }
+
+void outputProcedureStatements () {
+    
+    
+    
+}
 
 symbol *getSymbol (GNode *node) {
     
@@ -193,7 +211,7 @@ void pushConstantReal (double constant) {
 void generateFormattedInstruction(char *instruction) {
 
 
-  fprintf (output, "\t %s\n", instruction);
+  fprintf (output, "\t%s\n", instruction);
 
 }
 
@@ -211,12 +229,12 @@ void generateLabel (char *labelName) {
 
 void generateStackDump() {
 #if DEBUG
-    fprintf(output, "!D\n");
+    fprintf(output, "\t!D\n");
 #endif
 }
 
 void generateTrace(int number) {
 #if DEBUG
-    fprintf(output, "!T=%d\n", number);
+    fprintf(output, "\t!T=%d\n", number);
 #endif
 }
