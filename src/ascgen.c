@@ -24,7 +24,7 @@ FILE *output;
 //registers stores registers we are using. 
 //if it is set to 0, then is free, if set to 1, being used
 int *registers;
-
+int globalAddressCounter = 0;
 
 //store the current scope. we will need this for labels
 int scope;
@@ -46,8 +46,7 @@ void genASCCode (GNode *tree, char *fileName) {
     
     output = stdout;
   
-  
-  
+ 
   
   //start generating code
   
