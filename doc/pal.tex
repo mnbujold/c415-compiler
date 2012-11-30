@@ -12,7 +12,7 @@
 \setlength{\parindent}{0pt}
 \doublespacing
 
-\title{CMPUT 415 - Project Checkpoint 2\\Program Documentation}
+\title{CMPUT 415 - PAL Compiler\\Final Submission\\Program Documentation}
 \author{Mike Bujold \\
 Dan Chui \\ 
 James Osgood }
@@ -74,8 +74,15 @@ When outputting program listings with the errors and line numbers appended, they
 Since we do not strip out comments when listing the parsed file, the listing file may not be further parsable (that is, the listing may cause additional errors if run through the compiler). This is because of block comments, in a line where an error occurred, whose closed brackets interrupt the block comment of the error message added to the listing.
 
 \section*{Math Functions}
-Math functions must be implemented using the basic arithmetic operations available in ASC. The degree of precision required for this project as set as accurate to 6 decimal places. 
+Math functions must be implemented using the basic arithmetic operations available in ASC. The degree of precision required for this project as set as accurate to 6 decimal places.
+\subsection*{Natural Log}
+The natural log (ln) function is calculated using a Mercator Series expansion:\\
+$ formula here $ \\
+The identity $ -ln(\frac{1}{x}) = ln(x)$ is used for values where $x > 1$.\\
+The only problem with this method is that for very large values of x, some precision is lost. 
 
-
+\subsection*{Exponential - $e^x$}
+The value for $e^x$ is calculated using a Maclaurin Series expansion:\\
+$ formula here $ \\
 
 \end{document}
