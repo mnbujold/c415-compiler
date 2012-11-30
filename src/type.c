@@ -881,6 +881,7 @@ doVarAssignment (symbol *var, symbol *expr) {
             varLookup->desc.func_attr->returnValSet = 1;
         }
     }
+    var->desc.var_attr->expression = expr;
     
 }
 

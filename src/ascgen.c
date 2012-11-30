@@ -68,28 +68,73 @@ void genASCCode (GNode *tree, char *fileName) {
 void genCodeForFunctionNode(GNode *node, int scope) {
     printf ("In gen code for function %d\n", getNodeType(node));
     
+    //consider program a special case of a procedure declaration
     
-    if (getNodeType (node) != NT_PROGRAM && getNodeType(node) != NT_PROC_DECL) {
-        //invalid node type, exit
-        printf ("Invalid node type: not program or proc decl: %d\n", getNodeType (node));
-    }
-
+    if (getNodeType (node) == NT_PROGRAM) {
     //need to do this for the program
-    
-    GNode *declarations = node->children;
-    if (getNodeType (declarations) == NT_DECLS) {
         
-        //TODO: The syntax tree for proc decl and program are different!
-        //Consider the 2 cases
-        //potentially unsafe, as children returns first child
-        //if the first child is not the var_decl_list for some reason
-        //this will not work
+        GNode *declarations = node->children;
+        GNode *statements = node->children->next;
         
-        //TODO: Actually, we need to add the parameters first
+        GNode *varDeclarationsList = declarations->children;
+        GNode *procDeclarations = declarations->children->next;
+        if (getNodeType (declarations) == NT_DECLS) {
+                        
+            //TODO: Actually, we need to add the parameters first
+           varDeclarationsList = declarations->children;
+           procDeclarations = declarations->children->next;
+            addVariables (varDeclarationsList); //pass in the var_decl_list
+            
+        }
         
-        addVariables (declarations->children); //pass in the var_decl_list
+        //do the declarations stuff here
         
+        //if decl list is null, then do nothing
+        //TODO: Generate teh code for the statements now...
+        //code for statements
+        genCodeForStatementList (statements);
         
+        if (procDeclarations != NULL) {
+         
+            //recursively call genCodeForFunction Node to generate for nested stuff
+            //foreach function declaration
+            
+            //TODO: Get the procedure declarateions, iterate through, and for each one, generate
+            //code
+            GNode *funcNode = NULL;
+            genCodeForFunctionNode (funcNode, scope+1);
+            
+        }
+        
+    }
+    else if (getNodeType(node) == NT_PROC_DECL) {
+        
+        GNode *declarations = node->children;
+        GNode *statements = node->children->next;
+        
+        //TODO Get the parameters here somehow. 
+        //will likely take form of PUSH -3[X] where X is calling register
+        if (getNodeType (declarations) == NT_DECLS) {
+            
+            //TODO: The syntax tree for proc decl and program are different!
+            //Consider the 2 cases
+            //potentially unsafe, as children returns first child
+            //if the first child is not the var_decl_list for some reason
+            //this will not work
+            
+            //TODO: Actually, we need to add the parameters first
+            
+            addVariables (declarations->children); //pass in the var_decl_list
+            
+            
+        }
+        
+        //do the declarations stuff here
+        
+        //if decl list is null, then do nothing
+        //TODO: Generate teh code for the statements now...
+        //code for statements
+        genCodeForStatementList (statements);
         
         
         GNode *procedureDeclarations = declarations->children->next;
@@ -107,15 +152,30 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         GNode *funcNode = NULL;
         genCodeForFunctionNode (funcNode, scope+1);
         
-        //TODO: WHAT ORDER do I generate the code in!?
     }
-    
-    //do the declarations stuff here
-    
-    //if decl list is null, then do nothing
-    //TODO: Generate teh code for the statements now...
-    //code for statements
+    else {
+        printf ("Invalid node type: not program or proc decl: %d\n", getNodeType (node));
+    }
+    //TODO: WHAT ORDER do I generate the code in!?
 }
+
+genCodeForFunctionCall() {
+    //foreach param, 
+    //int numParams = getParams
+    int numParams = 1;
+    int address = 0;
+    int callRegister = 1; //getCallRegister 
+    char *label = "functionLabel";
+    //generateFormattedInstruction ("PUSH %d", address);
+    //generateFormattedInstruction ("CALL %d, %s", callRegister, label);
+    
+    //TODO: THIS IS WRONG, if we have more than 1 return value
+    //for example, a var parameter?
+    //generateFormattedInstruction ("ADJUST %d", 0-numParams + 1);
+
+}
+
+
 
 
 
@@ -149,14 +209,18 @@ void addVariables(GNode *varDeclNode) {
 
 //Function that is called for each var declaration
 void variableIterator (GNode *node, gpointer data) {
+    //TODO: Do i need to check if the symbol is a var??? 
+    //I should be able to assume that it is right
     symbol *symbol = getSymbol (node);
     type_class varType = getTypeClass (symbol);
+    //TODO: check if var has a value (from constant folding)
     if (varType == TC_INTEGER) {
         printf ("Is an integer\n");
         pushConstantInt (0);
         
     }
     else if (varType == TC_REAL) {
+
         pushConstantReal (0);
     }
     else if (varType == TC_BOOLEAN) {
@@ -169,7 +233,8 @@ void variableIterator (GNode *node, gpointer data) {
     }
     
     //check if they are array. if yes, then need to do somethign special
-    
+    //TODO: Assign each symbol it's address
+    globalAddressCounter++;
 }
 
 
@@ -177,12 +242,71 @@ void variableIterator (GNode *node, gpointer data) {
 //     return node->node_info->type;
 // }
 
+
+/**
+ * Generate code for a GNode of type statement_list
+ */
+void genCodeForStatementList (GNode *statementList) {
+    if (getNodeType(statementList) != NT_STAT_LIST) {
+        printf ("Node is not of type statement\n");
+        
+    }
+    GNode *statement = statementList->children;
+    while (statement != NULL) {
+        genCodeForStatement (statement->children);
+        statement = statement->next;
+    }
+    
+    
+    
+    
+}
+void genCodeForStatement(GNode *statement) {
+    node_type statementType = getNodeType(statement);
+    switch (statementType) {
+        case NT_ASSIGNMENT:
+        {
+            break;
+        }
+        case NT_PROC_INVOK:
+        {
+            break;
+        }   
+        case NT_IF:
+        {
+            break;
+        }
+        case NT_IF_ELSE:
+        {
+            break;
+        }
+        case NT_WHILE: {
+            break;
+        }
+        case NT_CONTINUE: {
+            break;
+        }
+        case NT_EXIT:
+        {
+            break;
+        }
+                    
+    }
+        
+}
 void outputProcedureStatements () {
     
     
     
 }
 
+
+/**
+ * Generates a string on the stack, with the first character at the lowest
+ * index and the last character of the highest index
+ */
+void generateString () {
+}
 symbol *getSymbol (GNode *node) {
     
     if (getNodeType(node) == NT_SYMBOL) {
