@@ -84,6 +84,9 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //potentially unsafe, as children returns first child
         //if the first child is not the var_decl_list for some reason
         //this will not work
+        
+        //TODO: Actually, we need to add the parameters first
+        
         addVariables (declarations->children); //pass in the var_decl_list
         
         
@@ -110,7 +113,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
     //do the declarations stuff here
     
     //if decl list is null, then do nothing
-    
+    //TODO: Generate teh code for the statements now...
     //code for statements
 }
 
@@ -119,7 +122,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
 
 
 /**
- * Given a var declaration node, 
+ * Given a var declaration node, generate space on the stack for it.
  */
 void addVariables(GNode *varDeclNode) {
     //node must be of type NT_VAR_DECL_LIST
