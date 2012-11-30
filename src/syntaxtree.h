@@ -92,10 +92,10 @@ struct rule_and_node {
 
 typedef struct rule_and_node rule_and_node;
 
+node_type getNiceType(GNode *node); // Use this!
+
 void displayOldTree(GNode *head, int level);
 void displayNewTree(GNode *head, int level);
-
-node_type getNiceType(GNode *node); // Use this!
 
 GNode *getSyntaxTree();
 
