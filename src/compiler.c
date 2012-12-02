@@ -76,7 +76,7 @@ static void my_handler (int signalNum) {
 */
 main(int argc,char** argv)
 {
-    setHandler (my_handler);
+//    setHandler (my_handler);
   DEBUG_PRINT (("Hello, testing debug: %d\n", 1));
     prog_listing = 1;
     setvbuf(stdout, (char*) _IONBF, 0, 0);

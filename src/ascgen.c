@@ -1,6 +1,6 @@
 /**
  * Generate code in ASC assembly given a syntax tree 
- * Author: Daniel Chui
+ * Author: Daniel Chui, Mike Bujold
  */
 
 
@@ -143,6 +143,19 @@ void addVariables(GNode *varDeclNode) {
 
 }
 
+void getLength(symbol *symbol, type_class tc){
+  if(tc == TC_STRING){
+    printf("length: %d \n", symbol->desc.type_attr->desc.string->len);
+    
+  }
+
+  else if(tc == TC_ARRAY){
+  }
+
+  else if(tc == TC_RECORD){
+
+  }
+}
 
 //Function that is called for each var declaration
 void variableIterator (GNode *node, gpointer data) {
@@ -154,14 +167,17 @@ void variableIterator (GNode *node, gpointer data) {
         
     }
     else if (varType == TC_REAL) {
+      printf("REAL!\n");
         pushConstantReal (0);
     }
     else if (varType == TC_BOOLEAN) {
+      printf("BOOLEAN!\n");
         pushConstantInt (0);
     }
     else if (varType == TC_STRING){
         //TODO: Need to do for arrays (eg. TC_STRING, TC_ARRAY, TC_RECORD)
-      printf("length: %d\n", symbol->desc.type_attr->desc.string->len);
+      printf("string!\n");
+      //getLength(symbol, varType);
         //TODO: Need to do for arrays
         printf ("error, this kind of variable not yet implemented\n");
         DEBUG_PRINT (("Not implemented yet"));
@@ -170,6 +186,8 @@ void variableIterator (GNode *node, gpointer data) {
     //check if they are array. if yes, then need to do somethign special
     
 }
+
+
 
 
 // int getNodeType (GNode *node) {
