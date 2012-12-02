@@ -36,7 +36,7 @@ void pushConstantReal (double constant);
  */
 void generateFormattedInstruction (char *instruction);
 
-void generateComment (char *comment);
+void generateComment (const char *comment);
 
 void generateLabel (char *labelName);
 

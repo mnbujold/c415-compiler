@@ -39,7 +39,7 @@ void genASCCode (GNode *tree, char *fileName) {
     variableAddressTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     registers = calloc (NUM_ASC_REGISTERS, sizeof (int));
     scope = 0;
-    
+
     
   //TODO:   
   //open the file up here and any other stuff
@@ -214,6 +214,7 @@ void variableIterator (GNode *node, gpointer data) {
     symbol *symbol = getSymbol (node);
     type_class varType = getTypeClass (symbol);
     //TODO: check if var has a value (from constant folding)
+    generateComment(symbol->name);
     if (varType == TC_INTEGER) {
         printf ("Is an integer\n");
         pushConstantInt (0);
@@ -345,7 +346,7 @@ void generateFormattedInstruction(char *instruction) {
 
 }
 
-void generateComment (char *comment) {
+void generateComment (const char *comment) {
     fprintf (output, "#%s\n", comment);
 }
 
