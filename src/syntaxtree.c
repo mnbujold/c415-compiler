@@ -251,8 +251,34 @@ createStatList(GNode *cmpStat) {
 GNode *
 createStat(GNode *stat) {
     niceify(stat);
+    GNode *child = stat->children;
     
-    stat->children = NULL;
+    if (getNodeType(child) == NT_SIMPLE_STAT) {
+        collapseNode(child);
+        child = stat->children;
+    }
+    
+    // TEMPORARY:
+    niceify(child);
+    child->children = NULL;
+    
+    // ACTUAL (UNFINISHED):
+//     node_type statType = getNodeType(child);
+//     
+//     if (statType == NT_COMPOUND_STAT) {
+//         // do fun stuff ...
+//     } else if (statType == NT_ASSIGNMENT) {
+//         createAssignment(child);
+//     } else if (statType == NT_PROC_INVOK) {
+//         createProcInvok(child);
+//     } else if (statType == NT_IF) {
+//         createIf(child);
+//     } else if (statType == NT_IF_ELSE) {
+//         createIfElse(child);
+//     } else if (statType == NT_WHILE) {
+//         createWhile(child);
+//     }
+    // else, it's an "exit" or "continue" statment, so don't do anything
     
     return stat;
 }
