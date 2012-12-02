@@ -7,13 +7,13 @@
 program main(input, output);
         var     n, oddcount, evencount     : integer;
         procedure MYODD ( x : integer );
-                procedure MYEVEN;
+                procedure MYEVEN ();
                 begin
                         if x <> 0 then begin
                                 evencount := evencount + 1;
                                 x := x div 2;
                                 if odd(x) then ODD ( x )
-                                else MYEVEN
+                                else MYEVEN()
                         end;
                 end;
 
@@ -21,7 +21,7 @@ program main(input, output);
                 oddcount := oddcount + 1;
                 x := x div 2;
                 if odd(x) then MYODD ( x )
-                else MYEVEN
+                else MYEVEN()
         end;
         procedure MYEVEN ( x : integer );
                 procedure MYODD ( var x : integer);
