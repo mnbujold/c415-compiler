@@ -151,10 +151,14 @@ getSyntaxTree() {
 }
 
 GNode *
-createDecls(GNode *decls) {
+createDecls(GNode *decls) {    
     niceify(decls);
     createProcDeclsList(createDeclsList(decls->children)->next);
 
+    if (decls->children->next->children != NULL) {
+        g_node_reverse_children(decls);
+    }
+    
     return decls;
 }
 
