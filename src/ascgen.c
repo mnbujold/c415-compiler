@@ -32,6 +32,9 @@ GQueue* labelStack = NULL;
 GHashTable *variableAddressTable = NULL;
 
 void genASCCode (GNode *tree, char *fileName) {
+    DEBUG_PRINT(("!!!!!!!!!!!!!!!!!!!!!!!!!\n"));
+    DEBUG_PRINT (("Inside code generation\n"));
+    DEBUG_PRINT(("!!!!!!!!!!!!!!!!!!!!!!!!!\n"));
 
     //Initialize our own tracking tools we will need for generating code
 
@@ -72,7 +75,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
     
     if (getNiceType (node) == NT_PROGRAM) {
     //need to do this for the program
-        
+        DEBUG_PRINT (("Inside program node generation"));
         GNode *declarations = node->children;
         GNode *statements = node->children->next;
         
@@ -84,9 +87,9 @@ void genCodeForFunctionNode(GNode *node, int scope) {
            varDeclarationsList = declarations->children;
            procDeclarations = declarations->children->next;
             addVariables (varDeclarationsList); //pass in the var_decl_list
-            
+            DEBUG_PRINT(("Type of procDeclarations: %d", getNiceType(procDeclarations)));
         }
-        
+        DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
         //do the declarations stuff here
         
         //if decl list is null, then do nothing
@@ -214,6 +217,9 @@ void variableIterator (GNode *node, gpointer data) {
     symbol *symbol = getSymbol (node);
     type_class varType = getTypeClass (symbol);
     //TODO: check if var has a value (from constant folding)
+    //TODO: we need to keep track of where the variable is
+    //not sure if we do this with global address counter,
+    //or offset from the register the function is called from
     if (varType == TC_INTEGER) {
         printf ("Is an integer\n");
         pushConstantInt (0);

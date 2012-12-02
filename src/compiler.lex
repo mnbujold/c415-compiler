@@ -115,7 +115,7 @@ if (yytext != NULL) {
  /* reserved keywords in PAL */
 "and"                           { return AND;}
 "array"                         { return ARRAY;}
-"begin"                         { DB_PRINT("BEGIN "); return BEGIN_; /* BEGIN causes compilation errors */}
+"begin"                         { /*DB_PRINT("BEGIN "); */ return BEGIN_; /* BEGIN causes compilation errors */}
 "const"                         { return CONST;}
 "continue"			{ /* note: not in PASCAL */ return CONTINUE;}
 "div"				{ return DIV;}
