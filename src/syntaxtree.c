@@ -131,11 +131,22 @@ symbolEnd(GNode *node) {
     return getNodeType(node) == NT_SYMBOL;
 }
 
+int
+procEnd(GNode *node) {
+    return getNodeType(node) == NT_PROC_DECL;
+}
+
 GNode *
 getSyntaxTree() {
+    
+//     displayOldTree(syntaxTree, 0);
+    
     niceify(syntaxTree);
     createStatList(createDecls(syntaxTree->children)->next);
 
+//     printf("\n-----------\n\n");    
+//     displayNewTree(syntaxTree, 0);
+    
     return syntaxTree;
 }
 
@@ -143,7 +154,7 @@ GNode *
 createDecls(GNode *decls) {
     niceify(decls);
     createProcDeclsList(createDeclsList(decls->children)->next);
-    
+
     return decls;
 }
 
@@ -173,10 +184,34 @@ createDeclsList(GNode *declsPart) {
 
 GNode *
 createProcDeclsList(GNode *procPart) {
-    niceify(procPart);
-    procPart->children = NULL;
+    if (procPart->children == NULL) {
+        niceify(procPart);
+        changeType(procPart, NT_PROC_DECL_LIST);
+                
+        return procPart;
+    }
+    
+    GNode *procsList = procPart->children;
 
-    return procPart;
+    collapseNode(procPart);
+    flattenTree(procsList, &procEnd);
+    niceify(procsList);
+    GNode *sibling = procsList->children;
+    
+    while (sibling != NULL) {
+        createProcDecl(sibling);
+        sibling = sibling->next;
+    }
+
+    return procsList;
+}
+
+GNode *
+createProcDecl(GNode *procDecl) {
+    niceify(procDecl);
+    createStatList(createDecls(procDecl->children->next)->next);
+    
+    return procDecl;
 }
 
 GNode *

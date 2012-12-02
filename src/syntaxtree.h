@@ -102,6 +102,7 @@ GNode *getSyntaxTree();
 GNode *createDecls(GNode *decls);
 GNode *createDeclsList(GNode *declsPart);
 GNode *createProcDeclsList(GNode *procPart);
+GNode *createProcDecl(GNode *procDecl);
 GNode *createStatList(GNode *cmpStat);
 
 GNode *collapseNode(GNode *node);
