@@ -94,7 +94,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //code for statements
         genCodeForStatementList (statements);
         
-        if (procDeclarations != NULL) {
+        if (procDeclarations->children != NULL) {
          
             //recursively call genCodeForFunction Node to generate for nested stuff
             //foreach function declaration

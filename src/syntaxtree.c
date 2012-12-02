@@ -220,6 +220,27 @@ createProcDecl(GNode *procDecl) {
 
 GNode *
 createStatList(GNode *cmpStat) {
+    if (cmpStat->children->children->children->children == NULL) {
+        niceify(cmpStat);
+        changeType(cmpStat, NT_STAT_LIST);
+        g_node_destroy(cmpStat->children);
+        
+        return cmpStat;
+    }
+    
+//     GNode *procsList = procPart->children;
+// 
+//     collapseNode(procPart);
+//     flattenTree(procsList, &procEnd);
+//     niceify(procsList);
+//     GNode *sibling = procsList->children;
+//     
+//     while (sibling != NULL) {
+//         createProcDecl(sibling);
+//         sibling = sibling->next;
+//     }
+    
+    
     niceify(cmpStat);
     cmpStat->children = NULL;
     
