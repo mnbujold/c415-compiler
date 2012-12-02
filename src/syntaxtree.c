@@ -136,6 +136,11 @@ procEnd(GNode *node) {
     return getNodeType(node) == NT_PROC_DECL;
 }
 
+int
+statEnd(GNode *node) {
+    return getNodeType(node) == NT_STAT;
+}
+
 GNode *
 getSyntaxTree() {
     
@@ -155,10 +160,6 @@ createDecls(GNode *decls) {
     niceify(decls);
     createProcDeclsList(createDeclsList(decls->children)->next);
 
-    if (decls->children->next->children != NULL) {
-        g_node_reverse_children(decls);
-    }
-    
     return decls;
 }
 
@@ -213,6 +214,7 @@ createProcDeclsList(GNode *procPart) {
 GNode *
 createProcDecl(GNode *procDecl) {
     niceify(procDecl);
+    niceify(procDecl->children);
     createStatList(createDecls(procDecl->children->next)->next);
     
     return procDecl;
@@ -228,37 +230,48 @@ createStatList(GNode *cmpStat) {
         return cmpStat;
     }
     
-//     GNode *procsList = procPart->children;
-// 
-//     collapseNode(procPart);
-//     flattenTree(procsList, &procEnd);
-//     niceify(procsList);
-//     GNode *sibling = procsList->children;
-//     
-//     while (sibling != NULL) {
-//         createProcDecl(sibling);
-//         sibling = sibling->next;
-//     }
+    GNode *statList = cmpStat->children;
+
+    collapseNode(cmpStat);
+    flattenTree(statList, &statEnd);
+    niceify(statList);    
+    // the last child will be an empty stat
+    g_node_destroy(g_node_last_child(statList));
     
+    GNode *sibling = statList->children;
     
-    niceify(cmpStat);
-    cmpStat->children = NULL;
+    while (sibling != NULL) {
+        createStat(sibling);
+        sibling = sibling->next;
+    }
     
-    return cmpStat;
+    return statList;
+}
+
+GNode *
+createStat(GNode *stat) {
+    niceify(stat);
+    
+    stat->children = NULL;
+    
+    return stat;
 }
 
 GNode *
 collapseNode(GNode *node) {
     GNode *newParent = node->parent;
     GNode *sibling = node->children;
+    int position = g_node_child_position(newParent, node);
     
     g_node_unlink(node);
+    node->parent = NULL;
     
     int numChildren = g_node_n_children(node);
     int i;
     
     for (i = 0; i < numChildren; i += 1) {
-        prependNode(newParent, sibling);
+        sibling->parent = NULL;
+        g_node_insert(newParent, position + i, sibling);
         
         sibling = sibling->next;
     }

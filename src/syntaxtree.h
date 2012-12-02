@@ -65,7 +65,7 @@ enum node_type {            // Children:
     
     // Now, some more just for me:
     NT_VAR_DECL_PART, NT_PROC_DECL_PART, NT_PROC_HEADING, NT_COMPOUND_STAT,
-    NT_SIMPLE_STAT, NT_PLIST_FINVOK    // 38 - 44
+    NT_SIMPLE_STAT, NT_PLIST_FINVOK    // 38 - 43
 };
 
 typedef enum node_type node_type;
@@ -104,6 +104,7 @@ GNode *createDeclsList(GNode *declsPart);
 GNode *createProcDeclsList(GNode *procPart);
 GNode *createProcDecl(GNode *procDecl);
 GNode *createStatList(GNode *cmpStat);
+GNode *createStat(GNode *stat);
 
 GNode *collapseNode(GNode *node);
 GNode *flattenTree(GNode *head, int (*treeEnd)(GNode *));
