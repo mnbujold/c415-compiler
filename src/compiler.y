@@ -357,7 +357,7 @@ field                   : ID COLON type
 
 var_decl_part           : /* empty */
                             {
-                                $$ = createSingleNode(NT_VAR_DECL_PART);
+                                $$ = createSingleNode(NT_VAR_DECL_PART);                           
                             }
                         | VAR var_decl_list SEMICOLON
                             {

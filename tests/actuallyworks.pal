@@ -1,5 +1,5 @@
 {
-Tests if the compiler allocates the space for vars correctly
+Tests if the compiler allocates the space for vars and functions correctly
 }
 program correct (input, output);
 
@@ -8,10 +8,28 @@ type tf = (true, false);
 var 
     numOdd: real;
     numEven: real;
-    numReal: real;
+    numReal: integer;
     chararray: array [1..10] of char;
     bool: tf;
+    
+    function bob () : numOdd;
+    
+    type funType = record
+                    field0 : real;
+                    field1 : tf;
+                    field2 : array[-2..4] of array[0..15] of char
+                   end;
+    
+    var
+        number : integer;
+        isbob : boolean;
+        tricky : array[ord(true)..abs(-3)] of funType;
+        
+        begin
+            bob := number;
+        end;
     
     begin
         writeln;
     end.
+    

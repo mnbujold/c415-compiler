@@ -23,6 +23,8 @@ void genCodeForFunctionNode(GNode *node, int scope);
 void addVariables(GNode *varDeclNode);
 void variableIterator (GNode *node, gpointer data);
 
+void genCodeForStatementList (GNode *statementList);
+void genCodeForStatement(GNode *statement);
 //int getNodeType (GNode *node);
 symbol *getSymbol (GNode *node);
 
@@ -34,7 +36,7 @@ void pushConstantReal (double constant);
  */
 void generateFormattedInstruction (char *instruction);
 
-void generateComment (char *comment);
+void generateComment (const char *comment);
 
 void generateLabel (char *labelName);
 
