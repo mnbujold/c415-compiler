@@ -105,6 +105,15 @@ GNode *createProcDeclsList(GNode *procPart);
 GNode *createProcDecl(GNode *procDecl);
 GNode *createStatList(GNode *cmpStat);
 GNode *createStat(GNode *stat);
+GNode *mergeCompoundStat(GNode *stat, GNode *cmpStat);
+GNode *createAssignment(GNode *assign);
+GNode *createVar(GNode *var);
+GNode *createArrayAccess(GNode *array);
+GNode *createRecordAccess(GNode *var);
+GNode *createExpr(GNode *expr);
+GNode *createProcInvok(GNode *procInvok);
+GNode *createIf(GNode *ifStat);
+GNode *createIfElse(GNode *ifElseStat);
 
 GNode *collapseNode(GNode *node);
 GNode *flattenTree(GNode *head, int (*treeEnd)(GNode *));
@@ -121,6 +130,8 @@ GNode *createPF_InvokNode(struct pf_invok *pf_invok, GNode *n_args, ...);
 GNode *createArrayNode(symbol *result, GNode *n_args, ...);
 GNode *createExprNode(node_type type, symbol *result, GNode *n_args, ...);
 GNode *createSingleExprNode(node_type type, symbol *result);
+
+GNode *createWhile(GNode *whileStat);
 
 GNode *getProcNode(const char *procname);
 

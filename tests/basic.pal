@@ -4,6 +4,7 @@ procedure bob();
     var joe : integer;
 begin
     writeln();
+    joe := 5;
 end;
 
 begin

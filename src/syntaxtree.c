@@ -241,8 +241,8 @@ createStatList(GNode *cmpStat) {
     GNode *sibling = statList->children;
     
     while (sibling != NULL) {
-        createStat(sibling);
-        sibling = sibling->next;
+        sibling = createStat(sibling)->next;
+//         sibling = sibling->next;
     }
     
     return statList;
@@ -258,29 +258,122 @@ createStat(GNode *stat) {
         child = stat->children;
     }
     
-    // TEMPORARY:
-    niceify(child);
-    child->children = NULL;
+    node_type statType = getNodeType(child);
     
-    // ACTUAL (UNFINISHED):
-//     node_type statType = getNodeType(child);
-//     
-//     if (statType == NT_COMPOUND_STAT) {
-//         // do fun stuff ...
-//     } else if (statType == NT_ASSIGNMENT) {
-//         createAssignment(child);
-//     } else if (statType == NT_PROC_INVOK) {
-//         createProcInvok(child);
-//     } else if (statType == NT_IF) {
-//         createIf(child);
-//     } else if (statType == NT_IF_ELSE) {
-//         createIfElse(child);
-//     } else if (statType == NT_WHILE) {
-//         createWhile(child);
-//     }
-    // else, it's an "exit" or "continue" statment, so don't do anything
+    if (statType == NT_COMPOUND_STAT) {
+        return mergeCompoundStat(stat, child);
+    } else if (statType == NT_ASSIGNMENT) {
+        createAssignment(child);
+    } else if (statType == NT_PROC_INVOK) {
+        createProcInvok(child);
+    } else if (statType == NT_IF) {
+        createIf(child);
+    } else if (statType == NT_IF_ELSE) {
+        createIfElse(child);
+    } else if (statType == NT_WHILE) {
+        createWhile(child);
+    } else { // an "exit" or "continue" statment
+        niceify(child);
+    }
     
     return stat;
+}
+
+GNode *
+mergeCompoundStat(GNode *stat, GNode *cmpStat) {
+    GNode *child = stat->children;
+    
+    createStatList(cmpStat);
+    collapseNode(cmpStat);
+    
+    GNode *lastChild = g_node_last_child(stat);
+    
+    collapseNode(stat);
+    
+    return lastChild; 
+}
+
+GNode *
+createAssignment(GNode *assign) {
+    niceify(assign);
+    createExpr(createVar(assign->children)->next);
+    
+    return assign;
+}
+
+GNode *
+createVar(GNode *var) {
+    niceify(var);
+    GNode *child = var->children;
+    node_type varType = getNodeType(child);
+    
+    if (varType == NT_SYMBOL) {
+        niceify(child);
+    } else if (varType == NT_ARRAY_ACCESS) {
+        createArrayAccess(child);
+    } else {    // NT_VAR, implying a record access
+        createRecordAccess(child);
+    }
+    
+    return var;
+}
+
+GNode *
+createArrayAccess(GNode *array) {
+    niceify(array);
+    array->children = NULL;
+    
+    return array;
+}
+
+GNode *
+createRecordAccess(GNode *var) {
+    niceify(var);
+    changeType(var, NT_RECORD_ACCESS);
+    
+    niceify(createVar(var->children)->next);
+    
+    return var;
+}
+
+GNode *
+createExpr(GNode *expr) {
+    niceify(expr);
+    expr->children = NULL;
+    
+    return expr;
+}
+
+GNode *
+createProcInvok(GNode *procInvok) {
+    niceify(procInvok);
+    procInvok->children = NULL;
+    
+    return procInvok;
+}
+
+GNode *
+createIf(GNode *ifStat) {
+    niceify(ifStat);
+    ifStat->children = NULL;
+    
+    return ifStat;
+}
+
+GNode *
+createIfElse(GNode *ifElseStat) {
+    niceify(ifElseStat);
+    ifElseStat->children = NULL;
+    
+    return ifElseStat;
+}
+
+GNode *
+createWhile(GNode *whileStat) {
+    niceify(whileStat);
+    whileStat->children = NULL;
+    
+    return whileStat;
 }
 
 GNode *
