@@ -250,7 +250,11 @@ void variableIterator (GNode *node, gpointer data) {
     }
 
     else if(varType == TC_ARRAY){
-      printf("ARRAY\n");
+      printf("ARRAY: %s\n", symbol->name);
+
+            
+      printf("Size: %d \n", symbol->symbol_type->desc.type_attr->desc.array->size);
+      
     }
 
     else if(varType == TC_RECORD){
