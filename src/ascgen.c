@@ -120,7 +120,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //need to do this for the program
         DEBUG_PRINT (("Inside procedure node generation"));
 
-        GNode *procedureSymbol = getSymbol (node->children);
+        symbol *procedureSymbol = getSymbol (node->children);
         printf ("Procedure name: %s\n", ((symbol *)procedureSymbol)->name);
         GNode *declarations = node->children->next;
         GNode *statements = declarations->next;
