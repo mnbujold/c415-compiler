@@ -76,7 +76,6 @@ void genCodeForFunctionNode(GNode *node, int scope) {
     
     //we'll consider program as a special case of a procedure declaration    
     if (getNiceType (node) == NT_PROGRAM) {
-    //need to do this for the program
     
         generateLabel("main");
         DEBUG_PRINT (("Inside program node generation"));
@@ -102,8 +101,6 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             //recursively call genCodeForFunction Node to generate for nested stuff
             //foreach function declaration
             
-            //TODO: Get the procedure declarateions, iterate through, and for each one, generate
-            //code
             printf ("proc delcarations type: %d\n", getNiceType (procDeclarations));
             printf ("Generating for other procedures now\n");
             GNode *procNode = procDeclarations->children;
@@ -121,7 +118,12 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         DEBUG_PRINT (("Inside procedure node generation"));
 
         symbol *procedureSymbol = getSymbol (node->children);
-        printf ("Procedure name: %s\n", ((symbol *)procedureSymbol)->name);
+        char *procName = ((symbol *) procedureSymbol)->name;
+        printf ("Procedure name: %s\n", procName)s;
+        
+        //TODO: Lalebls can't just be procedure Names, because of scoping issues
+        //We need to append scope level here...
+        generateLabel (procName);
         GNode *declarations = node->children->next;
         GNode *statements = declarations->next;
         
