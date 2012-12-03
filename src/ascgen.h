@@ -11,6 +11,14 @@
 
 #define NUM_ASC_REGISTERS 16
 
+
+struct var_add_struct {
+    int indexingRegister;
+    int offset;
+};
+
+typedef struct var_add_struct varAddressStruct;
+
 void genASCCode (GNode *tree, char *fileName);
 
 
@@ -46,4 +54,11 @@ void generateLabel (char *labelName);
 
 void generateStackDump();
 void generateTrace(int number);
+
+/**
+ * Code generation debug functions
+ */
+
+void varaddressTableIterator (gpointer key, gpointer value, gpointer user_data) ;
+void showVariableAddressTable();
 #endif

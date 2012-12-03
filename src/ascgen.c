@@ -56,8 +56,11 @@ void genASCCode (GNode *tree, char *fileName) {
   node_type nodeType = getNiceType(tree); 
   if (nodeType != NT_PROGRAM ||g_node_n_children (tree) != 2 ) {
       //exit gracefully. The syntax tree is malformed
-      printf ("head is of type %d, or does nto have 2 children\n", nodeType);
+      printf ("head is of type %d, or does not have 2 children\n", nodeType);
+      exit (1);
   }
+  
+  //TODO: print out a comment header stating the name of the file
   
   genCodeForFunctionNode (tree, scope);
   
@@ -71,10 +74,11 @@ void genASCCode (GNode *tree, char *fileName) {
 void genCodeForFunctionNode(GNode *node, int scope) {
     printf ("In gen code for function %d\n", getNiceType(node));
     
-    //consider program a special case of a procedure declaration
-    
+    //we'll consider program as a special case of a procedure declaration    
     if (getNiceType (node) == NT_PROGRAM) {
     //need to do this for the program
+    
+        generateLabel("main");
         DEBUG_PRINT (("Inside program node generation"));
         GNode *declarations = node->children;
         GNode *statements = node->children->next;
@@ -82,8 +86,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         GNode *varDeclarationsList = declarations->children;
         GNode *procDeclarations = declarations->children->next;
         if (getNiceType (declarations) == NT_DECLS) {
-                        
-            //TODO: Actually, we need to add the parameters first
+            
            varDeclarationsList = declarations->children;
            procDeclarations = declarations->children->next;
             addVariables (varDeclarationsList); //pass in the var_decl_list
@@ -91,69 +94,68 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         }
         DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
         //do the declarations stuff here
-        
-        //if decl list is null, then do nothing
-        //TODO: Generate teh code for the statements now...
-        //code for statements
+        showVariableAddressTable();
+
         genCodeForStatementList (statements);
         
-        if (procDeclarations->children != NULL) {
-         
+        if (procDeclarations->children != NULL) {        
             //recursively call genCodeForFunction Node to generate for nested stuff
             //foreach function declaration
             
             //TODO: Get the procedure declarateions, iterate through, and for each one, generate
             //code
-            GNode *funcNode = NULL;
-            genCodeForFunctionNode (funcNode, scope+1);
+            printf ("proc delcarations type: %d\n", getNiceType (procDeclarations));
+            printf ("Generating for other procedures now\n");
+            GNode *procNode = procDeclarations->children;
+            while (procNode != NULL) {
+                genCodeForFunctionNode (procNode, scope+1);
+                procNode = procNode->next;
+                
+            }
             
         }
         
     }
     else if (getNiceType(node) == NT_PROC_DECL) {
+        //need to do this for the program
+        DEBUG_PRINT (("Inside procedure node generation"));
+
+        GNode *procedureSymbol = getSymbol (node->children);
+        printf ("Procedure name: %s\n", ((symbol *)procedureSymbol)->name);
+        GNode *declarations = node->children->next;
+        GNode *statements = declarations->next;
         
-        GNode *declarations = node->children;
-        GNode *statements = node->children->next;
+        GNode *varDeclarationsList = declarations->children;
+        GNode *procDeclarations = declarations->children->next;
         
-        //TODO Get the parameters here somehow. 
-        //will likely take form of PUSH -3[X] where X is calling register
+        //TODO: Actually, we need to add the parameters first
+        //go through the procedureSymbol, and get the parameters and
+        //allocate space for them
         if (getNiceType (declarations) == NT_DECLS) {
-            
-            //TODO: The syntax tree for proc decl and program are different!
-            //Consider the 2 cases
-            //potentially unsafe, as children returns first child
-            //if the first child is not the var_decl_list for some reason
-            //this will not work
-            
-            //TODO: Actually, we need to add the parameters first
-            
-            addVariables (declarations->children); //pass in the var_decl_list
-            
-            
+            varDeclarationsList = declarations->children;
+            procDeclarations = declarations->children->next;
+            addVariables (varDeclarationsList); //pass in the var_decl_list
+            //DEBUG_PRINT(("Type of procDeclarations: %d", getNiceType(procDeclarations)));
         }
-        
+        DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
         //do the declarations stuff here
-        
+        //showVariableAddressTable();
         //if decl list is null, then do nothing
         //TODO: Generate teh code for the statements now...
         //code for statements
         genCodeForStatementList (statements);
         
-        
-        GNode *procedureDeclarations = declarations->children->next;
-        
-        //get the number of children
-        
-        
-        
-        
-        //recursively call genCodeForFunction Node to generate for nested stuff
-        //foreach function declaration
-        
-        //TODO: Get the procedure declarateions, iterate through, and for each one, generate
-        //code
-        GNode *funcNode = NULL;
-        genCodeForFunctionNode (funcNode, scope+1);
+        if (procDeclarations->children != NULL) {        
+            //recursively call genCodeForFunction Node to generate for nested stuff
+            //foreach function declaration
+            
+            //TODO: Get the procedure declarateions, iterate through, and for each one, generate
+            //code
+            printf ("No other procedure declarations\n");
+            GNode *funcNode = NULL;
+            genCodeForFunctionNode (funcNode, scope+1);
+            
+        }
         
     }
     else {
@@ -202,7 +204,7 @@ void addVariables(GNode *varDeclNode) {
     }
     generateComment ("Vars");
     //maybe print out stack trace here to make sure they are there?
-    g_node_children_foreach (varDeclNode, G_TRAVERSE_ALL, (GNodeForeachFunc) variableIterator, NULL);
+    g_node_children_foreach (varDeclNode, G_TRAVERSE_ALL, (GNodeForeachFunc) variableIterator, &scope);
     generateStackDump();
     //while s
     
@@ -212,12 +214,16 @@ void addVariables(GNode *varDeclNode) {
 
 //Function that is called for each var declaration
 void variableIterator (GNode *node, gpointer data) {
-    //TODO: Do i need to check if the symbol is a var??? 
-    //I should be able to assume that it is right
+    
+    //int indexingRegister = *scope;
+    int indexingRegister = 0;
     symbol *symbol = getSymbol (node);
     type_class varType = getTypeClass (symbol);
-    //TODO: check if var has a value (from constant folding)
+    
+    //TODO: each variable needs to have its address added to the variableAddressTable
     generateComment(symbol->name);
+    varAddressStruct addressDescription = {indexingRegister, indexingRegister};
+    g_hash_table_insert (variableAddressTable, symbol, &addressDescription);
     if (varType == TC_INTEGER) {
         printf ("Is an integer\n");
         pushConstantInt (0);
@@ -236,24 +242,24 @@ void variableIterator (GNode *node, gpointer data) {
         DEBUG_PRINT (("Not implemented yet"));
     }
     
-    //check if they are array. if yes, then need to do somethign special
-    //TODO: Assign each symbol it's address
-    globalAddressCounter++;
+    globalAddressCounter++; //do we need global address counter anymore?
 }
 
 
-// int getNiceType (GNode *node) {
-//     return node->node_info->type;
-// }
 
 
 /**
  * Generate code for a GNode of type statement_list
  */
 void genCodeForStatementList (GNode *statementList) {
+    
+    
     if (getNiceType(statementList) != NT_STAT_LIST) {
         printf ("Node is not of type statement\n");
         
+    }
+    if  (statementList->children == NULL) {
+        return;
     }
     GNode *statement = statementList->children;
     while (statement != NULL) {
@@ -265,6 +271,10 @@ void genCodeForStatementList (GNode *statementList) {
     
     
 }
+
+
+//TODO: Finish this
+
 void genCodeForStatement(GNode *statement) {
     node_type statementType = getNiceType(statement);
     switch (statementType) {
@@ -274,6 +284,11 @@ void genCodeForStatement(GNode *statement) {
         }
         case NT_PROC_INVOK:
         {
+            printf ("We have a procedure invocation here\n");
+            //TODO: Generate a go to to this procedure. 
+            symbol *procSymbol = getSymbol (statement);
+            //const char *procName = procSymbol->name;
+            //look up this name label
             break;
         }   
         case NT_IF:
@@ -338,6 +353,14 @@ void pushConstantReal (double constant) {
     
 }
 
+void generateGOTO (char const *label) {
+    
+    //TODO: find out if there is max label size in ASC
+    char instruction [strlen ("GOTO") + 256];
+    sprintf (instruction, "GOTO %s", label);
+    generateFormattedInstruction (instruction);
+}
+
 /**
  * generateFormattedInstruction prints the instruction
  * given to the ASC file
@@ -371,4 +394,25 @@ void generateTrace(int number) {
 #if DEBUG
     fprintf(output, "\t!T=%d\n", number);
 #endif
+}
+
+
+/**
+ * My own debugging functions for code generation
+ */
+
+void showVariableAddressTable() {
+    printf ("Variable address table values: \n");
+    g_hash_table_foreach (variableAddressTable, (GHFunc)varaddressTableIterator , NULL);
+    
+}
+
+void varaddressTableIterator (gpointer key, gpointer value, gpointer user_data) {
+
+    printf ("Variable name: %s\n", ((symbol *)key)->name);
+    printf ("Variable type: %d\n", getTypeClass((symbol *)key));
+    printf ("indexing register: %d\n", ((varAddressStruct *)value)->indexingRegister);
+    printf ("Offset: %d\n", ((varAddressStruct *)value)->offset);
+    printf ("*****************************\n");
+    
 }
