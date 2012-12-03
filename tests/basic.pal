@@ -1,0 +1,10 @@
+program basic(input, output);
+
+procedure bob();
+    var joe : integer;
+begin
+    writeln();
+end;
+
+begin
+end.

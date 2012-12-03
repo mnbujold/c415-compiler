@@ -136,6 +136,11 @@ procEnd(GNode *node) {
     return getNodeType(node) == NT_PROC_DECL;
 }
 
+int
+statEnd(GNode *node) {
+    return getNodeType(node) == NT_STAT;
+}
+
 GNode *
 getSyntaxTree() {
     
@@ -151,7 +156,7 @@ getSyntaxTree() {
 }
 
 GNode *
-createDecls(GNode *decls) {
+createDecls(GNode *decls) {    
     niceify(decls);
     createProcDeclsList(createDeclsList(decls->children)->next);
 
@@ -209,6 +214,7 @@ createProcDeclsList(GNode *procPart) {
 GNode *
 createProcDecl(GNode *procDecl) {
     niceify(procDecl);
+    niceify(procDecl->children);
     createStatList(createDecls(procDecl->children->next)->next);
     
     return procDecl;
@@ -216,24 +222,82 @@ createProcDecl(GNode *procDecl) {
 
 GNode *
 createStatList(GNode *cmpStat) {
-    niceify(cmpStat);
-    cmpStat->children = NULL;
+    if (cmpStat->children->children->children->children == NULL) {
+        niceify(cmpStat);
+        changeType(cmpStat, NT_STAT_LIST);
+        g_node_destroy(cmpStat->children);
+        
+        return cmpStat;
+    }
     
-    return cmpStat;
+    GNode *statList = cmpStat->children;
+
+    collapseNode(cmpStat);
+    flattenTree(statList, &statEnd);
+    niceify(statList);    
+    // the last child will be an empty stat
+    g_node_destroy(g_node_last_child(statList));
+    
+    GNode *sibling = statList->children;
+    
+    while (sibling != NULL) {
+        createStat(sibling);
+        sibling = sibling->next;
+    }
+    
+    return statList;
+}
+
+GNode *
+createStat(GNode *stat) {
+    niceify(stat);
+    GNode *child = stat->children;
+    
+    if (getNodeType(child) == NT_SIMPLE_STAT) {
+        collapseNode(child);
+        child = stat->children;
+    }
+    
+    // TEMPORARY:
+    niceify(child);
+    child->children = NULL;
+    
+    // ACTUAL (UNFINISHED):
+//     node_type statType = getNodeType(child);
+//     
+//     if (statType == NT_COMPOUND_STAT) {
+//         // do fun stuff ...
+//     } else if (statType == NT_ASSIGNMENT) {
+//         createAssignment(child);
+//     } else if (statType == NT_PROC_INVOK) {
+//         createProcInvok(child);
+//     } else if (statType == NT_IF) {
+//         createIf(child);
+//     } else if (statType == NT_IF_ELSE) {
+//         createIfElse(child);
+//     } else if (statType == NT_WHILE) {
+//         createWhile(child);
+//     }
+    // else, it's an "exit" or "continue" statment, so don't do anything
+    
+    return stat;
 }
 
 GNode *
 collapseNode(GNode *node) {
     GNode *newParent = node->parent;
     GNode *sibling = node->children;
+    int position = g_node_child_position(newParent, node);
     
     g_node_unlink(node);
+    node->parent = NULL;
     
     int numChildren = g_node_n_children(node);
     int i;
     
     for (i = 0; i < numChildren; i += 1) {
-        prependNode(newParent, sibling);
+        sibling->parent = NULL;
+        g_node_insert(newParent, position + i, sibling);
         
         sibling = sibling->next;
     }

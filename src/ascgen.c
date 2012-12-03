@@ -97,7 +97,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //code for statements
         genCodeForStatementList (statements);
         
-        if (procDeclarations != NULL) {
+        if (procDeclarations->children != NULL) {
          
             //recursively call genCodeForFunction Node to generate for nested stuff
             //foreach function declaration
@@ -217,9 +217,7 @@ void variableIterator (GNode *node, gpointer data) {
     symbol *symbol = getSymbol (node);
     type_class varType = getTypeClass (symbol);
     //TODO: check if var has a value (from constant folding)
-    //TODO: we need to keep track of where the variable is
-    //not sure if we do this with global address counter,
-    //or offset from the register the function is called from
+    generateComment(symbol->name);
     if (varType == TC_INTEGER) {
         printf ("Is an integer\n");
         pushConstantInt (0);
@@ -351,7 +349,7 @@ void generateFormattedInstruction(char *instruction) {
 
 }
 
-void generateComment (char *comment) {
+void generateComment (const char *comment) {
     fprintf (output, "#%s\n", comment);
 }
 
