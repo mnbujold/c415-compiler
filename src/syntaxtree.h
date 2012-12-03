@@ -50,7 +50,7 @@ enum node_type {            // Children:
     NT_PROC_INVOK,          // 28 NT_SYMBOL (procedure) NT_EXPR ... NT_EXPR (argument ... argument)
     NT_FUNC_INVOK,          // 29 NT_SYMBOL (function) NT_EXPR ... NT_EXPR (argument ... argument)
     
-    NT_RECORD_ACCESS,       // 30 NT_SYMBOL (record) NT_SYMBOL (field)
+    NT_RECORD_ACCESS,       // 30 NT_VAR (record) NT_SYMBOL (field)
     
     NT_SYMBOL,              // 31 none
     
