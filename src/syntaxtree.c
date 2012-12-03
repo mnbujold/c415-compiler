@@ -141,6 +141,11 @@ statEnd(GNode *node) {
     return getNodeType(node) == NT_STAT;
 }
 
+int
+varEnd(GNode *node) {
+    return getNodeType(node) == NT_VAR;
+}
+
 GNode *
 getSyntaxTree() {
     
@@ -180,8 +185,7 @@ createDeclsList(GNode *declsPart) {
     GNode *sibling = declsList->children;
     
     while (sibling != NULL) {
-        niceify(sibling);
-        sibling = sibling->next;
+        sibling = niceify(sibling)->next;
     }
 
     return declsList;
@@ -204,8 +208,7 @@ createProcDeclsList(GNode *procPart) {
     GNode *sibling = procsList->children;
     
     while (sibling != NULL) {
-        createProcDecl(sibling);
-        sibling = sibling->next;
+        sibling = createProcDecl(sibling)->next;
     }
 
     return procsList;
@@ -242,7 +245,6 @@ createStatList(GNode *cmpStat) {
     
     while (sibling != NULL) {
         sibling = createStat(sibling)->next;
-//         sibling = sibling->next;
     }
     
     return statList;
@@ -311,8 +313,10 @@ createVar(GNode *var) {
         niceify(child);
     } else if (varType == NT_ARRAY_ACCESS) {
         createArrayAccess(child);
-    } else {    // NT_VAR, implying a record access
+    } else if (varType == NT_VAR) {    // NT_VAR, implying a record access
         createRecordAccess(child);
+    } else {
+//         printf("gobbledegoop\n"); // This actually occurs! Not good!
     }
     
     return var;
@@ -320,19 +324,28 @@ createVar(GNode *var) {
 
 GNode *
 createArrayAccess(GNode *array) {
+    flattenTree(array, &varEnd);
     niceify(array);
-    array->children = NULL;
-    
+    GNode * exprSibling = createVar(array->children)->next;
+
+    while (exprSibling != NULL) {
+        exprSibling = createExpr(exprSibling)->next;
+    }
+
     return array;
 }
 
 GNode *
 createRecordAccess(GNode *var) {
+//     printf("what!?\n");
+//     displayNodeInfo(var);
     niceify(var);
+//     printf("have we!?\n");
     changeType(var, NT_RECORD_ACCESS);
     
     niceify(createVar(var->children)->next);
-    
+
+//     printf("here!?\n");
     return var;
 }
 
@@ -420,14 +433,16 @@ flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
         currNode = currNode->children;
     }
     GNode *sibling = currNode->next;
+    int numChildren = g_node_n_children(currNode->parent);
+    int i;
     
     // add siblings of last node first
-    while (sibling != NULL) {
+    for (i = 1; i < numChildren; i += 1) {
         prependNode(head, sibling);
-        
+
         sibling = sibling->next;
     }
-    
+
     // add last node first
     prependNode(head, currNode);
 
