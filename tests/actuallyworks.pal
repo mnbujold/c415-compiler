@@ -14,16 +14,16 @@ var
     
     function bob () : integer;
     
-    type funType = record
+        type funType = record
                     field0 : real;
                     field1 : tf;
                     field2 : array[-2..4] of array[0..15] of char
                    end;
     
-    var
-        number : integer;
-        isbob : boolean;
-        tricky : array[ord(true)..abs(-3)] of funType;
+        var
+            number : integer;
+            isbob : boolean;
+            tricky : array[ord(true)..abs(-3)] of funType;
         
         begin
             bob := number;
@@ -31,6 +31,8 @@ var
         end;
     
     begin
+        writeln;
+        writeln (sin (0));
         writeln;
     end.
     
