@@ -895,24 +895,28 @@ unsigned_const          : unsigned_num
                         | CHAR
                             {
                                 union constant_values value = { .character = $1 };
-                                $$ = createSymbolNode(createConstant(TC_CHAR, value));
+                                symbol *tmpConst = createConstant(TC_CHAR, value);
+                                $$ = createExprNode(NT_CONST, tmpConst, createSymbolNode(tmpConst), NULL);
                             }
                         | STRING
                             {
                                 union constant_values value = { .string = $1 };
-                                $$ = createSymbolNode(createConstant(TC_STRING, value));
+                                symbol *tmpConst = createConstant(TC_STRING, value);
+                                $$ = createExprNode(NT_CONST, tmpConst, createSymbolNode(tmpConst), NULL);
                             }
                         ;
 
 unsigned_num            : INT_CONST
                             {                                
                                 union constant_values value = { .integer = $1 };
-                                $$ = createSymbolNode(createConstant(TC_INTEGER, value));
+                                symbol *tmpConst = createConstant(TC_INTEGER, value);
+                                $$ = createExprNode(NT_CONST, tmpConst, createSymbolNode(tmpConst), NULL);
                             }
                         | REAL_CONST
                             {                                
                                 union constant_values value = { .real = $1 };
-                                $$ = createSymbolNode(createConstant(TC_REAL, value));
+                                symbol *tmpConst = createConstant(TC_REAL, value);
+                                $$ = createExprNode(NT_CONST, tmpConst, createSymbolNode(tmpConst), NULL);
                             }
                         ;
 

@@ -374,10 +374,37 @@ createRecordAccess(GNode *var) {
 
 GNode *
 createExpr(GNode *expr) {
+    
+    displayOldTree(expr, 0);
+    node_type type = getNodeType(expr);
+    
+    if (isExprList(expr)) {
+        collapseExprList(expr);
+        niceify(expr);
+        GNode * child = expr->children;
+        node_type childType = getNodeType(child);
+        
+        if (childType == NT_CONST) {
+            niceify(niceify(child)->children);
+        } else if (childType == NT_VAR) {
+            createVar(child);
+        } else {    // NT_FUNC_INVOK
+            createFuncInvok(child);
+        }
+    }
+    
     niceify(expr);
     expr->children = NULL;
     
     return expr;
+}
+
+GNode *
+createFuncInvok(GNode *funcInvok) {
+    niceify(funcInvok);
+    funcInvok->children = NULL;
+    
+    return funcInvok;
 }
 
 GNode *
@@ -421,6 +448,27 @@ createWhile(GNode *whileStat) {
     whileStat->children = NULL;
     
     return whileStat;
+}
+
+int
+isExprList(GNode *expr) {
+    GNode *child = expr->children;
+    node_type childType = getNodeType(child);
+    
+    while (childType == NT_EXPR) {
+        if (child->next != NULL) {
+            return 0;
+        }
+        child = child->children;
+        childType = getNodeType(child);
+    }
+    
+    return childType == NT_CONST || childType == NT_VAR || childType == NT_FUNC_INVOK;
+}
+
+GNode *
+collapseExprList(GNode *expr) {
+    return expr;
 }
 
 GNode *
