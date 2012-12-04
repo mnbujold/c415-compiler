@@ -1,15 +1,15 @@
 program basic(input, output);
 
-// var tim : record othy : real end;
+var tim : record othy : real end;
 
 procedure bob();
-    var {joe : integer;}
+    var joe : integer;
         billy : array[-3..3] of array[-3..3] of array[0..10] of char;
 begin
-//     writeln();
-//     joe := 5;
+    writeln();
+    joe := 5;
     billy[0][0, 4] := 'a';
-//     tim.othy := -4.5;
+    tim.othy := -4.5;
 end;
 
 begin

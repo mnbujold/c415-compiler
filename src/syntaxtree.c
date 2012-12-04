@@ -126,6 +126,20 @@ prependNode(GNode *parent, GNode *firstChild) {
     return firstChild;
 }
 
+GNode *
+arrayHack(GNode *child, GNode *node) {
+    g_node_unlink(child);
+    child->parent = NULL;
+    
+    GNode *var = createNode(NT_VAR, child, NULL);
+    
+    g_node_prepend(node, var);
+    changeType(child, NT_VAR);
+    
+//     child = var;
+    return var;
+}
+
 int
 symbolEnd(GNode *node) {
     return getNodeType(node) == NT_SYMBOL;
@@ -301,16 +315,8 @@ createAssignment(GNode *assign) {
     GNode *child = assign->children;
     
     if (getNodeType(child) == NT_ARRAY_ACCESS) { // hack ...
-        g_node_unlink(child);
-        child->parent = NULL;
-        
-        GNode *var = createNode(NT_VAR, child, NULL);
-        
-        g_node_prepend(assign, var);
-        changeType(child, NT_VAR);
-        
-        child = var;
-    }    
+        child = arrayHack(child, assign);
+    }
     createExpr(createVar(child)->next);
     
     return assign;
@@ -329,7 +335,6 @@ createVar(GNode *var) {
     } else {    // NT_VAR, implying a record access
         createRecordAccess(child);
     }
-
     return var;
 }
 
@@ -337,7 +342,13 @@ GNode *
 createArrayAccess(GNode *array) {
     flattenTree(array, &arrayEnd);
     niceify(array);
-    GNode *exprSibling = createVar(array->children)->next;
+    GNode *child = array->children;
+    
+    if (getNodeType(child) == NT_ARRAY_ACCESS) { // hack ...
+        child = arrayHack(child, array);
+    }    
+    
+    GNode *exprSibling = createVar(child)->next;
 
     while (exprSibling != NULL) {
         exprSibling = createExpr(exprSibling)->next;
@@ -349,8 +360,14 @@ createArrayAccess(GNode *array) {
 GNode *
 createRecordAccess(GNode *var) {
     niceify(var);
-    changeType(var, NT_RECORD_ACCESS);
-    niceify(createVar(var->children)->next);
+    changeType(var, NT_RECORD_ACCESS);    
+    GNode *child = var->children;
+    
+    if (getNodeType(child) == NT_ARRAY_ACCESS) { // hack ...
+        child = arrayHack(child, var);
+    }
+        
+    niceify(createVar(child)->next);
 
     return var;
 }
