@@ -118,8 +118,8 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         DEBUG_PRINT (("Inside procedure node generation"));
 
         symbol *procedureSymbol = getSymbol (node->children);
-        char *procName = ((symbol *) procedureSymbol)->name;
-        printf ("Procedure name: %s\n", procName)s;
+        const char *procName = ((symbol *) procedureSymbol)->name;
+        printf ("Procedure name: %s\n", procName);
         
         //TODO: Lalebls can't just be procedure Names, because of scoping issues
         //We need to append scope level here...
@@ -378,7 +378,7 @@ void generateComment (const char *comment) {
     fprintf (output, "#%s\n", comment);
 }
 
-void generateLabel (char *labelName) {
+void generateLabel (const char *labelName) {
     fprintf (output, "%s\n", labelName);
 }
 
