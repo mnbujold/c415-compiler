@@ -3,10 +3,10 @@ program basic(input, output);
 // var tim : record othy : real end;
 
 procedure bob();
-    var joe : integer;
+    var joe : boolean;
 //         billy : array[-3..3] of array[-3..3] of array[0..10] of char;
 begin
-    writeln(joe);
+    joe := (4 + 6) > 6;
 //     joe := 5;
 //     billy[0][0, 4] := 'a';
 //     tim.othy := -4.5;

@@ -114,6 +114,10 @@ GNode *createVar(GNode *var);
 GNode *createArrayAccess(GNode *array);
 GNode *createRecordAccess(GNode *var);
 GNode *createExpr(GNode *expr);
+GNode *createExprLeaf(GNode *expr);
+GNode *createExpr0(GNode *expr);
+GNode *createExpr1(GNode *expr);
+GNode *createExpr2(GNode *expr);
 GNode *createFuncInvok(GNode *funcInvok);
 GNode *createProcInvok(GNode *procInvok);
 GNode *createIf(GNode *ifStat);
@@ -121,9 +125,12 @@ GNode *createIfElse(GNode *ifElseStat);
 
 int isExprList(GNode *expr);
 GNode *collapseExprList(GNode *expr);
+int isOp0List(GNode *expr);
+int isOp1List(GNode *expr);
+int isOp2List(GNode *expr);
+GNode *resolveExprChildren(GNode *expr);
 GNode *collapseNode(GNode *node);
 GNode *flattenTree(GNode *head, int (*treeEnd)(GNode *));
-GNode *flattenArrayTree(GNode *head);
 
 node_type getNodeType(GNode *node);
 
