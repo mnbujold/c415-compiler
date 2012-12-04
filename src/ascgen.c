@@ -118,10 +118,16 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         DEBUG_PRINT (("Inside procedure node generation"));
 
 
+
         //symbol *procedureSymbol = (symbol *)getSymbol (node->children);
         //printf ("Procedure name: %s\n", procedureSymbol->name);
 
-        symbol *procedureSymbol = getSymbol (node->children);
+//        symbol *procedureSymbol = getSymbol (node->children);
+
+        symbol *procedureSymbol = (symbol *)getSymbol (node->children);
+        printf ("Procedure name: %s\n", procedureSymbol->name);
+
+
         const char *procName = ((symbol *) procedureSymbol)->name;
         printf ("Procedure name: %s\n", procName);
         
@@ -221,6 +227,7 @@ void addVariables(GNode *varDeclNode) {
 }
 
 void getLength(symbol *symbol, type_class tc){
+  // Get the size of the array
   if(tc == TC_STRING){
     printf("length: %d \n", symbol->desc.type_attr->desc.string->len);
     
@@ -232,6 +239,14 @@ void getLength(symbol *symbol, type_class tc){
   else if(tc == TC_RECORD){
 
   }
+}
+void pushArray(symbol *symbol, int size){
+
+  char instruction[strlen("ADJUST") + sizeof(size) + 1];
+  
+  sprintf (instruction, "ADJUST -%d", size);
+  
+  generateFormattedInstruction (instruction);
 }
 
 //Function that is called for each var declaration
@@ -247,12 +262,9 @@ void variableIterator (GNode *node, gpointer data) {
     varAddressStruct addressDescription = {indexingRegister, indexingRegister};
     g_hash_table_insert (variableAddressTable, symbol, &addressDescription);
     if (varType == TC_INTEGER) {
-        printf ("Is an integer\n");
         pushConstantInt (0);
-        
     }
     else if (varType == TC_REAL) {
-      printf("REAL!\n");
         pushConstantReal (0);
     }
     else if (varType == TC_BOOLEAN) {
@@ -260,25 +272,31 @@ void variableIterator (GNode *node, gpointer data) {
         pushConstantInt (0);
     }
     else if (varType == TC_STRING){
-        //TODO: Need to do for arrays (eg. TC_STRING, TC_ARRAY, TC_RECORD)
-      printf("string!\n");
-      //getLength(symbol, varType);
+      printf("string: %s\n", symbol->name);
         //TODO: Need to do for arrays
         printf ("error, this kind of variable not yet implemented\n");
         DEBUG_PRINT (("Not implemented yet"));
     }
 
     else if(varType == TC_ARRAY){
-      printf("ARRAY: %s\n", symbol->name);
-
-            
-      printf("Size: %d \n", symbol->symbol_type->desc.type_attr->desc.array->size);
-      
+      pushArray(symbol, symbol->symbol_type->desc.type_attr->desc.array->size);
     }
 
     else if(varType == TC_RECORD){
-      printf("RECORD\n");
+      printf("Record Name: %s \n", symbol->name);
+
+      //printf("size: %d \n", symbol->symbol_type->desc.type_attr->desc.record->len);
+
+      GPtrArray *recFields = symbol->symbol_type->desc.type_attr->desc.record->field_list;
+
+      // Iterate through elements and check sizes to make room on stack 
+      printf("elements: %d\n", recFields->len);
+      printf("val: %d \n", g_ptr_array_index(recFields, 0));
+      
     }
+
+    else
+      printf("Type: %d \n", varType);
     
     globalAddressCounter++; //do we need global address counter anymore?
 }
