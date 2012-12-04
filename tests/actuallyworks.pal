@@ -12,7 +12,7 @@ var
     chararray: array [1..10] of char;
     bool: tf;
     
-    function bob () : numOdd;
+    function bob () : integer;
     
     type funType = record
                     field0 : real;
@@ -27,6 +27,7 @@ var
         
         begin
             bob := number;
+            tricky[2].field2[3,number] := 'a';
         end;
     
     begin

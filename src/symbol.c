@@ -396,7 +396,7 @@ struct type_desc *createTypeDesc (type_class type) {
       }
       tempSymbol = tempSymbol->symbol_type;
     } 
-    DEBUG_PRINT (("Hm...symbol did not point to any type\n"));
+    //DEBUG_PRINT (("Hm...symbol did not point to any type\n"));
   }
  
  

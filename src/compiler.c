@@ -37,6 +37,7 @@ int prog_listing;
 FILE *listing_file;
 char listing_filename[1024];
 extern int numErrors;
+int incodegen;
 
 
 #ifdef DEBUG
@@ -60,10 +61,14 @@ void setHandler (void* handler) {
 static void my_handler (int signalNum) {
     segv_detected = true;
     if (iserror) {
-        printf ("Fatal error encountered! Exiting gracefully\n");
+      printf ("Fatal error encountered! Exiting gracefully\n");
+    }
+    else if (incodegen) {
+      printf ("Fatal exception encountered during code generation\n");
     }
     else {
-        printf ("Fatal exception encountered during code generation\n");
+      printf ("Fatal exception encountered by compiler\n");
+
     }
     setHandler (SIG_DFL);
     exit (1);
@@ -84,6 +89,7 @@ main(int argc,char** argv)
 	sList = NULL;
 	eList = NULL;
 	iserror = 0;
+  incodegen = 0;
     token_location = 0;
     lineno = 1;
     oldlineno = 0;
@@ -128,6 +134,7 @@ main(int argc,char** argv)
         printf ("%d error(s) found.\n", getNumErrors());
         printf("Errors exist. Compilation not successful.\n");
     } else {
+        incodegen = 1;
         genASCCode(getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
     } 
