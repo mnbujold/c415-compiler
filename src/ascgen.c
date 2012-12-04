@@ -74,12 +74,13 @@ void genASCCode (GNode *tree, char *fileName) {
  * Node must be of type PROGRAM, PROC, or FUNC
  */
 void genCodeForFunctionNode(GNode *node, int scope) {
-    printf ("In gen code for function %d\n", getNiceType(node));
+    //printf ("In gen code for function %d\n", getNiceType(node));
     
     //we'll consider program as a special case of a procedure declaration    
     if (getNiceType (node) == NT_PROGRAM) {
     
-        generateLabel("main");
+        //All we should have here is a goto to the main...becuase of order we generate code in
+        generateLabel("start");
         DEBUG_PRINT (("Inside program node generation"));
         GNode *declarations = node->children;
         GNode *statements = node->children->next;
@@ -97,7 +98,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //do the declarations stuff here
         //showVariableAddressTable();
 
-        genCodeForStatementList (statements);
+
         
         if (procDeclarations->children != NULL) {        
             //recursively call genCodeForFunction Node to generate for nested stuff
@@ -113,13 +114,13 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             }
             
         }
+        //TODO: We need to add a goto to the main, 
+        genCodeForStatementList (statements);
         
     }
     else if (getNiceType(node) == NT_PROC_DECL) {
         //need to do this for the program
         DEBUG_PRINT (("Inside procedure node generation"));
-
-
 
         //symbol *procedureSymbol = (symbol *)getSymbol (node->children);
         //printf ("Procedure name: %s\n", procedureSymbol->name);
@@ -134,12 +135,19 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         printf ("Procedure name: %s\n", procName);
         
         //append scope so we don't get duplicate labels
-        char procLabel[strlen ("procName") + 2];
+        char *procLabel = calloc ((strlen ("procName") + 2), sizeof (char));
         sprintf (procLabel, "%s%d", procName, scope);
         printf ("PROCEDURE LABEL: %s\n", procLabel);
         generateLabel (procLabel);
-        g_hash_table_insert (procedureLabelTable, procedureSymbol, procLabel);
-
+        //printf ("Returned from generate label\n");
+        //check which registers are free
+        procInfo *procedureInfo = calloc (1, sizeof (procInfo));
+        procedureInfo->procLabel = procLabel;
+        printf ("42 procedure label: %s %p \n", procedureInfo->procLabel, procedureInfo->procLabel);
+        procedureInfo->indexingRegister = getFirstFreeRegister();
+        g_hash_table_insert (procedureLabelTable, procedureSymbol, procedureInfo);
+        printf ("Done inserting\n");
+        printf ("Address of %s: %p\n", procedureSymbol->name, procedureSymbol);
         GNode *declarations = node->children->next;
         GNode *statements = declarations->next;
         
@@ -201,7 +209,16 @@ genCodeForFunctionCall() {
 }
 
 
-
+int getFirstFreeRegister () {
+    int i = 0;
+    while (i < NUM_ASC_REGISTERS) {
+        if (registers[i] == 0) {
+            registers[i] = 1;
+            return i;
+        }
+        i++;
+    }
+}
 
 
 
@@ -357,10 +374,21 @@ void genCodeForStatement(GNode *statement) {
             //printf ("type of symbolNode: %d\n", getNiceType (symbolNode));
             //TODO: Generate a go to to this procedure. 
             symbol *procSymbol = getSymbol (symbolNode);
+            symbol *writelnSymbol = globalLookup ("writeln");
             printf ("proc symbol address %p\n", procSymbol);
-            procInfo *procedureInfo = g_hash_table_lookup (procedureLabelTable, procSymbol);
+            printf ("writeln address %p\n", writelnSymbol);
+            
+            procInfo *procedureInfo = (procInfo *) g_hash_table_lookup (procedureLabelTable, procSymbol);
             //printf ("Returned proc label: %s\n", procLabel);
+            printf ("procedure info returned\n");
             //generate CALL
+            if (procedureInfo == NULL) {
+                printf ("Returned proc info is null\n");
+                //look it up in builtins
+                if (procSymbol->name == "writeln") {
+                    printf ("Is writeln");
+                }
+            }
             generateProcCall (procedureInfo);
             //generateGOTO (procLabel);
             //generate Label right after
@@ -525,7 +553,11 @@ void generateGOTO (char const *label) {
  */
 void generateProcCall (procInfo *procedureInfo) {
     char instruction [strlen ("CALL") + 2 + 256];
-    sprintf (instruction, "CALL %d %s", procedureInfo->procLabel, procedureInfo->indexingRegister);
+    char *hm = procedureInfo->procLabel;
+    printf ("lala %s\n", hm);
+    int lala = procedureInfo->indexingRegister;
+    printf ("Past indexing register");
+    sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, procedureInfo->procLabel);
     generateFormattedInstruction (instruction);
 }
 /**
@@ -545,6 +577,7 @@ void generateComment (const char *comment) {
 
 void generateLabel (const char *labelName) {
     fprintf (output, "LABEL: %s\n", labelName);
+    printf ("Done...\n");
 }
 
 /**

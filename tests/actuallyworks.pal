@@ -35,10 +35,15 @@ var
             bob := number;
             tricky[2].field2[3,number] := 'a';
         end;
+    procedure joe ();
+        begin
+        end;
+    
     
     begin
-        writeln;
-        writeln (sin (0));
-        writeln;
+        joe ();
+        //writeln;
+        //writeln (sin (0));
+        //writeln;
     end.
     

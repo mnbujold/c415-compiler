@@ -11,4 +11,8 @@
 #define ABSR_REGISTER 0
 
 
+#define WRITELN_REGISTER 0
+#define WRITELN_LABEL WRITELN
+
+
 #endif
