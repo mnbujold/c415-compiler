@@ -50,7 +50,7 @@ enum node_type {            // Children:
     NT_PROC_INVOK,          // 28 NT_SYMBOL (procedure) NT_EXPR ... NT_EXPR (argument ... argument)
     NT_FUNC_INVOK,          // 29 NT_SYMBOL (function) NT_EXPR ... NT_EXPR (argument ... argument)
     
-    NT_RECORD_ACCESS,       // 30 NT_SYMBOL (record) NT_SYMBOL (field)
+    NT_RECORD_ACCESS,       // 30 NT_VAR (record) NT_SYMBOL (field)
     
     NT_SYMBOL,              // 31 none
     
@@ -105,9 +105,19 @@ GNode *createProcDeclsList(GNode *procPart);
 GNode *createProcDecl(GNode *procDecl);
 GNode *createStatList(GNode *cmpStat);
 GNode *createStat(GNode *stat);
+GNode *mergeCompoundStat(GNode *stat, GNode *cmpStat);
+GNode *createAssignment(GNode *assign);
+GNode *createVar(GNode *var);
+GNode *createArrayAccess(GNode *array);
+GNode *createRecordAccess(GNode *var);
+GNode *createExpr(GNode *expr);
+GNode *createProcInvok(GNode *procInvok);
+GNode *createIf(GNode *ifStat);
+GNode *createIfElse(GNode *ifElseStat);
 
 GNode *collapseNode(GNode *node);
 GNode *flattenTree(GNode *head, int (*treeEnd)(GNode *));
+GNode *flattenArrayTree(GNode *head);
 
 node_type getNodeType(GNode *node);
 
@@ -121,6 +131,8 @@ GNode *createPF_InvokNode(struct pf_invok *pf_invok, GNode *n_args, ...);
 GNode *createArrayNode(symbol *result, GNode *n_args, ...);
 GNode *createExprNode(node_type type, symbol *result, GNode *n_args, ...);
 GNode *createSingleExprNode(node_type type, symbol *result);
+
+GNode *createWhile(GNode *whileStat);
 
 GNode *getProcNode(const char *procname);
 

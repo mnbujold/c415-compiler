@@ -141,6 +141,11 @@ statEnd(GNode *node) {
     return getNodeType(node) == NT_STAT;
 }
 
+int
+arrayEnd(GNode *node) {
+    return getNodeType(node) == NT_VAR;
+}
+
 GNode *
 getSyntaxTree() {
     
@@ -180,8 +185,7 @@ createDeclsList(GNode *declsPart) {
     GNode *sibling = declsList->children;
     
     while (sibling != NULL) {
-        niceify(sibling);
-        sibling = sibling->next;
+        sibling = niceify(sibling)->next;
     }
 
     return declsList;
@@ -204,8 +208,7 @@ createProcDeclsList(GNode *procPart) {
     GNode *sibling = procsList->children;
     
     while (sibling != NULL) {
-        createProcDecl(sibling);
-        sibling = sibling->next;
+        sibling = createProcDecl(sibling)->next;
     }
 
     return procsList;
@@ -241,8 +244,7 @@ createStatList(GNode *cmpStat) {
     GNode *sibling = statList->children;
     
     while (sibling != NULL) {
-        createStat(sibling);
-        sibling = sibling->next;
+        sibling = createStat(sibling)->next;
     }
     
     return statList;
@@ -258,29 +260,139 @@ createStat(GNode *stat) {
         child = stat->children;
     }
     
-    // TEMPORARY:
-    niceify(child);
-    child->children = NULL;
+    node_type statType = getNodeType(child);
     
-    // ACTUAL (UNFINISHED):
-//     node_type statType = getNodeType(child);
-//     
-//     if (statType == NT_COMPOUND_STAT) {
-//         // do fun stuff ...
-//     } else if (statType == NT_ASSIGNMENT) {
-//         createAssignment(child);
-//     } else if (statType == NT_PROC_INVOK) {
-//         createProcInvok(child);
-//     } else if (statType == NT_IF) {
-//         createIf(child);
-//     } else if (statType == NT_IF_ELSE) {
-//         createIfElse(child);
-//     } else if (statType == NT_WHILE) {
-//         createWhile(child);
-//     }
-    // else, it's an "exit" or "continue" statment, so don't do anything
+    if (statType == NT_COMPOUND_STAT) {
+        return mergeCompoundStat(stat, child);
+    } else if (statType == NT_ASSIGNMENT) {
+        createAssignment(child);
+    } else if (statType == NT_PROC_INVOK) {
+        createProcInvok(child);
+    } else if (statType == NT_IF) {
+        createIf(child);
+    } else if (statType == NT_IF_ELSE) {
+        createIfElse(child);
+    } else if (statType == NT_WHILE) {
+        createWhile(child);
+    } else { // an "exit" or "continue" statment
+        niceify(child);
+    }
     
     return stat;
+}
+
+GNode *
+mergeCompoundStat(GNode *stat, GNode *cmpStat) {
+    GNode *child = stat->children;
+    
+    createStatList(cmpStat);
+    collapseNode(cmpStat);
+    
+    GNode *lastChild = g_node_last_child(stat);
+    
+    collapseNode(stat);
+    
+    return lastChild; 
+}
+
+GNode *
+createAssignment(GNode *assign) {
+    niceify(assign);
+    GNode *child = assign->children;
+    
+    if (getNodeType(child) == NT_ARRAY_ACCESS) { // hack ...
+        g_node_unlink(child);
+        child->parent = NULL;
+        
+        GNode *var = createNode(NT_VAR, child, NULL);
+        
+        g_node_prepend(assign, var);
+        changeType(child, NT_VAR);
+        
+        child = var;
+    }    
+    createExpr(createVar(child)->next);
+    
+    return assign;
+}
+
+GNode *
+createVar(GNode *var) {
+    niceify(var);
+    GNode *child = var->children;
+    node_type varType = getNodeType(child);
+    
+    if (varType == NT_SYMBOL) {
+        niceify(child);
+    } else if (varType == NT_ARRAY_ACCESS) {
+        createArrayAccess(child);
+    } else {    // NT_VAR, implying a record access
+        createRecordAccess(child);
+    }
+
+    return var;
+}
+
+GNode *
+createArrayAccess(GNode *array) {
+    flattenTree(array, &arrayEnd);
+    niceify(array);
+    GNode *exprSibling = createVar(array->children)->next;
+
+    while (exprSibling != NULL) {
+        exprSibling = createExpr(exprSibling)->next;
+    }
+
+    return array;
+}
+
+GNode *
+createRecordAccess(GNode *var) {
+    niceify(var);
+    changeType(var, NT_RECORD_ACCESS);
+    niceify(createVar(var->children)->next);
+
+    return var;
+}
+
+GNode *
+createExpr(GNode *expr) {
+    niceify(expr);
+    expr->children = NULL;
+    
+    return expr;
+}
+
+GNode *
+createProcInvok(GNode *procInvok) {
+    niceify(procInvok);
+    procInvok->children = NULL;
+    
+    return procInvok;
+}
+
+GNode *
+createIf(GNode *ifStat) {
+    niceify(ifStat);
+    ifStat->children = NULL;
+    
+    return ifStat;
+}
+
+GNode *
+createIfElse(GNode *ifElseStat) {
+    niceify(ifElseStat);
+    ifElseStat->children = NULL;
+    
+    return ifElseStat;
+}
+
+GNode *
+createWhile(GNode *whileStat) {
+    niceify(whileStat);
+    whileStat->children = NULL;
+    
+    return whileStat;
 }
 
 GNode *
@@ -319,7 +431,11 @@ GNode *
 flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
     GNode *currNode = head->children;
     GNode *nodeToRemove = head->children;
-
+    
+    if ((*treeEnd)(currNode) == 1) {    // already flat, so don't do anything
+        return head;
+    }
+    
     // flatten the list until treeEnd() is true
     while ((*treeEnd)(currNode) == 0) {
         prependNode(head, currNode->next);
@@ -327,20 +443,30 @@ flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
         currNode = currNode->children;
     }
     GNode *sibling = currNode->next;
+    int numChildren = g_node_n_children(currNode->parent);
+    int i;
     
     // add siblings of last node first
-    while (sibling != NULL) {
+    for (i = 1; i < numChildren; i += 1) {
         prependNode(head, sibling);
-        
+
         sibling = sibling->next;
     }
-    
+
     // add last node first
     prependNode(head, currNode);
 
     // remove the head link tree
     g_node_unlink(nodeToRemove);   
 
+    return head;
+}
+
+GNode *
+flattenArrayTree(GNode *head) {
+    
+    
+    
     return head;
 }
 

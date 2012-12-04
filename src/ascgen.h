@@ -46,7 +46,7 @@ void generateFormattedInstruction (char *instruction);
 
 void generateComment (const char *comment);
 
-void generateLabel (char *labelName);
+void generateLabel (const char *labelName);
 
 /**
  * Debug functions
