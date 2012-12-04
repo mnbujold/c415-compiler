@@ -674,7 +674,7 @@ var                     : ID
                             {
                                 if (noError(1, $1, NULL)) {
                                     symbol *tmpField = getRecordField(extractSymbol($1), $3);
-                                    $$ = createExprNode(NT_VAR, tmpField, $1, createSymbolNode(tmpField), NULL);
+                                    $$ = createExprNode(NT_VAR, tmpField, createExprNode(NT_VAR, tmpField, $1, createSymbolNode(tmpField), NULL), NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
                                 }
