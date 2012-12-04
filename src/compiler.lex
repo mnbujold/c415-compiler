@@ -92,7 +92,7 @@ if (yytext != NULL) {
                                   errortext = appendErrorText(errortext, yytext, &errorTextLength);
                                   /*printf("ML_END\n");*/ }
 [^}\n]+                         { errortext = appendErrorText(errortext, yytext, &errorTextLength); }
-\n                              { lineno++; }
+
 
 }
 

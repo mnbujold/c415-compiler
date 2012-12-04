@@ -382,8 +382,19 @@ createExpr(GNode *expr) {
 
 GNode *
 createProcInvok(GNode *procInvok) {
+    GNode *child = procInvok->children;
+
+    if (getNodeType(child) != NT_SYMBOL) { // > 0 arguments
+        collapseNode(child);
+        flattenTree(procInvok, &symbolEnd);
+    }
+    
     niceify(procInvok);
-    procInvok->children = NULL;
+    GNode *exprSibling = niceify(procInvok->children)->next;
+    
+    while (exprSibling != NULL) {
+        exprSibling = createExpr(exprSibling)->next;
+    }
     
     return procInvok;
 }
@@ -417,18 +428,25 @@ collapseNode(GNode *node) {
     GNode *newParent = node->parent;
     GNode *sibling = node->children;
     int position = g_node_child_position(newParent, node);
+    int numChildren = g_node_n_children(node);
     
     g_node_unlink(node);
     node->parent = NULL;
-    
-    int numChildren = g_node_n_children(node);
+    node->children = NULL;
+
+    GNode *nextSibling = sibling;
     int i;
     
     for (i = 0; i < numChildren; i += 1) {
+        nextSibling = sibling->next;
+        
         sibling->parent = NULL;
+        sibling->prev = NULL;
+        sibling->next = NULL;
+
         g_node_insert(newParent, position + i, sibling);
         
-        sibling = sibling->next;
+        sibling = nextSibling;
     }
     
     return newParent;
