@@ -117,6 +117,7 @@ GNode *createIfElse(GNode *ifElseStat);
 
 GNode *collapseNode(GNode *node);
 GNode *flattenTree(GNode *head, int (*treeEnd)(GNode *));
+GNode *flattenArrayTree(GNode *head);
 
 node_type getNodeType(GNode *node);
 

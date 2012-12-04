@@ -142,7 +142,7 @@ statEnd(GNode *node) {
 }
 
 int
-varEnd(GNode *node) {
+arrayEnd(GNode *node) {
     return getNodeType(node) == NT_VAR;
 }
 
@@ -298,7 +298,20 @@ mergeCompoundStat(GNode *stat, GNode *cmpStat) {
 GNode *
 createAssignment(GNode *assign) {
     niceify(assign);
-    createExpr(createVar(assign->children)->next);
+    GNode *child = assign->children;
+    
+    if (getNodeType(child) == NT_ARRAY_ACCESS) { // hack ...
+        g_node_unlink(child);
+        child->parent = NULL;
+        
+        GNode *var = createNode(NT_VAR, child, NULL);
+        
+        g_node_prepend(assign, var);
+        changeType(child, NT_VAR);
+        
+        child = var;
+    }    
+    createExpr(createVar(child)->next);
     
     return assign;
 }
@@ -313,20 +326,18 @@ createVar(GNode *var) {
         niceify(child);
     } else if (varType == NT_ARRAY_ACCESS) {
         createArrayAccess(child);
-    } else if (varType == NT_VAR) {    // NT_VAR, implying a record access
+    } else {    // NT_VAR, implying a record access
         createRecordAccess(child);
-    } else {
-//         printf("gobbledegoop\n"); // This actually occurs! Not good!
     }
-    
+
     return var;
 }
 
 GNode *
 createArrayAccess(GNode *array) {
-    flattenTree(array, &varEnd);
+    flattenTree(array, &arrayEnd);
     niceify(array);
-    GNode * exprSibling = createVar(array->children)->next;
+    GNode *exprSibling = createVar(array->children)->next;
 
     while (exprSibling != NULL) {
         exprSibling = createExpr(exprSibling)->next;
@@ -337,15 +348,10 @@ createArrayAccess(GNode *array) {
 
 GNode *
 createRecordAccess(GNode *var) {
-//     printf("what!?\n");
-//     displayNodeInfo(var);
     niceify(var);
-//     printf("have we!?\n");
     changeType(var, NT_RECORD_ACCESS);
-    
     niceify(createVar(var->children)->next);
 
-//     printf("here!?\n");
     return var;
 }
 
@@ -425,7 +431,11 @@ GNode *
 flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
     GNode *currNode = head->children;
     GNode *nodeToRemove = head->children;
-
+    
+    if ((*treeEnd)(currNode) == 1) {    // already flat, so don't do anything
+        return head;
+    }
+    
     // flatten the list until treeEnd() is true
     while ((*treeEnd)(currNode) == 0) {
         prependNode(head, currNode->next);
@@ -449,6 +459,14 @@ flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
     // remove the head link tree
     g_node_unlink(nodeToRemove);   
 
+    return head;
+}
+
+GNode *
+flattenArrayTree(GNode *head) {
+    
+    
+    
     return head;
 }
 
