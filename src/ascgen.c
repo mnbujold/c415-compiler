@@ -102,8 +102,6 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             //recursively call genCodeForFunction Node to generate for nested stuff
             //foreach function declaration
             
-            //TODO: Get the procedure declarateions, iterate through, and for each one, generate
-            //code
             printf ("proc delcarations type: %d\n", getNiceType (procDeclarations));
             printf ("Generating for other procedures now\n");
             GNode *procNode = procDeclarations->children;
@@ -120,8 +118,8 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //need to do this for the program
         DEBUG_PRINT (("Inside procedure node generation"));
 
-        GNode *procedureSymbol = getSymbol (node->children);
-        printf ("Procedure name: %s\n", ((symbol *)procedureSymbol)->name);
+        symbol *procedureSymbol = (symbol *)getSymbol (node->children);
+        printf ("Procedure name: %s\n", procedureSymbol->name);
         GNode *declarations = node->children->next;
         GNode *statements = declarations->next;
         
@@ -147,13 +145,15 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         
         if (procDeclarations->children != NULL) {        
             //recursively call genCodeForFunction Node to generate for nested stuff
-            //foreach function declaration
             
-            //TODO: Get the procedure declarateions, iterate through, and for each one, generate
-            //code
-            printf ("No other procedure declarations\n");
-            GNode *funcNode = NULL;
-            genCodeForFunctionNode (funcNode, scope+1);
+            printf ("proc delcarations type: %d\n", getNiceType (procDeclarations));
+            printf ("Generating for other procedures now\n");
+            GNode *procNode = procDeclarations->children;
+            while (procNode != NULL) {
+                genCodeForFunctionNode (procNode, scope+1);
+                procNode = procNode->next;
+                
+            }
             
         }
         
@@ -161,7 +161,6 @@ void genCodeForFunctionNode(GNode *node, int scope) {
     else {
         printf ("Invalid node type: not program or proc decl: %d\n", getNiceType (node));
     }
-    //TODO: WHAT ORDER do I generate the code in!?
 }
 
 genCodeForFunctionCall() {
