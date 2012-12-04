@@ -375,8 +375,8 @@ createRecordAccess(GNode *var) {
 GNode *
 createExpr(GNode *expr) {
     
-    printf(/*"expr before::\n");
-    display*/OldTree(expr, 0);
+//     printf("expr before::\n");
+//     displayOldTree(expr, 0);
     node_type type = getNodeType(expr);
     
     if (isExprList(expr)) {
@@ -394,8 +394,8 @@ createExpr(GNode *expr) {
         }
     }
         
-    printf("/*expr after::\n");
-    displayN*/ewTree(expr, 0);
+//     printf("expr after::\n");
+//     displayNewTree(expr, 0);
     
     return expr;
 }
