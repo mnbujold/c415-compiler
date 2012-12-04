@@ -1,6 +1,6 @@
 /**
  * Generate code in ASC assembly given a syntax tree 
- * Author: Daniel Chui
+ * Author: Daniel Chui, Mike Bujold
  */
 
 
@@ -117,8 +117,16 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //need to do this for the program
         DEBUG_PRINT (("Inside procedure node generation"));
 
+
+
+        //symbol *procedureSymbol = (symbol *)getSymbol (node->children);
+        //printf ("Procedure name: %s\n", procedureSymbol->name);
+
+//        symbol *procedureSymbol = getSymbol (node->children);
+
         symbol *procedureSymbol = (symbol *)getSymbol (node->children);
         printf ("Procedure name: %s\n", procedureSymbol->name);
+
 
         const char *procName = ((symbol *) procedureSymbol)->name;
         printf ("Procedure name: %s\n", procName);
@@ -145,6 +153,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
         //do the declarations stuff here
         //showVariableAddressTable();
+
         //if decl list is null, then do nothing
         //TODO: Generate teh code for the statements now...
         //code for statements
@@ -217,6 +226,28 @@ void addVariables(GNode *varDeclNode) {
 
 }
 
+void getLength(symbol *symbol, type_class tc){
+  // Get the size of the array
+  if(tc == TC_STRING){
+    printf("length: %d \n", symbol->desc.type_attr->desc.string->len);
+    
+  }
+
+  else if(tc == TC_ARRAY){
+  }
+
+  else if(tc == TC_RECORD){
+
+  }
+}
+void pushArray(symbol *symbol, int size){
+
+  char instruction[strlen("ADJUST") + sizeof(size) + 1];
+  
+  sprintf (instruction, "ADJUST -%d", size);
+  
+  generateFormattedInstruction (instruction);
+}
 
 //Function that is called for each var declaration
 void variableIterator (GNode *node, gpointer data) {
@@ -231,27 +262,48 @@ void variableIterator (GNode *node, gpointer data) {
     varAddressStruct addressDescription = {indexingRegister, indexingRegister};
     g_hash_table_insert (variableAddressTable, symbol, &addressDescription);
     if (varType == TC_INTEGER) {
-        printf ("Is an integer\n");
         pushConstantInt (0);
-        
     }
     else if (varType == TC_REAL) {
-
         pushConstantReal (0);
     }
     else if (varType == TC_BOOLEAN) {
+      printf("BOOLEAN!\n");
         pushConstantInt (0);
     }
-    else {
+    else if (varType == TC_STRING){
+      printf("string: %s\n", symbol->name);
         //TODO: Need to do for arrays
         printf ("error, this kind of variable not yet implemented\n");
         DEBUG_PRINT (("Not implemented yet"));
     }
+
+    else if(varType == TC_ARRAY){
+      pushArray(symbol, symbol->symbol_type->desc.type_attr->desc.array->size);
+    }
+
+    else if(varType == TC_RECORD){
+      printf("Record Name: %s \n", symbol->name);
+
+      //printf("size: %d \n", symbol->symbol_type->desc.type_attr->desc.record->len);
+
+      GPtrArray *recFields = symbol->symbol_type->desc.type_attr->desc.record->field_list;
+
+      // Iterate through elements and check sizes to make room on stack 
+      printf("elements: %d\n", recFields->len);
+      printf("val: %d \n", g_ptr_array_index(recFields, 0));
+      
+    }
+
+    else
+      printf("Type: %d \n", varType);
     
     globalAddressCounter++; //do we need global address counter anymore?
 }
 
-
+// int getNiceType (GNode *node) {
+//     return node->node_info->type;
+// }
 
 
 /**
@@ -422,3 +474,4 @@ void varaddressTableIterator (gpointer key, gpointer value, gpointer user_data) 
     printf ("*****************************\n");
     
 }
+

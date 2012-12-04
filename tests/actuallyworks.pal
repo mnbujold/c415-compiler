@@ -4,6 +4,11 @@ Tests if the compiler allocates the space for vars and functions correctly
 program correct (input, output);
 
 type tf = (true, false);
+     book = record
+                title : array[1..50] of char;
+                author : array[1..25] of char;
+                id : integer
+            end;
 
 var 
     numOdd: real;
@@ -11,6 +16,7 @@ var
     numReal: integer;
     chararray: array [1..10] of char;
     bool: tf;
+    artofwar: book;
     
     function bob () : integer;
     
