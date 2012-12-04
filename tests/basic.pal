@@ -6,7 +6,7 @@ procedure bob();
     var joe : integer;
 //         billy : array[-3..3] of array[-3..3] of array[0..10] of char;
 begin
-    joe := ord(4 = 8);
+    writeln(joe);
 //     joe := 5;
 //     billy[0][0, 4] := 'a';
 //     tim.othy := -4.5;
