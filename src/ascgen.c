@@ -30,6 +30,7 @@ int globalAddressCounter = 0;
 int scope;
 GQueue* labelStack = NULL;
 GHashTable *variableAddressTable = NULL;
+GHashTable *procedureLabelTable = NULL;
 
 void genASCCode (GNode *tree, char *fileName) {
     DEBUG_PRINT(("!!!!!!!!!!!!!!!!!!!!!!!!!\n"));
@@ -40,6 +41,7 @@ void genASCCode (GNode *tree, char *fileName) {
 
     labelStack = g_queue_new ();
     variableAddressTable = g_hash_table_new (g_direct_hash, g_direct_equal);
+    procedureLabelTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     registers = calloc (NUM_ASC_REGISTERS, sizeof (int));
     scope = 0;
     
@@ -72,12 +74,13 @@ void genASCCode (GNode *tree, char *fileName) {
  * Node must be of type PROGRAM, PROC, or FUNC
  */
 void genCodeForFunctionNode(GNode *node, int scope) {
-    printf ("In gen code for function %d\n", getNiceType(node));
+    //printf ("In gen code for function %d\n", getNiceType(node));
     
     //we'll consider program as a special case of a procedure declaration    
     if (getNiceType (node) == NT_PROGRAM) {
     
-        generateLabel("main");
+        //All we should have here is a goto to the main...becuase of order we generate code in
+        generateLabel("start");
         DEBUG_PRINT (("Inside program node generation"));
         GNode *declarations = node->children;
         GNode *statements = node->children->next;
@@ -93,9 +96,9 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         }
         DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
         //do the declarations stuff here
-        showVariableAddressTable();
+        //showVariableAddressTable();
 
-        genCodeForStatementList (statements);
+
         
         if (procDeclarations->children != NULL) {        
             //recursively call genCodeForFunction Node to generate for nested stuff
@@ -111,13 +114,13 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             }
             
         }
+        //TODO: We need to add a goto to the main, 
+        genCodeForStatementList (statements);
         
     }
     else if (getNiceType(node) == NT_PROC_DECL) {
         //need to do this for the program
         DEBUG_PRINT (("Inside procedure node generation"));
-
-
 
         //symbol *procedureSymbol = (symbol *)getSymbol (node->children);
         //printf ("Procedure name: %s\n", procedureSymbol->name);
@@ -131,10 +134,20 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         const char *procName = ((symbol *) procedureSymbol)->name;
         printf ("Procedure name: %s\n", procName);
         
-        //TODO: Lalebls can't just be procedure Names, because of scoping issues
-        //We need to append scope level here...
-        generateLabel (procName);
-
+        //append scope so we don't get duplicate labels
+        char *procLabel = calloc ((strlen ("procName") + 2), sizeof (char));
+        sprintf (procLabel, "%s%d", procName, scope);
+        printf ("PROCEDURE LABEL: %s\n", procLabel);
+        generateLabel (procLabel);
+        //printf ("Returned from generate label\n");
+        //check which registers are free
+        procInfo *procedureInfo = calloc (1, sizeof (procInfo));
+        procedureInfo->procLabel = procLabel;
+        printf ("42 procedure label: %s %p \n", procedureInfo->procLabel, procedureInfo->procLabel);
+        procedureInfo->indexingRegister = getFirstFreeRegister();
+        g_hash_table_insert (procedureLabelTable, procedureSymbol, procedureInfo);
+        printf ("Done inserting\n");
+        printf ("Address of %s: %p\n", procedureSymbol->name, procedureSymbol);
         GNode *declarations = node->children->next;
         GNode *statements = declarations->next;
         
@@ -196,7 +209,16 @@ genCodeForFunctionCall() {
 }
 
 
-
+int getFirstFreeRegister () {
+    int i = 0;
+    while (i < NUM_ASC_REGISTERS) {
+        if (registers[i] == 0) {
+            registers[i] = 1;
+            return i;
+        }
+        i++;
+    }
+}
 
 
 
@@ -342,9 +364,36 @@ void genCodeForStatement(GNode *statement) {
         }
         case NT_PROC_INVOK:
         {
+            //TODO: Evaluate the procedure invocation paramters first..
+            
+            GNode *symbolNode = statement->children;
             printf ("We have a procedure invocation here\n");
+            if (symbolNode == NULL) {
+                printf ("Symbol node is null\n");
+            }
+            //printf ("type of symbolNode: %d\n", getNiceType (symbolNode));
             //TODO: Generate a go to to this procedure. 
-            symbol *procSymbol = getSymbol (statement);
+            symbol *procSymbol = getSymbol (symbolNode);
+            symbol *writelnSymbol = globalLookup ("writeln");
+            printf ("proc symbol address %p\n", procSymbol);
+            printf ("writeln address %p\n", writelnSymbol);
+            
+            procInfo *procedureInfo = (procInfo *) g_hash_table_lookup (procedureLabelTable, procSymbol);
+            //printf ("Returned proc label: %s\n", procLabel);
+            printf ("procedure info returned\n");
+            //generate CALL
+            if (procedureInfo == NULL) {
+                printf ("Returned proc info is null\n");
+                //look it up in builtins
+                if (procSymbol->name == "writeln") {
+                    printf ("Is writeln");
+                }
+            }
+            generateProcCall (procedureInfo);
+            //generateGOTO (procLabel);
+            //generate Label right after
+            //global lookup on symbol table?
+            //if writeln or readln, we have to do special stuff
             //const char *procName = procSymbol->name;
             //look up this name label
             break;
@@ -361,6 +410,9 @@ void genCodeForStatement(GNode *statement) {
             break;
         }
         case NT_CONTINUE: {
+            //while node->parent != NT_WHILE, node = node->pparent
+            //get tehe label for this while
+            //generateGOTO (whatever the daddy node is)
             break;
         }
         case NT_EXIT:
@@ -371,13 +423,90 @@ void genCodeForStatement(GNode *statement) {
     }
         
 }
-void outputProcedureStatements () {
-    
-    
+
+void genCodeForExpression (GNode *expressionNode) {
+    node_type exprType = getNiceType(expressionNode);
+    switch (exprType) {
+        case NT_VAR:
+        {
+            //TODO: implement
+        }
+        case NT_FUNC_INVOK:
+        {
+            //TODO: implement
+        }
+        default:
+        {
+            //call gen for operations
+        }
+
+    }
+}
+
+void genCodeForOperation (GNode *expressionNode) {
+    node_type exprType = getNiceType (expressionNode);
+    if ((exprType >= NT_ISEQUAL) && (exprType <=NT_GREATERTHANEQUALS)) {
+        //gen code for comparison
+    }
+    else if ((exprType >=NT_AND) && (exprType <= NT_NOT)) {
+        //gen code for logical operation
+    }
+    else if ((exprType >= NT_PLUS) && (exprType <= NT_MOD)) {
+        
+       //gen code for math operations
+    }
+    else if (exprType == NT_IDENTITY) {
+    }
+    else if (exprType == NT_INVERSION) {
+    }
+    else {
+        printf ("Error. Tried to gernerate code for an operation when it was not an operation\n");
+    }
     
 }
 
+void genCodeForComparison (GNode *expressionNode) {
+    node_type exprType = getNiceType (expressionNode);
+    switch (exprType) {
+        case NT_ISEQUAL:
+        {
+        }
+        case NT_NOTEQUAL:
+        {
+        }
+        case NT_LESSTHAN:
+        {
+        }
+        case NT_GREATERTHAN:
+        {
+        }
+        case NT_LESSTHANEQUALS:
+        {
+        }
+        case NT_GREATERTHANEQUALS:
+        {
+        }
+    }
+    
+}
 
+void genCodeForLogical (GNode *expressionNode) {
+    node_type exprType = getNiceType (expressionNode);
+    switch (exprType) {
+        case NT_AND:
+        {
+        }
+        case NT_OR:
+        {
+        }
+        case NT_NOT:
+        {
+        }
+    }
+}
+
+void genCodeForMath (GNode *expressionNode) {
+}
 /**
  * Generates a string on the stack, with the first character at the lowest
  * index and the last character of the highest index
@@ -420,13 +549,25 @@ void generateGOTO (char const *label) {
 }
 
 /**
+ * generates a CALL instruction to the relevant procedure stored in procedureInfo
+ */
+void generateProcCall (procInfo *procedureInfo) {
+    char instruction [strlen ("CALL") + 2 + 256];
+    char *hm = procedureInfo->procLabel;
+    printf ("lala %s\n", hm);
+    int lala = procedureInfo->indexingRegister;
+    printf ("Past indexing register");
+    sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, procedureInfo->procLabel);
+    generateFormattedInstruction (instruction);
+}
+/**
  * generateFormattedInstruction prints the instruction
  * given to the ASC file
  */
 void generateFormattedInstruction(char *instruction) {
 
 
-  fprintf (output, "\t%s\n", instruction);
+  fprintf (output, "\tINSTRUCTION: %s\n", instruction);
 
 }
 
@@ -435,7 +576,8 @@ void generateComment (const char *comment) {
 }
 
 void generateLabel (const char *labelName) {
-    fprintf (output, "%s\n", labelName);
+    fprintf (output, "LABEL: %s\n", labelName);
+    printf ("Done...\n");
 }
 
 /**

@@ -29,6 +29,7 @@ enum node_type {            // Children:
     
     NT_EXPR,                // 10 NT_CONST or NT_VAR or NT_FUNC_INVOK or (operation)
     
+    //operations
     NT_ISEQUAL,             // 11 NT_EXPR NT_EXPR
     NT_NOTEQUAL,            // 12 NT_EXPR NT_EXPR
     NT_LESSTHAN,            // 13 NT_EXPR NT_EXPR
@@ -46,6 +47,7 @@ enum node_type {            // Children:
     NT_MOD,                 // 25 NT_EXPR NT_EXPR
     NT_IDENTITY,            // 26 NT_EXPR
     NT_INVERSION,           // 27 NT_EXPR
+    //end operations
     
     NT_PROC_INVOK,          // 28 NT_SYMBOL (procedure) NT_EXPR ... NT_EXPR (argument ... argument)
     NT_FUNC_INVOK,          // 29 NT_SYMBOL (function) NT_EXPR ... NT_EXPR (argument ... argument)
