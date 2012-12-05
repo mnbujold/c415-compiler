@@ -168,7 +168,7 @@ getSyntaxTree() {
     niceify(syntaxTree);
     createStatList(createDecls(syntaxTree->children)->next);
 
-//     printf("\n-----------\n\n");    
+//     printf("\n-----------\n\n");
 //     displayNewTree(syntaxTree, 0);
     
     return syntaxTree;
@@ -400,6 +400,11 @@ createExprLeaf(GNode *expr) {
     GNode *child = expr->children;
     node_type childType = getNodeType(child);
     
+    if (childType == NT_ARRAY_ACCESS) { // hack ...
+        child = arrayHack(child, expr);
+        childType = getNodeType(child);
+    }
+    
     if (childType == NT_CONST) {
         niceify(niceify(child)->children);
     } else if (childType == NT_VAR) {
@@ -538,7 +543,8 @@ isExprList(GNode *expr) {
         childType = getNodeType(child);
     }
     
-    return childType == NT_CONST || childType == NT_VAR || childType == NT_FUNC_INVOK;
+    return childType == NT_CONST || childType == NT_VAR
+        || childType == NT_ARRAY_ACCESS || childType == NT_FUNC_INVOK;
 }
 
 int
@@ -581,7 +587,7 @@ collapseExprList(GNode *expr) {
 GNode *
 resolveExprChildren(GNode *expr) {
     GNode *child = expr->children;
-    
+
     niceify(child);
     createExpr(child->children);
     
@@ -673,11 +679,7 @@ getNodeType(GNode *node) {
     }
     rule_and_node *data = node->data;
         
-    if (data->hasNode == 0) {
-        return NT_NONE;
-    }
-    
-    if (data->node == NULL) {
+    if (data->hasNode == 0) {   // probably will never be true ...
         return NT_NONE;
     }
     

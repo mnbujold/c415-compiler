@@ -1,6 +1,11 @@
 program basic(input, output);
 
-// var tim : record othy : real end;
+// var joe : integer;
+//         billy : array[0..10] of integer;
+
+
+var tim : record othy : real end;
+    joe : real;
 
 // function lol(a : integer; b : integer) : integer;
 // begin
@@ -18,10 +23,14 @@ program basic(input, output);
 
 // end;
 
-var bob : boolean;
+// var bob : boolean;
 // joe : integer;
+// 
+// function contrlfi() : integer;
+//     begin contrlfi := 3; end;
 
 begin
+    joe := tim.othy;
 //     if true then
 //         if false then
 //             write
@@ -30,17 +39,20 @@ begin
 
 //     write;
 
-    if true then
-    begin
-        if false then
-            write;
-        bob := true;
-    end
-    else
-    begin
-        write
-    end;
-        
+//     writeln();
+//     joe := contrlfi();
+// 
+//     if true then
+//     begin
+//         if false then
+//             write;
+//         bob := true;
+//     end
+//     else
+//     begin
+//         write
+//     end;
+//         
     
     
 //     joe := ord(pred(bob));
