@@ -27,7 +27,7 @@ enum node_type {            // Children:
     NT_VAR,                 //  8 NT_SYMBOL or NT_ARRAY_ACCESS or NT_RECORD_ACCESS
     NT_ARRAY_ACCESS,        //  9 NT_VAR (base array variable) NT_EXPR ... NT_EXPR (index ... index)
     
-    NT_EXPR,                // 10 NT_VAR or NT_FUNC_INVOK or (operation)
+    NT_EXPR,                // 10 NT_CONST or NT_VAR or NT_FUNC_INVOK or (operation)
     
     //operations
     NT_ISEQUAL,             // 11 NT_EXPR NT_EXPR
@@ -54,20 +54,21 @@ enum node_type {            // Children:
     
     NT_RECORD_ACCESS,       // 30 NT_VAR (record) NT_SYMBOL (field)
     
-    NT_SYMBOL,              // 31 none
+    NT_CONST,               // 31 NT_SYMBOL    
+    NT_SYMBOL,              // 32 none
     
-    NT_IF,                  // 32 NT_EXPR NT_STAT_LIST
-    NT_IF_ELSE,             // 33 NT_EXPR NT_STAT_LIST (if statements) NT_STAT_LIST (else statements)
+    NT_IF,                  // 33 NT_EXPR NT_STAT_LIST
+    NT_IF_ELSE,             // 34 NT_EXPR NT_STAT_LIST (if statements) NT_STAT_LIST (else statements)
    
-    NT_WHILE,               // 34 NT_EXPR NT_STAT_LIST
+    NT_WHILE,               // 35 NT_EXPR NT_STAT_LIST
     
-    NT_CONTINUE,            // 35 none
-    NT_EXIT,                // 36 none
-    NT_NONE,                // 37 none (should never occur)
+    NT_CONTINUE,            // 36 none
+    NT_EXIT,                // 37 none
+    NT_NONE,                // 38 none (should never occur)
     
     // Now, some more just for me:
     NT_VAR_DECL_PART, NT_PROC_DECL_PART, NT_PROC_HEADING, NT_COMPOUND_STAT,
-    NT_SIMPLE_STAT, NT_PLIST_FINVOK    // 38 - 43
+    NT_SIMPLE_STAT, NT_PLIST_FINVOK    // 39 - 44
 };
 
 typedef enum node_type node_type;
@@ -113,13 +114,23 @@ GNode *createVar(GNode *var);
 GNode *createArrayAccess(GNode *array);
 GNode *createRecordAccess(GNode *var);
 GNode *createExpr(GNode *expr);
+GNode *createExprLeaf(GNode *expr);
+GNode *createExpr0(GNode *expr);
+GNode *createExpr1(GNode *expr);
+GNode *createExpr2(GNode *expr);
+GNode *createFuncInvok(GNode *funcInvok);
 GNode *createProcInvok(GNode *procInvok);
 GNode *createIf(GNode *ifStat);
 GNode *createIfElse(GNode *ifElseStat);
 
+int isExprList(GNode *expr);
+GNode *collapseExprList(GNode *expr);
+int isOp0List(GNode *expr);
+int isOp1List(GNode *expr);
+int isOp2List(GNode *expr);
+GNode *resolveExprChildren(GNode *expr);
 GNode *collapseNode(GNode *node);
 GNode *flattenTree(GNode *head, int (*treeEnd)(GNode *));
-GNode *flattenArrayTree(GNode *head);
 
 node_type getNodeType(GNode *node);
 

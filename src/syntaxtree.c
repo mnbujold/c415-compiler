@@ -374,10 +374,87 @@ createRecordAccess(GNode *var) {
 
 GNode *
 createExpr(GNode *expr) {
-    niceify(expr);
-    expr->children = NULL;
+    
+//     printf("expr before::\n");
+//     displayOldTree(expr, 0);
+    
+    if (isExprList(expr)) {
+        expr = createExprLeaf(expr);
+    } else if (isOp0List(expr)) {
+        expr = createExpr0(expr);
+    } else if (isOp1List(expr)) {
+        expr = createExpr1(expr);        
+    } else if (isOp2List(expr)) {
+        expr = createExpr2(expr);
+    }   // there should be no else ...
+    
+    else {
+//         printf("Do Not Want!\n"); // shouldn't get this!!!!!!! - NEED TO HANDLE ( EXPR ) !!!!!!!!!!!!!
+        niceify(expr);
+        expr->children = NULL;
+    }
+    
+//     printf("expr after::\n");
+//     displayNewTree(expr, 0);
     
     return expr;
+}
+
+GNode *
+createExprLeaf(GNode *expr) {
+    collapseExprList(expr);
+    niceify(expr);
+    GNode *child = expr->children;
+    node_type childType = getNodeType(child);
+    
+    if (childType == NT_CONST) {
+        niceify(niceify(child)->children);
+    } else if (childType == NT_VAR) {
+        createVar(child);
+    } else {    // NT_FUNC_INVOK
+        createFuncInvok(child);
+    }
+    
+    return expr;
+}
+
+GNode *
+createExpr0(GNode *expr) {
+    GNode *parent = expr->parent;
+    int position = g_node_child_position(parent, expr);
+    
+    g_node_unlink(expr);
+    expr->parent = NULL;
+    
+    GNode *newExpr = createNode(NT_EXPR, expr, NULL);
+    
+    g_node_insert(parent, position, newExpr);
+    niceify(newExpr);
+    
+    return resolveExprChildren(newExpr);
+}
+
+GNode *
+createExpr1(GNode *expr) {
+    niceify(expr);
+
+    return resolveExprChildren(expr);
+}
+
+GNode *
+createExpr2(GNode *expr) {
+    collapseExprList(expr);
+    niceify(expr);
+
+    return resolveExprChildren(expr);
+}
+
+GNode *
+createFuncInvok(GNode *funcInvok) {
+    niceify(funcInvok);
+    funcInvok->children = NULL;
+    
+    return funcInvok;
 }
 
 GNode *
@@ -421,6 +498,85 @@ createWhile(GNode *whileStat) {
     whileStat->children = NULL;
     
     return whileStat;
+}
+
+int
+isExprList(GNode *expr) {
+    GNode *child = expr->children;
+    node_type childType = getNodeType(child);
+    
+    while (childType == NT_EXPR) {
+        if (child->next != NULL) {
+            return 0;
+        }
+        child = child->children;
+        childType = getNodeType(child);
+    }
+    
+    return childType == NT_CONST || childType == NT_VAR || childType == NT_FUNC_INVOK;
+}
+
+int
+isOp0List(GNode *expr) {
+    node_type type = getNodeType(expr);
+    
+    return type != NT_EXPR;
+    
+//     return type == NT_ISEQUAL || type == NT_NOTEQUAL || type == NT_LESSTHANEQUALS
+//         || type == NT_LESSTHAN || type == NT_GREATERTHANEQUALS || type == NT_GREATERTHAN;
+}
+
+int
+isOp1List(GNode *expr) {
+    node_type type = getNodeType(expr);
+    node_type childType = getNodeType(expr->children);
+    
+    return type == NT_EXPR && childType != NT_EXPR;
+    
+//     return type == NT_EXPR
+//         && (childType == NT_IDENTITY || childType == NT_INVERSION
+//          || childType == NT_PLUS || childType == NT_MINUS || childType == NT_OR);
+}
+
+int
+isOp2List(GNode *expr) {
+    node_type type = getNodeType(expr);
+    node_type childType = getNodeType(expr->children);
+    node_type grandType = getNodeType(expr->children->children);
+        
+    return type == NT_EXPR && childType == NT_EXPR && grandType != NT_EXPR;
+    
+    
+//     return type == NT_EXPR && childType == NT_EXPR
+//         && (grandType == NT_MULTIPLY || grandType == NT_DIVIDE
+//          || grandType == NT_DIV || grandType == NT_MOD || grandType == NT_AND);
+}
+
+GNode *
+collapseExprList(GNode *expr) {
+    GNode *child = expr->children;
+    node_type childType = getNodeType(child);
+    
+    while (childType == NT_EXPR) {
+        child = collapseNode(child)->children;
+        childType = getNodeType(child);
+    }
+        
+    return expr;
+}
+
+GNode *
+resolveExprChildren(GNode *expr) {
+    GNode *child = expr->children;
+    
+    niceify(child);
+    createExpr(child->children);
+    
+    if (child->children->next != NULL) {
+        createExpr(child->children->next);
+    }
+    
+    return expr;
 }
 
 GNode *
@@ -494,14 +650,6 @@ flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
     // remove the head link tree
     g_node_unlink(nodeToRemove);   
 
-    return head;
-}
-
-GNode *
-flattenArrayTree(GNode *head) {
-    
-    
-    
     return head;
 }
 
