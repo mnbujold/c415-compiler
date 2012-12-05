@@ -168,7 +168,7 @@ getSyntaxTree() {
     niceify(syntaxTree);
     createStatList(createDecls(syntaxTree->children)->next);
 
-//     printf("\n-----------\n\n");    
+//     printf("\n-----------\n\n");
 //     displayNewTree(syntaxTree, 0);
     
     return syntaxTree;
@@ -252,8 +252,12 @@ createStatList(GNode *cmpStat) {
     collapseNode(cmpStat);
     flattenTree(statList, &statEnd);
     niceify(statList);    
-    // the last child will be an empty stat
-    g_node_destroy(g_node_last_child(statList));
+
+    // the last child may be an empty stat->simple stat->NULL chain
+    GNode *lastChild = g_node_last_child(statList);
+    if (lastChild->children->children == NULL) {
+         g_node_destroy(lastChild);
+    }   
     
     GNode *sibling = statList->children;
     
@@ -396,6 +400,11 @@ createExprLeaf(GNode *expr) {
     GNode *child = expr->children;
     node_type childType = getNodeType(child);
     
+    if (childType == NT_ARRAY_ACCESS) { // hack ...
+        child = arrayHack(child, expr);
+        childType = getNodeType(child);
+    }
+    
     if (childType == NT_CONST) {
         niceify(niceify(child)->children);
     } else if (childType == NT_VAR) {
@@ -473,7 +482,8 @@ createProcInvok(GNode *procInvok) {
 GNode *
 createIf(GNode *ifStat) {
     niceify(ifStat);
-    ifStat->children = NULL;
+    createExpr(ifStat->children);
+    createCondStatList(ifStat->children->next);
     
     return ifStat;
 }
@@ -481,7 +491,9 @@ createIf(GNode *ifStat) {
 GNode *
 createIfElse(GNode *ifElseStat) {
     niceify(ifElseStat);
-    ifElseStat->children = NULL;
+    createExpr(ifElseStat->children);
+    createCondStatList(ifElseStat->children->next);
+    createCondStatList(ifElseStat->children->next->next);
     
     return ifElseStat;
 }
@@ -518,54 +530,6 @@ createCondStatList(GNode *stat) {
     return stat;
 }
 
-// GNode *
-// createSingleStatList(GNode *stat) {
-//     GNode *child = stat->children;
-//     
-//     printf("about to niceify simple stat!\n");
-//     niceify(stat);
-//     printf("about to change simple stat to stat list!\n");
-//     changeType(stat, NT_STAT_LIST);
-//     
-//     if (child->children == NULL) {
-//         g_node_destroy(child);
-//         
-//         return stat;
-//     }
-//     printf("about to create the stat!\n");
-//     displayOldTree(child, 0);
-//     createStat(child);
-//     printf("now to change the stat type!\n");
-//     changeType(child, NT_STAT);
-//     
-//     return stat;
-// }
-
-// GNode *
-// convertToStatList(GNode *stat) {
-//     GNode *parent = stat->parent;
-//     int position = g_node_child_position(parent, stat);
-//     
-//     g_node_unlink(stat);
-//     stat->parent = NULL;
-//     
-//     GNode *statList = createNode(NT_STAT_LIST, stat, NULL);
-//     
-//     g_node_insert(parent, position, statList);
-//     niceify(statList);
-//     GNode *child = stat->children;
-//     
-//     if (getNodeType(child) == NT_SIMPLE_STAT && child->children == NULL) {
-//         g_node_destroy(child);
-//         
-//         return statList;
-//     }  
-//     
-//     createStat(stat);
-//     
-//     return statList;
-// }
-
 int
 isExprList(GNode *expr) {
     GNode *child = expr->children;
@@ -579,7 +543,8 @@ isExprList(GNode *expr) {
         childType = getNodeType(child);
     }
     
-    return childType == NT_CONST || childType == NT_VAR || childType == NT_FUNC_INVOK;
+    return childType == NT_CONST || childType == NT_VAR
+        || childType == NT_ARRAY_ACCESS || childType == NT_FUNC_INVOK;
 }
 
 int
@@ -622,7 +587,7 @@ collapseExprList(GNode *expr) {
 GNode *
 resolveExprChildren(GNode *expr) {
     GNode *child = expr->children;
-    
+
     niceify(child);
     createExpr(child->children);
     
@@ -714,11 +679,7 @@ getNodeType(GNode *node) {
     }
     rule_and_node *data = node->data;
         
-    if (data->hasNode == 0) {
-        return NT_NONE;
-    }
-    
-    if (data->node == NULL) {
+    if (data->hasNode == 0) {   // probably will never be true ...
         return NT_NONE;
     }
     

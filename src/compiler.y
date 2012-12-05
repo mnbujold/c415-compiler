@@ -930,7 +930,8 @@ func_invok              : plist_finvok RIGHTPAREN
                             }
                         | ID LEFTPAREN RIGHTPAREN
                             {
-                                $$ = createSingleExprNode(NT_FUNC_INVOK, callFunc($1, NULL));
+                                symbol *tmpFunc = callFunc($1, NULL);
+                                $$ = createExprNode(NT_FUNC_INVOK, tmpFunc, createSymbolNode(tmpFunc), NULL);
                             }
                         ;
 
