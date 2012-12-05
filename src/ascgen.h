@@ -37,6 +37,7 @@ void genCodeForFunctionNode(GNode *node, int scope);
 
 void addVariables(GNode *varDeclNode);
 void variableIterator (GNode *node, gpointer data);
+void variableHandler(symbol *, type_class);
 
 void genCodeForStatementList (GNode *statementList);
 void genCodeForStatement(GNode *statement);

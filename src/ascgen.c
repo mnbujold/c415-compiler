@@ -221,8 +221,6 @@ int getFirstFreeRegister () {
 }
 
 
-
-
 /**
  * Given a var declaration node, generate space on the stack for it.
  */
@@ -271,19 +269,16 @@ void pushArray(symbol *symb){
   generateFormattedInstruction (instruction);
 }
 void pushRecord(symbol *symb){
-  printf("Record Name: %s \n", symb->name);
+  //printf("Record Name: %s \n", symb->name);
   GPtrArray *recFields = symb->symbol_type->desc.type_attr->desc.record->field_list;
-
+  symbol *recSymbol;
+  
   // Iterate through elements and check sizes to make room on stack 
-  printf("elements: %d\n", recFields->len);
+  //printf("elements: %d\n", recFields->len);
   int i;
   for(i=0; i<recFields->len; i++){
-    symbol *recSymbol = g_ptr_array_index(recFields, i);
-    printf("val: %s \n", recSymbol->name);
-    printf("type: %d \n", getTypeClass(recSymbol));
-//    variableHandler(recSymbol, 
-    // Get the size of each element and push onto stack, maybe call variableIterator recursively?
-    //variableIterator( );
+    recSymbol = g_ptr_array_index(recFields, i);
+    variableHandler(recSymbol, getTypeClass(recSymbol));
   }
   
 }
@@ -296,39 +291,9 @@ void variableIterator (GNode *node, gpointer data) {
     symbol *sym = getSymbol (node);
     type_class varType = getTypeClass (sym);
 
-    //variableHandler(getSymbol(node), getTypeClass(sym));
+    variableHandler(getSymbol(node), getTypeClass(sym));
     
     //TODO: each variable needs to have its address added to the variableAddressTable
-    generateComment(sym->name);
-    varAddressStruct addressDescription = {indexingRegister, indexingRegister};
-    g_hash_table_insert (variableAddressTable, sym, &addressDescription);
-    if (varType == TC_INTEGER) {
-        pushConstantInt (0);
-    }
-    else if (varType == TC_REAL) {
-        pushConstantReal (0);
-    }
-    else if (varType == TC_BOOLEAN) {
-        pushConstantInt (0);
-    }
-    else if (varType == TC_STRING){
-      printf("string: %s\n", sym->name);
-        //TODO: Need to do for arrays
-        printf ("error, this kind of variable not yet implemented\n");
-        DEBUG_PRINT (("Not implemented yet"));
-    }
-    else if(varType == TC_ARRAY){
-      pushArray(sym);
-    }
-
-    else if(varType == TC_RECORD){
-      pushRecord(sym);
-    }
-    else
-      // For debugging: Spit out the typeclass we don't yet handle here
-      printf("Type: %d \n", varType);
-    
-    globalAddressCounter++; //do we need global address counter anymore?
 }
 
 void variableHandler(symbol *symb, type_class varType){
@@ -340,6 +305,9 @@ void variableHandler(symbol *symb, type_class varType){
   varAddressStruct addressDescription = {indexingRegister, indexingRegister};
   g_hash_table_insert(variableAddressTable, symb, &addressDescription);
 
+  //varAddressStruct *check_it = g_hash_table_lookup(variableAddressTable, symb);
+  //printf("idxReg: %d, Offset: %d \n", check_it->indexingRegister, check_it->offset);
+  
    if (varType == TC_INTEGER) {
         pushConstantInt (0);
     }
