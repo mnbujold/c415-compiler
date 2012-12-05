@@ -50,7 +50,7 @@ void genCodeForExpression (GNode *expressionNode);
 void genCodeForOperation (GNode *expressionNode);
 //int getNodeType (GNode *node);
 
-void generateProcReturn (procInfo *procedureInfo);
+
 
 
 
@@ -72,9 +72,14 @@ void showVariableAddressTable();
 
 
 /***********************************************************
- * Wrapper functions for ASC instructions
+ * Wrapper functions for sequences of atomic ASC instructions
  **********************************************************/
-void generateProcCall (procInfo *procedureInfo);
+void genCodeForComparison (GNode *expressionNode);
+void genCodeForLogical (GNode *expressionNode);
+void genCodeForMath (GNode *expressionNode); 
+
+void genProcCall (procInfo *procedureInfo);
+void genProcReturn (procInfo *procedureInfo);
 void generateGOTO (char const *label);
 
 void pushConstantInt (int constant);
