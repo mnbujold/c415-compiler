@@ -246,25 +246,11 @@ void addVariables(GNode *varDeclNode) {
 
 }
 
-void getLength(symbol *symbol, type_class tc){
-  // Get the size of the array
-  if(tc == TC_STRING){
-    printf("length: %d \n", symbol->desc.type_attr->desc.string->len);
-    
-  }
-
-  else if(tc == TC_ARRAY){
-  }
-
-  else if(tc == TC_RECORD){
-
-  }
-}
 void pushArray(symbol *symb){
   int size = symb->symbol_type->desc.type_attr->desc.array->size;
   char instruction[strlen("ADJUST") + sizeof(size) + 1];
   
-  sprintf (instruction, "ADJUST -%d", size);
+  sprintf (instruction, "ADJUST %d", size);
   
   generateFormattedInstruction (instruction);
 }
@@ -330,6 +316,10 @@ void variableHandler(symbol *symb, type_class varType){
     else if(varType == TC_RECORD){
       pushRecord(symb);
     }
+    else if(varType == TC_CHAR){
+      
+    }
+   
     else
       // For debugging: Spit out the typeclass we don't yet handle here
       printf("Type: %d \n", varType);
