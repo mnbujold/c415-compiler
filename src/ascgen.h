@@ -35,6 +35,8 @@ typedef struct proc_info_struct procInfo;
 void genASCCode (GNode *tree, char *fileName);
 
 
+void pushRecord(symbol *);
+void pushArrya(symbol *);
 
 void genCodeForFunctionNode(GNode *node, int scope);
 
