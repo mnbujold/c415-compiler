@@ -433,7 +433,9 @@ void genCodeForStatement(GNode *statement) {
             break;
         }
         case NT_WHILE: {
-            
+            //evaluate expressoin
+            //ifZ GOTO blah blah
+            //GOTO While beginnning
             break;
         }
         case NT_CONTINUE: {
@@ -456,8 +458,6 @@ void genCodeForStatement(GNode *statement) {
             //will need to generate label for all return jumps...
             break;
         }
-        //while node->parent != NT_WHILE, node = node->pparent
-        
                     
     }
         
