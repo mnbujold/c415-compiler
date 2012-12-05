@@ -374,10 +374,6 @@ createRecordAccess(GNode *var) {
 
 GNode *
 createExpr(GNode *expr) {
-    
-//     printf("expr before::\n");
-//     displayOldTree(expr, 0);
-    
     if (isExprList(expr)) {
         expr = createExprLeaf(expr);
     } else if (isOp0List(expr)) {
@@ -386,17 +382,14 @@ createExpr(GNode *expr) {
         expr = createExpr1(expr);        
     } else if (isOp2List(expr)) {
         expr = createExpr2(expr);
-    }   // there should be no else ...
-    
-    else {
-//         printf("Do Not Want!\n"); // shouldn't get this!!!!!!! - NEED TO HANDLE ( EXPR ) !!!!!!!!!!!!!
+    } else if (getNodeType(expr) == NT_EXPR) {
+        expr = createBracketExpr(expr);
+    } else {   // there should be no else ...
+        printf("Do Not Want!\n");
         niceify(expr);
         expr->children = NULL;
     }
-    
-//     printf("expr after::\n");
-//     displayNewTree(expr, 0);
-    
+
     return expr;
 }
 
@@ -446,6 +439,14 @@ createExpr2(GNode *expr) {
     collapseExprList(expr);
     niceify(expr);
 
+    return resolveExprChildren(expr);
+}
+
+GNode *
+createBracketExpr(GNode *expr) {
+    collapseExprList(expr);
+    niceify(expr);
+    
     return resolveExprChildren(expr);
 }
 

@@ -118,6 +118,7 @@ GNode *createExprLeaf(GNode *expr);
 GNode *createExpr0(GNode *expr);
 GNode *createExpr1(GNode *expr);
 GNode *createExpr2(GNode *expr);
+GNode *createBracketExpr(GNode *expr);
 GNode *createFuncInvok(GNode *funcInvok);
 GNode *createProcInvok(GNode *procInvok);
 GNode *createIf(GNode *ifStat);
