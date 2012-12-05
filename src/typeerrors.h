@@ -112,7 +112,7 @@ void fieldNotInRecordError(const char *field, const char *record);
 void opNotBooleanError();
 
 /**
- * Adds a "missing function return value assignment" error.
+ * Adds a "missing unconditional function return value assignment" error.
  */
 void missFuncRetError();
 

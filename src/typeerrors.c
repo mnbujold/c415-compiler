@@ -155,7 +155,7 @@ opNotBooleanError() {
 
 void
 missFuncRetError() {
-    addTypeError("missing function return value assignment");
+    addTypeError("missing unconditional function return value assignment");
 }
 
 void

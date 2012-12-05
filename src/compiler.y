@@ -38,7 +38,7 @@ int yywrap() {
 
 // For control flow checking:
 int loopLevel = 0;
-
+int ifLevel = 0;
 
 %}
 
@@ -615,7 +615,7 @@ simple_stat             : /* empty */
 stat_assignment         : var ASSIGN expr
                             {
                                 if (noError(1, $1, $3, NULL)) {
-                                    doVarAssignment(extractSymbol($1), extractSymbol($3));
+                                    doVarAssignment(extractSymbol($1), extractSymbol($3), loopLevel, ifLevel);
                                     $$ = createNode(NT_ASSIGNMENT, $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -969,6 +969,7 @@ parm                    : expr
 
 struct_stat             : if_header THEN matched_stat ELSE stat
                             {
+                                ifLevel -= 1;
                                 $$ = createNode(NT_IF_ELSE, $1, createNode(NT_STAT_LIST, $3, NULL), createNode(NT_STAT_LIST, $5, NULL), NULL);
                             }
                         | error ELSE stat /* ERROR */
@@ -977,6 +978,7 @@ struct_stat             : if_header THEN matched_stat ELSE stat
                             }
                         | if_header THEN stat
                             {
+                                ifLevel -= 1;
                                 $$ = createNode(NT_IF, $1, createNode(NT_STAT_LIST, $3, NULL), NULL);
                             }
                         | error THEN stat /* ERROR */
@@ -1016,6 +1018,7 @@ matched_stat            : simple_stat
                             }
                         | if_header THEN matched_stat ELSE matched_stat
                             {
+                                ifLevel -= 1;
                                 $$ = createNode(NT_IF_ELSE, $1, createNode(NT_STAT_LIST, $3, NULL), createNode(NT_STAT_LIST, $5, NULL), NULL);
                             }
                         | error ELSE matched_stat /* ERROR */
@@ -1056,6 +1059,7 @@ if_header               : IF expr
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
                                 }
+                                ifLevel += 1;
                             }
                         ;
                         

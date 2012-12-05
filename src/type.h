@@ -146,9 +146,9 @@ GPtrArray *addField(GPtrArray *fieldList, symbol *newField);
 GPtrArray *addParam(GPtrArray *paramList, symbol *newParam) ;
 
 /**
- * Assign an expression to a var
+ * Assign an expression to a var.
  */
-void doVarAssignment (symbol *var, symbol *expr);
+void doVarAssignment (symbol *var, symbol *expr, int loopLevel, int ifLevel);
 
 /**
  * Returns a new pf_invok with id and a new GPtrArray containing arg.

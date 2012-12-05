@@ -872,12 +872,13 @@ accessArray(symbol *array, symbol *index) {
 }
 
 void
-doVarAssignment (symbol *var, symbol *expr) {
+doVarAssignment (symbol *var, symbol *expr, int loopLevel, int ifLevel) {
     //printf ("In do var assignment\n");
     if (assignmentCompatibleSym(var, expr, 1) == 1) {
         symbol *varLookup = localLookup(var->name);
 
-        if (varLookup != NULL && varLookup->oc == OC_FUNC) {
+        if (varLookup != NULL && varLookup->oc == OC_FUNC
+         && loopLevel == 0 && ifLevel == 0) {   // setting return values in conditional statments don't count
             varLookup->desc.func_attr->returnValSet = 1;
         }
     }
