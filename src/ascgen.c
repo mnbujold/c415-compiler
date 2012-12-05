@@ -374,7 +374,7 @@ void genCodeForStatement(GNode *statement) {
         {
             //evaluate the expression
             
-            symbol varSymbol = statement->children;
+            symbol *varSymbol = (symbol *)statement->children;
             varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
             
             //PUSH addr
