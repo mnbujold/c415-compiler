@@ -437,7 +437,13 @@ proc_decl               : proc_heading decls compound_stat SEMICOLON
                                 popLevel();
                             }
                         ;
-                        
+
+/*proc_head_part          : proc_heading decls
+                            {
+                                // make work (a new struct for yyval - a pair!), and set defnState to 0 if the proc is a (nonerror) function!
+                            }
+                        ;*/
+
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                             {
                                 if ($3 != NULL) {

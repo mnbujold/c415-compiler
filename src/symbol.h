@@ -154,6 +154,7 @@ struct function_desc{
   struct symbol_rec *return_type;
   int returnValSet;
   // Need something for the return 'value' to check if the function actually returns. Maybe a void *.
+  int defnState;
 };
 
 
@@ -237,7 +238,7 @@ symbol *createSymbolType (char const *, type_class);
  
  struct const_desc *createConstDesc (union constant_values);
  struct var_desc *createVarDesc ();
- struct function_desc *createFunctionDesc (GPtrArray *, symbol *);
+ struct function_desc *createFunctionDesc (GPtrArray *, symbol *, int);
  struct procedure_desc *createProcedureDesc (GPtrArray *);
  struct param_desc *createParamDesc (int);
  struct type_desc *createTypeDesc (type_class);

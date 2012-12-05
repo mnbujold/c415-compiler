@@ -189,6 +189,8 @@ symbol *callBuiltinFunc(const char *funcname, GPtrArray *arguments);
 
 int checkIOProc(const char *proc_name, int showErrors);
 
+void checkFuncValSet(symbol *func);
+
 /**
  * Checks that expr has a boolean type.
  */

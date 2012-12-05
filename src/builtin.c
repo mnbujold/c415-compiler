@@ -32,7 +32,7 @@ void add_builtins () {
   symbol *oddFunctionSymbol = calloc (1, sizeof (symbol));
   GPtrArray *oddParam = g_ptr_array_new ();
   struct function_desc *funcDescription = createFunctionDesc (oddParam, 
-    booleanTypeDescription);
+    booleanTypeDescription, 1);
   symbol *oddSymbol = createSymbol ("odd", booleanTypeDescription, OC_FUNC, funcDescription);
   addSymbol ("odd", oddSymbol);
 

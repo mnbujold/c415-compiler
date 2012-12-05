@@ -105,6 +105,10 @@ symbol *getVarSymbol(char const *id) {
     object_class objClass = varSym->oc;
 
     if (objClass == OC_FUNC) {
+        if (varSym->desc.func_attr->defnState != 0) { // function not currently being defined
+            symNotDefinedError(id);
+            return createErrorSym(OC_VAR);
+        }
         return createSymbol(id, varSym->symbol_type, OC_VAR, createVarDesc());
     }
     
@@ -310,10 +314,11 @@ struct const_desc *createConstDesc (union constant_values value) {
   return varDesc;
   
  }
- struct function_desc *createFunctionDesc (GPtrArray *params, symbol *return_type) {
+ struct function_desc *createFunctionDesc (GPtrArray *params, symbol *return_type, int defnState) {
   struct function_desc *funcDesc = calloc (1, sizeof (struct function_desc));
   funcDesc->params = params;
   funcDesc->return_type = return_type;
+  funcDesc->defnState = defnState;
   return funcDesc;
  }
  struct procedure_desc *createProcedureDesc (GPtrArray *params) {
@@ -780,7 +785,7 @@ GPtrArray *addFuncParam(symbol *paramType){
 symbol *addBuiltinFunc(const char *id, symbol *returnType, GPtrArray *paramList) {
   symbol *paramType;
   symbol *newFunc = createSymbol(id, returnType, OC_FUNC,
-                                   createFunctionDesc(paramList, returnType));
+                                   createFunctionDesc(paramList, returnType, 1));
 
     /* Tease out parameter - all built-ins have just one, so we go with that */
 //    if(paramList)
