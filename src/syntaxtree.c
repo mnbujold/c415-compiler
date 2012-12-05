@@ -297,11 +297,7 @@ createStat(GNode *stat) {
 
 GNode *
 mergeCompoundStat(GNode *stat, GNode *cmpStat) {
-    GNode *child = stat->children;
-    
     createStatList(cmpStat);
-    collapseNode(cmpStat);
-    
     GNode *lastChild = g_node_last_child(stat);
     
     collapseNode(stat);
@@ -493,10 +489,82 @@ createIfElse(GNode *ifElseStat) {
 GNode *
 createWhile(GNode *whileStat) {
     niceify(whileStat);
-    whileStat->children = NULL;
+    createExpr(whileStat->children);
+    createCondStatList(whileStat->children->next);
     
     return whileStat;
 }
+
+GNode *
+createCondStatList(GNode *stat) {
+    niceify(stat);
+    GNode *child = stat->children;
+    node_type childType = getNodeType(child);
+    
+    if (childType == NT_STAT) {
+        child = createStat(child);
+
+        if (getNiceType(child) == NT_STAT_LIST) {
+            collapseNode(child);
+        }
+    } else if (childType == NT_IF_ELSE) {
+        createIfElse(child);
+    } else if (childType == NT_WHILE) {
+        createWhile(child);
+    } else { // an "exit" or "continue" statment
+        niceify(child);
+    }
+    
+    return stat;
+}
+
+// GNode *
+// createSingleStatList(GNode *stat) {
+//     GNode *child = stat->children;
+//     
+//     printf("about to niceify simple stat!\n");
+//     niceify(stat);
+//     printf("about to change simple stat to stat list!\n");
+//     changeType(stat, NT_STAT_LIST);
+//     
+//     if (child->children == NULL) {
+//         g_node_destroy(child);
+//         
+//         return stat;
+//     }
+//     printf("about to create the stat!\n");
+//     displayOldTree(child, 0);
+//     createStat(child);
+//     printf("now to change the stat type!\n");
+//     changeType(child, NT_STAT);
+//     
+//     return stat;
+// }
+
+// GNode *
+// convertToStatList(GNode *stat) {
+//     GNode *parent = stat->parent;
+//     int position = g_node_child_position(parent, stat);
+//     
+//     g_node_unlink(stat);
+//     stat->parent = NULL;
+//     
+//     GNode *statList = createNode(NT_STAT_LIST, stat, NULL);
+//     
+//     g_node_insert(parent, position, statList);
+//     niceify(statList);
+//     GNode *child = stat->children;
+//     
+//     if (getNodeType(child) == NT_SIMPLE_STAT && child->children == NULL) {
+//         g_node_destroy(child);
+//         
+//         return statList;
+//     }  
+//     
+//     createStat(stat);
+//     
+//     return statList;
+// }
 
 int
 isExprList(GNode *expr) {
@@ -519,9 +587,6 @@ isOp0List(GNode *expr) {
     node_type type = getNodeType(expr);
     
     return type != NT_EXPR;
-    
-//     return type == NT_ISEQUAL || type == NT_NOTEQUAL || type == NT_LESSTHANEQUALS
-//         || type == NT_LESSTHAN || type == NT_GREATERTHANEQUALS || type == NT_GREATERTHAN;
 }
 
 int
@@ -530,10 +595,6 @@ isOp1List(GNode *expr) {
     node_type childType = getNodeType(expr->children);
     
     return type == NT_EXPR && childType != NT_EXPR;
-    
-//     return type == NT_EXPR
-//         && (childType == NT_IDENTITY || childType == NT_INVERSION
-//          || childType == NT_PLUS || childType == NT_MINUS || childType == NT_OR);
 }
 
 int
@@ -543,11 +604,6 @@ isOp2List(GNode *expr) {
     node_type grandType = getNodeType(expr->children->children);
         
     return type == NT_EXPR && childType == NT_EXPR && grandType != NT_EXPR;
-    
-    
-//     return type == NT_EXPR && childType == NT_EXPR
-//         && (grandType == NT_MULTIPLY || grandType == NT_DIVIDE
-//          || grandType == NT_DIV || grandType == NT_MOD || grandType == NT_AND);
 }
 
 GNode *

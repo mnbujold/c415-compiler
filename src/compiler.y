@@ -968,7 +968,7 @@ parm                    : expr
 
 struct_stat             : if_header THEN matched_stat ELSE stat
                             {
-                                $$ = createNode(NT_IF_ELSE, $1, $3, $5, NULL);
+                                $$ = createNode(NT_IF_ELSE, $1, createNode(NT_STAT_LIST, $3, NULL), createNode(NT_STAT_LIST, $5, NULL), NULL);
                             }
                         | error ELSE stat /* ERROR */
                             {
@@ -976,7 +976,7 @@ struct_stat             : if_header THEN matched_stat ELSE stat
                             }
                         | if_header THEN stat
                             {
-                                $$ = createNode(NT_IF, $1, $3, NULL);
+                                $$ = createNode(NT_IF, $1, createNode(NT_STAT_LIST, $3, NULL), NULL);
                             }
                         | error THEN stat /* ERROR */
                             {
@@ -985,7 +985,7 @@ struct_stat             : if_header THEN matched_stat ELSE stat
                         | while_header stat
                             {
                                 loopLevel -= 1;
-                                $$ = createNode(NT_WHILE, $1, $2, NULL);
+                                $$ = createNode(NT_WHILE, $1, createNode(NT_STAT_LIST, $2, NULL), NULL);
                             }
                         | error DO stat /* ERROR */
                             {
@@ -1011,11 +1011,11 @@ struct_stat             : if_header THEN matched_stat ELSE stat
 
 matched_stat            : simple_stat
                             {
-                                $$ = createNode(NT_SIMPLE_STAT, $1, NULL);
+                                $$ = createNode(NT_STAT, $1, NULL);
                             }
                         | if_header THEN matched_stat ELSE matched_stat
                             {
-                                $$ = createNode(NT_IF_ELSE, $1, $3, $5, NULL);
+                                $$ = createNode(NT_IF_ELSE, $1, createNode(NT_STAT_LIST, $3, NULL), createNode(NT_STAT_LIST, $5, NULL), NULL);
                             }
                         | error ELSE matched_stat /* ERROR */
                             {
@@ -1024,7 +1024,7 @@ matched_stat            : simple_stat
                         | while_header matched_stat
                             {
                                 loopLevel -= 1;
-                                $$ = createNode(NT_WHILE, $1, $2, NULL);
+                                $$ = createNode(NT_WHILE, $1, createNode(NT_STAT_LIST, $2, NULL), NULL);
                             }
                         | error DO matched_stat /* ERROR */
                             {
