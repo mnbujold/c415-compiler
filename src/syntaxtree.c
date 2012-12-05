@@ -452,10 +452,7 @@ createBracketExpr(GNode *expr) {
 
 GNode *
 createFuncInvok(GNode *funcInvok) {
-    niceify(funcInvok);
-    funcInvok->children = NULL;
-    
-    return funcInvok;
+    return createProcInvok(funcInvok); // basically the same things
 }
 
 GNode *

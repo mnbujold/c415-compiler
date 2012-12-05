@@ -1,15 +1,21 @@
 program basic(input, output);
 
-// var tim : record othy : real end;
+var tim : record othy : real end;
+
+function lol(a : integer; b : integer) : integer;
+begin
+    lol := abs(a - b) + 4;
+end;
 
 procedure bob();
     var joe : integer;
 //         billy : array[-3..3] of array[-3..3] of array[0..10] of char;
 begin
-    joe := (4 + 6) * 6;
-//     joe := 5;
+    tim.othy := -4.5;   
+    joe := round(tim.othy);
+    joe := ord(4 < 6) * lol(-4, +6) - joe;
 //     billy[0][0, 4] := 'a';
-//     tim.othy := -4.5;
+
 end;
 
 begin
