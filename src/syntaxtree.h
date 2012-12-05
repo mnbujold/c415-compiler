@@ -125,8 +125,6 @@ GNode *createIf(GNode *ifStat);
 GNode *createIfElse(GNode *ifElseStat);
 GNode *createWhile(GNode *whileStat);
 GNode *createCondStatList(GNode *stat);
-// GNode *createSingleStatList(GNode *stat);
-// GNode *convertToStatList(GNode *stat);
 
 int isExprList(GNode *expr);
 GNode *collapseExprList(GNode *expr);

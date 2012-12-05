@@ -18,15 +18,36 @@ program basic(input, output);
 
 // end;
 
-// var bob : boolean;
+var bob : boolean;
 // joe : integer;
 
 begin
-//     joe := ord(pred(bob));
-    while true do
+//     if true then
+//         if false then
+//             write
+//     else
+//         read;
+
+//     write;
+
+    if true then
     begin
-        while false do
-            continue;
-        exit;
+        if false then
+            write;
+        bob := true;
+    end
+    else
+    begin
+        write
     end;
+        
+    
+    
+//     joe := ord(pred(bob));
+//     while true do
+//     begin
+//         while false do
+//             continue;
+//         exit;
+//     end;
 end.
