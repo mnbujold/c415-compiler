@@ -428,7 +428,7 @@ void genCodeForStatement(GNode *statement) {
             printf ("procedure info returned\n");
             //generate CALL
             if (procedureInfo == NULL) {
-                printf ("Returned proc info is null\n");
+                printf ("Returned proc info is null, must be a builtin\n");
                 //look it up in builtins
                 if (procSymbol->name == "writeln") {
                     printf ("Is writeln");
