@@ -9,6 +9,16 @@
 #include <glib.h>
 #include "symbol.h"
 
+enum return_val_state {
+    RS_BEGIN,
+    RS_NOT_SET,
+    RS_SET_LAST_COND,
+    RS_SET_THIS_COND,
+    RS_SET
+};
+
+typedef enum return_val_state return_val_state;
+
 struct pf_invok {
         const char *id;
         GPtrArray *paramList;
@@ -148,7 +158,7 @@ GPtrArray *addParam(GPtrArray *paramList, symbol *newParam) ;
 /**
  * Assign an expression to a var.
  */
-void doVarAssignment (symbol *var, symbol *expr, int loopLevel, int ifLevel);
+return_val_state doVarAssignment (symbol *var, symbol *expr, int loopLevel, int ifLevel, return_val_state returnState);
 
 /**
  * Returns a new pf_invok with id and a new GPtrArray containing arg.

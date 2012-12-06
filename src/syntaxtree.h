@@ -1,3 +1,9 @@
+/**
+ * Author: James Osgood
+ * Creation and mantainance of the syntax tree in the grammar.
+ * Also the simplification of the syntax tree before code generation.
+ */
+
 #include <glib.h>
 
 #include "symbol.h"
@@ -135,9 +141,9 @@ struct rule_and_node {
 
 typedef struct rule_and_node rule_and_node;
 
-struct proc_head_pair {
-    GNode *proc_heading;
-    GNode *decls;
+struct node_pair {
+    GNode *first_node;
+    GNode *second_node;
 };
 
 node_type getNiceType(GNode *node); // Use this!
@@ -196,7 +202,7 @@ GNode *createSingleExprNode(node_type type, symbol *result);
 
 GNode *getProcNode(const char *procname);
 
-struct proc_head_pair *createProcHead(GNode *procHeading, GNode *decls);
+struct node_pair *createNodePair(GNode *firstNode, GNode *secondNode);
 
 symbol *extractSymbol(GNode *node);
 symbol *extractType(GNode *node);
