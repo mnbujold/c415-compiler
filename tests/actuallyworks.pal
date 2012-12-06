@@ -17,6 +17,7 @@ var
     chararray: array [1..10] of char;
     bool: tf;
     artofwar: book;
+    crazyarray: array[1..4] of array[1..5] of array[1..3] of char;
     
     function bob () : integer;
     
