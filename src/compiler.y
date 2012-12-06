@@ -36,9 +36,10 @@ int yywrap() {
         return 1;
 }
 
-// For control flow checking:
+// for control flow and function return value checking:
 int loopLevel = 0;
 int ifLevel = 0;
+return_val_state returnState;
 
 %}
 
@@ -440,6 +441,7 @@ proc_decl               : proc_head_part compound_stat SEMICOLON
 proc_head_part          : proc_heading decls
                             {
                                 $$ = createNodePair($1, $2);
+                                returnState = RS_BEGIN;
                             }
                         ;
 
@@ -620,7 +622,7 @@ simple_stat             : /* empty */
 stat_assignment         : var ASSIGN expr
                             {
                                 if (noError(1, $1, $3, NULL)) {
-                                    doVarAssignment(extractSymbol($1), extractSymbol($3), loopLevel, ifLevel);
+                                    returnState = doVarAssignment(extractSymbol($1), extractSymbol($3), loopLevel, ifLevel, returnState);
                                     $$ = createNode(NT_ASSIGNMENT, $1, $3, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
@@ -959,6 +961,9 @@ parm                    : expr
 struct_stat             : if_else_header stat
                             {
                                 $$ = createNode(NT_IF_ELSE, $1->first_node, $1->second_node, createNode(NT_STAT_LIST, $2, NULL), NULL);
+                                if (ifLevel == 0) {
+                                    returnState = RS_BEGIN;
+                                }
                             }
                         | error ELSE stat /* ERROR */
                             {
@@ -968,6 +973,9 @@ struct_stat             : if_else_header stat
                             {
                                 ifLevel -= 1;
                                 $$ = createNode(NT_IF, $1, createNode(NT_STAT_LIST, $3, NULL), NULL);
+                                if (ifLevel == 0) {
+                                    returnState = RS_BEGIN;
+                                }
                             }
                         | error THEN stat /* ERROR */
                             {
@@ -1007,6 +1015,9 @@ matched_stat            : simple_stat
                         | if_else_header matched_stat
                             {
                                 $$ = createNode(NT_IF_ELSE, $1->first_node, $1->second_node, createNode(NT_STAT_LIST, $2, NULL), NULL);
+                                if (ifLevel == 0) {
+                                    returnState = RS_BEGIN;
+                                }
                             }
                         | error ELSE matched_stat /* ERROR */
                             {
@@ -1041,8 +1052,13 @@ matched_stat            : simple_stat
 
 if_else_header          : if_header THEN matched_stat ELSE
                             {
-                                ifLevel -= 1;
                                 $$ = createNodePair($1, createNode(NT_STAT_LIST, $3, NULL));
+                                ifLevel -= 1;
+                                if (returnState == RS_SET_THIS_COND) {
+                                    returnState = RS_SET_LAST_COND;
+                                } else if (returnState != RS_BEGIN) {
+                                    returnState = RS_NOT_SET;
+                                }
                             }
                         ;
 

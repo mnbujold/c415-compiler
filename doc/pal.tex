@@ -70,11 +70,12 @@ Type Classes are a special object case that have a further structure with data p
 \section*{Semantic Analysis}
 Most of the semantic analysis is done using the symbol structures. Local and global lookups of the symbol table are used to determine the correct usage of symbols. Object classes and types are checked for consistency in declarations, assignments, operations, procedure and function invocations, conditionals, and array accesses.\\
 
-Function return values...\\
+To determine if a function's return value is set before the end of the function's definition, we check every assignment for a function symbol on the left hand side. This assignment is valid if the assignment occurs within the function's \texttt{compound_stat} definition , which we check by setting flags before and after the \texttt{compound_stat}. To check if the assignment occurs in an unconditional statement, we keep global variables for the current loop depth (\texttt{while} loops) and conditional depth (\texttt{if} statements), incremented and decremented appropriately; of special node, the conditional depth is decremented before an \texttt{else} statement for final checking. The loop depth is also used to check for the correct placement of \texttt{exit} and \texttt{continue}\\
 
-Writeln, readln...\\
+I/O procedure invocations without parentheses (\texttt{write}, \texttt{read}, \texttt{writeln}, and \texttt{readln}) are checked using a lexical rule, a identifier reduction in the grammar (to allow for hiding the names), and a check if the symbol is the same as the corresponding builtin procedure (i.e. it has not been hidden).
 
-\section*{Syntax Tree \& Code Generation}
+
+\section*{Syntax Tree}
 To generate the \emph{ASC} assembly code for a \emph{pal} program, we build a syntax tree of the program using the bison grammar structure. The nodes of the tree consist of a type indicator, the symbol resulting from the grammar rule (if present), and additional contructs that are required to do semantic analysis and symbol creation, but not code generation; for example, we require the parameters of a procedure declaration to create the associated symbol, but we do not need the parameters to generate code for the procedure because the parameters are stored in the procedure symbol itself.\\
 
 After we have generated a syntax tree from this first pass, we reformat and simplify the tree to facilitate easier code generation. Lists in the tree are flattened, unnecessary nodes are collapsed (especially expression nodes), and a minor number of nodes are added for consistency reasons. Also, the additional constructs not involved in code generation removed from the nodes, leaving just the node type indicator and symbol (if present) remaining. The simplified tree has the following form:\\
@@ -83,9 +84,13 @@ After we have generated a syntax tree from this first pass, we reformat and simp
 SYNTAX TREE IMAGE\\
 \\
 
-The only dedicated leaf nodes are \texttt{EXIT}, \texttt{CONTINUE}, and \texttt{symbol}, but \texttt{VAR_DECL_LIST}, \texttt{PROC_DECL_LIST},  and \texttt{STAT_LIST} will also have no children if their respective sections are empty. Only the \texttt{symbol} node contains actual symbols.\\
+The only dedicated leaf nodes are \texttt{exit}, \texttt{continue}, and \texttt{symbol}, but \texttt{VAR_DECL_LIST}, \texttt{PROC_DECL_LIST},  and \texttt{STAT_LIST} will also have no children if their respective sections are empty. Only the \texttt{symbol} node contains actual symbols.\\
 
 An additional transformation take place before we generate code: arithmetic operators are modified to reflect the result of their computation, based on the type of their operands. We use a postorder traversal of the tree to recursively determine the type of the operands and set the operator's result type to real or integer accordingly. This final tree makes dealing with integer and real conversion, and determining the correct \emph{ASC} operator type, much easier.
+
+
+\section*{Code Generation}
+TODO\\
 
 
 \section*{Testing}

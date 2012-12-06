@@ -75,10 +75,12 @@ digraph S  {
     PROC_DECL -> decls0;
     PROC_DECL -> STAT_LIST;
     
-    STAT_LIST -> STAT;
+    stat_ [label = "STAT"];
+    STAT_LIST -> stat_;
     STAT_LIST -> ellipse2;
     
-    STAT -> ASSIGNMENT;
+    assignment_ [label = "ASSIGNMENT"];
+    STAT -> assignment_;
     STAT -> or0 [style = invis];
     STAT -> PROC_INVOK;
     STAT -> or1 [style = invis];
