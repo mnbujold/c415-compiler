@@ -470,7 +470,7 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         }
         
         newFunc = createSymbol(id, returnType, OC_FUNC,
-                               createFunctionDesc(paramList, returnType));
+                               createFunctionDesc(paramList, returnType, -1));
     } else {
         symExistsError(id);
         newFunc = createErrorSym(OC_FUNC);
@@ -872,12 +872,13 @@ accessArray(symbol *array, symbol *index) {
 }
 
 void
-doVarAssignment (symbol *var, symbol *expr) {
+doVarAssignment (symbol *var, symbol *expr, int loopLevel, int ifLevel) {
     //printf ("In do var assignment\n");
     if (assignmentCompatibleSym(var, expr, 1) == 1) {
         symbol *varLookup = localLookup(var->name);
 
-        if (varLookup != NULL && varLookup->oc == OC_FUNC) {
+        if (varLookup != NULL && varLookup->oc == OC_FUNC
+         && loopLevel == 0 && ifLevel == 0) {   // setting return values in conditional statments don't count
             varLookup->desc.func_attr->returnValSet = 1;
         }
     }
@@ -887,11 +888,12 @@ doVarAssignment (symbol *var, symbol *expr) {
 
 void
 checkFuncValSet(symbol *func) {
-    if (func->oc == OC_FUNC
-     && func->symbol_type->desc.type_attr->type != TC_ERROR
-     && func->desc.func_attr->returnValSet != 1) {
-        missFuncRetError();
-    }
+    if (func->oc == OC_FUNC && func->symbol_type->desc.type_attr->type != TC_ERROR) {
+        func->desc.func_attr->defnState = 1;
+        if (func->desc.func_attr->returnValSet != 1) {
+            missFuncRetError();
+        }
+    }    
 }
 
 symbol *
