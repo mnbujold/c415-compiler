@@ -60,6 +60,9 @@ typedef struct structured_info_struct structInfo;
  ****************************************************************/
 void genASCCode (GNode *tree, char *fileName);
 
+GNode *getFirstOperationParent (GNode *expressionNode);
+
+GNode *getFirstParent (GNode *currentNode, node_type parentTypeLowerBound, node_type parentTypeUpperBound) ;
 
 void pushRecord(symbol *);
 void pushArrya(symbol *);

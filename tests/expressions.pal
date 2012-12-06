@@ -30,9 +30,10 @@ var
         numReal := 1 + 2 * 3;
         numReal := (1 + 2) * 3;
         joe();
-        if (1 < 2) then
+        if (1 < 2.5) then
             numReal := numReal + 1;
             
+        numOdd := 3.8 + 3 * 4;
         //writeln;
         //writeln (sin (0));
         //writeln;

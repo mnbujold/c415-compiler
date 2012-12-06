@@ -650,6 +650,21 @@ void genCodeForStatement(GNode *statement) {
         
 }
 
+
+GNode *getFirstParent (GNode *currentNode, node_type parentTypeLowerBound, node_type parentTypeUpperBound) {
+    printf ("Broken in here\n");
+    while (currentNode != NULL) {
+        node_type currentNodeType = getNiceType (currentNode);
+        if ((currentNodeType >= parentTypeLowerBound) && (currentNodeType <= parentTypeUpperBound)) {       
+            return currentNode;
+        }
+        
+        currentNode = currentNode->parent;
+    }
+    printf ("Done the while\n");
+    return NULL;
+}
+
 //Get the first parent of this node that is 
 symbol *getFirstProcParent(GNode *node) {
   printf ("inside proc parent\n");
@@ -714,17 +729,69 @@ void genCodeForExpression (GNode *expressionNode) {
             //TODO: Actually check which type it is. Right now 
             //just get the integer value
             //TODO: figure out what to do for strings
-            
-            int value = varSymbol->desc.const_attr->value.integer;
-            char instruction [strlen ("CONSTI") + 11];
-            sprintf (instruction, "CONSTI %d", value);
-            generateFormattedInstruction (instruction);
+            switch (constType) {
+                case TC_REAL:
+                {
+                    double value = varSymbol->desc.const_attr->value.real;
+                    char instruction [strlen ("CONSTR") + 12];
+                    sprintf (instruction, "CONSTR %f", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                case TC_BOOLEAN:
+                {
+                    int value = varSymbol->desc.const_attr->value.boolean;
+                    char instruction [strlen ("CONSTI") + 2];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                case TC_CHAR:
+                {
+                    int value = varSymbol->desc.const_attr->value.character;
+                    char instruction [strlen ("CONSTI") + 3];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                default:
+                {
+                    int value = varSymbol->desc.const_attr->value.integer;
+                    char instruction [strlen ("CONSTI") + 12];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+            }
+
+            //Check if we have a real parent so we need to convert to real
+            GNode *operationNode = getFirstOperationParent (expressionNode->parent);
+            if (operationNode == NULL) {
+                printf ("Operation node is null\n");
+            }
+            else {
+                node_type type = getNiceType (operationNode);
+                printf ("Inside int math: Type of node is: %d\n", type);
+                if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION) && (constType != TC_REAL)) {
+                    printf ("We have a real operation\n");
+                    generateFormattedInstruction ("ITOR");
+                }
+                
+            }
+            //We need to turn this guy into a real if one of its parent is a real operation
+            //get the first operation we see
+//             GNode *operationNode = getFirstOperationParent (expressionNode);
+//             node_type type = getNiceType (operationNode);
+//             if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION)) {
+//                 printf ("We have a real operation\n");
+//                 generateFormattedInstruction ("ITOR");
+//             }
             
             break;
         }
         default:
         {
-          printf ("I'm an operation!!!!!!\n");
+//           printf ("I'm an operation!!!!!!\n");
           // if ((exprType >= NT_ISEQUAL) && (exprType <=NT_INVERSION)) 
             genCodeForOperation (expressionNode);
           // else
@@ -734,9 +801,23 @@ void genCodeForExpression (GNode *expressionNode) {
 
     }
 }
-
-//TODO: Don't forget that each one of these has to have a recursive call to
-//expression
+GNode *getFirstOperationParent (GNode *expressionNode) {
+    printf ("In first operation parent\n");
+    GNode *currentNode = getFirstParent (expressionNode, NT_ISEQUAL, NT_INVERSION);
+    if (currentNode != NULL)
+        return currentNode;
+    printf ("past first if\n");
+    currentNode = getFirstParent (expressionNode, NT_INT_ISEQUAL, NT_INT_INVERSION);
+    if (currentNode != NULL)
+        return currentNode;
+    
+    printf ("past second if\n");
+    currentNode = getFirstParent (expressionNode, NT_REAL_ISEQUAL, NT_REAL_INVERSION);
+    printf ("Done the 3rd thing\n");
+    return currentNode;
+    
+    printf ("past third if\n");
+}
 void genCodeForOperation (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     if ((exprType >= NT_INT_ISEQUAL) && (exprType <=NT_INT_GREATERTHANEQUALS)) {
@@ -761,10 +842,18 @@ void genCodeForOperation (GNode *expressionNode) {
     else if ((exprType == NT_INT_IDENTITY) || (exprType == NT_REAL_IDENTITY)) {
         //uh...do nothing.
         //we might need to convert between I and R
+        genCodeForExpression (expressionNode->children);
     }
     else if ((exprType == NT_INT_INVERSION) || (exprType == NT_REAL_INVERSION)) {
     //NEED TO GET THE TYPE OF the thing we're inverting
       generateFormattedInstruction ("CONSTI 0");
+      genCodeForExpression (expressionNode->children);
+      if (exprType == NT_INT_INVERSION) {
+          generateFormattedInstruction ("SUBI");
+      }
+      else {
+          generateFormattedInstruction ("SUBR");
+      }
     }
     //TODO: Now do this for reals
     else {
@@ -775,7 +864,7 @@ void genCodeForOperation (GNode *expressionNode) {
 }
 
 void genCodeForIntComparison (GNode *expressionNode) {
-    printf ("Int comparison alled\n");
+    printf ("Int comparison called\n");
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
     GNode *rightExpressionNode = leftExpressionNode->next;
@@ -828,9 +917,25 @@ void genCodeForIntComparison (GNode *expressionNode) {
           break;
         }
     }
+    //Check if we have a real parent so we need to convert to real
+    GNode *operationNode = getFirstOperationParent (expressionNode->parent);
+    if (operationNode == NULL) {
+        printf ("Operation node is null\n");
+    }
+    else {
+        node_type type = getNiceType (operationNode);
+        printf ("Inside int math: Type of node is: %d\n", type);
+        if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION)) {
+            printf ("We have a real operation\n");
+            generateFormattedInstruction ("ITOR");
+        }
+        
+    }
     
 }
 
+
+//TODO: Need to convert any integers here into reals
 void genCodeForRealComparison (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
@@ -917,7 +1022,6 @@ void genCodeForLogical (GNode *expressionNode) {
     }
 }
 
-//TODO: Change to int math
 void genCodeForIntMath (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
@@ -952,10 +1056,26 @@ void genCodeForIntMath (GNode *expressionNode) {
             break;
         }
     }
+    //Check if we have a real parent so we need to convert to real
+    GNode *operationNode = getFirstOperationParent (expressionNode->parent);
+    if (operationNode == NULL) {
+        printf ("Operation node is null\n");
+    }
+    else {
+        node_type type = getNiceType (operationNode);
+        printf ("Inside int math: Type of node is: %d\n", type);
+        if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION)) {
+            printf ("We have a real operation\n");
+            generateFormattedInstruction ("ITOR");
+        }
+        
+    }
+    
 }
 
-//TODO: Implement
+//TODO: Need to convert any integers here into reals
 void genCodeForRealMath (GNode *expressionNode) {
+    printf ("In gen code for real math\n");
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
     genCodeForExpression (leftExpressionNode);
