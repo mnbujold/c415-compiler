@@ -639,6 +639,7 @@ void genCodeForExpression (GNode *expressionNode) {
         }
         default:
         {
+          printf ("I'm an operation!!!!!!\n");
           // if ((exprType >= NT_ISEQUAL) && (exprType <=NT_INVERSION)) 
             genCodeForOperation (expressionNode);
           // else
@@ -653,14 +654,14 @@ void genCodeForExpression (GNode *expressionNode) {
 //expression
 void genCodeForOperation (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
-    if ((exprType >= NT_ISEQUAL) && (exprType <=NT_GREATERTHANEQUALS)) {
+    if ((exprType >= NT_INT_ISEQUAL) && (exprType <=NT_INT_GREATERTHANEQUALS)) {
         genCodeForComparison (expressionNode);
     }
     else if ((exprType >=NT_AND) && (exprType <= NT_NOT)) {
 
         genCodeForLogical (expressionNode);
     }
-    else if ((exprType >= NT_PLUS) && (exprType <= NT_MOD)) {
+    else if ((exprType >= NT_INT_PLUS) && (exprType <= NT_INT_MULTIPLY)) {
         genCodeForMath (expressionNode);
     }
     else if (exprType == NT_IDENTITY) {
@@ -670,8 +671,10 @@ void genCodeForOperation (GNode *expressionNode) {
     //NEED TO GET THE TYPE OF the thing we're inverting
       generateFormattedInstruction ("CONSTI 0");
     }
+    //TODO: Now do this for reals
     else {
         printf ("Error. Tried to gernerate code for an operation when it was not an operation\n");
+        printf ("is of type: %d\n", getNiceType (expressionNode));
     }
     
 }
@@ -772,6 +775,7 @@ void genCodeForMath (GNode *expressionNode) {
     switch (exprType) {
         case NT_PLUS:
         {
+          printf ("I'm IN PLUS\n");
           generateFormattedInstruction ("ADDI");
             break;
         }
