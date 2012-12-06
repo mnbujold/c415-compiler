@@ -33,8 +33,9 @@ int globalAddressCounter = 0;
 int scope;
 GQueue* labelStack = NULL;
 GHashTable *variableAddressTable = NULL;
-GHashTable *procedureLabelTable = NULL;
+GHashTable *procedureInfoTable = NULL;
 
+//TODO: Will need to refer to the main label somehow
 void genASCCode (GNode *tree, char *fileName) {
     DEBUG_PRINT(("!!!!!!!!!!!!!!!!!!!!!!!!!\n"));
     DEBUG_PRINT (("Inside code generation\n"));
@@ -44,7 +45,7 @@ void genASCCode (GNode *tree, char *fileName) {
 
     labelStack = g_queue_new ();
     variableAddressTable = g_hash_table_new (g_direct_hash, g_direct_equal);
-    procedureLabelTable = g_hash_table_new (g_direct_hash, g_direct_equal);
+    procedureInfoTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     registers = calloc (NUM_ASC_REGISTERS, sizeof (int));
     scope = 0;
     
@@ -159,7 +160,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         procedureInfo->procLabel = procLabel;
         int callingRegister = getFirstFreeRegister();
         procedureInfo->indexingRegister = callingRegister;
-        g_hash_table_insert (procedureLabelTable, procedureSymbol, procedureInfo);
+        g_hash_table_insert (procedureInfoTable, procedureSymbol, procedureInfo);
         GNode *declarations = node->children->next;
         GNode *statements = declarations->next;
         
@@ -470,7 +471,7 @@ void genCodeForStatement(GNode *statement) {
 //             printf ("proc symbol address %p\n", procSymbol);
 //             printf ("writeln address %p\n", writelnSymbol);
             
-            procInfo *procedureInfo = (procInfo *) g_hash_table_lookup (procedureLabelTable, procSymbol);
+            procInfo *procedureInfo = (procInfo *) g_hash_table_lookup (procedureInfoTable, procSymbol);
             //printf ("Returned proc label: %s\n", procLabel);
 //             printf ("procedure info returned\n");
             //generate CALL
@@ -491,10 +492,39 @@ void genCodeForStatement(GNode *statement) {
         }   
         case NT_IF:
         {
+          printf ("Inside an if conditional statement\n");
+          GNode *ifExpression = statement->children;
+          GNode *ifStatementList = ifExpression->next;
+          printf ("successfully got the nodes of if\n");
+          genCodeForExpression (ifExpression);
+          printf ("successfully generated code for conditional\n");
+          //GET THE label, append if, 
+          //IFNZ FUNCTIONIFNUMBERXEND
+          ////generateLabel functionNameIfNumberX
+          symbol *procSymbol = getFirstProcParent(statement);
+          printf ("Address of proc symbol: %p\n", procSymbol);
+          if (procSymbol == NULL) {
+            printf ("Could not find parent proc symbol\n");
+          }
+          procInfo *procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
+          char *label = genProcLabel (procedureInfo);
+          char instruction [strlen (label) + strlen ("IFNZ")];
+          sprintf (instruction, "IFZ %s", label);
+          printf ("*** LABEL: %s\n", label);
+          printf ("*** INSTRUCTION %s\n", instruction);
+          generateFormattedInstruction (instruction);
+          sprintf (instruction, "IFZ %s", label);
+          genCodeForStatementList (ifStatementList);
+          generateLabel (label);
+          //don't forget to add so the next guy knows how many labels
+          
+          //generateLabel (functionNameIfNumberXEnd)
+          //TODO: Implement
             break;
         }
         case NT_IF_ELSE:
         {
+        //TODO: Implement
             break;
         }
         case NT_WHILE: {
@@ -515,9 +545,7 @@ void genCodeForStatement(GNode *statement) {
         case NT_EXIT:
         {
             GNode *currentNode = statement->parent;
-            while (getNiceType(currentNode) != NT_PROC_DECL) {
-                currentNode = currentNode->parent;
-            }
+            symbol *procSymbol = getFirstProcParent(currentNode);
             //TODO: Get  the label for lowest scope funciton/procedure
             //genGOTO to the END of this procedure
             //will need to generate label for all return jumps...
@@ -526,6 +554,23 @@ void genCodeForStatement(GNode *statement) {
                     
     }
         
+}
+
+//Get the first parent of this node that is 
+symbol *getFirstProcParent(GNode *node) {
+  printf ("inside proc parent\n");
+  printf ("Node address: %p\n", node);
+  while (node != NULL) {
+    if (getNiceType (node) == NT_PROC_DECL) {
+      return getSymbol (node->children);
+    }
+    else if (getNiceType (node) == NT_PROGRAM) {
+      return getSymbol (node->children);
+    }
+    node = node->parent;
+  }
+  return NULL;
+  
 }
 
 
@@ -550,7 +595,12 @@ void genCodeForExpression (GNode *expressionNode) {
         }
         case NT_FUNC_INVOK:
         {
+            symbol *funcSymbol = getSymbol (expressionNode->children);
             //TODO: implement
+            //first, we need to evaluate the parameters
+            //then, when they're all on the stack, we need to 
+            procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
+            
             break;
         }
         case NT_CONST:
@@ -738,11 +788,38 @@ void genCodeForMath (GNode *expressionNode) {
         }
     }
 }
+
+/**
+ * Returns a label based on previous labels within the procedure
+ * Also incremements label count for the procedure by 1
+ */
+char *genProcLabel (procInfo *procedureInfo) {
+  int numLabels = procedureInfo->numLabels;
+  char *procLabel = procedureInfo->procLabel;
+  char *label = calloc ((strlen (procLabel) + 11 + strlen("label")), sizeof (char));
+  sprintf (label, "%slabel%d", procLabel, numLabels);
+  //generateLabel (label);
+  numLabels++;
+  procedureInfo->numLabels = numLabels;
+  return label;
+}
 /**
  * Generates a string on the stack, with the first character at the lowest
  * index and the last character of the highest index
  */
-void generateString () {
+void generateString (char *string) {
+  int i=0;
+  int charvalue;
+  //yay, guaranteed by standard to work!
+  char instruction [ strlen ("CONSTI") + 3];
+  do {
+    charvalue = string[i];
+    sprintf (instruction, "CONSTI %d", charvalue);
+    generateFormattedInstruction (instruction);
+    i++;
+  }
+  while (string [i] != '\0');
+
 }
 symbol *getSymbol (GNode *node) {
     

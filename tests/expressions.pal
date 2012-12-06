@@ -14,19 +14,20 @@ var
     numOdd: real;
     numEven: real;
     numReal: integer;
-    chararray: array [1..10] of char;
-    bool: tf;
-    artofwar: book;
-    crazyarray: array[1..4] of array[1..5] of array[1..3] of char;
-    
+
     procedure joe ();
         begin
+          if (1 < 2) then
+            numReal := 1 + 3;
         end;
     
     
     begin
         joe ();
         numReal := 1 + 2;
+        numReal := 1 + 2 * 3;
+        numReal := (1 + 2) * 3;
+        joe();
         //writeln;
         //writeln (sin (0));
         //writeln;

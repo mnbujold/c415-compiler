@@ -27,6 +27,8 @@ struct proc_info_struct {
     int indexingRegister;
     //how many words we need for vars for this proc
     int numVarWords;
+    //how many labels within the statements it currently has
+    int numLabels;
 };
 
 typedef struct proc_info_struct procInfo;
@@ -64,7 +66,7 @@ void genCodeForOperation (GNode *expressionNode);
 symbol *getSymbol (GNode *node);
 
 procInfo *getBuiltinInfo (symbol *builtinSymbol);
-
+symbol *getFirstProcParent(GNode *node);
 
 /*****************************************************************
  * Code generation debug functions
@@ -89,6 +91,7 @@ void genVarAssign (varAddressStruct *addressDescription);
 
 void pushConstantInt (int constant);
 void pushConstantReal (double constant);
+char *genProcLabel (procInfo *procedureInfo);
 
 
 /*****************************************************************
