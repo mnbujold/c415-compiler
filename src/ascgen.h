@@ -25,6 +25,8 @@ typedef struct var_add_struct varAddressStruct;
 struct proc_info_struct {
     char *procLabel;
     int indexingRegister;
+    //how many words we need for vars for this proc
+    int numVarWords;
 };
 
 typedef struct proc_info_struct procInfo;
@@ -40,9 +42,9 @@ void pushArrya(symbol *);
 
 void genCodeForFunctionNode(GNode *node, int scope);
 
-void addVariables(GNode *varDeclNode);
-void variableIterator (GNode *node, gpointer data);
-void variableHandler(symbol *, type_class);
+void addVariables(GNode *varDeclNode, int indexingRegister, int offset); 
+void variableIterator (GNode *varNode, int indexingRegister, int offset);
+void variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescription);
 
 void genCodeForStatementList (GNode *statementList);
 void genCodeForStatement(GNode *statement);
@@ -82,7 +84,8 @@ void genCodeForMath (GNode *expressionNode);
 
 void genProcCall (procInfo *procedureInfo);
 void genProcReturn (procInfo *procedureInfo);
-void generateGOTO (char const *label);
+void genGOTO (char const *label);
+void genVarAssign (varAddressStruct *addressDescription); 
 
 void pushConstantInt (int constant);
 void pushConstantReal (double constant);
