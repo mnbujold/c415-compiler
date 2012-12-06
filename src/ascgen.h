@@ -69,9 +69,9 @@ void pushArrya(symbol *);
 
 void genCodeForFunctionNode(GNode *node, int scope);
 
-void addVariables(GNode *varDeclNode, int indexingRegister, int offset); 
-void variableIterator (GNode *varNode, int indexingRegister, int offset);
-void variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescription);
+void addVariables(GNode *varDeclNode, int indexingRegister, int offset, procInfo *procedureInfo); 
+int variableIterator (GNode *varNode, int indexingRegister, int offset);
+int variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescription);
 
 void genCodeForStatementList (GNode *statementList);
 void genCodeForStatement(GNode *statement);
@@ -80,6 +80,7 @@ void genCodeForExpression (GNode *expressionNode);
 
 void genCodeForOperation (GNode *expressionNode);
 //int getNodeType (GNode *node);
+void genVarAdjust (int value);
 
 
 
