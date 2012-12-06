@@ -77,15 +77,15 @@ enum node_type {            // Children:
     NT_INT_GREATERTHAN,     // 48 NT_EXPR NT_EXPR
     NT_INT_LESSTHANEQUALS,  // 49 NT_EXPR NT_EXPR
     NT_INT_GREATERTHANEQUALS,// 50 NT_EXPR NT_EXPR
-    NT_INT_AND,             // 51 NT_EXPR NT_EXPR
-    NT_INT_OR,              // 52 NT_EXPR NT_EXPR
-    NT_INT_NOT,             // 53 NT_EXPR
+    TEMP0,                  // 51 should never occur
+    TEMP1,                  // 52 should never occur
+    TEMP2,                  // 53 should never occur
     NT_INT_PLUS,            // 54 NT_EXPR NT_EXPR
     NT_INT_MINUS,           // 55 NT_EXPR NT_EXPR
     NT_INT_MULTIPLY,        // 56 NT_EXPR NT_EXPR
-    TEMP0,                  // 57 should never occur
-    TEMP1,                  // 58 should never occur
-    TEMP2,                  // 59 should never occur
+    TEMP3,                  // 57 should never occur
+    TEMP4,                  // 58 should never occur
+    TEMP5,                  // 59 should never occur
     NT_INT_IDENTITY,        // 60 NT_EXPR
     NT_INT_INVERSION,       // 61 NT_EXPR
     // end integer operations
@@ -97,15 +97,15 @@ enum node_type {            // Children:
     NT_REAL_GREATERTHAN,    // 65 NT_EXPR NT_EXPR
     NT_REAL_LESSTHANEQUALS, // 66 NT_EXPR NT_EXPR
     NT_REAL_GREATERTHANEQUALS,// 67 NT_EXPR NT_EXPR
-    NT_REAL_AND,            // 68 NT_EXPR NT_EXPR
-    NT_REAL_OR,             // 69 NT_EXPR NT_EXPR
-    NT_REAL_NOT,            // 70 NT_EXPR
+    TEMP6,                  // 68 should never occur
+    TEMP7,                  // 69 should never occur
+    TEMP8,                  // 70 should never occur
     NT_REAL_PLUS,           // 71 NT_EXPR NT_EXPR
     NT_REAL_MINUS,          // 72 NT_EXPR NT_EXPR
     NT_REAL_MULTIPLY,       // 73 NT_EXPR NT_EXPR
-    TEMP3,                  // 74 should never occur
-    TEMP4,                  // 75 should never occur
-    TEMP5,                  // 76 should never occur
+    TEMP9,                  // 74 should never occur
+    TEMP10,                 // 75 should never occur
+    TEMP11,                 // 76 should never occur
     NT_REAL_IDENTITY,       // 77 NT_EXPR
     NT_REAL_INVERSION,      // 78 NT_EXPR
     // end real operations

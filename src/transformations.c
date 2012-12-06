@@ -61,12 +61,12 @@ setOps(GNode *node) {
 
 int
 isUnaryOperator(node_type type) {    
-    return type == NT_IDENTITY || type == NT_INVERSION || type == NT_NOT;
+    return type == NT_IDENTITY || type == NT_INVERSION;
 }
 
 int
 isBinaryOperator(node_type type) {    
-    return (NT_ISEQUAL <= type && type <= NT_OR)
+    return (NT_ISEQUAL <= type && type <= NT_GREATERTHANEQUALS)
         || (NT_PLUS <= type && type <= NT_MULTIPLY);
 }
 
