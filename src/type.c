@@ -871,26 +871,31 @@ accessArray(symbol *array, symbol *index) {
     return createSymbol(NULL, arrayType->obj_type, OC_VAR, (void *) createVarDesc());
 }
 
-void
-doVarAssignment (symbol *var, symbol *expr, int loopLevel, int ifLevel) {
-    //printf ("In do var assignment\n");
+return_val_state
+doVarAssignment (symbol *var, symbol *expr, int loopLevel, int ifLevel, return_val_state returnState) {
     if (assignmentCompatibleSym(var, expr, 1) == 1) {
         symbol *varLookup = localLookup(var->name);
 
         if (varLookup != NULL && varLookup->oc == OC_FUNC
-         && loopLevel == 0 && ifLevel == 0) {   // setting return values in conditional statments don't count
-            varLookup->desc.func_attr->returnValSet = 1;
+         && loopLevel == 0) {   // setting return values in loops don't count
+            
+            if ((returnState == RS_SET_LAST_COND || returnState == RS_BEGIN) && ifLevel == 0) {
+                varLookup->desc.func_attr->returnValSet = 1;
+                returnState = RS_SET;
+            } else if ((returnState == RS_SET_LAST_COND || returnState == RS_BEGIN) && ifLevel > 0) {
+                returnState = RS_SET_THIS_COND;
+            }
         }
     }
-    //var->desc.var_attr->expression = expr;
     
+    return returnState;    
 }
 
 void
 checkFuncValSet(symbol *func) {
     if (func->oc == OC_FUNC && func->symbol_type->desc.type_attr->type != TC_ERROR) {
         func->desc.func_attr->defnState = 1;
-        if (func->desc.func_attr->returnValSet != 1) {
+        if (func->desc.func_attr->returnValSet < 1) {
             missFuncRetError();
         }
     }    

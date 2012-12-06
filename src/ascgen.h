@@ -27,9 +27,33 @@ struct proc_info_struct {
     int indexingRegister;
     //how many words we need for vars for this proc
     int numVarWords;
+    //how many labels within the statements it currently has
+    int numLabels;
 };
 
 typedef struct proc_info_struct procInfo;
+
+
+//TODO: probably need to implement. For now, going to try cheating
+//We only need this becuase of continue and exit statements
+
+
+//right now, we only need this for while loops
+
+enum structured_statement_type {
+    ST_IF,                  //0
+    ST_IF_ELSE,             //1
+    ST_WHILE                //2
+};
+typedef enum structured_statement_type structType;
+struct structured_info_struct {
+    structType type;
+    char *beginLabel;
+    char *endLabel;
+    
+};
+typedef struct structured_info_struct structInfo;
+
 
 /****************************************************************
  * Functions to generate code based on syntax tree
@@ -64,7 +88,7 @@ void genCodeForOperation (GNode *expressionNode);
 symbol *getSymbol (GNode *node);
 
 procInfo *getBuiltinInfo (symbol *builtinSymbol);
-
+symbol *getFirstProcParent(GNode *node);
 
 /*****************************************************************
  * Code generation debug functions
@@ -78,9 +102,11 @@ void showVariableAddressTable();
 /***********************************************************
  * Wrapper functions for sequences of atomic ASC instructions
  **********************************************************/
-void genCodeForComparison (GNode *expressionNode);
+void genCodeForIntComparison (GNode *expressionNode);
+void genCodeForRealComparison (GNode *expressionNode);
 void genCodeForLogical (GNode *expressionNode);
-void genCodeForMath (GNode *expressionNode); 
+void genCodeForIntMath (GNode *expressionNode); 
+void genCodeForRealMath (GNode *expressionNode);
 
 void genProcCall (procInfo *procedureInfo);
 void genProcReturn (procInfo *procedureInfo);
@@ -89,6 +115,7 @@ void genVarAssign (varAddressStruct *addressDescription);
 
 void pushConstantInt (int constant);
 void pushConstantReal (double constant);
+char *genProcLabel (procInfo *procedureInfo);
 
 
 /*****************************************************************

@@ -1,3 +1,9 @@
+/**
+ * Author: James Osgood
+ * Creation and mantainance of the syntax tree in the grammar.
+ * Also the simplification of the syntax tree before code generation.
+ */
+
 #include <glib.h>
 
 #include "symbol.h"
@@ -29,7 +35,7 @@ enum node_type {            // Children:
     
     NT_EXPR,                // 10 NT_CONST or NT_VAR or NT_FUNC_INVOK or (operation)
     
-    //operations
+    // operations
     NT_ISEQUAL,             // 11 NT_EXPR NT_EXPR
     NT_NOTEQUAL,            // 12 NT_EXPR NT_EXPR
     NT_LESSTHAN,            // 13 NT_EXPR NT_EXPR
@@ -42,12 +48,12 @@ enum node_type {            // Children:
     NT_PLUS,                // 20 NT_EXPR NT_EXPR
     NT_MINUS,               // 21 NT_EXPR NT_EXPR
     NT_MULTIPLY,            // 22 NT_EXPR NT_EXPR
-    NT_DIVIDE,              // 23 NT_EXPR NT_EXPR
-    NT_DIV,                 // 24 NT_EXPR NT_EXPR
+    NT_DIVIDE,              // 23 NT_EXPR NT_EXPR (for reals)
+    NT_DIV,                 // 24 NT_EXPR NT_EXPR (for integer)
     NT_MOD,                 // 25 NT_EXPR NT_EXPR
     NT_IDENTITY,            // 26 NT_EXPR
     NT_INVERSION,           // 27 NT_EXPR
-    //end operations
+    // end operations
     
     NT_PROC_INVOK,          // 28 NT_SYMBOL (procedure) NT_EXPR ... NT_EXPR (argument ... argument)
     NT_FUNC_INVOK,          // 29 NT_SYMBOL (function) NT_EXPR ... NT_EXPR (argument ... argument)
@@ -68,7 +74,47 @@ enum node_type {            // Children:
     
     // Now, some more just for me:
     NT_VAR_DECL_PART, NT_PROC_DECL_PART, NT_PROC_HEADING, NT_COMPOUND_STAT,
-    NT_SIMPLE_STAT, NT_PLIST_FINVOK    // 39 - 44
+    NT_SIMPLE_STAT, NT_PLIST_FINVOK,   // 39 - 44
+    
+    // integer operations
+    NT_INT_ISEQUAL,         // 45 NT_EXPR NT_EXPR
+    NT_INT_NOTEQUAL,        // 46 NT_EXPR NT_EXPR
+    NT_INT_LESSTHAN,        // 47 NT_EXPR NT_EXPR
+    NT_INT_GREATERTHAN,     // 48 NT_EXPR NT_EXPR
+    NT_INT_LESSTHANEQUALS,  // 49 NT_EXPR NT_EXPR
+    NT_INT_GREATERTHANEQUALS,// 50 NT_EXPR NT_EXPR
+    TEMP0,                  // 51 should never occur
+    TEMP1,                  // 52 should never occur
+    TEMP2,                  // 53 should never occur
+    NT_INT_PLUS,            // 54 NT_EXPR NT_EXPR
+    NT_INT_MINUS,           // 55 NT_EXPR NT_EXPR
+    NT_INT_MULTIPLY,        // 56 NT_EXPR NT_EXPR
+    TEMP3,                  // 57 should never occur
+    TEMP4,                  // 58 should never occur
+    TEMP5,                  // 59 should never occur
+    NT_INT_IDENTITY,        // 60 NT_EXPR
+    NT_INT_INVERSION,       // 61 NT_EXPR
+    // end integer operations
+    
+    // real operations
+    NT_REAL_ISEQUAL,        // 62 NT_EXPR NT_EXPR
+    NT_REAL_NOTEQUAL,       // 63 NT_EXPR NT_EXPR
+    NT_REAL_LESSTHAN,       // 64 NT_EXPR NT_EXPR
+    NT_REAL_GREATERTHAN,    // 65 NT_EXPR NT_EXPR
+    NT_REAL_LESSTHANEQUALS, // 66 NT_EXPR NT_EXPR
+    NT_REAL_GREATERTHANEQUALS,// 67 NT_EXPR NT_EXPR
+    TEMP6,                  // 68 should never occur
+    TEMP7,                  // 69 should never occur
+    TEMP8,                  // 70 should never occur
+    NT_REAL_PLUS,           // 71 NT_EXPR NT_EXPR
+    NT_REAL_MINUS,          // 72 NT_EXPR NT_EXPR
+    NT_REAL_MULTIPLY,       // 73 NT_EXPR NT_EXPR
+    TEMP9,                  // 74 should never occur
+    TEMP10,                 // 75 should never occur
+    TEMP11,                 // 76 should never occur
+    NT_REAL_IDENTITY,       // 77 NT_EXPR
+    NT_REAL_INVERSION,      // 78 NT_EXPR
+    // end real operations
 };
 
 typedef enum node_type node_type;
@@ -95,12 +141,13 @@ struct rule_and_node {
 
 typedef struct rule_and_node rule_and_node;
 
-struct proc_head_pair {
-    GNode *proc_heading;
-    GNode *decls;
+struct node_pair {
+    GNode *first_node;
+    GNode *second_node;
 };
 
 node_type getNiceType(GNode *node); // Use this!
+GNode *changeType(GNode *node, node_type newType);
 
 void displayOldTree(GNode *head, int level);
 void displayNewTree(GNode *head, int level);
@@ -155,7 +202,7 @@ GNode *createSingleExprNode(node_type type, symbol *result);
 
 GNode *getProcNode(const char *procname);
 
-struct proc_head_pair *createProcHead(GNode *procHeading, GNode *decls);
+struct node_pair *createNodePair(GNode *firstNode, GNode *secondNode);
 
 symbol *extractSymbol(GNode *node);
 symbol *extractType(GNode *node);

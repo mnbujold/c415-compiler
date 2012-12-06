@@ -19,7 +19,6 @@
 #include "ascgen.h"
 
 FILE *output;
-//somethign to store labels
 
 //registers stores registers we are using. 
 //if it is set to 0, then is free, if set to 1, being used
@@ -31,10 +30,12 @@ int globalAddressCounter = 0;
 
 //store the current scope. we will need this for labels
 int scope;
-GQueue* labelStack = NULL;
+GHashTable *labelTable = NULL;
 GHashTable *variableAddressTable = NULL;
-GHashTable *procedureLabelTable = NULL;
+GHashTable *procedureInfoTable = NULL;
 
+procInfo *mainProcInfo;
+//TODO: Will need to refer to the main label somehow
 void genASCCode (GNode *tree, char *fileName) {
     DEBUG_PRINT(("!!!!!!!!!!!!!!!!!!!!!!!!!\n"));
     DEBUG_PRINT (("Inside code generation\n"));
@@ -42,9 +43,9 @@ void genASCCode (GNode *tree, char *fileName) {
 
     //Initialize our own tracking tools we will need for generating code
 
-    labelStack = g_queue_new ();
+    labelTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     variableAddressTable = g_hash_table_new (g_direct_hash, g_direct_equal);
-    procedureLabelTable = g_hash_table_new (g_direct_hash, g_direct_equal);
+    procedureInfoTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     registers = calloc (NUM_ASC_REGISTERS, sizeof (int));
     scope = 0;
     
@@ -90,6 +91,12 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         GNode *declarations = node->children;
         GNode *statements = node->children->next;
         
+        procInfo *procedureInfo = calloc (1, sizeof (procInfo));
+        procedureInfo->procLabel = "main";
+        procedureInfo->indexingRegister = -1;
+        mainProcInfo = procedureInfo;
+        //store this globally. If all else fails we jump to this symbol
+        //g_hash_table_insert (procedureInfoTable, procedureSymbol, procedureInfo);
         GNode *varDeclarationsList = declarations->children;
         GNode *procDeclarations = declarations->children->next;
         if (getNiceType (declarations) == NT_DECLS) {
@@ -126,7 +133,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         genCodeForStatementList (statements);
         
         //we need this for exit
-        generateLabel ("end");
+        generateLabel ("mainend");
         generateStackDump();
         //generateAdjust (number of vars allocated);
         generateStackDump();
@@ -142,6 +149,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
 
 //        symbol *procedureSymbol = getSymbol (node->children);
 
+      
         symbol *procedureSymbol = (symbol *)getSymbol (node->children);
         printf ("Procedure name: %s\n", procedureSymbol->name);
 
@@ -159,7 +167,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         procedureInfo->procLabel = procLabel;
         int callingRegister = getFirstFreeRegister();
         procedureInfo->indexingRegister = callingRegister;
-        g_hash_table_insert (procedureLabelTable, procedureSymbol, procedureInfo);
+        g_hash_table_insert (procedureInfoTable, procedureSymbol, procedureInfo);
         GNode *declarations = node->children->next;
         GNode *statements = declarations->next;
         
@@ -434,17 +442,30 @@ void genCodeForStatement(GNode *statement) {
             //evaluate the expression
             
             //remember there is a level of indrirection here
-            GNode *symbolNode = (GNode *)(statement->children)->children;
-            printf ("type of var's first child: %d\n", getNiceType (symbolNode));
+            GNode *varNode = statement->children;
+            node_type varType = getNiceType (varNode->children);
+            if (varType == NT_SYMBOL) {
+              GNode *symbolNode = (statement->children)->children;
+              printf ("type of var's first child: %d\n", getNiceType (symbolNode));
 
-            symbol *varSymbol = getSymbol (symbolNode);
-            printf ("symbol name: %s\n", varSymbol->name);
-            printf ("Symbol address: %p\n", varSymbol);
-            varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
-            GNode *expressionNode = statement->children->next;
-            genCodeForExpression (expressionNode);
-            printf ("Address of address description from hash: %p\n", addressDescription);
-            genVarAssign (addressDescription);
+              symbol *varSymbol = getSymbol (symbolNode);
+              printf ("symbol name: %s\n", varSymbol->name);
+              printf ("Symbol address: %p\n", varSymbol);
+              varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
+              GNode *expressionNode = statement->children->next;
+              genCodeForExpression (expressionNode);
+              printf ("Address of address description from hash: %p\n", addressDescription);
+              genVarAssign (addressDescription);
+            }
+            else if (varType== NT_ARRAY_ACCESS) {
+              //TODO: Implement
+            }
+            else if (varType ==NT_RECORD_ACCESS) {
+              //TODO: Implement
+            }
+            else {
+            }
+
          
             break;
         }
@@ -470,14 +491,14 @@ void genCodeForStatement(GNode *statement) {
 //             printf ("proc symbol address %p\n", procSymbol);
 //             printf ("writeln address %p\n", writelnSymbol);
             
-            procInfo *procedureInfo = (procInfo *) g_hash_table_lookup (procedureLabelTable, procSymbol);
+            procInfo *procedureInfo = (procInfo *) g_hash_table_lookup (procedureInfoTable, procSymbol);
             //printf ("Returned proc label: %s\n", procLabel);
 //             printf ("procedure info returned\n");
             //generate CALL
             if (procedureInfo == NULL) {
                 printf ("Returned proc info is null, must be a builtin\n");
                 //look it up in builtins
-                //TODO:
+                //TODO: look up in builtins table...
                 procInfo *returnedInfo = getBuiltinInfo(procSymbol);
             }
             genProcCall (procedureInfo);
@@ -491,13 +512,105 @@ void genCodeForStatement(GNode *statement) {
         }   
         case NT_IF:
         {
+          printf ("Inside an if conditional statement\n");
+          GNode *ifExpression = statement->children;
+          GNode *ifStatementList = ifExpression->next;
+          printf ("successfully got the nodes of if\n");
+          genCodeForExpression (ifExpression);
+          printf ("successfully generated code for conditional\n");
+          //GET THE label, append if, 
+          //IFNZ FUNCTIONIFNUMBERXEND
+          ////generateLabel functionNameIfNumberX
+          symbol *procSymbol = getFirstProcParent(statement);
+          printf ("Address of proc symbol: %p\n", procSymbol);
+          procInfo *procedureInfo;
+          if (procSymbol == NULL) {
+            printf ("Could not find parent proc symbol\n");
+            procedureInfo = mainProcInfo;
+          }
+          else {
+            procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
+          }
+          char *label = genProcLabel (procedureInfo);
+          char instruction [strlen (label) + strlen ("IFZ")];
+          sprintf (instruction, "IFZ %s", label);
+          generateFormattedInstruction (instruction);
+          // sprintf (instruction, "IFZ %s", label);
+          genCodeForStatementList (ifStatementList);
+          generateLabel (label);
+          //don't forget to add so the next guy knows how many labels
+          
+          //generateLabel (functionNameIfNumberXEnd)
+          //TODO: Implement
             break;
         }
         case NT_IF_ELSE:
         {
+            GNode *ifExpression = statement->children;
+            GNode *takenStatementList = ifExpression->next;
+            GNode *elseStatementList = takenStatementList->next;
+            symbol *procSymbol = getFirstProcParent (statement);
+            procInfo *procedureInfo;
+            if (procSymbol == NULL) {
+                procedureInfo = mainProcInfo;
+            }
+            else {
+                procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
+            }
+            
+            char *label = genProcLabel (procedureInfo);
+            char elseLabel [strlen (label) + strlen ("else")];
+            char endLabel [strlen (label) + strlen ("ifend")];
+            sprintf (elseLabel, "%selse", label);
+            sprintf (endLabel, "%sifend", label);
+            genCodeForExpression (ifExpression);
+            char branchInstruction [strlen (elseLabel) + strlen("IFZ")];
+            sprintf (branchInstruction, "IFZ %s", elseLabel);
+            generateFormattedInstruction (branchInstruction);
+            //Genreate IFZ 
+            genCodeForStatementList (takenStatementList);
+            genGOTO (endLabel);
+            //generate GOTO statement end
+            //generateLabel (branch)
+            generateLabel (elseLabel);
+            genCodeForStatementList (elseStatementList);
+            generateLabel (endLabel);
+            //generate end label;
             break;
         }
         case NT_WHILE: {
+            GNode *conditionalExpression = statement->children;
+            GNode *whileStatementList = conditionalExpression->next;
+            symbol *procSymbol = getFirstProcParent (statement);
+            procInfo *procedureInfo;
+            if (procSymbol == NULL) {
+              procedureInfo = mainProcInfo;
+            }
+            else {
+              procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
+            }
+            char *label = genProcLabel (procedureInfo);
+            char beginLabel [strlen (label) + strlen ("whilebegin")];
+            char endLabel [strlen (label) + strlen ("whileend")];
+            sprintf (endLabel, "%send", label);            
+            sprintf (beginLabel, "%sbegin", label);
+            generateLabel (beginLabel);
+            genCodeForExpression (conditionalExpression);
+            char branchinstruction [strlen ("IFZ") + strlen (endLabel)];
+
+            sprintf (branchinstruction, "IFZ %s", endLabel);
+            generateFormattedInstruction (branchinstruction);
+            genCodeForStatementList (whileStatementList);
+            genGOTO (beginLabel);
+            generateLabel (endLabel);
+            
+            structInfo *whileInfo = calloc (1, sizeof (structInfo));
+            whileInfo->beginLabel = beginLabel;
+            whileInfo->endLabel = endLabel;
+            
+            g_hash_table_insert (labelTable, statement, whileInfo);
+
+            
             //evaluate expressoin
             //ifZ GOTO blah blah
             //GOTO While beginnning
@@ -508,6 +621,10 @@ void genCodeForStatement(GNode *statement) {
             while (getNiceType(currentNode) != NT_WHILE) {
                 currentNode = currentNode->parent;
             }
+            //current node is now while (theoretically)
+            structInfo *whileInfo = g_hash_table_lookup (labelTable, currentNode);
+            char *gotoLabel = whileInfo->beginLabel;
+            genGOTO (gotoLabel);
             //TODO: get tehe label for this while
             //genGOTO (whatever the daddy node is)
             break;
@@ -515,9 +632,14 @@ void genCodeForStatement(GNode *statement) {
         case NT_EXIT:
         {
             GNode *currentNode = statement->parent;
-            while (getNiceType(currentNode) != NT_PROC_DECL) {
+            while (getNiceType(currentNode) != NT_WHILE) {
                 currentNode = currentNode->parent;
             }
+            //current node is now while (theoretically)
+            structInfo *whileInfo = g_hash_table_lookup (labelTable, currentNode);
+            char *gotoLabel = whileInfo->endLabel;
+            genGOTO (gotoLabel);
+
             //TODO: Get  the label for lowest scope funciton/procedure
             //genGOTO to the END of this procedure
             //will need to generate label for all return jumps...
@@ -526,6 +648,24 @@ void genCodeForStatement(GNode *statement) {
                     
     }
         
+}
+
+//Get the first parent of this node that is 
+symbol *getFirstProcParent(GNode *node) {
+  printf ("inside proc parent\n");
+  printf ("Node address: %p\n", node);
+  while (node != NULL) {
+    if (getNiceType (node) == NT_PROC_DECL) {
+      return getSymbol (node->children);
+    }
+    else if (getNiceType (node) == NT_PROGRAM) {
+      return NULL;
+      //return getSymbol (node->children);
+    }
+    node = node->parent;
+  }
+  return NULL;
+  
 }
 
 
@@ -543,14 +683,27 @@ void genCodeForExpression (GNode *expressionNode) {
         case NT_VAR:
         {
             //TODO: implement
-            symbol *varSymbol = getSymbol(expressionNode->children);
-            varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
+            node_type varType = getNiceType(expressionNode->children);
+            if (varType == NT_SYMBOL) {
             
+              symbol *varSymbol = getSymbol(expressionNode->children);
+              varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
+            }
+            else if (varType == NT_ARRAY_ACCESS) {
+            }
+            else if (varType == NT_RECORD_ACCESS) {
+            }
+            else {
+            }
             break;
         }
         case NT_FUNC_INVOK:
         {
-            //TODO: implement
+            symbol *funcSymbol = getSymbol (expressionNode->children);
+            //TODO: push the parameters onto the stack
+            //TODO: push the parameters onto the stack
+            procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
+            genProcCall (functionInfo);
             break;
         }
         case NT_CONST:
@@ -560,17 +713,18 @@ void genCodeForExpression (GNode *expressionNode) {
             type_class constType = getTypeClass (varSymbol);
             //TODO: Actually check which type it is. Right now 
             //just get the integer value
+            //TODO: figure out what to do for strings
+            
             int value = varSymbol->desc.const_attr->value.integer;
             char instruction [strlen ("CONSTI") + 11];
             sprintf (instruction, "CONSTI %d", value);
             generateFormattedInstruction (instruction);
-            //TODO: getConst
-            //CONSTI something
             
             break;
         }
         default:
         {
+          printf ("I'm an operation!!!!!!\n");
           // if ((exprType >= NT_ISEQUAL) && (exprType <=NT_INVERSION)) 
             genCodeForOperation (expressionNode);
           // else
@@ -585,44 +739,57 @@ void genCodeForExpression (GNode *expressionNode) {
 //expression
 void genCodeForOperation (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
-    if ((exprType >= NT_ISEQUAL) && (exprType <=NT_GREATERTHANEQUALS)) {
-        genCodeForComparison (expressionNode);
+    if ((exprType >= NT_INT_ISEQUAL) && (exprType <=NT_INT_GREATERTHANEQUALS)) {
+        printf ("Is of type int comparison\n");
+        genCodeForIntComparison (expressionNode);
+    }
+    else if ((exprType >=NT_REAL_ISEQUAL) && (exprType <=NT_REAL_GREATERTHANEQUALS)) {
+        //TODO:
+        genCodeForRealComparison (expressionNode);
     }
     else if ((exprType >=NT_AND) && (exprType <= NT_NOT)) {
 
         genCodeForLogical (expressionNode);
     }
-    else if ((exprType >= NT_PLUS) && (exprType <= NT_MOD)) {
-        genCodeForMath (expressionNode);
+    else if ((exprType >= NT_INT_PLUS) && (exprType <= NT_INT_MULTIPLY)) {
+        printf ("IS an int math thinger\n");
+        genCodeForIntMath (expressionNode);
     }
-    else if (exprType == NT_IDENTITY) {
+    else if ((exprType >= NT_REAL_PLUS) && (exprType <= NT_REAL_MULTIPLY)) {
+        genCodeForRealMath (expressionNode);
+    }
+    else if ((exprType == NT_INT_IDENTITY) || (exprType == NT_REAL_IDENTITY)) {
         //uh...do nothing.
+        //we might need to convert between I and R
     }
-    else if (exprType == NT_INVERSION) {
+    else if ((exprType == NT_INT_INVERSION) || (exprType == NT_REAL_INVERSION)) {
     //NEED TO GET THE TYPE OF the thing we're inverting
       generateFormattedInstruction ("CONSTI 0");
     }
+    //TODO: Now do this for reals
     else {
         printf ("Error. Tried to gernerate code for an operation when it was not an operation\n");
+        printf ("is of type: %d\n", getNiceType (expressionNode));
     }
     
 }
 
-void genCodeForComparison (GNode *expressionNode) {
+void genCodeForIntComparison (GNode *expressionNode) {
+    printf ("Int comparison alled\n");
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
     GNode *rightExpressionNode = leftExpressionNode->next;
     genCodeForExpression (leftExpressionNode);
     genCodeForExpression (rightExpressionNode);
     switch (exprType) {
-        case NT_ISEQUAL:
+        case NT_INT_ISEQUAL:
         {
 
           generateFormattedInstruction ("EQI");
           break;
 
         }
-        case NT_NOTEQUAL:
+        case NT_INT_NOTEQUAL:
         {          
 
           generateFormattedInstruction ("EQI");
@@ -630,19 +797,19 @@ void genCodeForComparison (GNode *expressionNode) {
           break;
           
         }
-        case NT_LESSTHAN:
+        case NT_INT_LESSTHAN:
         {
           generateFormattedInstruction ("LTI");
           break;
         }
-        case NT_GREATERTHAN:
+        case NT_INT_GREATERTHAN:
         {
 
           generateFormattedInstruction ("GTI");
           break;
 
         }
-        case NT_LESSTHANEQUALS:
+        case NT_INT_LESSTHANEQUALS:
         { 
           generateFormattedInstruction ("LTI");
           genCodeForExpression (leftExpressionNode);
@@ -651,7 +818,7 @@ void genCodeForComparison (GNode *expressionNode) {
           generateFormattedInstruction ("OR");
           break;
         }
-        case NT_GREATERTHANEQUALS:
+        case NT_INT_GREATERTHANEQUALS:
         {
           generateFormattedInstruction ("GTI");
           genCodeForExpression (leftExpressionNode);
@@ -664,6 +831,61 @@ void genCodeForComparison (GNode *expressionNode) {
     
 }
 
+void genCodeForRealComparison (GNode *expressionNode) {
+    node_type exprType = getNiceType (expressionNode);
+    GNode *leftExpressionNode = expressionNode->children;
+    GNode *rightExpressionNode = leftExpressionNode->next;
+    genCodeForExpression (leftExpressionNode);
+    genCodeForExpression (rightExpressionNode);
+    switch (exprType) {
+        case NT_REAL_ISEQUAL:
+        {
+            
+            generateFormattedInstruction ("EQR");
+            break;
+            
+        }
+        case NT_REAL_NOTEQUAL:
+        {          
+            
+            generateFormattedInstruction ("EQR");
+            generateFormattedInstruction ("NOT");
+            break;
+            
+        }
+        case NT_REAL_LESSTHAN:
+        {
+            generateFormattedInstruction ("LTR");
+            break;
+        }
+        case NT_REAL_GREATERTHAN:
+        {
+            
+            generateFormattedInstruction ("GTR");
+            break;
+            
+        }
+        case NT_REAL_LESSTHANEQUALS:
+        { 
+            generateFormattedInstruction ("LTR");
+            genCodeForExpression (leftExpressionNode);
+            genCodeForExpression (rightExpressionNode);
+            generateFormattedInstruction ("EQR");
+            generateFormattedInstruction ("OR");
+            break;
+        }
+        case NT_REAL_GREATERTHANEQUALS:
+        {
+            generateFormattedInstruction ("GTR");
+            genCodeForExpression (leftExpressionNode);
+            genCodeForExpression (rightExpressionNode);
+            generateFormattedInstruction ("EQR");
+            generateFormattedInstruction ("OR");
+            break;
+        }
+    }
+            
+}
 void genCodeForLogical (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     switch (exprType) {
@@ -695,35 +917,28 @@ void genCodeForLogical (GNode *expressionNode) {
     }
 }
 
-void genCodeForMath (GNode *expressionNode) {
+//TODO: Change to int math
+void genCodeForIntMath (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
     genCodeForExpression (leftExpressionNode);
     GNode *rightExpressionNode = leftExpressionNode->next;
     genCodeForExpression (rightExpressionNode);
     switch (exprType) {
-        case NT_PLUS:
+        case NT_INT_PLUS:
         {
+          printf ("I'm IN PLUS\n");
           generateFormattedInstruction ("ADDI");
             break;
         }
-        case NT_MINUS:
+        case NT_INT_MINUS:
         {
-
-          
-          //HOW DO I KEEP TRACK OF whether real or integer???
-          
           generateFormattedInstruction ("SUBI");
             break;
         }
-        case NT_MULTIPLY:
+        case NT_INT_MULTIPLY:
         {
           generateFormattedInstruction ("MULI");
-            break;
-        }
-        case NT_DIVIDE:
-        {
-          generateFormattedInstruction ("DIVR");
             break;
         }
         case NT_DIV:
@@ -738,11 +953,71 @@ void genCodeForMath (GNode *expressionNode) {
         }
     }
 }
+
+//TODO: Implement
+void genCodeForRealMath (GNode *expressionNode) {
+    node_type exprType = getNiceType (expressionNode);
+    GNode *leftExpressionNode = expressionNode->children;
+    genCodeForExpression (leftExpressionNode);
+    GNode *rightExpressionNode = leftExpressionNode->next;
+    genCodeForExpression (rightExpressionNode);
+    switch (exprType) {
+        case NT_REAL_PLUS:
+        {
+            generateFormattedInstruction ("ADDR");
+            break;
+        }
+        case NT_REAL_MINUS:
+        {
+            generateFormattedInstruction ("SUBR");
+            break;
+        }
+        case NT_REAL_MULTIPLY:
+        {
+            generateFormattedInstruction ("MULR");
+            break;
+        }
+        case NT_DIVIDE:
+        {
+            generateFormattedInstruction ("DIVR");
+            break;
+        }
+
+    }
+
+}
+
+/**
+ * Returns a label based on previous labels within the procedure
+ * Also incremements label count for the procedure by 1
+ */
+char *genProcLabel (procInfo *procedureInfo) {
+  int numLabels = procedureInfo->numLabels;
+  char *procLabel = procedureInfo->procLabel;
+  char *label = calloc ((strlen (procLabel) + 11 + strlen("label")), sizeof (char));
+  sprintf (label, "%slabel%d", procLabel, numLabels);
+  //generateLabel (label);
+  numLabels++;
+  procedureInfo->numLabels = numLabels;
+  return label;
+}
 /**
  * Generates a string on the stack, with the first character at the lowest
  * index and the last character of the highest index
  */
-void generateString () {
+void generateString (char *string) {
+  int i=0;
+  int charvalue;
+  //yay, guaranteed by standard to work!
+  char instruction [ strlen ("CONSTI") + 3];
+  do {
+    charvalue = string[i];
+    sprintf (instruction, "CONSTI %d", charvalue);
+    generateFormattedInstruction (instruction);
+    i++;
+  }
+  while (string [i] != '\0');
+
 }
 symbol *getSymbol (GNode *node) {
     

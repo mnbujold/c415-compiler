@@ -1,0 +1,39 @@
+
+digraph Pr  {
+    ordering = out;
+
+    
+    /* duplicate nodes: */
+    symbol0 [label = "symbol"];
+    symbol1 [label = "symbol"];
+    
+    ellipse0 [label = "...", shape = plaintext];
+    ellipse1 [label = "...", shape = plaintext];
+    ellipse2 [label = "...", shape = plaintext];
+    
+    decls0 [label = "DECLS"];
+    
+    stat_list0 [label = "STAT_LIST"];
+
+    
+    /* actual tree: */
+    PROGRAM -> DECLS;
+    PROGRAM -> stat_list0;
+    
+    DECLS -> VAR_DECL_LIST;
+    DECLS -> PROC_DECL_LIST;
+    
+    VAR_DECL_LIST -> symbol0;
+    VAR_DECL_LIST -> ellipse0;
+    
+    PROC_DECL_LIST -> PROC_DECL;
+    PROC_DECL_LIST -> ellipse1;
+    
+    PROC_DECL -> symbol1;
+    PROC_DECL -> decls0;
+    PROC_DECL -> STAT_LIST;
+    
+    stat_ [label = "STAT"];
+    STAT_LIST -> stat_;
+    STAT_LIST -> ellipse2;
+}

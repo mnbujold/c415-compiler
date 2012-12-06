@@ -22,8 +22,5 @@ Known Issues:
 Newlines within a string that are not escaped will screw up the line number 
 count.
 
-Functions must have a return value assignment outside of any conditional block (including if-then-else constructs).
-This is extra strict.
-
 Calling chr () on 255 and greater will cause undefined behaviour, specific to the implementation of C
 on the machine (eg little endian or big endian integer representation)

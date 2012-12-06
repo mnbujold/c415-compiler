@@ -1,0 +1,57 @@
+
+digraph St  {
+    ordering = out;
+
+    
+    /* duplicate nodes: */
+    symbol6 [label = "symbol"];
+    
+    ellipse5 [label = "...", shape = plaintext];
+    
+    or0 [label = "or", shape = plaintext];
+    or1 [label = "or", shape = plaintext];
+    or2 [label = "or", shape = plaintext];
+    or3 [label = "or", shape = plaintext];
+    or4 [label = "or", shape = plaintext];
+    or5 [label = "or", shape = plaintext];
+ 
+    stat_list1 [label = "STAT_LIST"];
+    stat_list2 [label = "STAT_LIST"];
+    stat_list3 [label = "STAT_LIST"];
+    stat_list4 [label = "STAT_LIST"];
+    
+    expr5 [label = "EXPR"];
+    expr6 [label = "EXPR"];
+    expr7 [label = "EXPR"];
+    expr8 [label = "EXPR"];
+    
+    /* actual tree: */
+    assignment_ [label = "ASSIGNMENT"];
+    STAT -> assignment_;
+    STAT -> or0 [style = invis];
+    STAT -> PROC_INVOK;
+    STAT -> or1 [style = invis];
+    STAT -> IF;
+    STAT -> or2 [style = invis];
+    STAT -> IF_ELSE;
+    STAT -> or3 [style = invis];
+    STAT -> WHILE;
+    STAT -> or4 [style = invis];
+    STAT -> continue;
+    STAT -> or5 [style = invis];
+    STAT -> exit;
+
+    PROC_INVOK -> symbol6;
+    PROC_INVOK -> expr5;
+    PROC_INVOK -> ellipse5;
+    
+    IF -> expr6;
+    IF -> stat_list1;
+    
+    IF_ELSE -> expr7;
+    IF_ELSE -> stat_list2;
+    IF_ELSE -> stat_list3;
+    
+    WHILE -> expr8;
+    WHILE -> stat_list4;
+}

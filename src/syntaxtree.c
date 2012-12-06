@@ -1,3 +1,9 @@
+/**
+ * Author: James Osgood
+ * Creation and mantainance of the syntax tree in the grammar.
+ * Also the simplification of the syntax tree before code generation.
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -174,6 +180,9 @@ getSyntaxTree() {
     
     // now, the transformations:
     syntaxTree = setOperatorTypes(syntaxTree);
+    
+//     printf("\n-----------\n\n");
+//     displayNewTree(syntaxTree, 0);
     
     return syntaxTree;
 }
@@ -827,13 +836,13 @@ getProcNode(const char *procname) {
     return createSymbolNode(globalLookup(procname));
 }
 
-struct proc_head_pair *
-createProcHead(GNode *procHeading, GNode *decls) {
-    struct proc_head_pair *pair = calloc(1, sizeof(struct proc_head_pair));
-    pair->proc_heading = procHeading;
-    pair->decls = decls;
+struct node_pair *
+createNodePair(GNode *firstNode, GNode *secondNode) {
+    struct node_pair *pair = calloc(1, sizeof(struct node_pair));
+    pair->first_node = firstNode;
+    pair->second_node = secondNode;
 
-    symbol *proc = extractSymbol(procHeading);
+    symbol *proc = extractSymbol(firstNode);
     
     if (proc != NULL && getTypeClass(proc) != TC_ERROR && proc->oc == OC_FUNC) {
         proc->desc.func_attr->defnState = 0;

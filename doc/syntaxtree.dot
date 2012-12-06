@@ -1,0 +1,147 @@
+
+digraph S  {
+    ordering = out;
+
+    
+    /* duplicate nodes: */
+    symbol0 [label = "symbol"];
+    symbol1 [label = "symbol"];
+    symbol2 [label = "symbol"];
+    symbol3 [label = "symbol"];
+    symbol4 [label = "symbol"];
+    symbol5 [label = "symbol"];
+    symbol6 [label = "symbol"];
+    
+    ellipse0 [label = "...", shape = plaintext];
+    ellipse1 [label = "...", shape = plaintext];
+    ellipse2 [label = "...", shape = plaintext];
+    ellipse3 [label = "...", shape = plaintext];
+    ellipse4 [label = "...", shape = plaintext];
+    ellipse5 [label = "...", shape = plaintext];
+    
+    or0 [label = "or", shape = plaintext];
+    or1 [label = "or", shape = plaintext];
+    or2 [label = "or", shape = plaintext];
+    or3 [label = "or", shape = plaintext];
+    or4 [label = "or", shape = plaintext];
+    or5 [label = "or", shape = plaintext];
+    or6 [label = "or", shape = plaintext];
+    or7 [label = "or", shape = plaintext];
+    or8 [label = "or", shape = plaintext];
+    or9 [label = "or", shape = plaintext];
+    or10 [label = "or", shape = plaintext];
+    or11 [label = "or", shape = plaintext];
+    
+    decls0 [label = "DECLS"];
+    
+    stat_list0 [label = "STAT_LIST"];
+    stat_list1 [label = "STAT_LIST"];
+    stat_list2 [label = "STAT_LIST"];
+    stat_list3 [label = "STAT_LIST"];
+    stat_list4 [label = "STAT_LIST"];
+    
+    var0 [label = "VAR"];
+    var1 [label = "VAR"];
+    var2 [label = "VAR"];
+    
+    expr0 [label = "EXPR"];
+    expr1 [label = "EXPR"];
+    expr2 [label = "EXPR"];
+    expr3 [label = "EXPR"];
+    expr4 [label = "EXPR"];
+    expr5 [label = "EXPR"];
+    expr6 [label = "EXPR"];
+    expr7 [label = "EXPR"];
+    expr8 [label = "EXPR"];
+    
+    /* special nodes: */
+    binaryoperation [label = "(operation)"];
+    unaryoperation [label = "(operation)"];
+    
+    /* actual tree: */
+    PROGRAM -> DECLS;
+    PROGRAM -> stat_list0;
+    
+    DECLS -> VAR_DECL_LIST;
+    DECLS -> PROC_DECL_LIST;
+    
+    VAR_DECL_LIST -> symbol0;
+    VAR_DECL_LIST -> ellipse0;
+    
+    PROC_DECL_LIST -> PROC_DECL;
+    PROC_DECL_LIST -> ellipse1;
+    
+    PROC_DECL -> symbol1;
+    PROC_DECL -> decls0;
+    PROC_DECL -> STAT_LIST;
+    
+    stat_ [label = "STAT"];
+    STAT_LIST -> stat_;
+    STAT_LIST -> ellipse2;
+    
+    assignment_ [label = "ASSIGNMENT"];
+    STAT -> assignment_;
+    STAT -> or0 [style = invis];
+    STAT -> PROC_INVOK;
+    STAT -> or1 [style = invis];
+    STAT -> IF;
+    STAT -> or2 [style = invis];
+    STAT -> IF_ELSE;
+    STAT -> or3 [style = invis];
+    STAT -> WHILE;
+    STAT -> or4 [style = invis];
+    STAT -> continue;
+    STAT -> or5 [style = invis];
+    STAT -> exit;
+    
+    ASSIGNMENT -> VAR;
+    ASSIGNMENT -> EXPR;
+    
+    VAR -> symbol2;
+    VAR -> or6 [style = invis];
+    VAR -> ARRAY_ACCESS;
+    VAR -> or7 [style = invis];
+    VAR -> RECORD_ACCESS;
+    
+    ARRAY_ACCESS -> var0;
+    ARRAY_ACCESS -> expr0;
+    ARRAY_ACCESS -> ellipse3;
+    
+    RECORD_ACCESS -> var1;
+    RECORD_ACCESS -> symbol3;
+    
+    EXPR -> CONST;
+    EXPR -> or8 [style = invis];
+    EXPR -> var2;
+    EXPR -> or9 [style = invis];
+    EXPR -> FUNC_INVOK;
+    EXPR -> or10 [style = invis];
+    EXPR -> binaryoperation;
+    EXPR -> or11 [style = invis];
+    EXPR -> unaryoperation;
+    
+    CONST -> symbol4;
+    
+    FUNC_INVOK -> symbol5;
+    FUNC_INVOK -> expr1;
+    FUNC_INVOK -> ellipse4;
+    
+    binaryoperation -> expr2;
+    binaryoperation -> expr3;
+    
+    unaryoperation -> expr4;
+    
+    PROC_INVOK -> symbol6;
+    PROC_INVOK -> expr5;
+    PROC_INVOK -> ellipse5;
+    
+    IF -> expr6;
+    IF -> stat_list1;
+    
+    IF_ELSE -> expr7;
+    IF_ELSE -> stat_list2;
+    IF_ELSE -> stat_list3;
+    
+    WHILE -> expr8;
+    WHILE -> stat_list4;
+}
