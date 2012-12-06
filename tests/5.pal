@@ -1,66 +1,61 @@
 {
     5.pal
-    Tests scoping resulting in invalid procedure calls, variable declarations, and array assignments.
-    Errors:
-    18:5 str is already defined as a type
-    49:9 illegal string assignment (upper bound not the same)
-    62:1 unrecognized function or procedure call (defined in a different scope)
+    Correct ...
 }
-program scopingFun(input, output);
 
-const TRUEINT = 0;
-      FALSEINT = 1;
+program correctNames (input, output);
+// Reads an integer input and naively counts the number of even and odd numbers
+// between that integer and zero.
 
-type str = array[1..12] of char;
-     revBoolean = (revTrue, revFalse);
+type tf = (true, false);
 
-var bob, joe : str;
-    str : array [1..10] of char; { $ERR_DATA$ [5, "str is already defined as a type", ["str already used in this level"]] $ERR_DATA$ }
-    truthiness : integer;
-
-function aFunction(question : boolean) : integer;
-    const doesWork = revTrue; // Legal.
-
-    procedure onlyHere();
+var numOdd : integer;
+    numEven : integer;
+    number : integer;
+    randArray : array[4..45] of tf; // Legal.
+    anotherArray : array[true..false] of 3.4; { $ERR_DATA$ [42, "unexpected real number in array definition", ["unexpected REAL_CONST"]] $ERR_DATA$ }
+    bob, joe : array[-2..1] of array[3..{LOL}] of char; { $ERR_DATA$ [46, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ }
+    
+function countEven() : integer;
+    var counter : integer;
+        numEven : integer;
+    function isEven(number : integer) : tf;
     begin
-        if doesWork = revFalse then
-            bob := joe
+        if (number mod 2) = 0 then
+            isEven := true
+        else counter := 0;
+            isEven := false;
     end;
 begin
-    if question then
+    counter := abs(number) + 1;
+    numEven := 0;
+    while counter >= 0 do
     begin
-        bob := 'question is ';
-        aFunction := TRUEINT;
-    end
-    else
+        counter := counter - (+1);  // Legal.
+        if isEven(counter) = true then
+            numEven := numEven + +1; { $ERR_DATA$ [34, "unexpected addition operator", ["unexpected PLUS"]] $ERR_DATA$ }
+    end;
+    countEven := numEven;
+end;
+
+procedure countOdd(counter : integer; useless : char);
+begin
+    counter := -1*number + 1; // Legal.
+    counter := -number; // Legal.
+    while counter >= 0 do
     begin
-        joe := 'the question';
-        onlyHere();
-        aFunction := FALSEINT;
+        counter := counter - 1;
+        if (counter mod 2) = 1 then
+            numOdd := numOdd + 1;
     end;
 end;
 
-procedure redefineStuff(aChar : char);
-    type str = array[1..11] of char; // This str is one character shorter!
-    
-    var tim : str;
-    
-begin
-    tim := joe; { $ERR_DATA$ [9, "illegal string assignment (upper bound not the same)", ["illegal string assignment to string with different upper bound"]] $ERR_DATA$ }
-    bob[FALSEINT] := aChar;
-end;
-
 begin
 
-bob := 'is large eno';
-joe := 'another stri';
-
-writeln(bob, ' and ', joe);
-
-truthiness := aFunction(bob = joe);
-
-onlyHere(); { $ERR_DATA$ [1, "unrecognized function or procedure call (defined in a different scope)", ["no function or procedure named onlyHere in this scope"]] $ERR_DATA$ }
-
-writeln(bob, ' or ', joe);
+read(number);
+numOdd := 0;
+countOdd(number, '?');
+numEven := countEven();
+writeln('n = ', number, ' o = ', numOdd, ' e = ', numEven);
 
 end.
