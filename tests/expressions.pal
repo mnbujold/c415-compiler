@@ -15,24 +15,26 @@ var
     numEven: real;
     numReal: integer;
 
-    procedure joe ();
+    procedure joe (a:integer; b:real);
         begin
           if (4 < 3) then
             numReal := 3 * 8;
-          while (1 < 2) do
+          while (1 > 2) do
             numReal := 0 + 200;
         end;
     
     
     begin
-        joe ();
+        joe (numReal, numOdd);
         numReal := 1 + 2;
         numReal := 1 + 2 * 3;
         numReal := (1 + 2) * 3;
-        joe();
-        if (1 < 2) then
+        joe(1, numEven);
+        if (1 < 2.5) then
             numReal := numReal + 1;
-            
+        
+        numReal := 4;
+        numOdd := 3.8 + 3 * numReal;
         //writeln;
         //writeln (sin (0));
         //writeln;

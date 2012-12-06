@@ -60,6 +60,9 @@ typedef struct structured_info_struct structInfo;
  ****************************************************************/
 void genASCCode (GNode *tree, char *fileName);
 
+GNode *getFirstOperationParent (GNode *expressionNode);
+
+GNode *getFirstParent (GNode *currentNode, node_type parentTypeLowerBound, node_type parentTypeUpperBound) ;
 
 void pushRecord(symbol *);
 void pushArrya(symbol *);
@@ -111,7 +114,8 @@ void genCodeForRealMath (GNode *expressionNode);
 void genProcCall (procInfo *procedureInfo);
 void genProcReturn (procInfo *procedureInfo);
 void genGOTO (char const *label);
-void genVarAssign (varAddressStruct *addressDescription); 
+void genVarAssign (varAddressStruct *addressDescription);
+void genVarAccess (varAddressStruct *addressDescription);
 
 void pushConstantInt (int constant);
 void pushConstantReal (double constant);
