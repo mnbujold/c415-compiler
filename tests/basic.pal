@@ -1,4 +1,4 @@
-program basic(input, output);
+program writeln (readln5wre, read);
 
 // var joe : integer;
 //         billy : array[0..10] of integer;

@@ -110,6 +110,8 @@ int ifLevel = 0;
 %type <node> expr simple_expr term factor unsigned_const unsigned_num func_invok parm
 %type <node> matched_stat if_header while_header
 
+%type <string> identifer
+
 %left LEFTBRACKET ISEQUAL
 
 %%
@@ -136,12 +138,12 @@ program                 : program_head decls compound_stat PERIOD
                             }
                         ;
 
-program_head            : PROGRAM ID LEFTPAREN ID COMMA ID RIGHTPAREN SEMICOLON
+program_head            : PROGRAM identifer LEFTPAREN identifer COMMA identifer RIGHTPAREN SEMICOLON
                             {
                                 pushLevel();
                                 addProgramSymbols($2, $4, $6);
                             }
-                        | PROGRAM ID LEFTPAREN error RIGHTPAREN SEMICOLON /* ERROR */
+                        | PROGRAM identifer LEFTPAREN error RIGHTPAREN SEMICOLON /* ERROR */
                             {
                                 pushLevel();
                             }
@@ -167,7 +169,7 @@ const_decl_list         : const_decl
                         | const_decl_list SEMICOLON const_decl
                         ;
 
-const_decl              : ID ISEQUAL expr
+const_decl              : identifer ISEQUAL expr
                             {
                                 addNewConst($1, extractSymbol($3));
                             }
@@ -186,7 +188,7 @@ type_decl_list           :  /* empty */
                         | type_decl_list SEMICOLON type_decl
                         ;
 
-type_decl               : ID ISEQUAL type
+type_decl               : identifer ISEQUAL type
                             {
                                 if ($3 != NULL) {
                                     addNewType($1, $3);
@@ -217,7 +219,7 @@ simple_type             : scalar_type
                                     $$ = NULL;
                                 }
                             }
-                        | ID
+                        | identifer
                             {
                                 DEBUG_PRINT (("magic In get type"));
                                 $$ = getType($1);
@@ -242,11 +244,11 @@ scalar_type             : LEFTPAREN scalar_list RIGHTPAREN
                             }
                         ;
 
-scalar_list             : ID
+scalar_list             : identifer
                             {
                                 $$ = addScalar(NULL, $1);
                             }
-                        | scalar_list COMMA ID
+                        | scalar_list COMMA identifer
                             {
                                 if ($1 != NULL) {
                                     $$ = addScalar($1, $3);
@@ -296,7 +298,7 @@ closed_array_type       : LEFTBRACKET array_type RIGHTBRACKET
                             }
                         ;
 
-array_type              : ID
+array_type              : identifer
                             {
                                 symbol *type = getType($1);
                                 if (type != NULL) {
@@ -336,7 +338,7 @@ field_list              : field
                             }
                         ;
 
-field                   : ID COLON type
+field                   : identifer COLON type
                             {
                                 DEBUG_PRINT(("In field\n"));
                                 if ($3 != NULL) {
@@ -375,7 +377,7 @@ var_decl_list           : var_decl
                             }
                         ;
 
-var_decl                : ID COLON type
+var_decl                : identifer COLON type
                             {
                                 if ($3 != NULL) {
                                     $$ = createSymbolNode(addNewVar($1, $3));
@@ -383,7 +385,7 @@ var_decl                : ID COLON type
                                     $$ = createSingleNode(NT_NONE);
                                 }
                             }
-                        | ID COMMA var_decl
+                        | identifer COMMA var_decl
                             {
                                 if (getNodeType($3) != NT_NONE) {
                                     $$ = createSymbolNode(addNewVar($1, extractType($3)));
@@ -440,7 +442,7 @@ proc_head_part          : proc_heading decls
                             }
                         ;
 
-proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
+proc_heading            : PROCEDURE identifer f_parm_decl SEMICOLON
                             {
                                 if ($3 != NULL) {
                                     $$ = createSymbolNode(addNewProc($2, $3));
@@ -449,7 +451,7 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                     $$ = createSingleNode(NT_NONE);
                                 }
                             }
-                        | FUNCTION ID f_parm_decl COLON ID SEMICOLON
+                        | FUNCTION identifer f_parm_decl COLON identifer SEMICOLON
                             {
                                 if ($3 != NULL) {
                                     $$ = createSymbolNode(addNewFunc($2, $5, $3));
@@ -457,12 +459,12 @@ proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                                     $$ = createSingleExprNode(NT_NONE, addNewFunc($2, $5, NULL));
                                 }
                             }
-                        | PROCEDURE ID error SEMICOLON /* ERROR */
+                        | PROCEDURE identifer error SEMICOLON /* ERROR */
                             {
                                 addNewProc($2, NULL);
                                 $$ = createSingleNode(NT_NONE);
                             }
-                        | FUNCTION ID error SEMICOLON /* ERROR */
+                        | FUNCTION identifer error SEMICOLON /* ERROR */
                             {
                                 addNewFunc($2, NULL, NULL);
                                 $$ = createSingleNode(NT_NONE);
@@ -520,11 +522,11 @@ f_parm_list             : f_parm
                             }
                         ;
 
-f_parm                  : ID COLON ID
+f_parm                  : identifer COLON identifer
                             {
                                 $$ = addNewParam($1, $3, 0);
                             }
-                        | VAR ID COLON ID
+                        | VAR identifer COLON identifer
                             {
                                 $$ = addNewParam($2, $4, 1);
                             }
@@ -641,7 +643,7 @@ proc_invok              : plist_finvok RIGHTPAREN
                                     $$ = createSingleNode(NT_NONE);
                                 }
                             }
-                        | ID LEFTPAREN RIGHTPAREN
+                        | identifer LEFTPAREN RIGHTPAREN
                             {
                                 if (callProc($1, NULL)) {
                                     $$ = createNode(NT_PROC_INVOK, getProcNode($1), NULL);
@@ -657,22 +659,14 @@ proc_invok              : plist_finvok RIGHTPAREN
                                     $$ = createSingleNode(NT_NONE);
                                 }
                             }
-                        | IOPROC LEFTPAREN RIGHTPAREN
-                            {
-                                if (callProc($1, NULL)) {
-                                    $$ = createNode(NT_PROC_INVOK, getProcNode($1), NULL);
-                                } else {
-                                    $$ = createSingleNode(NT_NONE);
-                                }
-                            }
                         ;
 
-var                     : ID
+var                     : identifer
                             {
                                 symbol *tmpVar = getVarSymbol($1);
                                 $$ = createExprNode(NT_VAR, tmpVar, createSymbolNode(tmpVar), NULL);
                             }
-                        | var PERIOD ID
+                        | var PERIOD identifer
                             {
                                 if (noError(1, $1, NULL)) {
                                     symbol *tmpField = getRecordField(extractSymbol($1), $3);
@@ -930,22 +924,14 @@ func_invok              : plist_finvok RIGHTPAREN
                                     $$ = createSingleNode(NT_NONE);
                                 }
                             }
-                        | ID LEFTPAREN RIGHTPAREN
+                        | identifer LEFTPAREN RIGHTPAREN
                             {
                                 symbol *tmpFunc = callFunc($1, NULL);
                                 $$ = createExprNode(NT_FUNC_INVOK, tmpFunc, createSymbolNode(tmpFunc), NULL);
                             }
                         ;
 
-plist_finvok            : ID LEFTPAREN parm
-                            {
-                                if (noError(1, $3, NULL)) {
-                                    $$ = createPF_InvokNode(createArgList($1, extractSymbol($3)), getProcNode($1), $3, NULL);
-                                } else {
-                                    $$ = createSingleNode(NT_NONE);
-                                }
-                            }
-                        | IOPROC LEFTPAREN parm
+plist_finvok            : identifer LEFTPAREN parm
                             {
                                 if (noError(1, $3, NULL)) {
                                     $$ = createPF_InvokNode(createArgList($1, extractSymbol($3)), getProcNode($1), $3, NULL);
@@ -1074,6 +1060,16 @@ while_header            : WHILE expr DO
                                 }
                                 loopLevel += 1;
                             }                            
+                        ;
+
+identifer               : ID
+                            {
+                                $$ = $1;
+                            }
+                        | IOPROC
+                            {
+                                $$ = $1;
+                            }
                         ;
 
 %%
