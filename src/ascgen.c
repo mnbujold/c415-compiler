@@ -30,7 +30,7 @@ int globalAddressCounter = 0;
 
 //store the current scope. we will need this for labels
 int scope;
-GQueue* labelStack = NULL;
+GHashTable *labelTable = NULL;
 GHashTable *variableAddressTable = NULL;
 GHashTable *procedureInfoTable = NULL;
 
@@ -43,7 +43,7 @@ void genASCCode (GNode *tree, char *fileName) {
 
     //Initialize our own tracking tools we will need for generating code
 
-    labelStack = g_queue_new ();
+    labelTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     variableAddressTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     procedureInfoTable = g_hash_table_new (g_direct_hash, g_direct_equal);
     registers = calloc (NUM_ASC_REGISTERS, sizeof (int));
@@ -550,13 +550,31 @@ void genCodeForStatement(GNode *statement) {
             GNode *takenStatementList = ifExpression->next;
             GNode *elseStatementList = takenStatementList->next;
             symbol *procSymbol = getFirstProcParent (statement);
+            procInfo *procedureInfo;
+            if (procSymbol == NULL) {
+                procedureInfo = mainProcInfo;
+            }
+            else {
+                procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
+            }
             
+            char *label = genProcLabel (procedureInfo);
+            char elseLabel [strlen (label) + strlen ("else")];
+            char endLabel [strlen (label) + strlen ("ifend")];
+            sprintf (elseLabel, "%selse", label);
+            sprintf (endLabel, "%sifend", label);
             genCodeForExpression (ifExpression);
+            char branchInstruction [strlen (elseLabel) + strlen("IFZ")];
+            sprintf (branchInstruction, "IFZ %s", elseLabel);
+            generateFormattedInstruction (branchInstruction);
             //Genreate IFZ 
             genCodeForStatementList (takenStatementList);
+            genGOTO (endLabel);
             //generate GOTO statement end
             //generateLabel (branch)
+            generateLabel (elseLabel);
             genCodeForStatementList (elseStatementList);
+            generateLabel (endLabel);
             //generate end label;
             break;
         }
@@ -572,8 +590,8 @@ void genCodeForStatement(GNode *statement) {
               procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
             }
             char *label = genProcLabel (procedureInfo);
-            char beginLabel [strlen (label) + strlen ("begin")];
-            char endLabel [strlen (label) + strlen ("end")];
+            char beginLabel [strlen (label) + strlen ("whilebegin")];
+            char endLabel [strlen (label) + strlen ("whileend")];
             sprintf (endLabel, "%send", label);            
             sprintf (beginLabel, "%sbegin", label);
             generateLabel (beginLabel);
@@ -585,6 +603,12 @@ void genCodeForStatement(GNode *statement) {
             genCodeForStatementList (whileStatementList);
             genGOTO (beginLabel);
             generateLabel (endLabel);
+            
+            structInfo *whileInfo = calloc (1, sizeof (structInfo));
+            whileInfo->beginLabel = beginLabel;
+            whileInfo->endLabel = endLabel;
+            
+            g_hash_table_insert (labelTable, statement, whileInfo);
 
             
             //evaluate expressoin
@@ -597,6 +621,10 @@ void genCodeForStatement(GNode *statement) {
             while (getNiceType(currentNode) != NT_WHILE) {
                 currentNode = currentNode->parent;
             }
+            //current node is now while (theoretically)
+            structInfo *whileInfo = g_hash_table_lookup (labelTable, currentNode);
+            char *gotoLabel = whileInfo->beginLabel;
+            genGOTO (gotoLabel);
             //TODO: get tehe label for this while
             //genGOTO (whatever the daddy node is)
             break;
@@ -604,21 +632,14 @@ void genCodeForStatement(GNode *statement) {
         case NT_EXIT:
         {
             GNode *currentNode = statement->parent;
-            symbol *procSymbol = getFirstProcParent(currentNode);
-            procInfo *procedureInfo;
-            if (procSymbol == NULL) {
-              procedureInfo = mainProcInfo;
+            while (getNiceType(currentNode) != NT_WHILE) {
+                currentNode = currentNode->parent;
             }
-            else {
-              procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
-            
-            }
+            //current node is now while (theoretically)
+            structInfo *whileInfo = g_hash_table_lookup (labelTable, currentNode);
+            char *gotoLabel = whileInfo->endLabel;
+            genGOTO (gotoLabel);
 
-            //TODO: How will we handle random exits? this basically counts as a goto, 
-            //and we have no idea what the position on the stack is at this point...
-            char gotoInstruction [strlen ("GOTO") + strlen (procedureInfo->procLabel)];
-            sprintf (gotoInstruction, "GOTO %send", procedureInfo->procLabel);
-            genGOTO (gotoInstruction);
             //TODO: Get  the label for lowest scope funciton/procedure
             //genGOTO to the END of this procedure
             //will need to generate label for all return jumps...
@@ -719,19 +740,26 @@ void genCodeForExpression (GNode *expressionNode) {
 void genCodeForOperation (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     if ((exprType >= NT_INT_ISEQUAL) && (exprType <=NT_INT_GREATERTHANEQUALS)) {
-        genCodeForComparison (expressionNode);
+        genCodeForIntegerComparison (expressionNode);
+    }
+    else if ((exprType >=NT_REAL_ISEQUAL) && (exprType <=NT_REAL_GREATERTHANEQUALS)) {
+        //TODO: Implement
     }
     else if ((exprType >=NT_AND) && (exprType <= NT_NOT)) {
 
         genCodeForLogical (expressionNode);
     }
     else if ((exprType >= NT_INT_PLUS) && (exprType <= NT_INT_MULTIPLY)) {
+        printf ("IS an int math thinger\n");
         genCodeForIntMath (expressionNode);
     }
-    else if (exprType == NT_IDENTITY) {
+    else if ((exprType >= NT_REAL_PLUS) && (exprType <= NT_REAL_MULTIPLY)) {
+        genCodeForIntMath (expressionNode);
+    }
+    else if ((exprType == NT_INT_IDENTITY) || (exprType == NT_REAL_IDENTITY)) {
         //uh...do nothing.
     }
-    else if (exprType == NT_INVERSION) {
+    else if ((exprType == NT_INT_INVERSION) || (exprType == NT_REAL_INVERSION)) {
     //NEED TO GET THE TYPE OF the thing we're inverting
       generateFormattedInstruction ("CONSTI 0");
     }
@@ -743,7 +771,7 @@ void genCodeForOperation (GNode *expressionNode) {
     
 }
 
-void genCodeForComparison (GNode *expressionNode) {
+void genCodeForIntegerComparison (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
     GNode *rightExpressionNode = leftExpressionNode->next;
@@ -838,29 +866,20 @@ void genCodeForIntMath (GNode *expressionNode) {
     GNode *rightExpressionNode = leftExpressionNode->next;
     genCodeForExpression (rightExpressionNode);
     switch (exprType) {
-        case NT_PLUS:
+        case NT_INT_PLUS:
         {
           printf ("I'm IN PLUS\n");
           generateFormattedInstruction ("ADDI");
             break;
         }
-        case NT_MINUS:
+        case NT_INT_MINUS:
         {
-
-          
-          //HOW DO I KEEP TRACK OF whether real or integer???
-          
           generateFormattedInstruction ("SUBI");
             break;
         }
-        case NT_MULTIPLY:
+        case NT_INT_MULTIPLY:
         {
           generateFormattedInstruction ("MULI");
-            break;
-        }
-        case NT_DIVIDE:
-        {
-          generateFormattedInstruction ("DIVR");
             break;
         }
         case NT_DIV:
@@ -878,6 +897,34 @@ void genCodeForIntMath (GNode *expressionNode) {
 
 //TODO: Implement
 void genCodeForRealMath (GNode *expressionNode) {
+    node_type exprType = getNiceType (expressionNode);
+    GNode *leftExpressionNode = expressionNode->children;
+    genCodeForExpression (leftExpressionNode);
+    GNode *rightExpressionNode = leftExpressionNode->next;
+    genCodeForExpression (rightExpressionNode);
+    switch (exprType) {
+        case NT_REAL_PLUS:
+        {
+            generateFormattedInstruction ("ADDR");
+            break;
+        }
+        case NT_REAL_MINUS:
+        {
+            generateFormattedInstruction ("SUBR");
+            break;
+        }
+        case NT_REAL_MULTIPLY:
+        {
+            generateFormattedInstruction ("MULR");
+            break;
+        }
+        case NT_DIVIDE:
+        {
+            generateFormattedInstruction ("DIVR");
+            break;
+        }
+
+    }
 
 }
 

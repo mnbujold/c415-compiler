@@ -42,8 +42,8 @@ enum node_type {            // Children:
     NT_PLUS,                // 20 NT_EXPR NT_EXPR
     NT_MINUS,               // 21 NT_EXPR NT_EXPR
     NT_MULTIPLY,            // 22 NT_EXPR NT_EXPR
-    NT_DIVIDE,              // 23 NT_EXPR NT_EXPR
-    NT_DIV,                 // 24 NT_EXPR NT_EXPR
+    NT_DIVIDE,              // 23 NT_EXPR NT_EXPR (for reals)
+    NT_DIV,                 // 24 NT_EXPR NT_EXPR (for integer)
     NT_MOD,                 // 25 NT_EXPR NT_EXPR
     NT_IDENTITY,            // 26 NT_EXPR
     NT_INVERSION,           // 27 NT_EXPR
