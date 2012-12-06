@@ -17,7 +17,8 @@
 #include "builtinasc.h"
 
 #include "ascgen.h"
-
+#define PROGRAM_REGISTER -1
+#define PROGRAM_VAR_OFFSET 0
 FILE *output;
 
 //registers stores registers we are using. 
@@ -94,7 +95,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         
         procInfo *procedureInfo = calloc (1, sizeof (procInfo));
         procedureInfo->procLabel = "main";
-        procedureInfo->indexingRegister = -1;
+        procedureInfo->indexingRegister = PROGRAM_REGISTER;
         mainProcInfo = procedureInfo;
         //store this globally. If all else fails we jump to this symbol
         //g_hash_table_insert (procedureInfoTable, procedureSymbol, procedureInfo);
@@ -104,7 +105,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             
            varDeclarationsList = declarations->children;
            procDeclarations = declarations->children->next;
-            addVariables (varDeclarationsList, -1, 0, mainProcInfo); //pass in the var_decl_list
+            addVariables (varDeclarationsList, PROGRAM_REGISTER, PROGRAM_VAR_OFFSET, mainProcInfo); //pass in the var_decl_list
             DEBUG_PRINT(("Type of procDeclarations: %d", getNiceType(procDeclarations)));
         }
         DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
@@ -142,8 +143,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         
     }
     else if (getNiceType(node) == NT_PROC_DECL) {
-        //need to do this for the program
-        DEBUG_PRINT (("Inside procedure node generation"));
+
 
         //symbol *procedureSymbol = (symbol *)getSymbol (node->children);
         //printf ("Procedure name: %s\n", procedureSymbol->name);
@@ -156,18 +156,36 @@ void genCodeForFunctionNode(GNode *node, int scope) {
 
 
         const char *procName = ((symbol *) procedureSymbol)->name;
-        printf ("Procedure name: %s\n", procName);
-        
+        printf ("Procedure name 2: %s\n", procName);
+        //TODO: Get parent name and prepend it to the label
+        GNode *parentProc = getFirstParent (node, NT_PROC_DECL, NT_PROC_DECL);
+        printf ("Successfully returned from getFirstParnet\n");
+        //if null, is within program scope
+        char *procLabel;
+        if (parentProc == NULL) {
+            printf ("Parent proc is null\n");
+            procLabel = calloc ((strlen (procName) + 2), sizeof (char));
+            sprintf (procLabel, "%s%d", procName, scope);
+        }
+        else {
+            symbol *parentSymbol = (symbol *)getSymbol (parentProc->children);
+            printf ("Got a symbol succesffully\n");
+            procInfo *parentInfo = g_hash_table_lookup (procedureInfoTable, parentSymbol);
+            char *parentLabel = parentInfo->procLabel;
+            procLabel = calloc ((strlen (procName) + strlen (parentLabel) + 2), sizeof (char));
+            sprintf (procLabel, "%s%s%d", parentLabel, procName, scope);
+        }
         //append scope so we don't get duplicate labels
-        char *procLabel = calloc ((strlen ("procName") + 2), sizeof (char));
-        sprintf (procLabel, "%s%d", procName, scope);
+
         generateLabel (procLabel);
         //printf ("Returned from generate label\n");
         //check which registers are free
         
         procInfo *procedureInfo = calloc (1, sizeof (procInfo));
         procedureInfo->procLabel = procLabel;
-        int callingRegister = getFirstFreeRegister();
+        //int callingRegister = getFirstFreeRegister();
+        printf ("SCOPE: %d\n", scope);
+        int callingRegister = scope;
         procedureInfo->indexingRegister = callingRegister;
         g_hash_table_insert (procedureInfoTable, procedureSymbol, procedureInfo);
         GNode *declarations = node->children->next;
@@ -478,10 +496,9 @@ void genCodeForStatement(GNode *statement) {
         }
         case NT_PROC_INVOK:
         {
-            //TODO: How are parameters ordered? depending on how they're ordered
-            //we may need to reorder them on the stack before calling...
+
             GNode *currentParamNode = statement->children->next;
-            
+            int numParams = g_node_n_children (statement) - 1;
             while (currentParamNode != NULL) {
                 genCodeForExpression(currentParamNode);
                 currentParamNode = currentParamNode->next;
@@ -510,6 +527,8 @@ void genCodeForStatement(GNode *statement) {
                 procInfo *returnedInfo = getBuiltinInfo(procSymbol);
             }
             genProcCall (procedureInfo);
+            //TODO: Handle var params as we may actually use them 
+            genVarAdjust (numParams);
             //genGOTO (procLabel);
             //generate Label right after
             //global lookup on symbol table?
@@ -661,12 +680,14 @@ void genCodeForStatement(GNode *statement) {
 
 GNode *getFirstParent (GNode *currentNode, node_type parentTypeLowerBound, node_type parentTypeUpperBound) {
 //     printf ("Broken in here\n");
+    currentNode = currentNode->parent; //if we are checking for the same thing, this will break it;
     while (currentNode != NULL) {
         node_type currentNodeType = getNiceType (currentNode);
+        printf ("get first parent node type: %d\n", currentNodeType);
         if ((currentNodeType >= parentTypeLowerBound) && (currentNodeType <= parentTypeUpperBound)) {       
             return currentNode;
         }
-        
+
         currentNode = currentNode->parent;
     }
     return NULL;
