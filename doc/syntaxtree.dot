@@ -18,7 +18,6 @@ digraph S  {
     ellipse3 [label = "...", shape = plaintext];
     ellipse4 [label = "...", shape = plaintext];
     ellipse5 [label = "...", shape = plaintext];
-    ellipse6 [label = "...", shape = plaintext];
     
     or0 [label = "or", shape = plaintext];
     or1 [label = "or", shape = plaintext];
@@ -123,7 +122,7 @@ digraph S  {
     
     FUNC_INVOK -> symbol5;
     FUNC_INVOK -> expr1;
-    FUNC_INVOK -> ellipse5;
+    FUNC_INVOK -> ellipse4;
     
     binaryoperation -> expr2;
     binaryoperation -> expr3;
@@ -132,7 +131,7 @@ digraph S  {
     
     PROC_INVOK -> symbol6;
     PROC_INVOK -> expr5;
-    PROC_INVOK -> ellipse6;
+    PROC_INVOK -> ellipse5;
     
     IF -> expr6;
     IF -> stat_list1;
@@ -143,4 +142,4 @@ digraph S  {
     
     WHILE -> expr8;
     WHILE -> stat_list4;
-} 
+}
