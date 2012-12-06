@@ -1,3 +1,8 @@
+/**
+ * Author: James Osgood
+ * Transformations to the clean and nice version of the syntax tree.
+ */
+
 #include <stdio.h>
 #include <glib.h>
 

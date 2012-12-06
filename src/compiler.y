@@ -55,7 +55,7 @@ int ifLevel = 0;
     symbol *symbol;
     GPtrArray *garray;
     struct pf_invok *pf_invok;
-    struct proc_head_pair *proc_pair;
+    struct node_pair *pair;
 }
 
 /* Reserved word tokens */
@@ -104,10 +104,11 @@ int ifLevel = 0;
 %type <node> program decls
 %type <node> var_decl_part var_decl_list var_decl
 %type <node> proc_decl_part proc_decl_list proc_decl proc_heading
-%type <proc_pair> proc_head_part
+%type <pair> proc_head_part
 %type <node> compound_stat stat_list stat simple_stat struct_stat
 %type <node> stat_assignment proc_invok var plist_finvok subscripted_var
 %type <node> expr simple_expr term factor unsigned_const unsigned_num func_invok parm
+%type <pair> if_else_header
 %type <node> matched_stat if_header while_header
 
 %type <string> identifer
@@ -421,9 +422,9 @@ proc_decl_list          : proc_decl
 
 proc_decl               : proc_head_part compound_stat SEMICOLON
                             {
-                                if (noError(1, $1->proc_heading, NULL)) {
-                                    checkFuncValSet(extractSymbol($1->proc_heading));
-                                    $$ = createNode(NT_PROC_DECL, $1->proc_heading, $1->decls, $2, NULL);
+                                if (noError(1, $1->first_node, NULL)) {
+                                    checkFuncValSet(extractSymbol($1->first_node));
+                                    $$ = createNode(NT_PROC_DECL, $1->first_node, $1->second_node, $2, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
                                 }
@@ -438,7 +439,7 @@ proc_decl               : proc_head_part compound_stat SEMICOLON
 
 proc_head_part          : proc_heading decls
                             {
-                                $$ = createProcHead($1, $2);
+                                $$ = createNodePair($1, $2);
                             }
                         ;
 
@@ -955,10 +956,9 @@ parm                    : expr
                             }
                         ;
 
-struct_stat             : if_header THEN matched_stat ELSE stat
+struct_stat             : if_else_header stat
                             {
-                                ifLevel -= 1;
-                                $$ = createNode(NT_IF_ELSE, $1, createNode(NT_STAT_LIST, $3, NULL), createNode(NT_STAT_LIST, $5, NULL), NULL);
+                                $$ = createNode(NT_IF_ELSE, $1->first_node, $1->second_node, createNode(NT_STAT_LIST, $2, NULL), NULL);
                             }
                         | error ELSE stat /* ERROR */
                             {
@@ -1004,10 +1004,9 @@ matched_stat            : simple_stat
                             {
                                 $$ = createNode(NT_STAT, $1, NULL);
                             }
-                        | if_header THEN matched_stat ELSE matched_stat
+                        | if_else_header matched_stat
                             {
-                                ifLevel -= 1;
-                                $$ = createNode(NT_IF_ELSE, $1, createNode(NT_STAT_LIST, $3, NULL), createNode(NT_STAT_LIST, $5, NULL), NULL);
+                                $$ = createNode(NT_IF_ELSE, $1->first_node, $1->second_node, createNode(NT_STAT_LIST, $2, NULL), NULL);
                             }
                         | error ELSE matched_stat /* ERROR */
                             {
@@ -1037,6 +1036,13 @@ matched_stat            : simple_stat
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
                                 }
+                            }
+                        ;
+
+if_else_header          : if_header THEN matched_stat ELSE
+                            {
+                                ifLevel -= 1;
+                                $$ = createNodePair($1, createNode(NT_STAT_LIST, $3, NULL));
                             }
                         ;
 
