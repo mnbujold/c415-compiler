@@ -508,12 +508,10 @@ void genCodeForStatement(GNode *statement) {
           }
           procInfo *procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
           char *label = genProcLabel (procedureInfo);
-          char instruction [strlen (label) + strlen ("IFNZ")];
+          char instruction [strlen (label) + strlen ("IFZ")];
           sprintf (instruction, "IFZ %s", label);
-          printf ("*** LABEL: %s\n", label);
-          printf ("*** INSTRUCTION %s\n", instruction);
           generateFormattedInstruction (instruction);
-          sprintf (instruction, "IFZ %s", label);
+          // sprintf (instruction, "IFZ %s", label);
           genCodeForStatementList (ifStatementList);
           generateLabel (label);
           //don't forget to add so the next guy knows how many labels
@@ -528,6 +526,26 @@ void genCodeForStatement(GNode *statement) {
             break;
         }
         case NT_WHILE: {
+            GNode *conditionalExpression = statement->children;
+            GNode *whileStatementList = conditionalExpression->next;
+            symbol *procSymbol = getFirstProcParent (statement);
+            procInfo *procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
+            char *label = genProcLabel (procedureInfo);
+            char beginLabel [strlen (label) + strlen ("begin")];
+            char endLabel [strlen (label) + strlen ("end")];
+            sprintf (endLabel, "%send", label);            
+            sprintf (beginLabel, "%sbegin", label);
+            generateLabel (beginLabel);
+            genCodeForExpression (conditionalExpression);
+            char branchinstruction [strlen ("IFZ") + strlen (endLabel)];
+
+            sprintf (branchinstruction, "IFZ %s", endLabel);
+            generateFormattedInstruction (branchinstruction);
+            genCodeForStatementList (whileStatementList);
+            genGOTO (beginLabel);
+            generateLabel (endLabel);
+
+            
             //evaluate expressoin
             //ifZ GOTO blah blah
             //GOTO While beginnning
