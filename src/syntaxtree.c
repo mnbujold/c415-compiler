@@ -4,6 +4,7 @@
 #include <glib.h>
 
 #include "syntaxtree.h"
+#include "transformations.h"
 
 node_type
 getNiceType(GNode *node) {
@@ -170,6 +171,9 @@ getSyntaxTree() {
 
 //     printf("\n-----------\n\n");
 //     displayNewTree(syntaxTree, 0);
+    
+    // now, the transformations:
+    syntaxTree = setOperatorTypes(syntaxTree);
     
     return syntaxTree;
 }
