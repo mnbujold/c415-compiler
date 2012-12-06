@@ -82,7 +82,8 @@ void showVariableAddressTable();
  **********************************************************/
 void genCodeForComparison (GNode *expressionNode);
 void genCodeForLogical (GNode *expressionNode);
-void genCodeForMath (GNode *expressionNode); 
+void genCodeForIntMath (GNode *expressionNode); 
+void genCodeForRealMath (GNode *expressionNode);
 
 void genProcCall (procInfo *procedureInfo);
 void genProcReturn (procInfo *procedureInfo);
