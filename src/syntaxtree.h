@@ -137,6 +137,7 @@ struct rule_and_node {
         symbol *symbol;
         struct pf_invok *pf_invok;
     } rule;
+    int setReturnValue;
 };
 
 typedef struct rule_and_node rule_and_node;
@@ -209,5 +210,8 @@ symbol *extractType(GNode *node);
 struct pf_invok *extractPF_Invok(GNode *node);
 const char *extractID(GNode *node);
 GPtrArray *extractParamList(GNode *node);
+
+int returnValueNotSet(GNode *node);
+GNode *setReturnValue(GNode *node, int value);
 
 #endif

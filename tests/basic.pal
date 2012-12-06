@@ -8,10 +8,11 @@ begin
         checkRet := 4
     else if true then
         begin
+        checkRet := 4;
         if false then
-            checkRet := 4
+            write//checkRet := 4
         else
-            checkRet := 4
+            write//checkRet := 4
         end
     else if false then
         checkRet := 4

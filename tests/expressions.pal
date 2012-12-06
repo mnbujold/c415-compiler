@@ -16,16 +16,24 @@ var
     numReal: integer;
 
     procedure joe (a:integer; b:real);
+        procedure bob2();
+        begin
+        end;
         begin
           if (4 < 3) then
             numReal := 3 * 8;
           while (1 > 2) do
             numReal := 0 + 200;
         end;
-    
+    procedure bob ();
+        procedure bob2 ();
+            begin
+            end;
+        begin
+        end;
     
     begin
-        joe (numReal, numOdd);
+        //joe (numReal, numOdd);
         numReal := 1 + 2;
         numReal := 1 + 2 * 3;
         numReal := (1 + 2) * 3;
@@ -35,8 +43,11 @@ var
         
         numReal := 4;
         numOdd := 3.8 + 3 * numReal;
+        numReal := 0;
+        while (numReal <5) do
+            numReal := numReal + 1;
         //writeln;
-        //writeln (sin (0));
+        //writeln (sin (0)); 
         //writeln;
     end.
     
