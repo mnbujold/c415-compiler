@@ -29,7 +29,7 @@ extern GNode *syntaxTree;
 
 void yyerror(const char *str) {
     iserror = 1;
-    eList = addError(eList, str, last_column, lineno);
+    eList = addError(eList, str, last_column, lineno, ET_ERROR);
 }
 
 int yywrap() {
@@ -424,7 +424,7 @@ proc_decl               : proc_head_part compound_stat SEMICOLON
                                 if (noError(1, $1->first_node, NULL)) {
                                     if (checkFuncValSet(extractSymbol($1->first_node)) == 1
                                      && returnValueNotSet($2) == 1) {
-                                        printf("Warning! This function may not have a return value set upon completion!\n");
+                                        addTypeWarning("function may not have a return value set upon completion");
                                     }
                                     
                                     $$ = createNode(NT_PROC_DECL, $1->first_node, $1->second_node, $2, NULL);

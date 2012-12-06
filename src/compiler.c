@@ -130,6 +130,10 @@ main(int argc,char** argv)
             showAllErrors(eList);
     }
     
+    if (getNumWarnings()) {
+        printf ("%d warning(s) found.\n", getNumWarnings());
+    }
+    
     if (iserror) {
         printf ("%d error(s) found.\n", getNumErrors());
         printf("Errors exist. Compilation not successful.\n");

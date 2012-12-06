@@ -7,12 +7,22 @@
 extern int prog_listing;
 
 int numErrors = 0;
+int numWarnings = 0;
 
 int getNumErrors () {
     return numErrors;
 }
-myerror *addError(myerror *in, const char *message, int location, int line) {
-    numErrors++;
+
+int getNumWarnings () {
+    return numWarnings;
+}
+
+myerror *addError(myerror *in, const char *message, int location, int line, error_type errType) {
+    if (errType == ET_ERROR) {
+        numErrors += 1;
+    } else {
+        numWarnings += 1;
+    }
 	myerror *sNew = NULL;
 	int errorTextLength = 0;
     line++;
@@ -37,6 +47,7 @@ myerror *addError(myerror *in, const char *message, int location, int line) {
 	sNew->location = location;
 	sNew->next = NULL;
 	sNew->last = sNew;
+    sNew->errType = errType;
 	if(in == NULL) {
 		in = sNew;
 	} else {
@@ -44,7 +55,6 @@ myerror *addError(myerror *in, const char *message, int location, int line) {
 		in->last = sNew;
 	} /*if*/
 	return in;
-    //numErrors++;
 } /*addError*/
 
 char *createErrorText(int size, int *errorTextLength) {
@@ -132,12 +142,17 @@ void updateErrorText(myerror *in, char *text) {
 
 void showAllErrors(myerror *in) {
 	int nTemp = 0;
+    int countTemp;
+    
 	if(in == NULL) return;
     //int number = 0;
 	while(in != NULL) {
           if(prog_listing)
             printf ("{\n");
-		printf("Error %d! %d:%d - %s\n",numErrors, in->line, in->location, in->message);
+        const char *errName = (in->errType == ET_ERROR) ? "Error" : "Warning";
+        countTemp = (in->errType == ET_ERROR) ? numErrors : numWarnings;
+
+		printf("%s %d! %d:%d - %s\n", errName, countTemp, in->line, in->location, in->message);
         if (in->text != NULL) {
             printf("%s\n", in->text);
         }
@@ -159,8 +174,10 @@ void writeAllErrors(myerror *in, FILE *outFile) {
 	int nTemp = 0;
 	if(in == NULL) return;
 	while(in != NULL) {
+            const char *errName = (in->errType == ET_ERROR) ? "Error" : "Warning";
+            
           fprintf (outFile, "{\n");
-          fprintf(outFile, "Error! %d:%d - %s\n", in->line, in->location, in->message);
+          fprintf(outFile, "%s! %d:%d - %s\n", errName, in->line, in->location, in->message);
           fprintf(outFile, "%s\n", in->text);
 		nTemp = in->location;
 		while(nTemp > 1) {
