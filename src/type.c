@@ -876,7 +876,7 @@ doVarAssignment (symbol *var, symbol *expr) {
     if (assignmentCompatibleSym(var, expr, 1) == 1) {
         symbol *varLookup = localLookup(var->name);
 
-        if (varLookup != NULL && varLookup->oc == OC_FUNC) {
+        if (varLookup != NULL && varLookup->oc == OC_FUNC && getTypeClass(varLookup) != TC_ERROR) {
             varLookup->desc.func_attr->returnValSet = 1;
             
             return 1;

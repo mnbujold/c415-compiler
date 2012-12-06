@@ -964,7 +964,12 @@ parm                    : expr
 
 struct_stat             : if_else_header stat
                             {
-                                $$ = createNode(NT_IF_ELSE, $1->first_node, $1->second_node, createNode(NT_STAT_LIST, $2, NULL), NULL);
+                                int returnSet = 1;
+                                if (returnValueNotSet($1->second_node) || returnValueNotSet($2)) {
+                                    returnSet = 0;
+                                }
+                                
+                                $$ = setReturnValue(createNode(NT_IF_ELSE, $1->first_node, $1->second_node, createNode(NT_STAT_LIST, $2, NULL), NULL), returnSet);
                             }
                         | error ELSE stat /* ERROR */
                             {
@@ -1011,7 +1016,12 @@ matched_stat            : simple_stat
                             }
                         | if_else_header matched_stat
                             {
-                                $$ = createNode(NT_IF_ELSE, $1->first_node, $1->second_node, createNode(NT_STAT_LIST, $2, NULL), NULL);
+                                int returnSet = 1;
+                                if (returnValueNotSet($1->second_node) || returnValueNotSet($2)) {
+                                    returnSet = 0;
+                                }
+                                
+                                $$ = setReturnValue(createNode(NT_IF_ELSE, $1->first_node, $1->second_node, createNode(NT_STAT_LIST, $2, NULL), NULL), returnSet);
                             }
                         | error ELSE matched_stat /* ERROR */
                             {

@@ -18,21 +18,27 @@ begin
     end;
     
     if int >= 11 then
-        int := maxint;
+        int := iCannotReturn(int);
 end; { $ERR_DATA$ [0, "missing unconditional function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
     
     
 function iCanReturn(int : integer) : integer;
 begin
-    while int < 10 do
+    if y = x2 then
     begin
-        iCanReturn := iCanReturn - 1;
-        int := int + 1;
+        while int < 10 do
+        begin
+            iCanReturn := iCanReturn - 1;
+            int := int + 1;
+        end;
+        
+        if int >= 11 then
+            iCanReturn := maxint
     end;
     
-    if int >= 11 then
-        iCanReturn := maxint;
-end;  // WARNING!
+    if (y = x1) or (y = x3) then
+        iCanReturn := -maxint;
+end;  // WARNING! Function may not set return value!
     
 function whatDoIReturn(x : xType; i : integer) : xTypeArray; { $ERR_DATA$ [61, "illegal return type (not a simple type)", ["illegal function return type"]] $ERR_DATA$ }
     var xArray : xTypeArray;
@@ -53,7 +59,7 @@ begin
         y := x
     else
         canIReturn := canIReturn(x, i + 1)
-end; // WARNING!
+end; // WARNING! Function may not set return value!
 
 function returnValue() : integer;
 begin
@@ -62,7 +68,7 @@ begin
 
     if iCanReturn(1) = 1 then
         returnValue := 5
-end; // WARNING!
+end; // WARNING! Function may not set return value!
 
 function correctReturn(int : integer) : boolean;
 begin
@@ -77,6 +83,25 @@ begin
             correctReturn := false
 end; // good return
 
+function checkRet0(int : integer) : integer;
+begin
+    if true then checkRet0 := 4;
+    
+    if false then
+        checkRet0 := 4
+    else if true then
+        begin
+        if false then
+            checkRet0 := 4
+        else
+            write
+        end
+    else if false then
+        checkRet0 := 4
+    else
+        checkRet0 := 4;
+end; // WARNING! Function may not set return value!
+
 function checkRet(int : integer) : integer;
 begin
     if true then checkRet := 4;
@@ -87,9 +112,9 @@ begin
         begin
         checkRet := 4;
         if false then
-            write//checkRet := 4
+            write
         else
-            write//checkRet := 4
+            write
         end
     else if false then
         checkRet := 4
@@ -121,9 +146,9 @@ begin
     else if true then
         begin
         if false then
-            write//checkRet := 4
+            write
         else
-            write;//checkRet := 4
+            write;
         checkRet2 := 4;
         end
     else if false then
