@@ -10,6 +10,30 @@ type xType = (x1, x2, x3);
 var xArray : xTypeArray;
     y : xType;
 
+function iCannotReturn(var int : integer) : integer;
+begin
+    while int < 10 do
+    begin
+        int := int + 1;
+    end;
+    
+    if int >= 11 then
+        int := maxint;
+end; { $ERR_DATA$ [0, "missing unconditional function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
+    
+    
+function iCanReturn(int : integer) : integer;
+begin
+    while int < 10 do
+    begin
+        iCanReturn := iCanReturn - 1;
+        int := int + 1;
+    end;
+    
+    if int >= 11 then
+        iCanReturn := maxint;
+end;  // WARNING!
+    
 function whatDoIReturn(x : xType; i : integer) : xTypeArray; { $ERR_DATA$ [61, "illegal return type (not a simple type)", ["illegal function return type"]] $ERR_DATA$ }
     var xArray : xTypeArray;
     
@@ -19,7 +43,7 @@ begin
     xArray[x3] := 6;
     
     whatDoIReturn := xArray;
-end;
+end; // good return
     
 function canIReturn(x : xType; i : integer) : xType; // Legal return type
     var outputtype : char;
@@ -29,16 +53,16 @@ begin
         y := x
     else
         canIReturn := canIReturn(x, i + 1)
-end; { $ERR_DATA$ [0, "missing unconditional function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
+end; // WARNING!
 
 function returnValue() : integer;
 begin
     while false do
         returnValue := 0;
 
-    if doIReturn(y = x1) = 1 then
+    if iCanReturn(1) = 1 then
         returnValue := 5
-end; { $ERR_DATA$ [0, "missing unconditional function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
+end; // WARNING!
 
 function correctReturn(int : integer) : boolean;
 begin

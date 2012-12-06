@@ -71,6 +71,8 @@ createNewNode(node_type type, symbol *symbol, struct pf_invok *pf_invok) {
     rule_node->hasNode = 1;
     rule_node->node = data;
     
+    rule_node->setReturnValue = 0;
+    
     if (symbol != NULL) {
         rule_node->rule.symbol = symbol;
     } else if (pf_invok != NULL) {
@@ -722,14 +724,23 @@ createNode(node_type type, GNode *n_args, ...) {
     GNode *newNode = createNewNode(type, NULL, NULL);
     va_list argList;
     va_start(argList, n_args);
+    int retValSet = 0;
     
     GNode *arg = n_args;
     
     while(arg != NULL) {
+        if (!returnValueNotSet(arg)) {
+            retValSet = 1;
+        }
+        
         g_node_append(newNode, arg);        
         arg = va_arg(argList, GNode *);
     }
-
+    
+    if (retValSet == 1) {
+        newNode = setReturnValue(newNode, 1);
+    }
+    
     return newNode;
 }
 
@@ -780,12 +791,21 @@ createExprNode(node_type type, symbol *result, GNode *n_args, ...) {
     GNode *newNode = createNewNode(type, result, NULL);
     va_list argList;
     va_start(argList, n_args);
+    int retValSet = 0;
     
     GNode *arg = n_args;
     
     while(arg != NULL) {
+        if (!returnValueNotSet(arg)) {
+            retValSet = 1;
+        }
+        
         g_node_append(newNode, arg);        
         arg = va_arg(argList, GNode *);
+    }
+    
+    if (retValSet == 1) {
+        newNode = setReturnValue(newNode, 1);
     }
     
     return newNode;
@@ -850,4 +870,18 @@ createNodePair(GNode *firstNode, GNode *secondNode) {
     
     return pair;
 }
+
+int
+returnValueNotSet(GNode *node) {
+    rule_and_node *data = node->data;
     
+    return data->setReturnValue == 0;
+}
+
+GNode *
+setReturnValue(GNode *node, int value) {
+    rule_and_node *data = node->data;
+    data->setReturnValue = value;
+    
+    return node;
+}
