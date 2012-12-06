@@ -14,5 +14,17 @@
 #define WRITELN_REGISTER 0
 #define WRITELN_LABEL WRITELN
 
+#define LN_REGISTER 0
+#define LN_LABEL LN
+
+#define EXP_REGISTER 0
+#define EXP_LABEL EXP
+
+#define SQRI_REGISTER 0
+#define SQRI_LABEL SQRI
+
+#define SQRT_REGISTER 0
+#define SQRT_LABEL SQRT
+
 
 #endif

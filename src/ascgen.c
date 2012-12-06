@@ -254,6 +254,17 @@ void addVariables(GNode *varDeclNode) {
 
 }
 
+void pushScalar(symbol *symb){
+  int size = symb->desc.type_attr->desc.scalar->len;
+  printf ("size: %d \n", size);
+
+  char instruction[strlen("ADJUST") + sizeof(size) + 1];
+  sprintf(instruction, "ADJUST %d", size);
+  generateFormattedInstruction(instruction);
+    
+}
+
+
 void pushArray(symbol *symb){
   //int size = symb->symbol_type->desc.type_attr->desc.array->size;
   int size = symb->desc.type_attr->desc.array->size;
@@ -262,36 +273,27 @@ void pushArray(symbol *symb){
   //printf("array tc: %d \n", getTypeClass(symb->symbol_type->desc.type_attr->desc.array->obj_type));
 
   // Handle 'special' cases of arrays (eg. arrays of arrays or arrays of records)
+  printf("ARRAY SIZE: %d , TYPE: %d \n", size, varType);
   if(varType == TC_RECORD){
-    printf("pushing rec\n");
-/*
-    symbol *test = symb->symbol_type->desc.type_attr->desc.array->obj_type;
-    GPtrArray *recFld = test->desc.type_attr->desc.record->field_list;
-    symbol *recSymbol;
+    //printf("pushing rec\n");
+
     int i;
-    printf("length: %d \n", recFld->len);
-    for(i=0; i<recFld->len; i++){
-      recSymbol = g_ptr_array_index(recFld, i);
-      printf("tc: %d \n", getTypeClass(recSymbol));
-    }
-*/
-    int i;
-    for(i=0; i<size-1; i++)
+    for(i=0; i<size; i++)
       pushRecord(symb->desc.type_attr->desc.array->obj_type);
     
   }
   else if(varType == TC_ARRAY){
-    printf("pushing array\n");
+    //printf("pushing array\n");
     int i;
-//    int arraysize = symb->desc.type_attr->desc.array->size;
-    for(i=0; i<size-1; i++){
+    for(i=0; i<size; i++){
+
       pushArray(symb->desc.type_attr->desc.array->obj_type);
     }
   }
   // All other types of arrays
   else{
     char instruction[strlen("ADJUST") + sizeof(size) + 1];
-    sprintf (instruction, "ADJUST %d", size);
+    sprintf (instruction, "ADJUST %d", size); 
     generateFormattedInstruction (instruction);
   }
 }
@@ -353,11 +355,16 @@ void variableHandler(symbol *symb, type_class varType){
         DEBUG_PRINT (("Not implemented yet"));
     }
     else if(varType == TC_ARRAY){
-      printf("size array: %d \n", symb->symbol_type->desc.type_attr->desc.array->size);
+      //printf("size array: %d \n", symb->symbol_type->desc.type_attr->desc.array->size);
       pushArray(symb->symbol_type);
     }
     else if(varType == TC_RECORD){
       pushRecord(symb->symbol_type);
+    }
+    else if(varType == TC_SCALAR){
+      // Handles like an array
+      printf("scalar here \n");
+      pushScalar(symb->symbol_type);
     }
     else
       // For debugging: Spit out the typeclass we don't yet handle here
