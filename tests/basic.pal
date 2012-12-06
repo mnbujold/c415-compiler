@@ -3,8 +3,10 @@ program writeln (readln5wre, read);
 // var joe : integer;
 //         billy : array[0..10] of integer;
 
+type re = real;
 
 var tim : record othy : real end;
+    bill : array[-3..3] of re;
     joe : real;
 
 // function lol(a : integer; b : integer) : integer;
@@ -30,7 +32,7 @@ var tim : record othy : real end;
 //     begin contrlfi := 3; end;
 
 begin
-    joe := tim.othy;
+    joe := (tim.othy / 3) * (5 - 5) + bill[0];
 //     if true then
 //         if false then
 //             write

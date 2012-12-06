@@ -175,6 +175,9 @@ getSyntaxTree() {
     // now, the transformations:
     syntaxTree = setOperatorTypes(syntaxTree);
     
+//     printf("\n-----------\n\n");
+//     displayNewTree(syntaxTree, 0);
+    
     return syntaxTree;
 }
 
