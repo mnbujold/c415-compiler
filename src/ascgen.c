@@ -418,7 +418,7 @@ int variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescr
     }
     else if(varType == TC_SCALAR){
       // Handles like an array
-      printf("scalar here \n");
+      //printf("scalar here \n");
       pushScalar(symb->symbol_type);
     }
     else

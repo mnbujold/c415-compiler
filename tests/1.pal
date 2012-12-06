@@ -1,47 +1,162 @@
 {
     1.pal
-    Tests syntax of invalid function and procedure calls and definitions.
-    Errors:
-    20:18 incomplete parameter definition in function header
-    29:12 illegal array access, array index type does not match index
-    31:22 missing end paranthesis in function call
-    43:23 missing parameter in procedure call
+    Tests ...
 }
-program syntactical(hello, goodbye); 
+program mostness(inputtype, outputtype);
 
-type fake = real;
-     realEnum = (r0, r1, r2, r3);
-     stringy = array[realEnum] of char;
+type xType = (x1, x2, x3);
+     xTypeArray = array[xType] of integer;
 
-var eighteen : integer;
-    reighteen : fake; // real number
-    fun : realEnum; // enum type
-     
-function noWork( : fake) : realEnum; { $ERR_DATA$ [18, "incomplete parameter definition in function header", ["unexpected COLON", "VAR", "ID"]] $ERR_DATA$ }
+var xArray : xTypeArray;
+    y : xType;
+
+function iCannotReturn(var int : integer) : integer;
 begin
-    noWork := r2;
-end;
-
-procedure andAllPlay(var param1 : fake; param2 : realEnum; param3 : stringy);
-    const ABCs = 'abcdefghijklmnopqrstuvwxyz';
-    var variable : integer;
-begin
-    param3[param1] := ABCs[14]; { $ERR_DATA$ [12, "illegal array access, array index type does not match index", ["illegal array access"]] $ERR_DATA$ }
+    while int < 10 do
+    begin
+        int := int + 1;
+    end;
     
-    param1 := noWork(; { $ERR_DATA$ [22, "missing end paranthesis in function call", ["unexpected SEMICOLON"]] $ERR_DATA$ }
-end;
+    if int >= 11 then
+        int := iCannotReturn(int);
+end; { $ERR_DATA$ [0, "missing unconditional function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
+    
+    
+function iCanReturn(int : integer) : integer;
+begin
+    if y = x2 then
+    begin
+        while int < 10 do
+        begin
+            iCanReturn := iCanReturn - 1;
+            int := int + 1;
+        end;
+        
+        if int >= 11 then
+            iCanReturn := maxint
+    end;
+    
+    if (y = x1) or (y = x3) then
+        iCanReturn := -maxint;
+end;  // WARNING! Function may not set return value!
+    
+function whatDoIReturn(x : xType; i : integer) : xTypeArray; { $ERR_DATA$ [61, "illegal return type (not a simple type)", ["illegal function return type"]] $ERR_DATA$ }
+    var xArray : xTypeArray;
+    
+begin
+    xArray[x1] := 4;
+    xArray[x] := i;
+    xArray[x3] := 6;
+    
+    whatDoIReturn := xArray;
+end; // good return
+    
+function canIReturn(x : xType; i : integer) : xType; // Legal return type
+    var outputtype : char;
+    
+begin
+    if (xArray[x] = i) then
+        y := x
+    else
+        canIReturn := canIReturn(x, i + 1)
+end; // WARNING! Function may not set return value!
+
+function returnValue() : integer;
+begin
+    while false do
+        returnValue := 0;
+
+    if iCanReturn(1) = 1 then
+        returnValue := 5
+end; // WARNING! Function may not set return value!
+
+function correctReturn(int : integer) : boolean;
+begin
+    if int >= 19 then
+        correctReturn := true
+    else
+        if int <= -10 then
+            correctReturn := false
+        else if int <= 0 then
+            correctReturn := true
+        else
+            correctReturn := false
+end; // good return
+
+function checkRet0(int : integer) : integer;
+begin
+    if true then checkRet0 := 4;
+    
+    if false then
+        checkRet0 := 4
+    else if true then
+        begin
+        if false then
+            checkRet0 := 4
+        else
+            write
+        end
+    else if false then
+        checkRet0 := 4
+    else
+        checkRet0 := 4;
+end; // WARNING! Function may not set return value!
+
+function checkRet(int : integer) : integer;
+begin
+    if true then checkRet := 4;
+    
+    if false then
+        checkRet := 4
+    else if true then
+        begin
+        checkRet := 4;
+        if false then
+            write
+        else
+            write
+        end
+    else if false then
+        checkRet := 4
+    else
+        checkRet := 4;
+end; // good return
+
+function checkRet1(int : integer) : integer;
+begin
+    if false then
+        checkRet1 := 4
+    else if true then
+        begin
+        if false then
+            checkRet1 := 4
+        else
+            checkRet1 := 4
+        end
+    else if false then
+        checkRet1 := 4
+    else
+        checkRet1 := 4;
+end; // good return
+
+function checkRet2(int : integer) : integer;
+begin
+    if false then
+        checkRet2 := 4
+    else if true then
+        begin
+        if false then
+            write
+        else
+            write;
+        checkRet2 := 4;
+        end
+    else if false then
+        checkRet2 := 4
+    else
+        checkRet2 := 4;
+end; // good return
 
 begin
-    
-eighteen := 18;
-reighteen := 18.0;
-
-fun := noWork(reighteen);
-
-andAllPlay(r1, fun, 'abcd'); // Not Legal.
-
-andAllPlay(reighteen, , '0123'); { $ERR_DATA$ [23, "missing parameter in procedure call", ["unexpected COMMA"]] $ERR_DATA$ }
-
-writeln('Makes Johnny a yob llud');
-
+// nothing here
 end.

@@ -105,7 +105,7 @@ symbol *getVarSymbol(char const *id) {
     object_class objClass = varSym->oc;
 
     if (objClass == OC_FUNC) {
-        if (varSym->desc.func_attr->defnState != 0) { // function not currently being defined
+        if (getTypeClass(varSym) != TC_ERROR && varSym->desc.func_attr->defnState != 0) { // function not currently being defined
             symNotDefinedError(id);
             return createErrorSym(OC_VAR);
         }

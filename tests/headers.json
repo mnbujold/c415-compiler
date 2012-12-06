@@ -1,12 +1,12 @@
 {
-    "0": "Tests syntax of invalid arithmetic expressions and array definitions.",
-    "1": "Tests syntax of invalid function and procedure calls and definitions.",
+    "0": "Tests arguments to var parameters and ...",
+    "1": "Tests functions for missing return assignments and legal return types.",
     "2": "Tests invalid array bounds and assignments.",
     "3": "Tests invalid scalar assignments and expressions.",
-    "4": "Tests invalid function and procedure calls and definitions.",
-    "5": "Tests scoping resulting in invalid procedure calls, variable declarations, and array assignments.",
-    "6": "Tests invalid record definitions and calls.",
-    "7": "Tests invalid type and constant definitions.",
-    "8": "Tests invalid array indexing with integer and enumerated types, invalid array assignment, and legal/illegal scoping.",
+    "4": "Correct boolean stuff ...",
+    "5": "Correct counting stuff ...",
+    "6": "Tests invalid record definitions and calls. {MAKE ABOUT MATH}",
+    "7": "Tests invalid type and constant definitions. {MAKE ABOUT BUILTINS?}",
+    "8": "Correct book stuff ...",
     "9": "Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols."
 }

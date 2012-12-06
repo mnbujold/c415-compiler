@@ -36,6 +36,15 @@ all: clean pal
 man:
 	groff -man -T ascii doc/pal.1
 
+docs:
+	dot -Tps doc/assignment.dot -o doc/assignment.ps
+	dot -Tps doc/program.dot -o doc/program.ps
+	dot -Tps doc/stat.dot -o doc/stat.ps
+	epstopdf doc/assignment.ps
+	epstopdf doc/program.ps
+	epstopdf doc/stat.ps
+	pdflatex -output-directory doc doc/pal.tex
+
 pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 	flex -i -o src/${LEXER_C} ${LEXER} 
 	bison -d -v ${GRAMMAR} -o src/${GRAMMAR_C} 
@@ -51,7 +60,7 @@ cp3:
 	$(PY) $(RUNNER) -sn $(TESTS)
 	mkdir $(CP3DIR)
 	make clean
-	pdflatex -output-directory doc doc/pal.tex
+	make docs
 	rm -f doc/pal.log doc/pal.pdf doc/pal.aux
 	cp -r $(SOLUTION) $(SUBTESTS) $(CP3DIR)
 	tar -cvzf $(CP3DIR).tgz $(CP3DIR)

@@ -2,6 +2,7 @@
 \usepackage{fancyhdr}
 \usepackage{setspace}
 \usepackage{lipsum}
+\usepackage{graphicx}
 \pagestyle{fancy}
 \lhead{CMPUT 415}
 \chead{pal Compiler}
@@ -68,9 +69,10 @@ Type Classes are a special object case that have a further structure with data p
 
 
 \section*{Semantic Analysis}
-Most of the semantic analysis is done using the symbol structures. Local and global lookups of the symbol table are used to determine the correct usage of symbols. Object classes and types are checked for consistency in declarations, assignments, operations, procedure and function invocations, conditionals, and array accesses.\\
+Most of the semantic analysis is done using the symbol structures, which are passed up the tree. Local and global lookups of the symbol table are used to determine the correct usage of symbols. Object classes and types are checked for consistency in declarations, assignments, operations, procedure and function invocations, conditionals, and array accesses.\\
 
-To determine if a function's return value is set before the end of the function's definition, we check every assignment for a function symbol on the left hand side. This assignment is valid if the assignment occurs within the function's \texttt{compound_stat} definition, which we check by setting flags before and after the \texttt{compound_stat}. To check if the assignment occurs in an unconditional statement, we keep global variables for the current loop depth (\texttt{while} loops) and conditional depth (\texttt{if} statements), incremented and decremented appropriately; a state machine checks that a return value has been set in all parts of an \texttt{if-then-else} construct. The loop depth is also used to check for the correct placement of \texttt{exit} and \texttt{continue} statements.\\
+To determine if a function's return value is set before the end of the function's definition, we check every assignment for a function symbol on the left hand side. This assignment is valid if the assignment occurs within the function's \texttt{compound\_stat} definition, which we check by setting flags before and after the \texttt{compound\_stat}. Any valid assignment to a function return value is carried up the tree, only invalidated by \texttt{if} statements and \texttt{while} loops. At an \texttt{if-then-else} statement, both parts must have values set to be a valid return value assignment.\\
+We keep global variables for the current loop depth, incremented and decremented appropriately, to check for the correct placement of \texttt{exit} and \texttt{continue} statements.\\
 
 I/O procedure invocations without parentheses (\texttt{write}, \texttt{read}, \texttt{writeln}, and \texttt{readln}) are checked using a lexical rule, a identifier reduction in the grammar (to allow for hiding the names), and a check if the symbol is the same as the corresponding builtin procedure (i.e. it has not been hidden).
 
@@ -80,11 +82,25 @@ To generate the \emph{ASC} assembly code for a \emph{pal} program, we build a sy
 
 After we have generated a syntax tree from this first pass, we reformat and simplify the tree to facilitate easier code generation. Lists in the tree are flattened, unnecessary nodes are collapsed (especially expression nodes), and a minor number of nodes are added for consistency reasons. Also, the additional constructs not involved in code generation removed from the nodes, leaving just the node type indicator and symbol (if present) remaining. The simplified tree has the following form:\\
 
-\\
-SYNTAX TREE IMAGE\\
-\\
+\begin{figure}[ht]
+\caption{Assignment}
+\centering
+\includegraphics[scale=0.25]{./doc/assignment.pdf}
+\end{figure}
 
-The only dedicated leaf nodes are \texttt{exit}, \texttt{continue}, and \texttt{symbol}, but \texttt{VAR_DECL_LIST}, \texttt{PROC_DECL_LIST},  and \texttt{STAT_LIST} will also have no children if their respective sections are empty. Only the \texttt{symbol} node contains actual symbols.\\
+\begin{figure}[ht]
+\caption{Program}
+\centering
+\includegraphics[scale=0.25]{./doc/program.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\caption{Stat}
+\centering
+\includegraphics[scale=0.25]{./doc/stat.pdf}\\
+\end{figure}
+
+The only dedicated leaf nodes are \texttt{exit}, \texttt{continue}, and \texttt{symbol}, but \texttt{VAR\_DECL\_LIST}, \texttt{PROC\_DECL\_LIST},  and \texttt{STAT\_LIST} will also have no children if their respective sections are empty. Only the \texttt{symbol} node contains actual symbols.\\
 
 An additional transformation take place before we generate code: arithmetic operators are modified to reflect the result of their computation, based on the type of their operands. We use a postorder traversal of the tree to recursively determine the type of the operands and set the operator's result type to real or integer accordingly. This final tree makes dealing with integer and real conversion, and determining the correct \emph{ASC} operator type, much easier.
 
