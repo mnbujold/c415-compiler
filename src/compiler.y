@@ -98,14 +98,8 @@ int ifLevel = 0;
 %type <symbol> simple_type
 %type <garray> scalar_type scalar_list field_list 
 %type <symbol> field
-/* %type <symbol> var_decl */
-/* %type <symbol> var subscripted_var parm */
-/* %type <symbol> expr simple_expr term factor unsigned_const unsigned_num */
-/* %type <symbol> proc_heading */
 %type <garray> f_parm_decl f_parm_list
 %type <symbol> f_parm
-/* %type <pf_invok> plist_finvok */
-/* %type <symbol> func_invok */
 
 %type <node> program decls
 %type <node> var_decl_part var_decl_list var_decl
