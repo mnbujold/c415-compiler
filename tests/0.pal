@@ -18,6 +18,7 @@ type tf = (true, false);
 var numOdd : integer;
     numEven : integer;
     number : integer;
+    memoryGreedy : array[integer] of array[tf] of real; // Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     randArray : array[4..45] of tf; // Legal.
     anotherArray : array[true..false] of 3.4; { $ERR_DATA$ [42, "unexpected real number in array definition", ["unexpected REAL_CONST"]] $ERR_DATA$ }
     bob, joe : array[-2..1] of array[3..{LOL}] of char; { $ERR_DATA$ [46, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ }

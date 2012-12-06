@@ -422,7 +422,8 @@ proc_decl_list          : proc_decl
 proc_decl               : proc_head_part compound_stat SEMICOLON
                             {
                                 if (noError(1, $1->first_node, NULL)) {
-                                    if (checkFuncValSet(extractSymbol($1->first_node)) == 1
+                                    if (isFunction($1->first_node) == 1
+                                     && checkFuncValSet(extractSymbol($1->first_node)) == 1
                                      && returnValueNotSet($2) == 1) {
                                         addTypeWarning("function may not have a return value set upon completion");
                                     }
