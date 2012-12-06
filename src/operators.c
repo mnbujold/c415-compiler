@@ -37,6 +37,12 @@ int canEvaluate(symbol *operand) {
     
 }
 
+int
+errorOperand(symbol *op1, symbol *op2) {
+    return op1 == NULL || op2 == NULL
+        || getTypeClass(op1) == TC_ERROR || getTypeClass(op2) == TC_ERROR;
+}
+
 symbol *identity (symbol *op) {
   if (getTypeClass (op) == TC_REAL || getTypeClass (op) == TC_INTEGER) {
     return op;
@@ -49,6 +55,10 @@ symbol *identity (symbol *op) {
  * Reverse sign of number
  */
 symbol *inversion (symbol *op)  {
+    if (op == NULL || getTypeClass(op) == TC_ERROR) {
+        return createErrorSym(OC_CONST);
+    }
+    
   if (getTypeClass (op) == TC_REAL || getTypeClass (op) == TC_INTEGER) {
     if (canEvaluate (op)) {
       if (getTypeClass (op) == TC_REAL) {
@@ -76,9 +86,7 @@ symbol *inversion (symbol *op)  {
  * BOOLEAN operators
  * ****************/
 symbol *notOp(symbol *operand) {
-    if (operand == NULL) {
-        //printf("Operand is NULL!\n");
-        // error... will this ever happen?
+    if (operand == NULL || getTypeClass(operand) == TC_ERROR) {
         return createErrorSym(OC_CONST);
     }
 
@@ -97,8 +105,7 @@ symbol *notOp(symbol *operand) {
 }
 
 symbol *andOp (symbol *o1, symbol *o2) {
-  if (o1 == NULL || o2 == NULL) {
-    opNotBooleanError();
+  if (errorOperand(o1, o2)) {
     return createErrorSym(OC_CONST);
   }
   if (getTypeClass (o1) != TC_BOOLEAN || getTypeClass (o2) != TC_BOOLEAN) {
@@ -118,7 +125,10 @@ symbol *andOp (symbol *o1, symbol *o2) {
 }
 
 symbol *orOp (symbol *o1, symbol *o2){
-
+    if (errorOperand(o1, o2)) {
+        return createErrorSym(OC_CONST);
+    }
+    
   if (getTypeClass (o1) != TC_BOOLEAN || getTypeClass (o2) != TC_BOOLEAN) {
     opNotBooleanError();
     return createErrorSym(OC_CONST);
@@ -150,6 +160,10 @@ double getConstRealValue (symbol *operand) {
   return operand->desc.const_attr->value.real;
 }
 symbol *addOp (symbol *o1, symbol *o2) {
+    if (errorOperand(o1, o2)) {
+        return createErrorSym(OC_CONST);
+    }
+    
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
     addTypeError ("operand not of type integer or real");
     return createErrorSym(OC_CONST);
@@ -207,6 +221,9 @@ symbol *addOp (symbol *o1, symbol *o2) {
 }
 
 symbol *subtractOp (symbol *o1, symbol *o2) {
+    if (errorOperand(o1, o2)) {
+        return createErrorSym(OC_CONST);
+    }
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
     addTypeError ("operand not of type integer or real");
     return createErrorSym(OC_CONST);
@@ -266,6 +283,9 @@ symbol *subtractOp (symbol *o1, symbol *o2) {
 }
 
 symbol *multOp (symbol *o1, symbol *o2) {
+    if (errorOperand(o1, o2)) {
+        return createErrorSym(OC_CONST);
+    }
   if (!validArithOperator (o1) || !validArithOperator (o2)) {
     addTypeError ("operand not of type integer or real");
     return createErrorSym(OC_CONST);
@@ -321,6 +341,9 @@ symbol *multOp (symbol *o1, symbol *o2) {
 }
 
 symbol *intDivOp (symbol *o1, symbol *o2) {
+    if (errorOperand(o1, o2)) {
+        return createErrorSym(OC_CONST);
+    }
   if (getTypeClass (o1) != TC_INTEGER || getTypeClass (o2) != TC_INTEGER) {
     addTypeError ("operand not of type integer");
     return createErrorSym(OC_CONST);
@@ -344,6 +367,9 @@ symbol *intDivOp (symbol *o1, symbol *o2) {
 }
 
 symbol *realDivOp (symbol *o1, symbol *o2) {
+    if (errorOperand(o1, o2)) {
+        return createErrorSym(OC_CONST);
+    }
     type_class o1Type = getTypeClass (o1);
     type_class o2Type = getTypeClass (o2);
     if ((o1Type != TC_REAL && o1Type != TC_INTEGER)|| (o2Type != TC_REAL && o2Type != TC_INTEGER) ) {
@@ -369,6 +395,9 @@ symbol *realDivOp (symbol *o1, symbol *o2) {
 }
 
 symbol *modOp (symbol *o1, symbol *o2) {
+    if (errorOperand(o1, o2)) {
+        return createErrorSym(OC_CONST);
+    }
   if (getTypeClass (o1) != TC_INTEGER || getTypeClass (o2) != TC_INTEGER) {
     addTypeError ("operand not of type integer");
 
