@@ -15,7 +15,7 @@ var
     numEven: real;
     numReal: integer;
 
-    procedure joe ();
+    procedure joe (a:integer; b:real);
         begin
           if (4 < 3) then
             numReal := 3 * 8;
@@ -25,11 +25,11 @@ var
     
     
     begin
-        joe ();
+        joe (numReal, numOdd);
         numReal := 1 + 2;
         numReal := 1 + 2 * 3;
         numReal := (1 + 2) * 3;
-        joe();
+        joe(1, numEven);
         if (1 < 2.5) then
             numReal := numReal + 1;
         

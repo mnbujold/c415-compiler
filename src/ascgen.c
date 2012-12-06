@@ -477,12 +477,13 @@ void genCodeForStatement(GNode *statement) {
             
             while (currentParamNode != NULL) {
                 genCodeForExpression(currentParamNode);
+                currentParamNode = currentParamNode->next;
             }
             GNode *symbolNode = statement->children;
 //             printf ("We have a procedure invocation here\n");
-            if (symbolNode == NULL) {
-                printf ("Symbol node is null\n");
-            }
+//             if (symbolNode == NULL) {
+//                 printf ("Symbol node is null\n");
+//             }
             //printf ("type of symbolNode: %d\n", getNiceType (symbolNode));
             //TODO: Generate a go to to this procedure. h
             
@@ -716,6 +717,12 @@ void genCodeForExpression (GNode *expressionNode) {
         case NT_FUNC_INVOK:
         {
             symbol *funcSymbol = getSymbol (expressionNode->children);
+            GNode *currentParamNode = expressionNode->children->next;
+            
+            while (currentParamNode != NULL) {
+                genCodeForExpression(currentParamNode);
+                currentParamNode = currentParamNode->next;
+            }
             //TODO: push the parameters onto the stack
             //TODO: push the parameters onto the stack
             procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
