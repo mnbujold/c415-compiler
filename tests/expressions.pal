@@ -19,7 +19,7 @@ var
         begin
           if (4 < 3) then
             numReal := 3 * 8;
-          while (1 < 2) do
+          while (1 > 2) do
             numReal := 0 + 200;
         end;
     
@@ -32,8 +32,9 @@ var
         joe();
         if (1 < 2.5) then
             numReal := numReal + 1;
-            
-        numOdd := 3.8 + 3 * 4;
+        
+        numReal := 4;
+        numOdd := 3.8 + 3 * numReal;
         //writeln;
         //writeln (sin (0));
         //writeln;

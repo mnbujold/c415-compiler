@@ -703,6 +703,7 @@ void genCodeForExpression (GNode *expressionNode) {
             
               symbol *varSymbol = getSymbol(expressionNode->children);
               varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
+              genVarAccess (address);
             }
             else if (varType == NT_ARRAY_ACCESS) {
             }
@@ -1214,6 +1215,22 @@ void genVarAssign (varAddressStruct *addressDescription) {
       sprintf (instruction, "POP %d[%d]", offset, indexingRegister);
       generateFormattedInstruction (instruction);
 
+    }
+}
+
+void genVarAccess (varAddressStruct *addressDescription) {
+    int indexingRegister = addressDescription->indexingRegister;
+    int offset = addressDescription->offset;
+    char instruction [strlen ("PUSH []") + 32];
+    
+    if (indexingRegister < 0) {
+        sprintf (instruction, "PUSH %d", offset);
+        generateFormattedInstruction (instruction);
+    }
+    else {
+        sprintf (instruction, "PUSH %d[%d]", offset, indexingRegister);
+        generateFormattedInstruction (instruction);
+        
     }
 }
 
