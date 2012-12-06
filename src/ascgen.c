@@ -740,10 +740,12 @@ void genCodeForExpression (GNode *expressionNode) {
 void genCodeForOperation (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     if ((exprType >= NT_INT_ISEQUAL) && (exprType <=NT_INT_GREATERTHANEQUALS)) {
-        genCodeForIntegerComparison (expressionNode);
+        printf ("Is of type int comparison\n");
+        genCodeForIntComparison (expressionNode);
     }
     else if ((exprType >=NT_REAL_ISEQUAL) && (exprType <=NT_REAL_GREATERTHANEQUALS)) {
-        //TODO: Implement
+        //TODO:
+        genCodeForRealComparison (expressionNode);
     }
     else if ((exprType >=NT_AND) && (exprType <= NT_NOT)) {
 
@@ -754,10 +756,11 @@ void genCodeForOperation (GNode *expressionNode) {
         genCodeForIntMath (expressionNode);
     }
     else if ((exprType >= NT_REAL_PLUS) && (exprType <= NT_REAL_MULTIPLY)) {
-        genCodeForIntMath (expressionNode);
+        genCodeForRealMath (expressionNode);
     }
     else if ((exprType == NT_INT_IDENTITY) || (exprType == NT_REAL_IDENTITY)) {
         //uh...do nothing.
+        //we might need to convert between I and R
     }
     else if ((exprType == NT_INT_INVERSION) || (exprType == NT_REAL_INVERSION)) {
     //NEED TO GET THE TYPE OF the thing we're inverting
@@ -771,21 +774,22 @@ void genCodeForOperation (GNode *expressionNode) {
     
 }
 
-void genCodeForIntegerComparison (GNode *expressionNode) {
+void genCodeForIntComparison (GNode *expressionNode) {
+    printf ("Int comparison alled\n");
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
     GNode *rightExpressionNode = leftExpressionNode->next;
     genCodeForExpression (leftExpressionNode);
     genCodeForExpression (rightExpressionNode);
     switch (exprType) {
-        case NT_ISEQUAL:
+        case NT_INT_ISEQUAL:
         {
 
           generateFormattedInstruction ("EQI");
           break;
 
         }
-        case NT_NOTEQUAL:
+        case NT_INT_NOTEQUAL:
         {          
 
           generateFormattedInstruction ("EQI");
@@ -793,19 +797,19 @@ void genCodeForIntegerComparison (GNode *expressionNode) {
           break;
           
         }
-        case NT_LESSTHAN:
+        case NT_INT_LESSTHAN:
         {
           generateFormattedInstruction ("LTI");
           break;
         }
-        case NT_GREATERTHAN:
+        case NT_INT_GREATERTHAN:
         {
 
           generateFormattedInstruction ("GTI");
           break;
 
         }
-        case NT_LESSTHANEQUALS:
+        case NT_INT_LESSTHANEQUALS:
         { 
           generateFormattedInstruction ("LTI");
           genCodeForExpression (leftExpressionNode);
@@ -814,7 +818,7 @@ void genCodeForIntegerComparison (GNode *expressionNode) {
           generateFormattedInstruction ("OR");
           break;
         }
-        case NT_GREATERTHANEQUALS:
+        case NT_INT_GREATERTHANEQUALS:
         {
           generateFormattedInstruction ("GTI");
           genCodeForExpression (leftExpressionNode);
@@ -827,6 +831,61 @@ void genCodeForIntegerComparison (GNode *expressionNode) {
     
 }
 
+void genCodeForRealComparison (GNode *expressionNode) {
+    node_type exprType = getNiceType (expressionNode);
+    GNode *leftExpressionNode = expressionNode->children;
+    GNode *rightExpressionNode = leftExpressionNode->next;
+    genCodeForExpression (leftExpressionNode);
+    genCodeForExpression (rightExpressionNode);
+    switch (exprType) {
+        case NT_REAL_ISEQUAL:
+        {
+            
+            generateFormattedInstruction ("EQR");
+            break;
+            
+        }
+        case NT_REAL_NOTEQUAL:
+        {          
+            
+            generateFormattedInstruction ("EQR");
+            generateFormattedInstruction ("NOT");
+            break;
+            
+        }
+        case NT_REAL_LESSTHAN:
+        {
+            generateFormattedInstruction ("LTR");
+            break;
+        }
+        case NT_REAL_GREATERTHAN:
+        {
+            
+            generateFormattedInstruction ("GTR");
+            break;
+            
+        }
+        case NT_REAL_LESSTHANEQUALS:
+        { 
+            generateFormattedInstruction ("LTR");
+            genCodeForExpression (leftExpressionNode);
+            genCodeForExpression (rightExpressionNode);
+            generateFormattedInstruction ("EQR");
+            generateFormattedInstruction ("OR");
+            break;
+        }
+        case NT_REAL_GREATERTHANEQUALS:
+        {
+            generateFormattedInstruction ("GTR");
+            genCodeForExpression (leftExpressionNode);
+            genCodeForExpression (rightExpressionNode);
+            generateFormattedInstruction ("EQR");
+            generateFormattedInstruction ("OR");
+            break;
+        }
+    }
+            
+}
 void genCodeForLogical (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     switch (exprType) {

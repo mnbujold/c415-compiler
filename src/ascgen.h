@@ -102,7 +102,7 @@ void showVariableAddressTable();
 /***********************************************************
  * Wrapper functions for sequences of atomic ASC instructions
  **********************************************************/
-void genCodeForIntegerComparison (GNode *expressionNode);
+void genCodeForIntComparison (GNode *expressionNode);
 void genCodeForRealComparison (GNode *expressionNode);
 void genCodeForLogical (GNode *expressionNode);
 void genCodeForIntMath (GNode *expressionNode); 
