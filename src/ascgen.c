@@ -96,7 +96,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             
            varDeclarationsList = declarations->children;
            procDeclarations = declarations->children->next;
-            addVariables (varDeclarationsList); //pass in the var_decl_list
+            addVariables (varDeclarationsList, -1, 0); //pass in the var_decl_list
             DEBUG_PRINT(("Type of procDeclarations: %d", getNiceType(procDeclarations)));
         }
         DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
@@ -105,7 +105,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
 
 
         //GOTO the actual instructions in program
-        generateGOTO("main");
+        genGOTO("main");
         if (procDeclarations->children != NULL) {        
             //recursively call genCodeForFunction Node to generate for nested stuff
             //foreach function declaration
@@ -127,7 +127,9 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         
         //we need this for exit
         generateLabel ("end");
+        generateStackDump();
         //generateAdjust (number of vars allocated);
+        generateStackDump();
         generateFormattedInstruction ("STOP");
         
     }
@@ -155,7 +157,8 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //check which registers are free
         procInfo *procedureInfo = calloc (1, sizeof (procInfo));
         procedureInfo->procLabel = procLabel;
-        procedureInfo->indexingRegister = getFirstFreeRegister();
+        int callingRegister = getFirstFreeRegister();
+        procedureInfo->indexingRegister = callingRegister;
         g_hash_table_insert (procedureLabelTable, procedureSymbol, procedureInfo);
         GNode *declarations = node->children->next;
         GNode *statements = declarations->next;
@@ -166,20 +169,21 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //TODO: Actually, we need to add the parameters first
         //go through the procedureSymbol, and get the parameters and
         //allocate space for them
+        //TODO: Get the count of params
         if (getNiceType (declarations) == NT_DECLS) {
             varDeclarationsList = declarations->children;
             procDeclarations = declarations->children->next;
-            addVariables (varDeclarationsList); //pass in the var_decl_list
+            addVariables (varDeclarationsList, callingRegister, 0); //pass in the var_decl_list
             //DEBUG_PRINT(("Type of procDeclarations: %d", getNiceType(procDeclarations)));
         }
         DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
         //do the declarations stuff here
         //showVariableAddressTable();
 
-        //if decl list is null, then do nothing
-        //TODO: Generate teh code for the statements now...
-        //code for statements
         genCodeForStatementList (statements);
+        //TODO: remember where stack counter is at since we got control
+        //Adjust stack counter so that stack is empty, except for the return values
+        
         genProcReturn(procedureInfo);
         if (procDeclarations->children != NULL) {        
             //recursively call genCodeForFunction Node to generate for nested stuff
@@ -233,9 +237,10 @@ int getFirstFreeRegister () {
 /**
  * Given a var declaration node, generate space on the stack for it.
  */
-void addVariables(GNode *varDeclNode) {
+void addVariables(GNode *varDeclNode, int indexingRegister, int offset) {
     //node must be of type NT_VAR_DECL_LIST
     //printf ("Number of children: %d\n", g_node_n_children(varDeclNode));
+    printf ("In add variables. Value of register: %d, offset: %d\n", indexingRegister, offset);
     if (getNiceType (varDeclNode) != NT_VAR_DECL_LIST) {
         //uh oh... boo boo
       //  printf ("Is not of type var decl list\n");
@@ -248,7 +253,13 @@ void addVariables(GNode *varDeclNode) {
     }
     generateComment ("Vars");
     //maybe print out stack trace here to make sure they are there?
-    g_node_children_foreach (varDeclNode, G_TRAVERSE_ALL, (GNodeForeachFunc) variableIterator, &scope);
+    //g_node_children_foreach (varDeclNode, G_TRAVERSE_ALL, (GNodeForeachFunc) variableIterator, &scope);
+    GNode *varNode = varDeclNode->children;
+    while (varNode != NULL) {
+      variableIterator (varNode, indexingRegister, offset);
+      offset++;
+      varNode = varNode->next;
+    }
     generateStackDump();
     //while s
     
@@ -310,32 +321,42 @@ void pushRecord(symbol *symb){
   int i;
   for(i=0; i<recFields->len; i++){
     recSymbol = g_ptr_array_index(recFields, i);
-    variableHandler(recSymbol, getTypeClass(recSymbol));
+    //TODO: Broken;
+    varAddressStruct *lala;
+    variableHandler(recSymbol, getTypeClass(recSymbol), lala);
   }
   
 }
 //TODO: Split variableIterator into an iterator fcn and a 'handler' fcn
 //Function that is called for each var declaration
-void variableIterator (GNode *node, gpointer data) {
+void variableIterator (GNode *varNode, int indexingRegister, int offset) {
     
     //int indexingRegister = *scope;
-    int indexingRegister = 0;
-    symbol *sym = getSymbol (node);
+    //int indexingRegister = 0;
+    symbol *sym = getSymbol (varNode);
+    printf ("Adding this symbol: %s\n", sym->name);
+    printf ("The address: %p\n", sym);
+    printf ("Register: %d Offset: %d\n", indexingRegister, offset);
     type_class varType = getTypeClass (sym);
 
-    variableHandler(getSymbol(node), getTypeClass(sym));
+    varAddressStruct *addressDescription = calloc (1, sizeof (varAddressStruct));
+    addressDescription->indexingRegister = indexingRegister;
+    addressDescription->offset = offset;
+    variableHandler(sym, getTypeClass(sym), addressDescription);
     
     //TODO: each variable needs to have its address added to the variableAddressTable
 }
 
-void variableHandler(symbol *symb, type_class varType){
+void variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescription){
 
-  
+  printf ("Inside variable handler\n");
+  printf ("Address inside variable handler: %p\n", symb);
   generateComment(symb->name);
 
-  int indexingRegister = 0;
-  varAddressStruct addressDescription = {indexingRegister, indexingRegister};
-  g_hash_table_insert(variableAddressTable, symb, &addressDescription);
+  g_hash_table_insert(variableAddressTable, symb, addDescription);
+  if (g_hash_table_lookup (variableAddressTable, symb) == NULL) {
+    printf ("WHAT HTE HECK. empty when we just inserted...?\n");
+  }
 
   //varAddressStruct *check_it = g_hash_table_lookup(variableAddressTable, symb);
   //printf("idxReg: %d, Offset: %d \n", check_it->indexingRegister, check_it->offset);
@@ -412,12 +433,18 @@ void genCodeForStatement(GNode *statement) {
         {
             //evaluate the expression
             
-            symbol *varSymbol = (symbol *)statement->children;
+            //remember there is a level of indrirection here
+            GNode *symbolNode = (GNode *)(statement->children)->children;
+            printf ("type of var's first child: %d\n", getNiceType (symbolNode));
+
+            symbol *varSymbol = getSymbol (symbolNode);
+            printf ("symbol name: %s\n", varSymbol->name);
+            printf ("Symbol address: %p\n", varSymbol);
             varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
-            
-            //PUSH addr
-            //PUSH (expr)
-            //POPI
+            GNode *expressionNode = statement->children->next;
+            genCodeForExpression (expressionNode);
+            printf ("Address of address description from hash: %p\n", addressDescription);
+            genVarAssign (addressDescription);
          
             break;
         }
@@ -454,7 +481,7 @@ void genCodeForStatement(GNode *statement) {
                 procInfo *returnedInfo = getBuiltinInfo(procSymbol);
             }
             genProcCall (procedureInfo);
-            //generateGOTO (procLabel);
+            //genGOTO (procLabel);
             //generate Label right after
             //global lookup on symbol table?
             //if writeln or readln, we have to do special stuff
@@ -482,7 +509,7 @@ void genCodeForStatement(GNode *statement) {
                 currentNode = currentNode->parent;
             }
             //TODO: get tehe label for this while
-            //generateGOTO (whatever the daddy node is)
+            //genGOTO (whatever the daddy node is)
             break;
         }
         case NT_EXIT:
@@ -492,7 +519,7 @@ void genCodeForStatement(GNode *statement) {
                 currentNode = currentNode->parent;
             }
             //TODO: Get  the label for lowest scope funciton/procedure
-            //generateGOTO to the END of this procedure
+            //genGOTO to the END of this procedure
             //will need to generate label for all return jumps...
             break;
         }
@@ -510,11 +537,15 @@ procInfo *getBuiltinInfo (symbol *builtinSymbol) {
 }
 
 void genCodeForExpression (GNode *expressionNode) {
+    expressionNode = expressionNode->children;
     node_type exprType = getNiceType(expressionNode);
     switch (exprType) {
         case NT_VAR:
         {
             //TODO: implement
+            symbol *varSymbol = getSymbol(expressionNode->children);
+            varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
+            
             break;
         }
         case NT_FUNC_INVOK:
@@ -524,12 +555,26 @@ void genCodeForExpression (GNode *expressionNode) {
         }
         case NT_CONST:
         {
-            //TODO: Not actually sure what to do here..return it?
+            symbol *varSymbol = getSymbol (expressionNode->children);
+            //getTypeClass (varSymbol);
+            type_class constType = getTypeClass (varSymbol);
+            //TODO: Actually check which type it is. Right now 
+            //just get the integer value
+            int value = varSymbol->desc.const_attr->value.integer;
+            char instruction [strlen ("CONSTI") + 11];
+            sprintf (instruction, "CONSTI %d", value);
+            generateFormattedInstruction (instruction);
+            //TODO: getConst
+            //CONSTI something
+            
             break;
         }
         default:
         {
+          // if ((exprType >= NT_ISEQUAL) && (exprType <=NT_INVERSION)) 
             genCodeForOperation (expressionNode);
+          // else
+            // genCodeForExpression (expressionNode-
             //call gen for operations
         }
 
@@ -554,6 +599,8 @@ void genCodeForOperation (GNode *expressionNode) {
         //uh...do nothing.
     }
     else if (exprType == NT_INVERSION) {
+    //NEED TO GET THE TYPE OF the thing we're inverting
+      generateFormattedInstruction ("CONSTI 0");
     }
     else {
         printf ("Error. Tried to gernerate code for an operation when it was not an operation\n");
@@ -563,26 +610,55 @@ void genCodeForOperation (GNode *expressionNode) {
 
 void genCodeForComparison (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
+    GNode *leftExpressionNode = expressionNode->children;
+    GNode *rightExpressionNode = leftExpressionNode->next;
+    genCodeForExpression (leftExpressionNode);
+    genCodeForExpression (rightExpressionNode);
     switch (exprType) {
         case NT_ISEQUAL:
         {
-            
-            
+
+          generateFormattedInstruction ("EQI");
+          break;
+
         }
         case NT_NOTEQUAL:
-        {
+        {          
+
+          generateFormattedInstruction ("EQI");
+          generateFormattedInstruction ("NOT");
+          break;
+          
         }
         case NT_LESSTHAN:
         {
+          generateFormattedInstruction ("LTI");
+          break;
         }
         case NT_GREATERTHAN:
         {
+
+          generateFormattedInstruction ("GTI");
+          break;
+
         }
         case NT_LESSTHANEQUALS:
-        {
+        { 
+          generateFormattedInstruction ("LTI");
+          genCodeForExpression (leftExpressionNode);
+          genCodeForExpression (rightExpressionNode);
+          generateFormattedInstruction ("EQI");
+          generateFormattedInstruction ("OR");
+          break;
         }
         case NT_GREATERTHANEQUALS:
         {
+          generateFormattedInstruction ("GTI");
+          genCodeForExpression (leftExpressionNode);
+          genCodeForExpression (rightExpressionNode);
+          generateFormattedInstruction ("EQI");
+          generateFormattedInstruction ("OR");
+          break;
         }
     }
     
@@ -593,41 +669,71 @@ void genCodeForLogical (GNode *expressionNode) {
     switch (exprType) {
         case NT_AND:
         {
+          GNode *leftExpressionNode = expressionNode->children;
+          GNode *rightExpressionNode = leftExpressionNode->next;
+          genCodeForExpression (leftExpressionNode);
+          genCodeForExpression (rightExpressionNode);
+          generateFormattedInstruction("AND");
+          break;
         }
         case NT_OR:
         {
+          GNode *leftExpressionNode = expressionNode->children;
+          GNode *rightExpressionNode = leftExpressionNode->next;
+          genCodeForExpression (leftExpressionNode);
+          genCodeForExpression (rightExpressionNode);
+          generateFormattedInstruction("OR");
+          break;
         }
         case NT_NOT:
         {
+          GNode *expressionNode = expressionNode->children;
+          genCodeForExpression (expressionNode);
+          generateFormattedInstruction("NOT");
+          break;
         }
     }
 }
 
 void genCodeForMath (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
+    GNode *leftExpressionNode = expressionNode->children;
+    genCodeForExpression (leftExpressionNode);
+    GNode *rightExpressionNode = leftExpressionNode->next;
+    genCodeForExpression (rightExpressionNode);
     switch (exprType) {
         case NT_PLUS:
         {
+          generateFormattedInstruction ("ADDI");
             break;
         }
         case NT_MINUS:
         {
+
+          
+          //HOW DO I KEEP TRACK OF whether real or integer???
+          
+          generateFormattedInstruction ("SUBI");
             break;
         }
         case NT_MULTIPLY:
         {
+          generateFormattedInstruction ("MULI");
             break;
         }
         case NT_DIVIDE:
         {
+          generateFormattedInstruction ("DIVR");
             break;
         }
         case NT_DIV:
         {
+          generateFormattedInstruction ("DIVI");
             break;
         }
         case NT_MOD:
         {
+          generateFormattedInstruction ("MOD");
             break;
         }
     }
@@ -688,12 +794,32 @@ void pushConstantReal (double constant) {
     
 }
 
-void generateGOTO (char const *label) {
+void genGOTO (char const *label) {
     
     //TODO: find out if there is max label size in ASC
     char instruction [strlen ("GOTO") + 256];
     sprintf (instruction, "GOTO %s", label);
     generateFormattedInstruction (instruction);
+}
+
+void genVarAssign (varAddressStruct *addressDescription) {
+    printf ("In gen var assign\n");
+    printf ("Address of addressDescription: %p\n", addressDescription);
+    int indexingRegister = addressDescription->indexingRegister;
+    //programs are absolute, no index.
+
+    int offset = addressDescription->offset;
+    char instruction [strlen ("POPI []") + 32];
+    if (indexingRegister < 0) {
+      printf ("We are accessing program variable\n");
+      sprintf (instruction, "POP %d", offset);
+      generateFormattedInstruction (instruction);
+    }
+    else {
+      sprintf (instruction, "POP %d[%d]", offset, indexingRegister);
+      generateFormattedInstruction (instruction);
+
+    }
 }
 
 /**
