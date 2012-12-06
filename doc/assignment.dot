@@ -1,0 +1,73 @@
+
+digraph As  {
+    ordering = out;
+
+    
+    /* duplicate nodes: */
+    symbol2 [label = "symbol"];
+    symbol3 [label = "symbol"];
+    symbol4 [label = "symbol"];
+    symbol5 [label = "symbol"];
+    
+    ellipse3 [label = "...", shape = plaintext];
+    ellipse4 [label = "...", shape = plaintext];
+    
+    or6 [label = "or", shape = plaintext];
+    or7 [label = "or", shape = plaintext];
+    or8 [label = "or", shape = plaintext];
+    or9 [label = "or", shape = plaintext];
+    or10 [label = "or", shape = plaintext];
+    or11 [label = "or", shape = plaintext];
+    
+    var0 [label = "VAR"];
+    var1 [label = "VAR"];
+    var2 [label = "VAR"];
+    
+    expr0 [label = "EXPR"];
+    expr1 [label = "EXPR"];
+    expr2 [label = "EXPR"];
+    expr3 [label = "EXPR"];
+    expr4 [label = "EXPR"];
+    
+    /* special nodes: */
+    binaryoperation [label = "(operation)"];
+    unaryoperation [label = "(operation)"];
+    
+    /* actual tree: */
+    ASSIGNMENT -> VAR;
+    ASSIGNMENT -> EXPR;
+    
+    VAR -> symbol2;
+    VAR -> or6 [style = invis];
+    VAR -> ARRAY_ACCESS;
+    VAR -> or7 [style = invis];
+    VAR -> RECORD_ACCESS;
+    
+    ARRAY_ACCESS -> var0;
+    ARRAY_ACCESS -> expr0;
+    ARRAY_ACCESS -> ellipse3;
+    
+    RECORD_ACCESS -> var1;
+    RECORD_ACCESS -> symbol3;
+    
+    EXPR -> CONST;
+    EXPR -> or8 [style = invis];
+    EXPR -> var2;
+    EXPR -> or9 [style = invis];
+    EXPR -> FUNC_INVOK;
+    EXPR -> or10 [style = invis];
+    EXPR -> binaryoperation;
+    EXPR -> or11 [style = invis];
+    EXPR -> unaryoperation;
+    
+    CONST -> symbol4;
+    
+    FUNC_INVOK -> symbol5;
+    FUNC_INVOK -> expr1;
+    FUNC_INVOK -> ellipse4;
+    
+    binaryoperation -> expr2;
+    binaryoperation -> expr3;
+    
+    unaryoperation -> expr4;
+}
