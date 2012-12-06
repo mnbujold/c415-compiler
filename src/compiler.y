@@ -55,6 +55,7 @@ int ifLevel = 0;
     symbol *symbol;
     GPtrArray *garray;
     struct pf_invok *pf_invok;
+    struct proc_head_pair *proc_pair;
 }
 
 /* Reserved word tokens */
@@ -109,6 +110,7 @@ int ifLevel = 0;
 %type <node> program decls
 %type <node> var_decl_part var_decl_list var_decl
 %type <node> proc_decl_part proc_decl_list proc_decl proc_heading
+%type <proc_pair> proc_head_part
 %type <node> compound_stat stat_list stat simple_stat struct_stat
 %type <node> stat_assignment proc_invok var plist_finvok subscripted_var
 %type <node> expr simple_expr term factor unsigned_const unsigned_num func_invok parm
@@ -421,11 +423,11 @@ proc_decl_list          : proc_decl
                             }
                         ;
 
-proc_decl               : proc_heading decls compound_stat SEMICOLON
+proc_decl               : proc_head_part compound_stat SEMICOLON
                             {
-                                if (noError(1, $1, NULL)) {
-                                    checkFuncValSet(extractSymbol($1));
-                                    $$ = createNode(NT_PROC_DECL, $1, $2, $3, NULL);
+                                if (noError(1, $1->proc_heading, NULL)) {
+                                    checkFuncValSet(extractSymbol($1->proc_heading));
+                                    $$ = createNode(NT_PROC_DECL, $1->proc_heading, $1->decls, $2, NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
                                 }
@@ -438,11 +440,11 @@ proc_decl               : proc_heading decls compound_stat SEMICOLON
                             }
                         ;
 
-/*proc_head_part          : proc_heading decls
+proc_head_part          : proc_heading decls
                             {
-                                // make work (a new struct for yyval - a pair!), and set defnState to 0 if the proc is a (nonerror) function!
+                                $$ = createProcHead($1, $2);
                             }
-                        ;*/
+                        ;
 
 proc_heading            : PROCEDURE ID f_parm_decl SEMICOLON
                             {

@@ -95,6 +95,11 @@ struct rule_and_node {
 
 typedef struct rule_and_node rule_and_node;
 
+struct proc_head_pair {
+    GNode *proc_heading;
+    GNode *decls;
+};
+
 node_type getNiceType(GNode *node); // Use this!
 
 void displayOldTree(GNode *head, int level);
@@ -149,6 +154,8 @@ GNode *createExprNode(node_type type, symbol *result, GNode *n_args, ...);
 GNode *createSingleExprNode(node_type type, symbol *result);
 
 GNode *getProcNode(const char *procname);
+
+struct proc_head_pair *createProcHead(GNode *procHeading, GNode *decls);
 
 symbol *extractSymbol(GNode *node);
 symbol *extractType(GNode *node);
