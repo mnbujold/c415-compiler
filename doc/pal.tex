@@ -68,13 +68,16 @@ Type Classes are a special object case that have a further structure with data p
 
 
 \section*{Semantic Analysis}
-Blah!
+Most of the semantic analysis is done using the symbol structures. Local and global lookups of the symbol table are used to determine the correct usage of symbols. Object classes and types are checked for consistency in declarations, assignments, operations, procedure and function invocations, conditionals, and array accesses.\\
 
+Function return values...\\
+
+Writeln, readln...\\
 
 \section*{Syntax Tree \& Code Generation}
 To generate the \emph{ASC} assembly code for a \emph{pal} program, we build a syntax tree of the program using the bison grammar structure. The nodes of the tree consist of a type indicator, the symbol resulting from the grammar rule (if present), and additional contructs that are required to do semantic analysis and symbol creation, but not code generation; for example, we require the parameters of a procedure declaration to create the associated symbol, but we do not need the parameters to generate code for the procedure because the parameters are stored in the procedure symbol itself.\\
 
-After we have generated a syntax tree from this first pass, we reformat and simplify the tree to facilitate easier code generation. Lists in the tree are flattened, unnecessary nodes are collapsed (especially expression nodes), and a minor number of nodes are added for consistency reasons. Also, the additional constructs not involved in code generation removed from the nodes, leaving just the node type indicator and symbol (if present) remaining. The simplified tree has the following form: \\
+After we have generated a syntax tree from this first pass, we reformat and simplify the tree to facilitate easier code generation. Lists in the tree are flattened, unnecessary nodes are collapsed (especially expression nodes), and a minor number of nodes are added for consistency reasons. Also, the additional constructs not involved in code generation removed from the nodes, leaving just the node type indicator and symbol (if present) remaining. The simplified tree has the following form:\\
 
 \\
 SYNTAX TREE IMAGE\\
