@@ -23,8 +23,7 @@
 }
 program correctnessIdentifier(i,o);
 
-var x: integer; 
-    y : integer;
+var x, y : integer;
 
 function correct(test : integer; var change : integer): boolean;
     begin

@@ -6,7 +6,7 @@
     "4": "Correct boolean stuff ...",
     "5": "Correct counting stuff ...",
     "6": "Tests invalid record definitions and calls. {MAKE ABOUT MATH - BUILTINS}",
-    "7": "... I dunno ...",
+    "7": "... I dunno ... (exit and continue! and if-else and while structures)",
     "8": "Correct book stuff ...",
     "9": "Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols."
 }
