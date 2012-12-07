@@ -428,7 +428,7 @@ addNewProc(const char *id, GPtrArray *paramList) {
         paramType = newParam->symbol_type;
         
         if (paramType->desc.type_attr->type != TC_ERROR
-         && localLookup(paramType->name) != NULL) {
+         && localLookup(paramType->name) == NULL) {
             addSymbol(paramType->name, paramType);
         }
         addSymbol(newParam->name, newParam);
@@ -486,7 +486,7 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         paramType = newParam->symbol_type;
         
         if (paramType->desc.type_attr->type != TC_ERROR
-         && localLookup(paramType->name) != NULL) {
+         && localLookup(paramType->name) == NULL) {
             addSymbol(paramType->name, paramType);
         }
         addSymbol(newParam->name, newParam);
