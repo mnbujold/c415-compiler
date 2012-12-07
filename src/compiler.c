@@ -149,7 +149,7 @@ main(int argc,char** argv)
        
     }
 
-    if(execute){
+    if(execute && !iserror){
       // open pipe and execute
       asc_file = fopen(asc_filename, "r");
       if(asc_file == NULL){
