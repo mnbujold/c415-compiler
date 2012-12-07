@@ -888,11 +888,12 @@ isFunction(GNode *node) {
 
 void
 setSymToFunction(GNode *node) {
-    rule_and_node *data = node->data;
-    symbol *varFunc = data->rule.symbol;
+    GNode *child = node->children;
+    rule_and_node *data = child->data;
+    symbol *varFunc = data->node->symbol;
     
     if (varFunc != NULL) {
-        data->rule.symbol = localLookup(varFunc->name);
+        data->node->symbol = localLookup(varFunc->name);
     }
 }
 
