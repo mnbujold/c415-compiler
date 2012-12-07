@@ -91,6 +91,7 @@ symbol *getSymbol (GNode *node);
 
 void genBuiltinCall (symbol *builtinSymbol);
 symbol *getFirstProcParent(GNode *node);
+int getExpressionValue(GNode *);
 
 /*****************************************************************
  * Code generation debug functions
@@ -116,7 +117,7 @@ void genProcReturn (procInfo *procedureInfo);
 
 void genBranch (char const *label);
 void genGOTO (char const *label);
-void genVarAssign (varAddressStruct *addressDescription);
+void genVarAssign (varAddressStruct *addressDescription, int subscript);
 void genVarParamAssign (varAddressStruct *addressDescription);
 void genVarAccess (varAddressStruct *addressDescription);
 void genVarParam (varAddressStruct *addressDescription);

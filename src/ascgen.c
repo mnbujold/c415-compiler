@@ -539,6 +539,109 @@ void genCodeForStatementList (GNode *statementList) {
 
 
 //TODO: Finish this
+int getExpressionValue (GNode *expressionNode) {
+  // Should Return expr value for array accesses (maybe useful for other things)
+  printf("type of expr node: %d \n", getNiceType(expressionNode));
+
+  node_type exprType = getNiceType(expressionNode);
+  switch (exprType) {
+     case NT_CONST:
+     {
+       symbol *varSymbol = getSymbol(expressionNode->children);
+
+       type_class constType = getTypeClass(varSymbol);
+       switch (constType) {
+         case TC_BOOLEAN:
+         {
+           return(varSymbol->desc.const_attr->value.boolean);
+           break;
+         }
+         case TC_CHAR:
+         {
+           return(varSymbol->desc.const_attr->value.character);
+           break;
+         }
+         case TC_INTEGER:
+         {
+           return(varSymbol->desc.const_attr->value.integer);
+           break;
+         }
+         default:
+         {
+           printf("ERROR: Invalid array access type.\n");
+           return(-1);
+           break;
+         }
+       }
+       break;
+     }
+
+     // NT_SYMBOL or NT_ARRAY_ACCESS or NT_RECORD_ACCESS
+     case NT_VAR:
+     {
+       node_type varType = getNiceType(expressionNode->children);
+       if (varType == NT_SYMBOL) {
+         //TODO: Var parameter is here!
+         symbol *varSymbol = getSymbol(expressionNode->children);
+         varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
+         if (varSymbol->oc == OC_PARAM) {
+           if (varSymbol->desc.parm_attr->varParam) {
+             genVarParam (address);
+             return;
+           }
+         }
+         //genVarAccess (address);
+       }
+
+       else if (varType == NT_ARRAY_ACCESS) {
+         //TODO: implement
+         printf("accessing array...\n");
+         //find the array...get the element
+         GNode *varNode = expressionNode->children;
+         GNode *arrayExpressionNode = varNode->next;
+
+         genCodeForExpression (varNode);
+         genCodeForExpression (arrayExpressionNode);
+         //TODO: How we going to do bounds checking?
+       }
+       else if (varType == NT_RECORD_ACCESS) {
+         //TODO: implement
+       }
+       else { printf("What are you doing here!?\n"); }
+       break;
+    }
+     
+    case NT_FUNC_INVOK:
+    {
+       symbol *funcSymbol = getSymbol (expressionNode->children);
+       GNode *currentParamNode = expressionNode->children->next;
+       //-1 for symbol that is a child, -1 for the return value
+       //allocate space for return value 
+       generateFormattedInstruction ("ADJUST 1");
+       int numParams = g_node_n_children (expressionNode) - 1;
+       printf ("Number of params for function invocation: %d\n", numParams);
+       while (currentParamNode != NULL) {
+         genCodeForExpression(currentParamNode);
+         currentParamNode = currentParamNode->next;
+       }
+            procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
+            if (functionInfo == NULL) {
+                genBuiltinCall (funcSymbol);
+            }
+            else {
+            genProcCall (functionInfo);
+            }
+            genVarAdjust (numParams);
+            break;
+        }
+       
+    default:
+    {
+      // Operations
+    }
+  }
+  
+}
 
 void genCodeForStatement(GNode *statement) {
     node_type statementType = getNiceType(statement);
@@ -570,7 +673,7 @@ void genCodeForStatement(GNode *statement) {
               GNode *expressionNode = statement->children->next;
               genCodeForExpression (expressionNode);
               printf ("Address of address description from hash: %p\n", addressDescription);
-              genVarAssign (addressDescription);
+              genVarAssign (addressDescription,0);
             }
             else if (varType == NT_ARRAY_ACCESS) {
               // MIKE IS WORKING ON THIS
@@ -581,18 +684,12 @@ void genCodeForStatement(GNode *statement) {
 
               // Get address of symbol
               symbol *varSymbol = getSymbol(varNode->children->children);
-              //printf("name: %s\n", varSymbol->name);
               varAddressStruct *addrDesc = g_hash_table_lookup(variableAddressTable, varSymbol);
-              //printf("offset to start of array in stack: %d \n", addrDesc->offset);
 
               // Suction out the 'expr' value to offset the array
               GNode *lval_exprNode = varNode->children->next->children;
-              //genCodeForExpression(lval_exprNode);
-              //genCodeForExpression() needs to be modified to deal with array offsets
-              //ie. need a return value with the array element #
-              
               genCodeForExpression(exprNode); // This is OK
-              genVarAssign (addrDesc); // Need offset passed in here
+              genVarAssign (addrDesc, getExpressionValue(lval_exprNode)); // Need offset passed in here
               
             }
             else if (varType == NT_RECORD_ACCESS) {
@@ -1486,13 +1583,13 @@ void genGOTO (char const *label) {
     generateFormattedInstruction (instruction);
 }
 
-void genVarAssign (varAddressStruct *addressDescription) {
+void genVarAssign (varAddressStruct *addressDescription, int subscript) {
     printf ("In gen var assign\n");
     printf ("Address of addressDescription: %p\n", addressDescription);
     int indexingRegister = addressDescription->indexingRegister;
     //programs are absolute, no index.
 
-    int offset = addressDescription->offset;
+    int offset = addressDescription->offset + subscript;
     char instruction [strlen ("POPI []") + 32];
     if (indexingRegister < 0) {
       printf ("We are accessing program variable\n");
