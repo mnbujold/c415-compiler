@@ -880,6 +880,9 @@ doVarAssignment (symbol *var, symbol *expr) {
         if (varLookup != NULL && varLookup->oc == OC_FUNC && getTypeClass(varLookup) != TC_ERROR) {
             varLookup->desc.func_attr->returnValSet = 1;
             
+            // now, the variable is a function
+            var = varLookup;
+            
             return 1;
         }
     }
