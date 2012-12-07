@@ -91,6 +91,7 @@ symbol *getSymbol (GNode *node);
 
 void genBuiltinCall (symbol *builtinSymbol);
 symbol *getFirstProcParent(GNode *node);
+int getExpressionValue(GNode *);
 
 /*****************************************************************
  * Code generation debug functions
@@ -112,8 +113,11 @@ void genCodeForRealMath (GNode *expressionNode);
 
 void genProcCall (procInfo *procedureInfo);
 void genProcReturn (procInfo *procedureInfo);
+
+
+void genBranch (char const *label);
 void genGOTO (char const *label);
-void genVarAssign (varAddressStruct *addressDescription);
+void genVarAssign (varAddressStruct *addressDescription, int subscript);
 void genVarParamAssign (varAddressStruct *addressDescription);
 void genVarAccess (varAddressStruct *addressDescription);
 void genVarParam (varAddressStruct *addressDescription);
@@ -126,6 +130,12 @@ int pushRecord(symbol *);
 int pushArray(symbol *);
 int pushScalar(symbol *);
 
+void genCodeForWrite(GNode *paramNode, int ln);
+
+
+void genCodeForRead (GNode *paramNode, int ln);
+
+void addLabel (char const *labelName);
 /*****************************************************************
  * Print generated code to output
  ******************************************************************/

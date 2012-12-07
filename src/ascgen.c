@@ -20,6 +20,7 @@
 #define PROGRAM_REGISTER -1
 #define PROGRAM_VAR_OFFSET 0
 #define NUM_RETURN_VALUES 2 //How many values on the stack RET consumes
+#define MAX_LABEL_LEN 16 //this is the maximum length of the label
 FILE *output;
 
 //registers stores registers we are using. 
@@ -35,6 +36,11 @@ GHashTable *labelTable = NULL;
 GHashTable *variableAddressTable = NULL;
 GHashTable *procedureInfoTable = NULL;
 GHashTable *builtinInfoTable = NULL;
+int masterLabelCount = 0;
+
+//We need a master label table because ASC is dumb and only accepts labels of 
+//16 chars
+GHashTable *masterLabelTable = NULL;
 
 procInfo *mainProcInfo;
 void genASCCode (GNode *tree, char *fileName) {
@@ -51,6 +57,7 @@ void genASCCode (GNode *tree, char *fileName) {
     registers = calloc (NUM_ASC_REGISTERS, sizeof (int));
     scope = 0;
     
+    masterLabelTable = g_hash_table_new (g_str_hash, g_str_equal);
     
    output = fopen (fileName, "w");
     //output = stdout;
@@ -87,7 +94,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
     if (getNiceType (node) == NT_PROGRAM) {
     
         //All we should have here is a goto to the main...becuase of order we generate code in
-        generateLabel("start");
+        //generateLabel("start");
         DEBUG_PRINT (("Inside program node generation"));
         GNode *declarations = node->children;
         GNode *statements = node->children->next;
@@ -111,9 +118,19 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //do the declarations stuff here
         //showVariableAddressTable();
 
+        //TODO: We need to add a goto to the main, 
+        generateLabel ("main");
+        genCodeForStatementList (statements);
+        
+        //we need this for exit
+        generateLabel ("mainend");
+        generateStackDump();
+        genVarAdjust (mainProcInfo->numVarWords);
+        generateStackDump();
+        generateFormattedInstruction ("STOP");
 
         //GOTO the actual instructions in program
-        genGOTO("main");
+        //genGOTO("main");
         if (procDeclarations->children != NULL) {        
             //recursively call genCodeForFunction Node to generate for nested stuff
             //foreach function declaration
@@ -129,17 +146,8 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             
         }
 
-        //TODO: We need to add a goto to the main, 
-        generateLabel ("main");
-        genCodeForStatementList (statements);
-        
-        //we need this for exit
-        generateLabel ("mainend");
-        generateStackDump();
-        genVarAdjust (mainProcInfo->numVarWords);
-        generateStackDump();
-        generateFormattedInstruction ("STOP");
-        
+
+//         
     }
     else if (getNiceType(node) == NT_PROC_DECL) {
 
@@ -150,22 +158,22 @@ void genCodeForFunctionNode(GNode *node, int scope) {
 //        symbol *procedureSymbol = getSymbol (node->children);
       
         symbol *procedureSymbol = (symbol *)getSymbol (node->children);
-        printf ("Procedure name: %s\n", procedureSymbol->name);
+//         printf ("Procedure name: %s\n", procedureSymbol->name);
         const char *procName = ((symbol *) procedureSymbol)->name;
-        printf ("Procedure name 2: %s\n", procName);
+//         printf ("Procedure name 2: %s\n", procName);
 
         GNode *parentProc = getFirstParent (node, NT_PROC_DECL, NT_PROC_DECL);
-        printf ("Successfully returned from getFirstParnet\n");
+//         printf ("Successfully returned from getFirstParnet\n");
         //if null, is within program scope
         char *procLabel;
         if (parentProc == NULL) {
-            printf ("Parent proc is null\n");
+//             printf ("Parent proc is null\n");
             procLabel = calloc ((strlen (procName) + 2), sizeof (char));
             sprintf (procLabel, "%s%d", procName, scope);
         }
         else {
             symbol *parentSymbol = (symbol *)getSymbol (parentProc->children);
-            printf ("Got a symbol succesffully\n");
+//             printf ("Got a symbol succesffully\n");
             procInfo *parentInfo = g_hash_table_lookup (procedureInfoTable, parentSymbol);
             char *parentLabel = parentInfo->procLabel;
             procLabel = calloc ((strlen (procName) + strlen (parentLabel) + 2), sizeof (char));
@@ -179,8 +187,6 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         
         procInfo *procedureInfo = calloc (1, sizeof (procInfo));
         procedureInfo->procLabel = procLabel;
-        //int callingRegister = getFirstFreeRegister();
-        //printf ("SCOPE: %d\n", scope);
         int callingRegister = scope;
         procedureInfo->indexingRegister = callingRegister;
         g_hash_table_insert (procedureInfoTable, procedureSymbol, procedureInfo);
@@ -231,6 +237,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
               addressStruct->indexingRegister = callingRegister;
               addressStruct->offset = i;
               g_hash_table_insert (variableAddressTable, paramSymbol, addressStruct);
+              printf ("Address of param symbol: %p\n", paramSymbol);
             }
             else {
             
@@ -532,6 +539,109 @@ void genCodeForStatementList (GNode *statementList) {
 
 
 //TODO: Finish this
+int getExpressionValue (GNode *expressionNode) {
+  // Should Return expr value for array accesses (maybe useful for other things)
+  printf("type of expr node: %d \n", getNiceType(expressionNode));
+
+  node_type exprType = getNiceType(expressionNode);
+  switch (exprType) {
+     case NT_CONST:
+     {
+       symbol *varSymbol = getSymbol(expressionNode->children);
+
+       type_class constType = getTypeClass(varSymbol);
+       switch (constType) {
+         case TC_BOOLEAN:
+         {
+           return(varSymbol->desc.const_attr->value.boolean);
+           break;
+         }
+         case TC_CHAR:
+         {
+           return(varSymbol->desc.const_attr->value.character);
+           break;
+         }
+         case TC_INTEGER:
+         {
+           return(varSymbol->desc.const_attr->value.integer);
+           break;
+         }
+         default:
+         {
+           printf("ERROR: Invalid array access type.\n");
+           return(-1);
+           break;
+         }
+       }
+       break;
+     }
+
+     // NT_SYMBOL or NT_ARRAY_ACCESS or NT_RECORD_ACCESS
+     case NT_VAR:
+     {
+       node_type varType = getNiceType(expressionNode->children);
+       if (varType == NT_SYMBOL) {
+         //TODO: Var parameter is here!
+         symbol *varSymbol = getSymbol(expressionNode->children);
+         varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
+         if (varSymbol->oc == OC_PARAM) {
+           if (varSymbol->desc.parm_attr->varParam) {
+             genVarParam (address);
+             return;
+           }
+         }
+         //genVarAccess (address);
+       }
+
+       else if (varType == NT_ARRAY_ACCESS) {
+         //TODO: implement
+         printf("accessing array...\n");
+         //find the array...get the element
+         GNode *varNode = expressionNode->children;
+         GNode *arrayExpressionNode = varNode->next;
+
+         genCodeForExpression (varNode);
+         genCodeForExpression (arrayExpressionNode);
+         //TODO: How we going to do bounds checking?
+       }
+       else if (varType == NT_RECORD_ACCESS) {
+         //TODO: implement
+       }
+       else { printf("What are you doing here!?\n"); }
+       break;
+    }
+     
+    case NT_FUNC_INVOK:
+    {
+       symbol *funcSymbol = getSymbol (expressionNode->children);
+       GNode *currentParamNode = expressionNode->children->next;
+       //-1 for symbol that is a child, -1 for the return value
+       //allocate space for return value 
+       generateFormattedInstruction ("ADJUST 1");
+       int numParams = g_node_n_children (expressionNode) - 1;
+       printf ("Number of params for function invocation: %d\n", numParams);
+       while (currentParamNode != NULL) {
+         genCodeForExpression(currentParamNode);
+         currentParamNode = currentParamNode->next;
+       }
+            procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
+            if (functionInfo == NULL) {
+                genBuiltinCall (funcSymbol);
+            }
+            else {
+            genProcCall (functionInfo);
+            }
+            genVarAdjust (numParams);
+            break;
+        }
+       
+    default:
+    {
+      // Operations
+    }
+  }
+  
+}
 
 void genCodeForStatement(GNode *statement) {
     node_type statementType = getNiceType(statement);
@@ -563,7 +673,7 @@ void genCodeForStatement(GNode *statement) {
               GNode *expressionNode = statement->children->next;
               genCodeForExpression (expressionNode);
               printf ("Address of address description from hash: %p\n", addressDescription);
-              genVarAssign (addressDescription);
+              genVarAssign (addressDescription,0);
             }
             else if (varType == NT_ARRAY_ACCESS) {
               // MIKE IS WORKING ON THIS
@@ -574,18 +684,12 @@ void genCodeForStatement(GNode *statement) {
 
               // Get address of symbol
               symbol *varSymbol = getSymbol(varNode->children->children);
-              //printf("name: %s\n", varSymbol->name);
               varAddressStruct *addrDesc = g_hash_table_lookup(variableAddressTable, varSymbol);
-              //printf("offset to start of array in stack: %d \n", addrDesc->offset);
 
               // Suction out the 'expr' value to offset the array
               GNode *lval_exprNode = varNode->children->next->children;
-              //genCodeForExpression(lval_exprNode);
-              //genCodeForExpression() needs to be modified to deal with array offsets
-              //ie. need a return value with the array element #
-              
               genCodeForExpression(exprNode); // This is OK
-              genVarAssign (addrDesc); // Need offset passed in here
+              genVarAssign (addrDesc, getExpressionValue(lval_exprNode)); // Need offset passed in here
               
             }
             else if (varType == NT_RECORD_ACCESS) {
@@ -600,12 +704,12 @@ void genCodeForStatement(GNode *statement) {
         case NT_PROC_INVOK:
         {
 
-            GNode *currentParamNode = statement->children->next;
-            int numParams = g_node_n_children (statement) - 1;
-            while (currentParamNode != NULL) {
-                genCodeForExpression(currentParamNode);
-                currentParamNode = currentParamNode->next;
-            }
+//             GNode *currentParamNode = statement->children->next;
+//             int numParams = g_node_n_children (statement) - 1;
+//             while (currentParamNode != NULL) {
+//                 genCodeForExpression(currentParamNode);
+//                 currentParamNode = currentParamNode->next;
+//             }
             GNode *symbolNode = statement->children;
 //             printf ("We have a procedure invocation here\n");
 //             if (symbolNode == NULL) {
@@ -617,22 +721,49 @@ void genCodeForStatement(GNode *statement) {
           //  symbol *writelnSymbol = globalLookup ("writeln");
 //             printf ("proc symbol address %p\n", procSymbol);
 //             printf ("writeln address %p\n", writelnSymbol);
-            
+//             GPtrArray *params = procSymbol->desc.proc_attr->params;
+//             int numParams = params->len;
+//             
+            //Even though looks hackish, best wya to do it because what if we have
+            //varyign numbers of parameters?
+            GNode *currentParamNode = statement->children->next;
+            int numParams = g_node_n_children (statement) -1;
             procInfo *procedureInfo = (procInfo *) g_hash_table_lookup (procedureInfoTable, procSymbol);
             //printf ("Returned proc label: %s\n", procLabel);
 //             printf ("procedure info returned\n");
             //generate CALL
             if (procedureInfo == NULL) {
-                printf ("Returned proc info is null, must be a builtin\n");
+                printf ("Returned proc info is null, must be an IO procedure\n");
+                const char *procName = procSymbol->name;
+                if (strcmp (procName, "writeln") == 0) {
+                    genCodeForWrite (currentParamNode, 1);
+                }
+                else if (strcmp (procName, "write") == 0) {
+                    genCodeForWrite (currentParamNode, 0);
+                }
+                else if (strcmp (procName, "read") == 0) {
+                    genCodeForRead (currentParamNode, 0);
+                }
+                else if (strcmp (procName, "readln") == 0) {
+                    genCodeForRead (currentParamNode, 1);
+                }
+                else {
+                    //Just in case I'm forgetting a procedure
+                    //or theres some procedure that doesn't need special handling
 
-                //look it up in builtins
-                //TODO: look up in builtins table...
-                genBuiltinCall(procSymbol);
+                    genBuiltinCall(procSymbol);
+                }
+
             }
             else {
             
             //TODO: before generating proc call, we need to get params from here
             //and then 
+
+            while (currentParamNode != NULL) {
+                genCodeForExpression(currentParamNode);
+                currentParamNode = currentParamNode->next;
+            }
             genProcCall (procedureInfo);
             }
             //TODO: Handle var params as we may actually use them 
@@ -667,9 +798,10 @@ void genCodeForStatement(GNode *statement) {
             procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
           }
           char *label = genProcLabel (procedureInfo);
-          char instruction [strlen (label) + strlen ("IFZ")];
-          sprintf (instruction, "IFZ %s", label);
-          generateFormattedInstruction (instruction);
+//           char instruction [strlen (label) + strlen ("IFZ")];
+//           sprintf (instruction, "IFZ %s", label);
+          genBranch (label);
+//           generateFormattedInstruction (instruction);
           // sprintf (instruction, "IFZ %s", label);
           genCodeForStatementList (ifStatementList);
           generateLabel (label);
@@ -695,10 +827,13 @@ void genCodeForStatement(GNode *statement) {
             char endLabel [strlen (label) + strlen ("ifend")];
             sprintf (elseLabel, "%selse", label);
             sprintf (endLabel, "%sifend", label);
+            addLabel (elseLabel);
+            addLabel (endLabel);
             genCodeForExpression (ifExpression);
-            char branchInstruction [strlen (elseLabel) + strlen("IFZ")];
-            sprintf (branchInstruction, "IFZ %s", elseLabel);
-            generateFormattedInstruction (branchInstruction);
+//             char branchInstruction [strlen (elseLabel) + strlen("IFZ")];
+//             sprintf (branchInstruction, "IFZ %s", elseLabel);
+            genBranch (elseLabel);
+//             generateFormattedInstruction (branchInstruction);
             //Genreate IFZ 
             genCodeForStatementList (takenStatementList);
             genGOTO (endLabel);
@@ -735,10 +870,13 @@ void genCodeForStatement(GNode *statement) {
             g_hash_table_insert (labelTable, statement, whileInfo);
             generateLabel (beginLabel);
             genCodeForExpression (conditionalExpression);
-            char branchinstruction [strlen ("IFZ") + strlen (endLabel)];
-
-            sprintf (branchinstruction, "IFZ %s", endLabel);
-            generateFormattedInstruction (branchinstruction);
+//             char branchinstruction [strlen ("IFZ") + strlen (endLabel)];
+// 
+//             sprintf (branchinstruction, "IFZ %s", endLabel);
+//             generateFormattedInstruction (branchinstruction);
+            addLabel (beginLabel);
+            addLabel (endLabel);
+            genBranch (endLabel);
             genCodeForStatementList (whileStatementList);
             genGOTO (beginLabel);
             generateLabel (endLabel);
@@ -884,6 +1022,72 @@ void genCodeForExpression (GNode *expressionNode) {
     expressionNode = expressionNode->children;
     node_type exprType = getNiceType(expressionNode);
     switch (exprType) {
+        case NT_CONST:
+        {
+            symbol *varSymbol = getSymbol (expressionNode->children);
+            //getTypeClass (varSymbol);
+            type_class constType = getTypeClass (varSymbol);
+            //TODO: figure out what to do for strings
+            switch (constType) {
+                case TC_REAL:
+                {
+                    double value = varSymbol->desc.const_attr->value.real;
+                    char instruction [strlen ("CONSTR") + 12];
+                    sprintf (instruction, "CONSTR %f", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                case TC_BOOLEAN:
+                {
+                    int value = varSymbol->desc.const_attr->value.boolean;
+                    char instruction [strlen ("CONSTI") + 2];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                case TC_CHAR:
+                {
+                    int value = varSymbol->desc.const_attr->value.character;
+                    char instruction [strlen ("CONSTI") + 3];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                default:
+                {
+                    int value = varSymbol->desc.const_attr->value.integer;
+                    char instruction [strlen ("CONSTI") + 12];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+            }
+            
+            //Check if we have a real parent so we need to convert to real
+            GNode *operationNode = getFirstOperationParent (expressionNode->parent);
+            if (operationNode == NULL) {
+                //                 printf ("Operation node is null\n");
+            }
+            else {
+                node_type type = getNiceType (operationNode);
+                //                 printf ("Inside int math: Type of node is: %d\n", type);
+                if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION) && (constType != TC_REAL)) {
+                    // //                     printf ("We have a real operation\n");
+                    generateFormattedInstruction ("ITOR");
+                }
+                
+            }
+            //We need to turn this guy into a real if one of its parent is a real operation
+            //get the first operation we see
+            //             GNode *operationNode = getFirstOperationParent (expressionNode);
+            //             node_type type = getNiceType (operationNode);
+            //             if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION)) {
+                //                 printf ("We have a real operation\n");
+                //                 generateFormattedInstruction ("ITOR");
+                //             }
+                
+                break;
+        }
         case NT_VAR:
         {
 
@@ -894,12 +1098,18 @@ void genCodeForExpression (GNode *expressionNode) {
               symbol *varSymbol = getSymbol(expressionNode->children);
               varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
               if (varSymbol->oc == OC_PARAM) {
+                  printf ("This is a param: %s\n",  varSymbol->name);
                 if (varSymbol->desc.parm_attr->varParam) {
                   genVarParam (address);
                   return;
                 }
               }
 
+              if (address == NULL) {
+                  printf ("Failure. address is null\n");
+                  printf ("This is the address of the var symbol: %p\n", varSymbol);
+                  printf ("Symbol name: %s type: %d typeClass: %d\n", varSymbol->name, varSymbol->oc, getTypeClass (varSymbol));
+              }
               
               genVarAccess (address);
             }
@@ -944,72 +1154,7 @@ void genCodeForExpression (GNode *expressionNode) {
             genVarAdjust (numParams);
             break;
         }
-        case NT_CONST:
-        {
-            symbol *varSymbol = getSymbol (expressionNode->children);
-            //getTypeClass (varSymbol);
-            type_class constType = getTypeClass (varSymbol);
-            //TODO: figure out what to do for strings
-            switch (constType) {
-                case TC_REAL:
-                {
-                    double value = varSymbol->desc.const_attr->value.real;
-                    char instruction [strlen ("CONSTR") + 12];
-                    sprintf (instruction, "CONSTR %f", value);
-                    generateFormattedInstruction (instruction);
-                    break;
-                }
-                case TC_BOOLEAN:
-                {
-                    int value = varSymbol->desc.const_attr->value.boolean;
-                    char instruction [strlen ("CONSTI") + 2];
-                    sprintf (instruction, "CONSTI %d", value);
-                    generateFormattedInstruction (instruction);
-                    break;
-                }
-                case TC_CHAR:
-                {
-                    int value = varSymbol->desc.const_attr->value.character;
-                    char instruction [strlen ("CONSTI") + 3];
-                    sprintf (instruction, "CONSTI %d", value);
-                    generateFormattedInstruction (instruction);
-                    break;
-                }
-                default:
-                {
-                    int value = varSymbol->desc.const_attr->value.integer;
-                    char instruction [strlen ("CONSTI") + 12];
-                    sprintf (instruction, "CONSTI %d", value);
-                    generateFormattedInstruction (instruction);
-                    break;
-                }
-            }
 
-            //Check if we have a real parent so we need to convert to real
-            GNode *operationNode = getFirstOperationParent (expressionNode->parent);
-            if (operationNode == NULL) {
-//                 printf ("Operation node is null\n");
-            }
-            else {
-                node_type type = getNiceType (operationNode);
-//                 printf ("Inside int math: Type of node is: %d\n", type);
-                if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION) && (constType != TC_REAL)) {
-// //                     printf ("We have a real operation\n");
-                    generateFormattedInstruction ("ITOR");
-                }
-                
-            }
-            //We need to turn this guy into a real if one of its parent is a real operation
-            //get the first operation we see
-//             GNode *operationNode = getFirstOperationParent (expressionNode);
-//             node_type type = getNiceType (operationNode);
-//             if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION)) {
-//                 printf ("We have a real operation\n");
-//                 generateFormattedInstruction ("ITOR");
-//             }
-            
-            break;
-        }
         default:
         {
 //           printf ("I'm an operation!!!!!!\n");
@@ -1344,7 +1489,7 @@ char *genProcLabel (procInfo *procedureInfo) {
   int numLabels = procedureInfo->numLabels;
   char *procLabel = procedureInfo->procLabel;
   char *label = calloc ((strlen (procLabel) + 11 + strlen("label")), sizeof (char));
-  sprintf (label, "%slabel%d", procLabel, numLabels);
+  sprintf (label, "%d%slabel", numLabels, procLabel);
   //generateLabel (label);
   numLabels++;
   procedureInfo->numLabels = numLabels;
@@ -1418,20 +1563,33 @@ void pushConstantReal (double constant) {
     
 }
 
-void genGOTO (char const *label) {
+void genBranch (char const *label) {
+    char *outputLabel = g_hash_table_lookup (masterLabelTable, label);
+    char instruction [strlen ("IFZ ") + 16];
+    sprintf (instruction, "IFZ %s", outputLabel);
+    generateFormattedInstruction (instruction);
     
+    //           char instruction [strlen (label) + strlen ("IFZ")];
+    //           sprintf (instruction, "IFZ %s", label);
+}
+
+void genGOTO (char const *label) {
+    printf ("In gen goto\n");
+    printf ("label :%s\n", label);
     char instruction [strlen ("GOTO") + 256];
-    sprintf (instruction, "GOTO %s", label);
+    char *outputtedLabel = g_hash_table_lookup (masterLabelTable, label);
+    printf ("outputlabel: %s\n", outputtedLabel);
+    sprintf (instruction, "GOTO %s", outputtedLabel);
     generateFormattedInstruction (instruction);
 }
 
-void genVarAssign (varAddressStruct *addressDescription) {
+void genVarAssign (varAddressStruct *addressDescription, int subscript) {
     printf ("In gen var assign\n");
     printf ("Address of addressDescription: %p\n", addressDescription);
     int indexingRegister = addressDescription->indexingRegister;
     //programs are absolute, no index.
 
-    int offset = addressDescription->offset;
+    int offset = addressDescription->offset + subscript;
     char instruction [strlen ("POPI []") + 32];
     if (indexingRegister < 0) {
       printf ("We are accessing program variable\n");
@@ -1495,7 +1653,8 @@ void genProcCall (procInfo *procedureInfo) {
     //printf ("lala %s\n", hm);
     int lala = procedureInfo->indexingRegister;
     //printf ("Past indexing register");
-    sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, procedureInfo->procLabel);
+    char *outputLabel = g_hash_table_lookup (masterLabelTable, procedureInfo->procLabel);
+    sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, outputLabel);
     generateFormattedInstruction (instruction);
 }
 
@@ -1526,8 +1685,34 @@ void generateComment (const char *comment) {
     fprintf (output, "#%s\n", comment);
 }
 
+
+void addLabel (char const *labelName) {
+   gpointer *key = (gpointer) labelName;
+   char *outputtedLabel = calloc (MAX_LABEL_LEN, sizeof (char));
+   sprintf (outputtedLabel, "lab%d", masterLabelCount);
+   g_hash_table_insert (masterLabelTable, key, outputtedLabel);
+   masterLabelCount++;
+}
 void generateLabel (const char *labelName) {
-    fprintf (output, "%s\n", labelName);
+    //TODO: Make it so the labelName is hashed, and if it is null, then we add
+    //put a comment with the label name
+    generateComment (labelName);
+
+    char *outputtedLabel = g_hash_table_lookup (masterLabelTable, labelName);
+    if (outputtedLabel == NULL) {
+//         gpointer *key = (gpointer) labelName;
+//         outputtedLabel = calloc (MAX_LABEL_LEN, sizeof (char));
+//         sprintf (outputtedLabel, "lab%d",  masterLabelCount);
+//         fprintf (output, "%s\n", outputtedLabel);
+//         g_hash_table_insert (masterLabelTable, key, outputtedLabel);
+//         masterLabelCount++;
+
+        addLabel (labelName);
+        
+    }
+    else {
+        fprintf (output, "%s\n", outputtedLabel);
+    }
 }
 
 /**
@@ -1544,4 +1729,40 @@ void generateTrace(int number) {
     #if DEBUG
     fprintf(output, "\t!T=%d\n", number);
     #endif
+}
+
+
+/**
+ * Special functions to handle writeln and readln
+ * ln is a flag saying if it is writeln or write, or readln and read
+ * paramNode is the first parameter passed in, to get the rest, call paramNode->next
+ */
+void genCodeForWrite(GNode *paramNode, int ln) {
+    
+    while (paramNode != NULL) {
+        
+        paramNode = paramNode->next;
+    }
+    
+    if (ln) {
+        //10 is newline
+        generateFormattedInstruction ("CONSTI 10");
+        generateFormattedInstruction ("WRITEC");
+    }
+    
+}
+
+void genCodeForRead (GNode *paramNode, int ln) {
+    
+    if (ln) {
+        //10 is newline
+        generateFormattedInstruction ("CONSTI 10");
+        generateFormattedInstruction ("WRITEC");
+    }
+}
+
+type_class getExpressionType (GNode *expressionNode) {
+    //go through whole tree, and find a node with node type of NT_VAR or NT_CONST
+//     GNode *
+    
 }
