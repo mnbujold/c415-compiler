@@ -68,7 +68,7 @@ void genASCCode (GNode *tree, char *fileName) {
   generateComment ("Program for");
   generateComment (fileName);
   genCodeForFunctionNode (tree, scope);
-  
+  //TODO: Check which builtins are used, and append them here
   fclose (output);
   
   
@@ -198,6 +198,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             params = procedureSymbol->desc.func_attr->params;
             printf ("Number of children of functinon:  %d\n", g_node_n_children( node));
             int offset = 0 -(params->len) - NUM_RETURN_VALUES - 1;
+            printf ("offset of return value %d\n", offset);
             varAddressStruct *functionReturnAddress = calloc (1, sizeof (varAddressStruct));
             functionReturnAddress->indexingRegister = callingRegister;
             functionReturnAddress->offset = offset;
@@ -903,7 +904,8 @@ void genCodeForExpression (GNode *expressionNode) {
             symbol *funcSymbol = getSymbol (expressionNode->children);
             GNode *currentParamNode = expressionNode->children->next;
             //-1 for symbol that is a child, -1 for the return value
-//             generateFormattedInstruction ("ADJUST 1");
+            //allocate space for return value 
+            generateFormattedInstruction ("ADJUST 1");
             int numParams = g_node_n_children (expressionNode) - 1;
             printf ("Number of params for function invocation: %d\n", numParams);
             while (currentParamNode != NULL) {
