@@ -283,13 +283,12 @@ void addVariables(GNode *varDeclNode, int indexingRegister, int offset, procInfo
     //maybe print out stack trace here to make sure they are there?
     //g_node_children_foreach (varDeclNode, G_TRAVERSE_ALL, (GNodeForeachFunc) variableIterator, &scope);
     GNode *varNode = varDeclNode->children;
-    int numWordsAllocated = 0;
+
     while (varNode != NULL) {
-      numWordsAllocated +=variableIterator (varNode, indexingRegister, offset);
-      offset++;
+      offset += variableIterator (varNode, indexingRegister, offset);
       varNode = varNode->next;
     }
-    procedureInfo->numVarWords = numWordsAllocated;
+    procedureInfo->numVarWords = offset;
     generateStackDump();
     //while s
     
@@ -374,8 +373,8 @@ int variableIterator (GNode *varNode, int indexingRegister, int offset) {
     //int indexingRegister = 0;
     symbol *sym = getSymbol (varNode);
     printf ("Adding this symbol: %s\n", sym->name);
-    printf ("The address: %p\n", sym);
-    printf ("Register: %d Offset: %d\n", indexingRegister, offset);
+    printf ("\tThe address: %p\n", sym);
+    printf ("\tRegister: %d Offset: %d\n", indexingRegister, offset);
     type_class varType = getTypeClass (sym);
 
     varAddressStruct *addressDescription = calloc (1, sizeof (varAddressStruct));
@@ -387,8 +386,9 @@ int variableIterator (GNode *varNode, int indexingRegister, int offset) {
       printf("WHAT THE HECK!? Empty when we just inserted??\n");
     }
     
-    variableHandler(sym, getTypeClass(sym), addressDescription);
-    return variableHandler(sym, getTypeClass(sym), addressDescription);
+    int value =variableHandler(sym, getTypeClass(sym), addressDescription);
+    printf("\tTotal size of variable: %d \n", value);
+    return value;
     
     //TODO: each variable needs to have its address added to the variableAddressTable
 }
@@ -396,7 +396,7 @@ int variableIterator (GNode *varNode, int indexingRegister, int offset) {
 int variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescription){
 
   int size = -1;
-  printf ("Inside variable handler\n");
+  //printf ("Inside variable handler\n");
   //printf ("Address inside variable handler: %p\n", symb);
   
   generateComment(symb->name);
