@@ -21,10 +21,11 @@ SOURCE = src/myerror.c src/symbol.c src/operators.c src/type.c src/typeerrors.c 
 GLIB = `pkg-config --cflags --libs glib-2.0`
 
 RUNNER = tests/runner.py
-TESTS = 0 1
+TESTS = 0 1 2 3
 
 CP3DIR = c415g05_cp3
-SOLUTION = Makefile README src doc
+SOLUTION = Makefile README src doc asc
+OTHERTESTS = tests/4.pal tests/5.pal tests/6.pal tests/7.pal tests/8.pal tests/9.pal tests/8.input tests/8.output tests/9.input tests/9.output  
 SUBTESTS = submitted_tests
 
 # Stops bison from overwriting compiler.c
@@ -58,6 +59,7 @@ debug: ${GRAMMAR} ${LEXER} ${SOURCE}
 cp3:
 	make pal
 	$(PY) $(RUNNER) -sn $(TESTS)
+	cp $(OTHERTESTS) $(SUBTESTS)
 	mkdir $(CP3DIR)
 	make clean
 	make docs
