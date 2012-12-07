@@ -217,6 +217,7 @@ symbol *topLevelLookup (char const *);
  * Returns found variable symbol, or returns an error type and emits an error.
  */
 symbol *getVarSymbol(char const *);
+symbol *getVarFuncSymbol(char const *id);
 
 /**
 Create a symbol with parameters: identifier, type symbol, object class, 

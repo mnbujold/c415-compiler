@@ -121,6 +121,32 @@ symbol *getVarSymbol(char const *id) {
     return varSym;
 }
 
+symbol *getVarFuncSymbol(char const *id) {
+    symbol *varSym = globalLookup(id);
+    
+    if (varSym == NULL) {
+//         symNotDefinedError(id);
+        return createErrorSym(OC_VAR);
+    }
+    object_class objClass = varSym->oc;
+
+    if (objClass == OC_FUNC) {
+        if (getTypeClass(varSym) != TC_ERROR && varSym->desc.func_attr->defnState != 0) { // function not currently being defined
+//             symNotDefinedError(id);
+            return createErrorSym(OC_VAR);
+        }
+        return varSym;
+    }
+    
+    if (objClass != OC_VAR && objClass != OC_PARAM && objClass != OC_CONST) {    
+      //TODO: WHat is this?
+//         symNotAVarParmConstError(id);
+        return createErrorSym(OC_VAR);
+    }
+    
+    return varSym;
+}
+
 /**
  *  Debug function: When called, this will print out the entire symbol table
  */

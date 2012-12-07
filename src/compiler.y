@@ -673,7 +673,7 @@ proc_invok              : plist_finvok RIGHTPAREN
 var                     : identifer
                             {
                                 symbol *tmpVar = getVarSymbol($1);
-                                $$ = createExprNode(nodeTypeOfVariable(tmpVar), tmpVar, createSymbolNode(tmpVar), NULL);
+                                $$ = createExprNode(nodeTypeOfVariable(tmpVar), tmpVar, createSymbolNode(getVarFuncSymbol($1)), NULL);
                             }
                         | var PERIOD identifer
                             {
