@@ -1,26 +1,32 @@
 program writeln (readln5wre, readlol);
+type typp = (asd, dsa);
 
-function checkRet() : integer;
-begin
-    checkRet := 4;
-    
-//     if false then
-//         checkRet := 4
-//     else if true then
-//         begin
-//         checkRet := 4;
-//         if false then
-//             write//checkRet := 4
-//         else
-//             write//checkRet := 4
-//         end
-//     else if false then
-//         checkRet := 4
-//     else
-//         checkRet := 4;
-    
+var x, y : integer;
+asdf : typp;
+    bob, joe : real;
+//     joe, tjdfg : typp;
+
+// function checkRet() : integer;
+// begin
 //     checkRet := 4;
-end;
+//     
+// //     if false then
+// //         checkRet := 4
+// //     else if true then
+// //         begin
+// //         checkRet := 4;
+// //         if false then
+// //             write//checkRet := 4
+// //         else
+// //             write//checkRet := 4
+// //         end
+// //     else if false then
+// //         checkRet := 4
+// //     else
+// //         checkRet := 4;
+//     
+// //     checkRet := 4;
+// end;
 
 
 begin
