@@ -904,3 +904,8 @@ setReturnValue(GNode *node, int value) {
     
     return node;
 }
+
+node_type
+nodeTypeOfVariable(symbol *variable) {
+    return variable->oc == OC_CONST ? NT_CONST : NT_VAR;
+}
