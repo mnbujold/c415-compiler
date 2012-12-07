@@ -298,63 +298,69 @@ void addVariables(GNode *varDeclNode, int indexingRegister, int offset, procInfo
     //maybe print out stack trace here to make sure they are there?
     //g_node_children_foreach (varDeclNode, G_TRAVERSE_ALL, (GNodeForeachFunc) variableIterator, &scope);
     GNode *varNode = varDeclNode->children;
-    int numWordsAllocated = 0;
+
     while (varNode != NULL) {
-      numWordsAllocated +=variableIterator (varNode, indexingRegister, offset);
-      offset++;
+      offset += variableIterator (varNode, indexingRegister, offset);
       varNode = varNode->next;
     }
-    procedureInfo->numVarWords = numWordsAllocated;
+    procedureInfo->numVarWords = offset;
     generateStackDump();
     //while s
     
 
 }
 
-void pushScalar(symbol *symb){
+int pushScalar(symbol *symb){
   int size = symb->desc.type_attr->desc.scalar->len;
-  printf ("size: %d \n", size);
+  //printf ("size: %d \n", size);
 
   char instruction[strlen("ADJUST") + sizeof(size) + 1];
   sprintf(instruction, "ADJUST %d", size);
   generateFormattedInstruction(instruction);
-    
+
+  return(size);
 }
 
 
-void pushArray(symbol *symb){
+int pushArray(symbol *symb){
+  // set return type to amount allocated
   //int size = symb->symbol_type->desc.type_attr->desc.array->size;
   int size = symb->desc.type_attr->desc.array->size;
+  int finalsize = 0;
   type_class varType = getTypeClass(symb->desc.type_attr->desc.array->obj_type);
   
   //printf("array tc: %d \n", getTypeClass(symb->symbol_type->desc.type_attr->desc.array->obj_type));
 
   // Handle 'special' cases of arrays (eg. arrays of arrays or arrays of records)
-  printf("ARRAY SIZE: %d , TYPE: %d \n", size, varType);
+  //printf("ARRAY SIZE: %d , TYPE: %d \n", size, varType);
   if(varType == TC_RECORD){
     //printf("pushing rec\n");
 
     int i;
     for(i=0; i<size; i++)
-      pushRecord(symb->desc.type_attr->desc.array->obj_type);
+      finalsize += pushRecord(symb->desc.type_attr->desc.array->obj_type);
     
   }
   else if(varType == TC_ARRAY){
     //printf("pushing array\n");
     int i;
     for(i=0; i<size; i++){
-
-      pushArray(symb->desc.type_attr->desc.array->obj_type);
+      finalsize += pushArray(symb->desc.type_attr->desc.array->obj_type);
     }
+    
   }
   // All other types of arrays
   else{
     char instruction[strlen("ADJUST") + sizeof(size) + 1];
     sprintf (instruction, "ADJUST %d", size); 
     generateFormattedInstruction (instruction);
+    finalsize = size;
   }
+  return(finalsize);
 }
-void pushRecord(symbol *symb){
+
+int pushRecord(symbol *symb){
+  int size = 0;
   //printf("Record Name: %s \n", symb->name);
   //symbol *ss = symb->symbol_type;
   GPtrArray *recFields = symb->desc.type_attr->desc.record->field_list;
@@ -368,9 +374,11 @@ void pushRecord(symbol *symb){
     recSymbol = g_ptr_array_index(recFields, i);
     //TODO: Broken;
     varAddressStruct *lala;
-    variableHandler(recSymbol, getTypeClass(recSymbol), lala);
+    size += variableHandler(recSymbol, getTypeClass(recSymbol), lala);
+    
   }
-  
+
+  return(size);
 }
 //TODO: Split variableIterator into an iterator fcn and a 'handler' fcn
 //Function that is called for each var declaration
@@ -380,43 +388,53 @@ int variableIterator (GNode *varNode, int indexingRegister, int offset) {
     //int indexingRegister = 0;
     symbol *sym = getSymbol (varNode);
     printf ("Adding this symbol: %s\n", sym->name);
-    printf ("The address: %p\n", sym);
-    printf ("Register: %d Offset: %d\n", indexingRegister, offset);
+    printf ("\tThe address: %p\n", sym);
+    printf ("\tRegister: %d Offset: %d\n", indexingRegister, offset);
     type_class varType = getTypeClass (sym);
 
     varAddressStruct *addressDescription = calloc (1, sizeof (varAddressStruct));
     addressDescription->indexingRegister = indexingRegister;
     addressDescription->offset = offset;
-    return variableHandler(sym, getTypeClass(sym), addressDescription);
+
+    g_hash_table_insert(variableAddressTable, sym, addressDescription);
+    if(g_hash_table_lookup (variableAddressTable, sym) == NULL){
+      printf("WHAT THE HECK!? Empty when we just inserted??\n");
+    }
+    
+    int value =variableHandler(sym, getTypeClass(sym), addressDescription);
+    printf("\tTotal size of variable: %d \n", value);
+    return value;
     
     //TODO: each variable needs to have its address added to the variableAddressTable
 }
 
 int variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescription){
 
-  printf ("Inside variable handler\n");
-  printf ("Address inside variable handler: %p\n", symb);
+  int size = -1;
+  //printf ("Inside variable handler\n");
+  //printf ("Address inside variable handler: %p\n", symb);
+  
   generateComment(symb->name);
-
+/* Probably better to do this outside the handler, since handler deals with record vars
   g_hash_table_insert(variableAddressTable, symb, addDescription);
   if (g_hash_table_lookup (variableAddressTable, symb) == NULL) {
     printf ("WHAT HTE HECK. empty when we just inserted...?\n");
   }
-
+*/
   //varAddressStruct *check_it = g_hash_table_lookup(variableAddressTable, symb);
   //printf("idxReg: %d, Offset: %d \n", check_it->indexingRegister, check_it->offset);
   
    if (varType == TC_INTEGER) {
         pushConstantInt (0);
-        return 1;
+        size = 1;
     }
     else if (varType == TC_REAL) {
         pushConstantReal (0);
-        return 1;
+        size = 1;
     }
     else if (varType == TC_BOOLEAN) {
         pushConstantInt (0);
-        return 1;
+        size = 1;
     }
     else if (varType == TC_STRING){
       printf("string: %s\n", symb->name);
@@ -426,21 +444,26 @@ int variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescr
     }
     else if(varType == TC_ARRAY){
       //printf("size array: %d \n", symb->symbol_type->desc.type_attr->desc.array->size);
-      pushArray(symb->symbol_type);
+      size = pushArray(symb->symbol_type);
     }
     else if(varType == TC_RECORD){
-      pushRecord(symb->symbol_type);
+      size = pushRecord(symb->symbol_type);
     }
     else if(varType == TC_SCALAR){
       // Handles like an array
       //printf("scalar here \n");
-      pushScalar(symb->symbol_type);
+      size = pushScalar(symb->symbol_type);
+      
     }
-    else
+    else{
       // For debugging: Spit out the typeclass we don't yet handle here
       printf("Type: %d \n", varType);
-    
+
+    }
     globalAddressCounter++; //do we need global address counter anymore?
+
+    // Return the size of the variable so we know where it exists on the stack
+    return(size);
 }
 // int getNiceType (GNode *node) {
 //     return node->node_info->type;

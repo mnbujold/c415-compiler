@@ -12,6 +12,11 @@
 void addTypeError(const char *errMsg);
 
 /**
+ * Add warnMsg as a type warning to the current column and line.
+ */
+void addTypeWarning(const char *warnMsg)
+
+/**
  * Adds a "type not defined for symbol 'id'; subsequent type errors with this
  * symbol will be ignored" error.
  */

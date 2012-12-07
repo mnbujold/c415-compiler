@@ -25,12 +25,11 @@ var
           while (1 > 2) do
             numReal := 0 + 200;
         end;
-    function bob ():integer;
+    procedure bob ();
         procedure bob2 ();
             begin
             end;
         begin
-         bob := 0;
         end;
     
     begin

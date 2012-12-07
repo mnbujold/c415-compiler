@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+#include <limits.h>
 
 #include <signal.h>
 #include <stdbool.h>
@@ -35,10 +36,11 @@ extern 		FILE *yyin;
 int errorTextLength;
 int prog_listing;
 FILE *listing_file;
-char listing_filename[1024];
+char file_name[PATH_MAX]; // Bare file name, no extension
+char listing_filename[PATH_MAX];
+char asc_filename[PATH_MAX];
 extern int numErrors;
 int incodegen;
-char *filename;
 
 
 #ifdef DEBUG
@@ -131,19 +133,27 @@ main(int argc,char** argv)
             showAllErrors(eList);
     }
     
+    if (getNumWarnings()) {
+        printf ("%d warning(s) found.\n", getNumWarnings());
+    }
+    
     if (iserror) {
         printf ("%d error(s) found.\n", getNumErrors());
         printf("Errors exist. Compilation not successful.\n");
     } else {
-        //int index = strrchr(filename, '.');
-        char *palName = calloc (strlen (filename), sizeof (char));
-        char *token = strtok(filename, ".");
-        sprintf (palName, "%s.asc", token);
-        printf ("Pal name: %s\n", palName);
-        //filename = sscanf (filename, ".pal");
         incodegen = 1;
-        genASCCode(getSyntaxTree(), "test.asc");
+        
+        //genASCCode(getSyntaxTree(), asc_filename);
+        genASCCode (getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
+        if(!leave_asc){
+          // Delete .asc file
+        }
+        if(execute){
+          // open pipe and execute
+        }
+        
+        
     } 
     
 #if DEBUG
@@ -175,18 +185,23 @@ void parse_args(int argc, char* argv[]){
         }
     else{
       /* Apparrently source_file isn't a descriptive enough name, so we re-name it yyin */
-      filename = argv[i];
       yyin = fopen(argv[i], "r");
       if(yyin == NULL){
         fprintf(stderr, "could not open %s \n", argv[i]);
         exit(-1);
       }
-      if(prog_listing){
-        int j=0;
-        while(argv[i][j] != '.')
-          listing_filename[j] = argv[i][j++];
-        strcat(listing_filename,".lst");
+      int j=0;
+      while(argv[i][j] != '.')
+        file_name[j] = argv[i][j++];
+      printf("bare filename: %s \n", file_name);
 
+      strcpy(asc_filename, file_name);
+      strcat(asc_filename, ".asc");
+      
+      if(prog_listing){
+        strcpy(listing_filename, file_name);
+        strcat(listing_filename, ".lst");
+        printf("Listing filename: %s \n", listing_filename);
       }
     }
   }

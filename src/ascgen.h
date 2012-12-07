@@ -64,10 +64,8 @@ GNode *getFirstOperationParent (GNode *expressionNode);
 
 GNode *getFirstParent (GNode *currentNode, node_type parentTypeLowerBound, node_type parentTypeUpperBound) ;
 
-void pushRecord(symbol *);
-void pushArrya(symbol *);
-
 void genCodeForFunctionNode(GNode *node, int scope);
+
 
 void addVariables(GNode *varDeclNode, int indexingRegister, int offset, procInfo *procedureInfo); 
 int variableIterator (GNode *varNode, int indexingRegister, int offset);
@@ -122,6 +120,9 @@ void pushConstantInt (int constant);
 void pushConstantReal (double constant);
 char *genProcLabel (procInfo *procedureInfo);
 
+int pushRecord(symbol *);
+int pushArray(symbol *);
+int pushScalar(symbol *);
 
 /*****************************************************************
  * Print generated code to output
