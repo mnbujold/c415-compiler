@@ -774,9 +774,10 @@ void genCodeForStatement(GNode *statement) {
                 currentParamNode = currentParamNode->next;
             }
             genProcCall (procedureInfo);
+            genVarAdjust (numParams);
             }
             //TODO: Handle var params as we may actually use them 
-            genVarAdjust (numParams);
+
             //genGOTO (procLabel);
             //generate Label right after
             //global lookup on symbol table?
@@ -875,16 +876,18 @@ void genCodeForStatement(GNode *statement) {
             structInfo *whileInfo = calloc (1, sizeof (structInfo));
             whileInfo->beginLabel = beginLabel;
             whileInfo->endLabel = endLabel;
+            addLabel (beginLabel);
+            addLabel (endLabel);
             
             g_hash_table_insert (labelTable, statement, whileInfo);
             generateLabel (beginLabel);
+            
+            
             genCodeForExpression (conditionalExpression);
 //             char branchinstruction [strlen ("IFZ") + strlen (endLabel)];
 // 
 //             sprintf (branchinstruction, "IFZ %s", endLabel);
 //             generateFormattedInstruction (branchinstruction);
-            addLabel (beginLabel);
-            addLabel (endLabel);
             genBranch (endLabel);
             genCodeForStatementList (whileStatementList);
             genGOTO (beginLabel);
@@ -1501,7 +1504,7 @@ char *genProcLabel (procInfo *procedureInfo) {
   int numLabels = procedureInfo->numLabels;
   char *procLabel = procedureInfo->procLabel;
   char *label = calloc ((strlen (procLabel) + 11 + strlen("label")), sizeof (char));
-  sprintf (label, "%d%slabel", numLabels, procLabel);
+  sprintf (label, "%slabel%d", procLabel, numLabels);
   //generateLabel (label);
   numLabels++;
   procedureInfo->numLabels = numLabels;
@@ -1576,6 +1579,7 @@ void pushConstantReal (double constant) {
 }
 
 void genBranch (char const *label) {
+//     printf ("Adding new label: %s to be label%d
     addLabel (label);
     char *outputLabel = g_hash_table_lookup (masterLabelTable, label);
     char instruction [strlen ("IFZ ") + 16];
@@ -1700,12 +1704,20 @@ void generateComment (const char *comment) {
 }
 
 
+/** 
+ * Add label if it doesn't exist in the table. If it does,
+ * do nothing
+ */
 void addLabel (char const *labelName) {
    gpointer *key = (gpointer) labelName;
-   char *outputtedLabel = calloc (MAX_LABEL_LEN, sizeof (char));
-   sprintf (outputtedLabel, "lab%d", masterLabelCount);
-   g_hash_table_insert (masterLabelTable, key, outputtedLabel);
-   masterLabelCount++;
+   char *returnedLabel = g_hash_table_lookup(masterLabelTable, labelName);
+   if (returnedLabel == NULL) {
+       char *outputtedLabel = calloc (MAX_LABEL_LEN, sizeof (char));
+       sprintf (outputtedLabel, "lab%d", masterLabelCount);
+       g_hash_table_insert (masterLabelTable, key, outputtedLabel);
+       masterLabelCount++;
+   }
+
 }
 void generateLabel (const char *labelName) {
     //TODO: Make it so the labelName is hashed, and if it is null, then we add
