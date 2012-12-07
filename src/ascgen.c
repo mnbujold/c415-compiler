@@ -1386,10 +1386,9 @@ void genCodeForLogical (GNode *expressionNode) {
         }
         case NT_NOT:
         {
-          printf ("NOT encountered\n");
-          GNode *expressionNode = expressionNode->children;
-          printf ("This is the address of expressionNode: %p \n", expressionNode);
-          printf ("Node type: %d\n", getNiceType(expressionNode));
+            displayNewTree(expressionNode->children,0 );
+            
+          expressionNode = expressionNode->children;
           genCodeForExpression (expressionNode);
           generateFormattedInstruction("NOT");
           break;
