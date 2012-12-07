@@ -354,11 +354,11 @@ addNewVar(const char *id, symbol *type) {
         
         if (localLookup(id) == NULL) {
             addSymbol(id, newVar);
-        } else {
+        } else if (getTypeClass(localLookup(id)) != TC_ERROR) {
             newVar->name = NULL;
             symExistsError(id);
         }
-    } else {
+    } else if (getTypeClass(localLookup(id)) != TC_ERROR) {
         newVar = createSymbol(NULL, type, OC_VAR, (void *) createVarDesc());
         symExistsError(id);
     }
