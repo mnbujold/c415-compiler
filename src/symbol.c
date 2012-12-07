@@ -499,7 +499,7 @@ void pushLevel () {
     //printf ("Level: %d\n", level);
     //showAllSymbols ();
     const char *str = "scope level is too big";
-    eList = addError(eList, str, last_column, lineno);
+    eList = addError(eList, str, last_column, lineno, ET_ERROR);
    // return;
   }
 //  GHashTable *table = createNewTable (level);

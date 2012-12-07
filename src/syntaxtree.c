@@ -878,6 +878,13 @@ returnValueNotSet(GNode *node) {
     return data->setReturnValue == 0;
 }
 
+int
+isFunction(GNode *node) {
+    rule_and_node *data = node->data;
+    
+    return data->node->symbol->oc == OC_FUNC;
+}
+
 GNode *
 setReturnValue(GNode *node, int value) {
     rule_and_node *data = node->data;

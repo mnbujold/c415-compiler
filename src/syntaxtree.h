@@ -211,6 +211,7 @@ struct pf_invok *extractPF_Invok(GNode *node);
 const char *extractID(GNode *node);
 GPtrArray *extractParamList(GNode *node);
 
+int isFunction(GNode *node);
 int returnValueNotSet(GNode *node);
 GNode *setReturnValue(GNode *node, int value);
 

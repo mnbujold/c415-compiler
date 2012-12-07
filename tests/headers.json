@@ -1,7 +1,7 @@
 {
     "0": "Tests arguments to var parameters and ...",
     "1": "Tests functions for missing return assignments and legal return types.",
-    "2": "Tests invalid array bounds and assignments.",
+    "2": "Tests invalid array bounds and assignments (..... integer array length).",
     "3": "Tests invalid scalar assignments and expressions.",
     "4": "Correct boolean stuff ...",
     "5": "Correct counting stuff ...",

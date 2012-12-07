@@ -15,7 +15,12 @@ extern int last_column;
 void
 addTypeError(const char *errMsg) {
     iserror = 1;
-    eList = addError(eList, errMsg, last_column, lineno);
+    eList = addError(eList, errMsg, last_column, lineno, ET_ERROR);
+}
+
+void
+addTypeWarning(const char *warnMsg) {
+    eList = addError(eList, warnMsg, last_column, lineno, ET_WARNING);
 }
 
 void

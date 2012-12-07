@@ -722,6 +722,7 @@ createArrayIndex(symbol *low, symbol *high) {
             int maxInt = topLevelLookup("maxint")->desc.const_attr->value.integer;
             lowValue = (-1) * maxInt;
             highValue = maxInt;
+            addTypeWarning("index from -maxint to maxint may be too large for system");
         } else if (type == TC_BOOLEAN) {
             lowValue = 0;
             highValue = 1;
