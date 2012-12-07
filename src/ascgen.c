@@ -604,6 +604,7 @@ void genCodeForStatement(GNode *statement) {
             //generate CALL
             if (procedureInfo == NULL) {
                 printf ("Returned proc info is null, must be a builtin\n");
+                char *procName = 
 
                 //look it up in builtins
                 //TODO: look up in builtins table...
