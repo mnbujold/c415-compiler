@@ -9,6 +9,8 @@ const PI = 3.141592653589793;
       GAMMA = 0.577215664901532;
       CONSTPRECISION = 15;
       BUILTINPRECISION = 6;
+      NMAX = 3.40282347E38; // IEEE standard for largest positive value
+      NMIN = 1 / NMAX;
 
 function confuseCompiler(var value : real) : real;
 // stops smart compilers from calculating values themselves, the cheaters!
@@ -51,26 +53,45 @@ function compare(builtin : real; actual : real; precision : integer) : boolean;
                 or (adjust(builtin, precision, false) = adjust(builtin, precision, true));
     end;
 
-{ Functions calculate the math constants using builtins: }
+{ Functions calculate the math constants using builtins (mostly): }
     
 function calculatePi() : real;
-// uses builtins to calculate pi
+// uses builtins (and the pi constant) to calculate pi
     begin
-        calculatePi := 0;
+        calculatePi := NMAX * sin(PI / NMAX);
     end;
 
 function calculateE() : real;
 // uses builtins to calculate e
+    const NMAX = 9.99999999E7; // need smaller values so we don't overflow
+          NMIN = 1 / NMAX;
+      
     begin
-        calculateE := 0;
+        calculateE := power((1 + NMIN), NMAX);
     end;
 
 function calculateGamma() : real;
 // uses builtins to calculate gamma
+//     const MAXITERS = 9.9999E4
+
+    var gammaTemp : real;
+        iteration : real;
+
     begin
-        calculateGamma := 0;
+        iteration := 1;
+        gammaTemp := 0;
+        
+        while iteration < maxint do
+        begin
+            gammaTemp := gammaTemp + (1 / iteration);
+            iteration := iteration + 1;
+        end;
+        
+        calculateGamma := gammaTemp - ln(maxint);
     end;
 
 begin
-
+    writeln(calculatePi());
+    writeln(calculateE());
+    writeln(calculateGamma());
 end.
