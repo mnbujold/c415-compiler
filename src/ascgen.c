@@ -20,6 +20,7 @@
 #define PROGRAM_REGISTER -1
 #define PROGRAM_VAR_OFFSET 0
 #define NUM_RETURN_VALUES 2 //How many values on the stack RET consumes
+#define MAX_LABEL_LEN 16 //this is the maximum length of the label
 FILE *output;
 
 //registers stores registers we are using. 
@@ -35,6 +36,11 @@ GHashTable *labelTable = NULL;
 GHashTable *variableAddressTable = NULL;
 GHashTable *procedureInfoTable = NULL;
 GHashTable *builtinInfoTable = NULL;
+int masterLabelCount = 0;
+
+//We need a master label table because ASC is dumb and only accepts labels of 
+//16 chars
+GHashTable *masterLabelTable = NULL;
 
 procInfo *mainProcInfo;
 void genASCCode (GNode *tree, char *fileName) {
@@ -51,6 +57,7 @@ void genASCCode (GNode *tree, char *fileName) {
     registers = calloc (NUM_ASC_REGISTERS, sizeof (int));
     scope = 0;
     
+    masterLabelTable = g_hash_table_new (g_str_hash, g_str_equal);
     
    output = fopen (fileName, "w");
     //output = stdout;
@@ -87,7 +94,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
     if (getNiceType (node) == NT_PROGRAM) {
     
         //All we should have here is a goto to the main...becuase of order we generate code in
-        generateLabel("start");
+        //generateLabel("start");
         DEBUG_PRINT (("Inside program node generation"));
         GNode *declarations = node->children;
         GNode *statements = node->children->next;
@@ -111,9 +118,19 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //do the declarations stuff here
         //showVariableAddressTable();
 
+        //TODO: We need to add a goto to the main, 
+        generateLabel ("main");
+        genCodeForStatementList (statements);
+        
+        //we need this for exit
+        generateLabel ("mainend");
+        generateStackDump();
+        genVarAdjust (mainProcInfo->numVarWords);
+        generateStackDump();
+        generateFormattedInstruction ("STOP");
 
         //GOTO the actual instructions in program
-        genGOTO("main");
+        //genGOTO("main");
         if (procDeclarations->children != NULL) {        
             //recursively call genCodeForFunction Node to generate for nested stuff
             //foreach function declaration
@@ -129,16 +146,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             
         }
 
-        //TODO: We need to add a goto to the main, 
-        generateLabel ("main");
-        genCodeForStatementList (statements);
-        
-        //we need this for exit
-        generateLabel ("mainend");
-        generateStackDump();
-        genVarAdjust (mainProcInfo->numVarWords);
-        generateStackDump();
-        generateFormattedInstruction ("STOP");
+
 //         
     }
     else if (getNiceType(node) == NT_PROC_DECL) {
@@ -629,7 +637,7 @@ void genCodeForStatement(GNode *statement) {
             //generate CALL
             if (procedureInfo == NULL) {
                 printf ("Returned proc info is null, must be an IO procedure\n");
-                char *procName = procSymbol->name;
+                const char *procName = procSymbol->name;
                 if (strcmp (procName, "writeln") == 0) {
                     genCodeForWrite (currentParamNode, 1);
                 }
@@ -693,9 +701,10 @@ void genCodeForStatement(GNode *statement) {
             procedureInfo = g_hash_table_lookup (procedureInfoTable, procSymbol);
           }
           char *label = genProcLabel (procedureInfo);
-          char instruction [strlen (label) + strlen ("IFZ")];
-          sprintf (instruction, "IFZ %s", label);
-          generateFormattedInstruction (instruction);
+//           char instruction [strlen (label) + strlen ("IFZ")];
+//           sprintf (instruction, "IFZ %s", label);
+          genBranch (label);
+//           generateFormattedInstruction (instruction);
           // sprintf (instruction, "IFZ %s", label);
           genCodeForStatementList (ifStatementList);
           generateLabel (label);
@@ -721,10 +730,13 @@ void genCodeForStatement(GNode *statement) {
             char endLabel [strlen (label) + strlen ("ifend")];
             sprintf (elseLabel, "%selse", label);
             sprintf (endLabel, "%sifend", label);
+            addLabel (elseLabel);
+            addLabel (endLabel);
             genCodeForExpression (ifExpression);
-            char branchInstruction [strlen (elseLabel) + strlen("IFZ")];
-            sprintf (branchInstruction, "IFZ %s", elseLabel);
-            generateFormattedInstruction (branchInstruction);
+//             char branchInstruction [strlen (elseLabel) + strlen("IFZ")];
+//             sprintf (branchInstruction, "IFZ %s", elseLabel);
+            genBranch (elseLabel);
+//             generateFormattedInstruction (branchInstruction);
             //Genreate IFZ 
             genCodeForStatementList (takenStatementList);
             genGOTO (endLabel);
@@ -761,10 +773,13 @@ void genCodeForStatement(GNode *statement) {
             g_hash_table_insert (labelTable, statement, whileInfo);
             generateLabel (beginLabel);
             genCodeForExpression (conditionalExpression);
-            char branchinstruction [strlen ("IFZ") + strlen (endLabel)];
-
-            sprintf (branchinstruction, "IFZ %s", endLabel);
-            generateFormattedInstruction (branchinstruction);
+//             char branchinstruction [strlen ("IFZ") + strlen (endLabel)];
+// 
+//             sprintf (branchinstruction, "IFZ %s", endLabel);
+//             generateFormattedInstruction (branchinstruction);
+            addLabel (beginLabel);
+            addLabel (endLabel);
+            genBranch (endLabel);
             genCodeForStatementList (whileStatementList);
             genGOTO (beginLabel);
             generateLabel (endLabel);
@@ -1377,7 +1392,7 @@ char *genProcLabel (procInfo *procedureInfo) {
   int numLabels = procedureInfo->numLabels;
   char *procLabel = procedureInfo->procLabel;
   char *label = calloc ((strlen (procLabel) + 11 + strlen("label")), sizeof (char));
-  sprintf (label, "%slabel%d", procLabel, numLabels);
+  sprintf (label, "%d%slabel", numLabels, procLabel);
   //generateLabel (label);
   numLabels++;
   procedureInfo->numLabels = numLabels;
@@ -1451,10 +1466,23 @@ void pushConstantReal (double constant) {
     
 }
 
-void genGOTO (char const *label) {
+void genBranch (char const *label) {
+    char *outputLabel = g_hash_table_lookup (masterLabelTable, label);
+    char instruction [strlen ("IFZ ") + 16];
+    sprintf (instruction, "IFZ %s", outputLabel);
+    generateFormattedInstruction (instruction);
     
+    //           char instruction [strlen (label) + strlen ("IFZ")];
+    //           sprintf (instruction, "IFZ %s", label);
+}
+
+void genGOTO (char const *label) {
+    printf ("In gen goto\n");
+    printf ("label :%s\n", label);
     char instruction [strlen ("GOTO") + 256];
-    sprintf (instruction, "GOTO %s", label);
+    char *outputtedLabel = g_hash_table_lookup (masterLabelTable, label);
+    printf ("outputlabel: %s\n", outputtedLabel);
+    sprintf (instruction, "GOTO %s", outputtedLabel);
     generateFormattedInstruction (instruction);
 }
 
@@ -1528,7 +1556,8 @@ void genProcCall (procInfo *procedureInfo) {
     //printf ("lala %s\n", hm);
     int lala = procedureInfo->indexingRegister;
     //printf ("Past indexing register");
-    sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, procedureInfo->procLabel);
+    char *outputLabel = g_hash_table_lookup (masterLabelTable, procedureInfo->procLabel);
+    sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, outputLabel);
     generateFormattedInstruction (instruction);
 }
 
@@ -1559,8 +1588,34 @@ void generateComment (const char *comment) {
     fprintf (output, "#%s\n", comment);
 }
 
+
+void addLabel (char const *labelName) {
+   gpointer *key = (gpointer) labelName;
+   char *outputtedLabel = calloc (MAX_LABEL_LEN, sizeof (char));
+   sprintf (outputtedLabel, "lab%d", masterLabelCount);
+   g_hash_table_insert (masterLabelTable, key, outputtedLabel);
+   masterLabelCount++;
+}
 void generateLabel (const char *labelName) {
-    fprintf (output, "%s\n", labelName);
+    //TODO: Make it so the labelName is hashed, and if it is null, then we add
+    //put a comment with the label name
+    generateComment (labelName);
+
+    char *outputtedLabel = g_hash_table_lookup (masterLabelTable, labelName);
+    if (outputtedLabel == NULL) {
+//         gpointer *key = (gpointer) labelName;
+//         outputtedLabel = calloc (MAX_LABEL_LEN, sizeof (char));
+//         sprintf (outputtedLabel, "lab%d",  masterLabelCount);
+//         fprintf (output, "%s\n", outputtedLabel);
+//         g_hash_table_insert (masterLabelTable, key, outputtedLabel);
+//         masterLabelCount++;
+
+        addLabel (labelName);
+        
+    }
+    else {
+        fprintf (output, "%s\n", outputtedLabel);
+    }
 }
 
 /**
@@ -1611,6 +1666,6 @@ void genCodeForRead (GNode *paramNode, int ln) {
 
 type_class getExpressionType (GNode *expressionNode) {
     //go through whole tree, and find a node with node type of NT_VAR or NT_CONST
-    GNode *
+//     GNode *
     
 }
