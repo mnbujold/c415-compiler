@@ -49,8 +49,12 @@ var
         numOdd := 3.8 + 3 * numReal;
         numReal := 0;
         while (numReal <5) do
-            numReal := numReal + 1;
+            begin
+                exit;
+                numReal := numReal + 1;
+            end;
         writeln;
+        numReal := trunc (2.5)
         //writeln (sin (0)); 
         //writeln;
     end.

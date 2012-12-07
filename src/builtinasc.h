@@ -6,6 +6,7 @@
 #ifndef BUILTINASCGEN_H
 #define BUILTINASCGEN_H
 
+#define BUILTIN_REGISTER 0
 
 #define ABSI_REGISTER 0
 #define ABSR_REGISTER 0
@@ -25,5 +26,7 @@
 
 #define SQRT_REGISTER 0
 #define SQRT_LABEL SQRT
+
+#define TRUNC_LABEL "trunc"
 
 #endif
