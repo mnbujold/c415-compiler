@@ -1,6 +1,8 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
+const char ascLocation[] = "./asc/asc";
+
 FILE *source_file;
 FILE *asc_file;
 FILE *listing_file;

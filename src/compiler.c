@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+#include <limits.h>
 
 #include <signal.h>
 #include <stdbool.h>
@@ -20,8 +21,6 @@
 
 #include "ascgen.h"
 
-
-
 symbol 		*sList;  
 myerror 	*eList;  
 int 		iserror;
@@ -35,7 +34,10 @@ extern 		FILE *yyin;
 int errorTextLength;
 int prog_listing;
 FILE *listing_file;
-char listing_filename[1024];
+FILE *interpreter;
+char file_name[PATH_MAX]; // Bare file name, no extension
+char listing_filename[PATH_MAX];
+char asc_filename[PATH_MAX];
 extern int numErrors;
 int incodegen;
 
@@ -82,7 +84,7 @@ static void my_handler (int signalNum) {
 main(int argc,char** argv)
 {
   setHandler (my_handler);
-  DEBUG_PRINT (("Hello, testing debug: %d\n", 1));
+//   DEBUG_PRINT (("Hello, testing debug: %d\n", 1));
     prog_listing = 1;
     setvbuf(stdout, (char*) _IONBF, 0, 0);
     setvbuf(stderr, (char*) _IONBF, 0, 0);
@@ -139,9 +141,37 @@ main(int argc,char** argv)
         printf("Errors exist. Compilation not successful.\n");
     } else {
         incodegen = 1;
-        genASCCode(getSyntaxTree(), "test.asc");
+        
+        //genASCCode(getSyntaxTree(), asc_filename);
+        genASCCode (getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
-    } 
+        
+       
+    }
+
+    if(execute){
+      // open pipe and execute
+      asc_file = fopen(asc_filename, "r");
+      if(asc_file == NULL){
+        fprintf(stderr, "pal error: Cannot open file %s\n", asc_filename);
+        exit(EXIT_FAILURE);
+      }
+      interpreter = popen(ascLocation, "w");
+      if(interpreter == NULL){
+        fprintf(stderr, "pal error: Could not open pipe to asc interpreter.\n");
+        exit(EXIT_FAILURE);
+      }
+      while(!feof(asc_file)){
+        // TODO: read from file and pipe to interpreter
+      }
+      fclose(asc_file);
+      pclose(interpreter);
+    }
+
+    if(!leave_asc){
+      // Delete .asc file
+    }
+        
     
 #if DEBUG
    // showAllSymbols();
@@ -177,12 +207,18 @@ void parse_args(int argc, char* argv[]){
         fprintf(stderr, "could not open %s \n", argv[i]);
         exit(-1);
       }
-      if(prog_listing){
-        int j=0;
-        while(argv[i][j] != '.')
-          listing_filename[j] = argv[i][j++];
-        strcat(listing_filename,".lst");
+      int j=0;
+      while(argv[i][j] != '.')
+        file_name[j] = argv[i][j++];
+      printf("bare filename: %s \n", file_name);
 
+      strcpy(asc_filename, file_name);
+      strcat(asc_filename, ".asc");
+      
+      if(prog_listing){
+        strcpy(listing_filename, file_name);
+        strcat(listing_filename, ".lst");
+        printf("Listing filename: %s \n", listing_filename);
       }
     }
   }
