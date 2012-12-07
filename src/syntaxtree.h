@@ -213,6 +213,7 @@ GPtrArray *extractParamList(GNode *node);
 
 int isFunction(GNode *node);
 int returnValueNotSet(GNode *node);
+void setSymToFunction(GNode *node);
 GNode *setReturnValue(GNode *node, int value);
 
 #endif
