@@ -197,6 +197,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         int adjustAmount;
         GNode *varDeclarationsList = declarations->children;
         GNode *procDeclarations = declarations->children->next;
+        GPtrArray *params;
         if (procedureSymbol->oc == OC_FUNC) {
             printf ("Is a function\n");
             //TODO: Get return address here
@@ -210,11 +211,14 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             printf ("Address of function symbol: %p\n", procedureSymbol);
             printf ("address o returned thing: %p\n", returned);
             adjustAmount = g_node_n_children (node) -2;
+            params = procedureSymbol->desc.func_attr->params;
         }
         else {
             adjustAmount = g_node_n_children (node) - 1;
+            params = procedureSymbol->desc.proc_attr->params;
         }
         
+        int numParams = params->len;
         //TODO: Actually, we need to add the parameters first
         //go through the procedureSymbol, and get the parameters and
         //allocate space for them
