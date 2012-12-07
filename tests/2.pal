@@ -13,7 +13,7 @@ type ohNo = (element1, element2);
 var aRealNum : boolean;
     incorrectArray : array[real] of ohNo; { $ERR_DATA$ [28, "illegal array range", ["illegal array range", "real"]] $ERR_DATA$ }
     aCorrect : array[1..5] of array[boolean] of (element0, elementneg1); // Legal.
-    correctArray : array[integer] of integer; // Legal, but warning (but NOT for cp2).
+    correctArray : array[integer] of integer; // WARNING! Array may be too big for system!
     anothCorArray : array[5..14] of ohNo;
     a,b : array[1..10] of char;
     c : array[1..10] of boolean;

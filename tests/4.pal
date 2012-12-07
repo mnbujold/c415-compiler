@@ -18,14 +18,18 @@ begin
 end;
 
 function incorrect(test : integer; var change : integer): boolean;
-begin
-    if (test = change) then // are they equal?
-        change := -1 * test // now they aren't!
-end; { $ERR_DATA$ [0, "missing function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
+    begin
+        if (test = change) then // are they equal?
+            begin
+            change := -1 * test; // now they aren't!
+            incorrect := false;
+            end;
+        else
+            incorrect := true;
+    end;
 
 procedure displayCorrectness(num1 : integer; var num2 : integer);
-    var correctness : boolean; // Just hanging out ...
-        badNum : real;
+    var badNum : real;
 begin
     badNum := num1;
 
