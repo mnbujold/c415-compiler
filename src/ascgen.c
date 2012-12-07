@@ -119,15 +119,9 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //showVariableAddressTable();
 
         //TODO: We need to add a goto to the main, 
-        generateLabel ("main");
-        genCodeForStatementList (statements);
-        
-        //we need this for exit
-        generateLabel ("mainend");
-        generateStackDump();
-        genVarAdjust (mainProcInfo->numVarWords);
-        generateStackDump();
-        generateFormattedInstruction ("STOP");
+        addLabel ("main");
+        genGOTO ("main");
+
 
         //GOTO the actual instructions in program
         //genGOTO("main");
@@ -145,6 +139,15 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             }
             
         }
+        generateLabel ("main");
+        genCodeForStatementList (statements);
+        
+        //we need this for exit
+        generateLabel ("mainend");
+        generateStackDump();
+        genVarAdjust (mainProcInfo->numVarWords);
+        generateStackDump();
+        generateFormattedInstruction ("STOP");
 
 
 //         
@@ -667,6 +670,7 @@ void genCodeForStatement(GNode *statement) {
                   return;
                 }
               }
+              printf ("ASSIGNMENT\n");
               printf ("symbol name: %s\n", varSymbol->name);
               printf ("Symbol address: %p\n", varSymbol);
 
@@ -1020,7 +1024,9 @@ void genBuiltinCall (symbol *builtinSymbol) {
 
 void genCodeForExpression (GNode *expressionNode) {
     expressionNode = expressionNode->children;
+    printf ("In genCodeForExpression\n");
     node_type exprType = getNiceType(expressionNode);
+    printf ("Got node type in genCodeForExpression\n");
     switch (exprType) {
         case NT_CONST:
         {
@@ -1090,6 +1096,7 @@ void genCodeForExpression (GNode *expressionNode) {
         }
         case NT_VAR:
         {
+            printf ("Address of the var: %p\n", expressionNode);
 
             node_type varType = getNiceType(expressionNode->children);
             if (varType == NT_SYMBOL) {
@@ -1379,7 +1386,10 @@ void genCodeForLogical (GNode *expressionNode) {
         }
         case NT_NOT:
         {
+          printf ("NOT encountered\n");
           GNode *expressionNode = expressionNode->children;
+          printf ("This is the address of expressionNode: %p \n", expressionNode);
+          printf ("Node type: %d\n", getNiceType(expressionNode));
           genCodeForExpression (expressionNode);
           generateFormattedInstruction("NOT");
           break;
@@ -1585,7 +1595,7 @@ void genGOTO (char const *label) {
 
 void genVarAssign (varAddressStruct *addressDescription, int subscript) {
     printf ("In gen var assign\n");
-    printf ("Address of addressDescription: %p\n", addressDescription);
+    //printf ("Address of addressDescription: %p\n", addressDescription);
     int indexingRegister = addressDescription->indexingRegister;
     //programs are absolute, no index.
 
@@ -1708,11 +1718,12 @@ void generateLabel (const char *labelName) {
 //         masterLabelCount++;
 
         addLabel (labelName);
+        outputtedLabel = g_hash_table_lookup (masterLabelTable, labelName);
         
     }
-    else {
+
         fprintf (output, "%s\n", outputtedLabel);
-    }
+    
 }
 
 /**
