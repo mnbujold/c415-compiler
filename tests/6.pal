@@ -52,7 +52,7 @@ function confuseCompiler(value : real) : real;
       
 { Functions to compare builtin calculated values versus 'actual' values: }
 
-function power(base : real; exponent : real) : real; // power/pow could be a builtin ...
+function power(base : real; exponent : real) : real; // power or pow could be a builtin ...
 // raises base to the power of exponent using builtins
     begin
         power := exp(exponent * ln(base));

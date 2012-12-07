@@ -21,7 +21,7 @@
     (program exit)
     
 }
-program correctnessIdentifier(i,o);
+program CorrectnessIdentifier(i,o);
 
 var x, y : integer;
 
