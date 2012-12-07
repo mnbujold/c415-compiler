@@ -362,6 +362,7 @@ addNewVar(const char *id, symbol *type) {
         newVar = createSymbol(NULL, type, OC_VAR, (void *) createVarDesc());
         symExistsError(id);
     }
+
     return newVar;
 }
 
@@ -517,9 +518,11 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         return newFunc;
     }
     
-    if (returnType->desc.type_attr->type != TC_ERROR
-     && localLookup(returnType->name) == NULL) {
+    if (returnType->name != NULL && localLookup(returnType->name) == NULL) {
         addSymbol(returnType->name, returnType);
+    } else if (returnType->desc.type_attr->type != TC_ERROR
+        && localLookup(returnType->name)->oc != OC_TYPE){
+        symNotATypeError(returnType->name);
     }
     
     return newFunc;
@@ -556,19 +559,12 @@ getType(const char *id) {
         addSymbol(id, typeSymbol);
         
         return typeSymbol;
-    }
-    if (OC_TYPE == typeSymbol->oc) {
-      DEBUG_PRINT(("is an oc type\n"));
-      DEBUG_PRINT(("typeSymbol: %p\n", typeSymbol->desc.type_attr));
+    } else if (OC_TYPE == typeSymbol->oc) {
       return typeSymbol;
-    } else {
-        symNotDefinedError(id);
-        typeSymbol = createErrorType(id);
-        
-        addSymbol(id, typeSymbol);
-
-        return typeSymbol;
     }
+    symNotATypeError(id);
+
+    return createErrorType(id);
 }
 
 symbol *

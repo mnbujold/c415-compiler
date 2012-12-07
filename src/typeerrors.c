@@ -27,7 +27,7 @@ void
 typeNotDefinedError(const char *id) {
     char errMsg[90 + strlen(id)];
     sprintf(errMsg,
-            "type not defined for symbol '%s'; subsequent type errors with this symbol will be ignored",
+            "type not defined for symbol '%s'; each undefined type will be reported once per scope",
             id);
     addTypeError(errMsg);
 }
@@ -43,7 +43,7 @@ void
 symNotDefinedError(const char *id) {
     char errMsg[80 + strlen(id)];
     sprintf(errMsg,
-            "no '%s' symbol defined; subsequent errors with this symbol will be ignored",
+            "no '%s' symbol defined; each undefined symbol will be reported once per scope",
             id);
     addTypeError(errMsg);
 }
