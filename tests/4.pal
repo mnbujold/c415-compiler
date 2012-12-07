@@ -1,10 +1,25 @@
 {
     4.pal
-    Tests invalid function and procedure calls and definitions.
-    Errors:
-    24:0 missing function return value assignment
-    32:16 first parameter has incorrect type
-    35:22 second parameter missing
+    Reads two integers until one of them is 0.
+    Checks for equality, and sets the second one to the first one if not equal.
+    Then checks for inequality, and sets the second one to the negative of the
+    first one if they are equal.
+    Then applies the same process as above with the same numbers but in reverse
+    and with the numbers switched.
+    Mostly silly.
+    
+    Input:
+    5 5
+    5 -5
+    1 5
+    -1 0
+    Expected Output:
+    5 == 5
+    5 != -5
+    5 != -5
+    1 != -1
+    (program exit)
+    
 }
 program correctnessIdentifier(i,o);
 
@@ -20,10 +35,10 @@ function correct(test : integer; var change : integer): boolean;
 function incorrect(test : integer; var change : integer): boolean;
     begin
         if (test = change) then // are they equal?
-            begin
+        begin
             change := -1 * test; // now they aren't!
             incorrect := false
-            end
+        end
         else
             incorrect := true;
     end;
@@ -39,16 +54,23 @@ procedure displayCorrectness(num1 : integer; var num2 : integer);
         
         if incorrect(dcnum, num2) then
             writeln(num1, ' != ', num2);
+        
+        if incorrect(num2, dcnum) then
+            writeln(num1, ' != ', num2);
+        
+        if correct(num2, dcnum) then
+            writeln(num1, ' == ', num2);
+        
     end;
 
 begin
 
-    read(x, y);
+    readln(x, y);
 
     while (x <> 0) and (y <> 0) do
     begin
         displayCorrectness(x, y);
-        read(x, y);
+        readln(x, y);
     end;
         
 end.
