@@ -21,8 +21,6 @@
 
 #include "ascgen.h"
 
-
-
 symbol 		*sList;  
 myerror 	*eList;  
 int 		iserror;
@@ -36,6 +34,7 @@ extern 		FILE *yyin;
 int errorTextLength;
 int prog_listing;
 FILE *listing_file;
+FILE *interpreter;
 char file_name[PATH_MAX]; // Bare file name, no extension
 char listing_filename[PATH_MAX];
 char asc_filename[PATH_MAX];
@@ -146,15 +145,33 @@ main(int argc,char** argv)
         //genASCCode(getSyntaxTree(), asc_filename);
         genASCCode (getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
-        if(!leave_asc){
-          // Delete .asc file
-        }
-        if(execute){
-          // open pipe and execute
-        }
         
+       
+    }
+
+    if(execute){
+      // open pipe and execute
+      asc_file = fopen(asc_filename, "r");
+      if(asc_file == NULL){
+        fprintf(stderr, "pal error: Cannot open file %s\n", asc_filename);
+        exit(EXIT_FAILURE);
+      }
+      interpreter = popen(ascLocation, "w");
+      if(interpreter == NULL){
+        fprintf(stderr, "pal error: Could not open pipe to asc interpreter.\n");
+        exit(EXIT_FAILURE);
+      }
+      while(!feof(asc_file)){
+        // TODO: read from file and pipe to interpreter
+      }
+      fclose(asc_file);
+      pclose(interpreter);
+    }
+
+    if(!leave_asc){
+      // Delete .asc file
+    }
         
-    } 
     
 #if DEBUG
    // showAllSymbols();
