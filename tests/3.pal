@@ -2,9 +2,9 @@
     3.pal
     Tests illegal assignments to constants and array accesses using builtins. Also contains 1 warning.
     Errors:
-    25:0 illegal assignment to a constant
     26:0 illegal assignment to a constant
-    35:64 illegal array access (out of bounds)
+    27:0 illegal assignment to a constant
+    36:64 illegal array access (out of bounds)
 }
 
 program Assignment (input, output);
@@ -21,9 +21,10 @@ begin
 
 x := 1.0;
 x := cantAssignToMe;
+i := round(x);
 
 cantAssignToMe := 4; { $ERR_DATA$ [0, "illegal assignment to a constant", ["target of assignment not a variable or parameter"]] $ERR_DATA$ }
-cantAssignToMe := x; { $ERR_DATA$ [0, "illegal assignment to a constant", ["target of assignment not a variable or parameter"]] $ERR_DATA$ }
+cantAssignToMe := i; { $ERR_DATA$ [0, "illegal assignment to a constant", ["target of assignment not a variable or parameter"]] $ERR_DATA$ }
 
 bigString[cantAssignToMe] := chr(cantAssignToMe);
 c := bigString[cantAssignToMe];
