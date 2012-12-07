@@ -219,6 +219,19 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         }
         
         int numParams = params->len;
+        int i = 0;
+        int paramOffset = 0 - numParams;
+        while (i < numParams) {
+            symbol *paramSymbol = (symbol *) g_ptr_array_index (params, i);
+            char instruction [strlen ("PUSH -[00]") + 12];
+            sprintf (instruction, "PUSH %d[%d]", paramOffset + i, callingRegister);
+            generateFormattedInstruction (instruction);
+            varAddressStruct *addressStruct = calloc (1, sizeof (varAddressStruct));
+            addressStruct->indexingRegister = callingRegister;
+            addressStruct->offset = i;
+            g_hash_table_insert (variableAddressTable, paramSymbol, addressStruct);
+            i++;
+        }
         //TODO: Actually, we need to add the parameters first
         //go through the procedureSymbol, and get the parameters and
         //allocate space for them
@@ -226,7 +239,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         if (getNiceType (declarations) == NT_DECLS) {
             varDeclarationsList = declarations->children;
             procDeclarations = declarations->children->next;
-            addVariables (varDeclarationsList, callingRegister, 0,  procedureInfo); //pass in the var_decl_list
+            addVariables (varDeclarationsList, callingRegister, numParams,  procedureInfo); //pass in the var_decl_list
             //DEBUG_PRINT(("Type of procDeclarations: %d", getNiceType(procDeclarations)));
         }
         DEBUG_PRINT (("TYpe of statements: %d", getNiceType(statements)));
