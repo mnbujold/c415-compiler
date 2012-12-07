@@ -12,10 +12,15 @@ const PI = 3.141592653589793;
       NMAX = 3.40282347E38; // IEEE standard for largest positive value
       NMIN = 1 / NMAX;
 
-function confuseCompiler(var value : real) : real;
-// stops smart compilers from calculating values themselves, the cheaters!
+type astring = array[1..5] of char;
+      
+var myPi : real;
+    myE : real;
+    myGamma : real;
+      
+function confuseCompiler(value : real) : real;
+// stops compilers from calculating values themselves, the cheaters!
     begin
-        value := value * 1.0;
         confuseCompiler := 1.0 * value;
     end;
       
@@ -47,18 +52,40 @@ function compare(builtin : real; actual : real; precision : integer) : boolean;
 // returns true if builtin equals actual at precision level of significant
 // digits for any combination of the rounded or truncated cases
     begin
-        compare := (adjust(builtin, precision, true) = adjust(builtin, precision, true))
-                or (adjust(builtin, precision, false) = adjust(builtin, precision, false))
-                or (adjust(builtin, precision, true) = adjust(builtin, precision, false))
-                or (adjust(builtin, precision, false) = adjust(builtin, precision, true));
+        compare := (adjust(builtin, precision, true) = adjust(actual, precision, true))
+                or (adjust(builtin, precision, false) = adjust(actual, precision, false))
+                or (adjust(builtin, precision, true) = adjust(actual, precision, false))
+                or (adjust(builtin, precision, false) = adjust(actual, precision, true));
     end;
 
+procedure checkPrecision(builtin : real; actual : real; constant : astring);
+    begin
+        writeln(constant, ' :', '\n');
+        writeln('Builtin = ', builtin, ' | Actual = ', actual);
+        
+        if compare(builtin, actual, BUILTINPRECISION) then
+            writeln('Calculated constant is correct to within 6 significant digits.')
+        else
+            writeln('Calculated constant does NOT have 6 significant digits of precision.');
+        
+        if compare(builtin, actual, CONSTPRECISION) then
+        begin
+            writeln('Calculated constant is correct to within 15 significant digits.');
+            writeln('How did you do that?!')
+        end
+        else
+            writeln('Calculated constant isn\'t ridiculously accurate.');
+        
+        writeln;
+        writeln();
+    end;
+    
 { Functions calculate the math constants using builtins (mostly): }
     
 function calculatePi() : real;
-// uses builtins (and the pi constant) to calculate pi
+// uses builtins (and the PI constant) to calculate pi
     begin
-        calculatePi := NMAX * sin(PI / NMAX);
+        calculatePi := NMAX * sin(confuseCompiler(PI) / confuseCompiler(NMAX));
     end;
 
 function calculateE() : real;
@@ -72,7 +99,7 @@ function calculateE() : real;
 
 function calculateGamma() : real;
 // uses builtins to calculate gamma
-//     const MAXITERS = 9.9999E4
+    const MAXITERS = maxint * 1000.0;
 
     var gammaTemp : real;
         iteration : real;
@@ -81,17 +108,21 @@ function calculateGamma() : real;
         iteration := 1;
         gammaTemp := 0;
         
-        while iteration < maxint do
+        while iteration < MAXITERS do
         begin
             gammaTemp := gammaTemp + (1 / iteration);
             iteration := iteration + 1;
         end;
         
-        calculateGamma := gammaTemp - ln(maxint);
+        calculateGamma := gammaTemp - ln(MAXITERS);
     end;
 
 begin
-    writeln(calculatePi());
-    writeln(calculateE());
-    writeln(calculateGamma());
+    myPi := calculatePi();
+    myE := calculateE();
+    myGamma := calculateGamma();
+    
+    checkPrecision(myPi, PI, 'PI   ');
+    checkPrecision(myE, E, 'E    ');
+    checkPrecision(myGamma, GAMMA, 'GAMMA');
 end.
