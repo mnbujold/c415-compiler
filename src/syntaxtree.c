@@ -885,6 +885,18 @@ isFunction(GNode *node) {
     return data->node->symbol->oc == OC_FUNC;
 }
 
+
+void
+setSymToFunction(GNode *node) {
+    GNode *child = node->children;
+    rule_and_node *data = child->data;
+    symbol *varFunc = data->node->symbol;
+    
+    if (varFunc != NULL) {
+        data->node->symbol = localLookup(varFunc->name);
+    }
+}
+
 GNode *
 setReturnValue(GNode *node, int value) {
     rule_and_node *data = node->data;

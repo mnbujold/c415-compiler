@@ -89,7 +89,7 @@ void genVarAdjust (int value);
  * ***************************************************************/
 symbol *getSymbol (GNode *node);
 
-procInfo *getBuiltinInfo (symbol *builtinSymbol);
+void genBuiltinCall (symbol *builtinSymbol);
 symbol *getFirstProcParent(GNode *node);
 
 /*****************************************************************
@@ -114,7 +114,9 @@ void genProcCall (procInfo *procedureInfo);
 void genProcReturn (procInfo *procedureInfo);
 void genGOTO (char const *label);
 void genVarAssign (varAddressStruct *addressDescription);
+void genVarParamAssign (varAddressStruct *addressDescription);
 void genVarAccess (varAddressStruct *addressDescription);
+void genVarParam (varAddressStruct *addressDescription);
 
 void pushConstantInt (int constant);
 void pushConstantReal (double constant);

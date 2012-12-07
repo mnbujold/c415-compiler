@@ -1,8 +1,11 @@
 {
     1.pal
-    Tests ...
+    Tests functions for missing return assignments and legal return types. Also contains 4 warnings.
+    Errors:
+    25:0 missing unconditional function return value assignment
+    46:61 illegal return type (not a simple type)
 }
-program mostness(inputtype, outputtype);
+program functional(inputtype, outputtype);
 
 type xType = (x1, x2, x3);
      xTypeArray = array[xType] of integer;

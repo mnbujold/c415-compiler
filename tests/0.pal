@@ -1,68 +1,63 @@
 {
     0.pal
-    Tests syntax of invalid arithmetic expressions and array definitions.
+    Tests arguments to var parameters and legal and illegal name hiding in procedure declarations.
     Errors:
-    22:42 unexpected real number in array definition
-    23:46 unfinished array definition, unexpected ]
-    42:34 unexpected addition operator
+    36:19 times already defined in the scope
+    59:18 var parameter is not a variable
+    60:20 var parameter not compatible
 }
 
+program Parameters(input, output);
 
+var rnum0 : real;
+    inum1 : integer;
 
-program correctNames (input, output);
-// Reads an integer input and naively counts the number of even and odd numbers
-// between that integer and zero.
+procedure realToInt(var re : real);
+    begin
+        re := round(re);
+    end;
 
-type tf = (true, false);
-
-var numOdd : integer;
-    numEven : integer;
-    number : integer;
-    memoryGreedy : array[integer] of array[tf] of real; // Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    randArray : array[4..45] of tf; // Legal.
-    anotherArray : array[true..false] of 3.4; { $ERR_DATA$ [42, "unexpected real number in array definition", ["unexpected REAL_CONST"]] $ERR_DATA$ }
-    bob, joe : array[-2..1] of array[3..{LOL}] of char; { $ERR_DATA$ [46, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ }
+function realToIntFunc(re : real) : integer;
+    begin
+        realToIntFunc := round(re);
+    end;
     
-function countEven() : integer;
-    var counter : integer;
-        numEven : integer;
-    function isEven(number : integer) : tf;
+function intToReal(int : integer) : real;
     begin
-        if (number mod 2) = 0 then
-            isEven := true
-        else counter := 0;
-            isEven := false;
+        intToReal := int * (-1.0);
     end;
-begin
-    counter := abs(number) + 1;
-    numEven := 0;
-    while counter >= 0 do
+
+procedure nested(nested : integer); // legal
+    type times = (morning, afternoon, night);
+
+    var notNested : integer;
+    
+    procedure nestedAgain(aTime : times);
+        type times = (early, ontime, late); { $ERR_DATA$ [19, "times already defined in the scope", ["symbol 'times' already defined in this scope"]] $ERR_DATA$ }
+        
+        begin
+            if aTime = early then
+                inum1 := 0
+            else if aTime = ontime then
+                inum1 := 1
+            else
+                inum1 := 2
+        end;
+        
     begin
-        counter := counter - (+1);  // Legal.
-        if isEven(counter) = true then
-            numEven := numEven + +1; { $ERR_DATA$ [34, "unexpected addition operator", ["unexpected PLUS"]] $ERR_DATA$ }
+        nested := 2 * nested;
+        notNested := nested * (-1);
+        nestedAgain(afternoon);
     end;
-    countEven := numEven;
-end;
-
-procedure countOdd(counter : integer; useless : char);
+    
+    
 begin
-    counter := -1*number + 1; // Legal.
-    counter := -number; // Legal.
-    while counter >= 0 do
-    begin
-        counter := counter - 1;
-        if (counter mod 2) = 1 then
-            numOdd := numOdd + 1;
-    end;
-end;
-
-begin
-
-read(number);
-numOdd := 0;
-countOdd(number, '?');
-numEven := countEven();
-writeln('n = ', number, ' o = ', numOdd, ' e = ', numEven);
-
+    rnum0 := 2.0;
+    inum1 := 2;
+    
+    realToInt(rnum0);
+    realToInt(2.0); { $ERR_DATA$ [18, "var parameter is not a variable", ["var argument", "not a variable"]] $ERR_DATA$ }
+    realToInt(inum1); { $ERR_DATA$ [20, "var parameter not compatible", ["var argument", "not compatible"]] $ERR_DATA$ }
+    
+    rnum0 := intToReal(realToIntFunc(rnum0));
 end.

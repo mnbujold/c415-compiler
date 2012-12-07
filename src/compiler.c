@@ -145,12 +145,12 @@ main(int argc,char** argv)
         //genASCCode(getSyntaxTree(), asc_filename);
         genASCCode (getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
-        
+        exit (EXIT_SUCCESS);
        
     }
 
-//    if(execute){
-    if(0){
+    if(0){ // Don't run this section yet...
+    //if(execute && !iserror){
       // open pipe and execute
       asc_file = fopen(asc_filename, "r");
       if(asc_file == NULL){

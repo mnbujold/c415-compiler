@@ -625,6 +625,7 @@ stat_assignment         : var ASSIGN expr
                             {
                                 if (noError(1, $1, $3, NULL)) {
                                     if (doVarAssignment(extractSymbol($1), extractSymbol($3)) == 1) {
+                                        setSymToFunction($1);
                                         $$ = setReturnValue(createNode(NT_ASSIGNMENT, $1, $3, NULL), 1);
                                     } else {
                                         $$ = createNode(NT_ASSIGNMENT, $1, $3, NULL);

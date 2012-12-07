@@ -352,7 +352,12 @@ addNewVar(const char *id, symbol *type) {
         }
         newVar = createSymbol(id, type, OC_VAR, (void *) createVarDesc());
         
-        addSymbol(id, newVar);
+        if (localLookup(id) == NULL) {
+            addSymbol(id, newVar);
+        } else {
+            newVar->name = NULL;
+            symExistsError(id);
+        }
     } else {
         newVar = createSymbol(NULL, type, OC_VAR, (void *) createVarDesc());
         symExistsError(id);
@@ -404,7 +409,7 @@ addNewProc(const char *id, GPtrArray *paramList) {
             paramType = ((symbol *) g_ptr_array_index(paramList, i))->symbol_type;
             
             if (paramType->desc.type_attr->type != TC_ERROR
-            && localLookup(paramType->name) != NULL) {
+            && localLookup(paramType->name) == NULL) {
                 addSymbol(paramType->name, paramType);
             }
         }
@@ -428,10 +433,15 @@ addNewProc(const char *id, GPtrArray *paramList) {
         paramType = newParam->symbol_type;
         
         if (paramType->desc.type_attr->type != TC_ERROR
-         && localLookup(paramType->name) != NULL) {
+         && localLookup(paramType->name) == NULL) {
             addSymbol(paramType->name, paramType);
         }
-        addSymbol(newParam->name, newParam);
+        
+        if (localLookup(newParam->name) == NULL) {
+            addSymbol(newParam->name, newParam);
+        } else {
+            symExistsError(newParam->name);
+        }
     }
     
     return newProc;
@@ -486,10 +496,15 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         paramType = newParam->symbol_type;
         
         if (paramType->desc.type_attr->type != TC_ERROR
-         && localLookup(paramType->name) != NULL) {
+         && localLookup(paramType->name) == NULL) {
             addSymbol(paramType->name, paramType);
         }
-        addSymbol(newParam->name, newParam);
+        
+        if (localLookup(newParam->name) == NULL) {
+            addSymbol(newParam->name, newParam);
+        } else {
+            symExistsError(newParam->name);
+        }
     }
     
     if (localLookup(newFunc->name) == NULL) {

@@ -10,19 +10,39 @@ program foobar35 (io, oi);
 
 type ohNo = (element1, element2);
 
-var aRealNum : boolean;
+var {aRealNum : boolean;}
     incorrectArray : array[real] of ohNo; { $ERR_DATA$ [28, "illegal array range", ["illegal array range", "real"]] $ERR_DATA$ }
-    aCorrect : array[1..5] of array[boolean] of (element0, elementneg1); // Legal.
-    correctArray : array[integer] of integer; // Legal, but warning (but NOT for cp2).
+//     aCorrect : array[1..5] of array[boolean] of (element0, elementneg1); // Legal.
+    correctArray : array[integer] of integer; // WARNING! Array may be too big for system!
     anothCorArray : array[5..14] of ohNo;
     a,b : array[1..10] of char;
-    c : array[1..10] of boolean;
-    d : array[1..10] of boolean;
+//     c : array[1..10] of boolean;
+//     d : array[1..10] of boolean;
     neg : array[-3..5] of char; // Legal.
     x : array[2..4] of integer;
     y : array[2..4] of real;
     
 
+// TEST THIS!!!!
+    
+function rename(real : real) : integer;
+    type what = what;
+
+    var ohYes : array[ohNo] of ohYes;
+        argh : argh;
+        char : char;
+    
+    begin
+        rename := ord(element2);
+    end;
+    
+function boolean(int : integer) : boolean;
+    begin
+        boolean := true;
+    end;
+    
+// TEST THIS!!!!
+    
 begin
 
 a := b; // Legal.

@@ -15,21 +15,23 @@ var
     numEven: real;
     numReal: integer;
 
-    procedure joe (a:integer; b:real);
+    procedure joe (var a:integer; b:real);
         procedure bob2();
         begin
         end;
         begin
-          if (4 < 3) then
+          if (a < 3) then
             numReal := 3 * 8;
           while (1 > 2) do
             numReal := 0 + 200;
         end;
-    procedure bob ();
+        
+    function bob ():integer ;
         procedure bob2 ();
             begin
             end;
         begin
+            bob := 3;
         end;
     
     begin
@@ -37,7 +39,7 @@ var
         numReal := 1 + 2;
         numReal := 1 + 2 * 3;
         numReal := (1 + 2) * 3;
-        joe(1, numEven);
+        joe(numReal, numEven);
         if (1 < 2.5) then
             numReal := numReal + 1
         else
@@ -47,8 +49,12 @@ var
         numOdd := 3.8 + 3 * numReal;
         numReal := 0;
         while (numReal <5) do
-            numReal := numReal + 1;
-        //writeln;
+            begin
+                exit;
+                numReal := numReal + 1;
+            end;
+        writeln;
+        numReal := trunc (2.5)
         //writeln (sin (0)); 
         //writeln;
     end.
