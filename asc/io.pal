@@ -1,0 +1,5 @@
+{
+Put writeln handling in here so that we can compile
+instead of having to write in assembly
+
+}

@@ -19,6 +19,7 @@
 #include "ascgen.h"
 #define PROGRAM_REGISTER -1
 #define PROGRAM_VAR_OFFSET 0
+#define NUM_RETURN_VALUES 2 //How many values on the stack RET consumes
 FILE *output;
 
 //registers stores registers we are using. 
@@ -147,15 +148,12 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //printf ("Procedure name: %s\n", procedureSymbol->name);
 
 //        symbol *procedureSymbol = getSymbol (node->children);
-
       
         symbol *procedureSymbol = (symbol *)getSymbol (node->children);
         printf ("Procedure name: %s\n", procedureSymbol->name);
-
-
         const char *procName = ((symbol *) procedureSymbol)->name;
         printf ("Procedure name 2: %s\n", procName);
-        //TODO: Get parent name and prepend it to the label
+
         GNode *parentProc = getFirstParent (node, NT_PROC_DECL, NT_PROC_DECL);
         printf ("Successfully returned from getFirstParnet\n");
         //if null, is within program scope
@@ -199,34 +197,50 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             //make a new symbol that is equal to the procedure name
             params = procedureSymbol->desc.func_attr->params;
             printf ("Number of children of functinon:  %d\n", g_node_n_children( node));
-            int offset = 0 -(params->len) - 2;
+            int offset = 0 -(params->len) - NUM_RETURN_VALUES - 1;
             varAddressStruct *functionReturnAddress = calloc (1, sizeof (varAddressStruct));
             functionReturnAddress->indexingRegister = callingRegister;
             functionReturnAddress->offset = offset;
             g_hash_table_insert (variableAddressTable, procedureSymbol, functionReturnAddress);
             varAddressStruct *returned = g_hash_table_lookup (variableAddressTable, procedureSymbol);
-            printf ("Address of function symbol: %p\n", procedureSymbol);
-            printf ("address o returned thing: %p\n", returned);
-            adjustAmount = g_node_n_children (node) -2;
+            // printf ("Address of function symbol: %p\n", procedureSymbol);
+            // printf ("address o returned thing: %p\n", returned);
+            // adjustAmount = g_node_n_children (node) -2;
 
         }
         else {
-            adjustAmount = g_node_n_children (node) - 1;
+            // adjustAmount = g_node_n_children (node) - 1;
             params = procedureSymbol->desc.proc_attr->params;
         }
         
         int numParams = params->len;
+        //adjustAmount += numParams;
+        procedureInfo->numVarWords += numParams;
         int i = 0;
         int paramOffset = 0 - numParams;
         while (i < numParams) {
             symbol *paramSymbol = (symbol *) g_ptr_array_index (params, i);
-            char instruction [strlen ("PUSH -[00]") + 12];
-            sprintf (instruction, "PUSH %d[%d]", paramOffset + i, callingRegister);
-            generateFormattedInstruction (instruction);
-            varAddressStruct *addressStruct = calloc (1, sizeof (varAddressStruct));
-            addressStruct->indexingRegister = callingRegister;
-            addressStruct->offset = i;
-            g_hash_table_insert (variableAddressTable, paramSymbol, addressStruct);
+            if (paramSymbol->desc.parm_attr->varParam) {
+            //TODO: I can actually just pass in the address..
+            //Don't need to do anything, except when i'm actually accessing it
+              char instruction [strlen ("PUSH -[00]") + 12];
+              sprintf (instruction, "PUSH %d[%d]", paramOffset + i, callingRegister);
+              generateFormattedInstruction (instruction);
+              varAddressStruct *addressStruct = calloc (1, sizeof (varAddressStruct));
+              addressStruct->indexingRegister = callingRegister;
+              addressStruct->offset = i;
+              g_hash_table_insert (variableAddressTable, paramSymbol, addressStruct);
+            }
+            else {
+            
+              char instruction [strlen ("PUSH -[00]") + 12];
+              sprintf (instruction, "PUSH %d[%d]", paramOffset + i, callingRegister);
+              generateFormattedInstruction (instruction);
+              varAddressStruct *addressStruct = calloc (1, sizeof (varAddressStruct));
+              addressStruct->indexingRegister = callingRegister;
+              addressStruct->offset = i;
+              g_hash_table_insert (variableAddressTable, paramSymbol, addressStruct);
+            }
             i++;
         }
         //TODO: Actually, we need to add the parameters first
@@ -245,8 +259,8 @@ void genCodeForFunctionNode(GNode *node, int scope) {
 
         genCodeForStatementList (statements);
         
-        
-        genVarAdjust (adjustAmount);
+        adjustAmount += procedureInfo->numVarWords;
+        //genVarAdjust (adjustAmount);
         
         genProcReturn(procedureInfo);
         if (procDeclarations->children != NULL) {        
@@ -530,12 +544,21 @@ void genCodeForStatement(GNode *statement) {
             node_type varType = getNiceType (varNode->children);
             if (varType == NT_SYMBOL) {
               GNode *symbolNode = (statement->children)->children;
-              printf ("type of var's first child: %d\n", getNiceType (symbolNode));
-
+              // printf ("type of var's first child: %d\n", getNiceType (symbolNode));
               symbol *varSymbol = getSymbol (symbolNode);
+              
+              varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
+              if (varSymbol->oc == OC_PARAM) {
+                if (varSymbol->desc.parm_attr->varParam) {
+                  GNode *expressionNode = statement->children->next;
+                  genVarParamAssign (addressDescription);
+                  genCodeForExpression (expressionNode);
+                  return;
+                }
+              }
               printf ("symbol name: %s\n", varSymbol->name);
               printf ("Symbol address: %p\n", varSymbol);
-              varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
+
               GNode *expressionNode = statement->children->next;
               genCodeForExpression (expressionNode);
               printf ("Address of address description from hash: %p\n", addressDescription);
@@ -846,8 +869,17 @@ void genCodeForExpression (GNode *expressionNode) {
             node_type varType = getNiceType(expressionNode->children);
             if (varType == NT_SYMBOL) {
             
+            //TODO: Var parameter is here!
               symbol *varSymbol = getSymbol(expressionNode->children);
               varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
+              if (varSymbol->oc == OC_PARAM) {
+                if (varSymbol->desc.parm_attr->varParam) {
+                  genVarParam (address);
+                  return;
+                }
+              }
+
+              
               genVarAccess (address);
             }
             else if (varType == NT_ARRAY_ACCESS) {
@@ -1388,7 +1420,20 @@ void genVarAssign (varAddressStruct *addressDescription) {
 
     }
 }
+void genVarParamAssign (varAddressStruct *addressDescription) {
+    int indexingRegister = addressDescription->indexingRegister;
+    int offset = addressDescription->offset;
+    char instruction [strlen ("PUSHA []") + 32];
+    if (indexingRegister < 0) {
+      sprintf (instruction, "PUSHA %d", offset);
+      generateFormattedInstruction (instruction);
+    }
+    else {
+      sprintf (instruction, "PUSHA %d[%d]", offset, indexingRegister);
+      generateFormattedInstruction (instruction);
+    }
 
+}
 void genVarAccess (varAddressStruct *addressDescription) {
     int indexingRegister = addressDescription->indexingRegister;
     int offset = addressDescription->offset;
@@ -1404,7 +1449,19 @@ void genVarAccess (varAddressStruct *addressDescription) {
         
     }
 }
-
+void genVarParam (varAddressStruct *addressDescription) {
+    int indexingRegister = addressDescription->indexingRegister;
+    int offset = addressDescription->offset;
+    char instruction [strlen ("PUSHA []") + 32];
+    if (indexingRegister < 0) {
+      sprintf (instruction, "PUSHA %d", offset);
+      generateFormattedInstruction (instruction);
+    }
+    else {
+      sprintf (instruction, "PUSHA %d[%d]", offset, indexingRegister);
+      generateFormattedInstruction (instruction);
+    }
+}
 /**
  * generates a CALL instruction to the relevant procedure stored in procedureInfo
  */
