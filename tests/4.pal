@@ -6,48 +6,49 @@
     32:16 first parameter has incorrect type
     35:22 second parameter missing
 }
-program funcsAndProcs(i,o);
+program correctnessIdentifier(i,o);
 
 var x, y : integer;
 
 function correct(test : integer; var change : integer): boolean;
-begin
-    correct := (test = change); // are they equal?
-    if not correct then
-        change := test // now they are!
-end;
+    begin
+        correct := (test = change); // are they equal?
+        if not correct then
+            change := test // now they are!
+    end;
 
 function incorrect(test : integer; var change : integer): boolean;
     begin
         if (test = change) then // are they equal?
             begin
             change := -1 * test; // now they aren't!
-            incorrect := false;
-            end;
+            incorrect := false
+            end
         else
             incorrect := true;
     end;
 
 procedure displayCorrectness(num1 : integer; var num2 : integer);
-    var badNum : real;
-begin
-    badNum := num1;
-
-    if correct(badNum, num2) then { $ERR_DATA$ [16, "first parameter has incorrect type", ["type of badNum does not match type of parameter 1 of function correct"]] $ERR_DATA$ }
-        writeln(num1, ' == ', num2);
+    var dcnum : integer;
     
-    if incorrect(num1) then { $ERR_DATA$ [22, "second parameter missing", ["missing second parameter of function correct"]] $ERR_DATA$ }
-        writeln(num1, ' != ', num2);
-end;
+    begin
+        dcnum := num1;
+
+        if correct(dcnum, num2) then
+            writeln(num1, ' == ', num2);
+        
+        if incorrect(dcnum, num2) then
+            writeln(num1, ' != ', num2);
+    end;
 
 begin
 
-read(x, y);
-
-while (x <> 0) and (y <> 0) do
-begin
-    displayCorrectness(x, y);
     read(x, y);
-end;
-    
+
+    while (x <> 0) and (y <> 0) do
+    begin
+        displayCorrectness(x, y);
+        read(x, y);
+    end;
+        
 end.
