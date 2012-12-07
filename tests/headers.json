@@ -2,11 +2,11 @@
     "0": "Tests arguments to var parameters and legal and illegal name hiding in procedure declarations.",
     "1": "Tests functions for missing return assignments and legal return types. Also contains 4 warnings.",
     "2": "Tests more valid and invalid name hiding and type usage.",
-    "3": "Tests illegal assignments to constants and ... (probably array length). Also contains 1 warning.",
+    "3": "Tests illegal assignments to constants and array accesses using builtins. Also contains 1 warning.",
     "4": "Correct boolean stuff ...",
     "5": "Correct counting stuff ...",
     "6": "Tests invalid record definitions and calls. {MAKE ABOUT MATH - BUILTINS}",
-    "7": "... I dunno ...",
+    "7": "... I dunno ... (exit and continue! and if-else and while structures)",
     "8": "Correct book stuff ...",
     "9": "Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols."
 }

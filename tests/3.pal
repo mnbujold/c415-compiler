@@ -1,42 +1,38 @@
 {
     3.pal
-    Tests invalid scalar assignments and expressions.
+    Tests illegal assignments to constants and array accesses using builtins. Also contains 1 warning.
     Errors:
-    22:3 illegal assignment of real to integer
-    26:3 illegal assignment of real to integer
-    36:9 incompatible enumerated type operand for multiplication
+    26:0 illegal assignment to a constant
+    27:0 illegal assignment to a constant
+    36:64 illegal array access (out of bounds)
 }
 
-program bobsyouruncle(doesthis, work);
+program Assignment (input, output);
 
-type willCauseError = (lol0);
+const cantAssignToMe = 18;
 
-// KEEP THIS LINE vvv
 var bigString : array[integer] of char; // WARNING! Array may be too large for system.
-// YES, THIS ONE ^^^
+    smallString : array[1..1] of char;
     x : real;
     i : integer;
-    e : willCauseError;
+    c : char;
 
 begin
 
-x := 1; // Legal.
-
-i := x; { $ERR_DATA$ [3, "illegal assignment of real to integer", ["illegal integer assignment"]] $ERR_DATA$ }
-
 x := 1.0;
+x := cantAssignToMe;
+i := round(x);
 
-i := x; { $ERR_DATA$ [3, "illegal assignment of real to integer", ["illegal integer assignment"]] $ERR_DATA$ }
+cantAssignToMe := 4; { $ERR_DATA$ [0, "illegal assignment to a constant", ["target of assignment not a variable or parameter"]] $ERR_DATA$ }
+cantAssignToMe := i; { $ERR_DATA$ [0, "illegal assignment to a constant", ["target of assignment not a variable or parameter"]] $ERR_DATA$ }
 
-i := 2;
+bigString[cantAssignToMe] := chr(cantAssignToMe);
+c := bigString[cantAssignToMe];
+bigString[ord(c)] := c;
+c := chr(ord(c));
 
-x := i; // Legal.
+smallString[1] := c;
 
-i := i - 3;
-
-x := (x * i + 34) / 1.2; // Legal.
-
-if (1 = 1 * e) then { $ERR_DATA$ [9, "incompatible enumerated type operand for multiplication", ["illegal arithemtic operand for multiplication (willCauseError type)"]] $ERR_DATA$ }
-    writeln('This is not legal!');
+smallString[abs(ord(succ(chr(ord(pred(chr(cantAssignToMe)))))))] := c { $ERR_DATA$ [64, "illegal array access (out of bounds)", ["illegal array access (index 18 above upper bound 1)"]] $ERR_DATA$ }
 
 end.

@@ -21,10 +21,9 @@
     (program exit)
     
 }
-program correctnessIdentifier(i,o);
+program CorrectnessIdentifier(i,o);
 
-var x: integer; 
-    y : integer;
+var x, y : integer;
 
 function correct(test : integer; var change : integer): boolean;
     begin

@@ -1,29 +1,39 @@
 {
     5.pal
-    Correct ...
+    Calculates the number of even (including zero) and odd numbers between inputed numbers
+    and zero in the most ridiculous way possible: by counting each number and
+    checking if it is even or odd.
+    Ends on input 0.
+    Inspired by Assignment #2.
+    
+    Input:
+    7
+    -4
+    132
+    -0
+    Expected Output:
+    number = 7 odds = 4 evens = 4
+    number = -4 odds = 2 evens = 3
+    number = 132 odds = 66 evens = 67
+    (exit program)
+
 }
 
-program correctNames (input, output);
+program UselessCount (input, output);
 // Reads an integer input and naively counts the number of even and odd numbers
 // between that integer and zero.
 
-type tf = (true, false);
-
-var numOdd : integer;
-    numEven : integer;
-    number : integer;
-    randArray : array[4..45] of tf; // Legal.
-    anotherArray : array[true..false] of 3.4; { $ERR_DATA$ [42, "unexpected real number in array definition", ["unexpected REAL_CONST"]] $ERR_DATA$ }
-    bob, joe : array[-2..1] of array[3..{LOL}] of char; { $ERR_DATA$ [46, "unfinished array definition, unexpected ]", ["unexpected REAL_CONST"]] $ERR_DATA$ }
+var numOdd, numEven, number: integer;
     
 function countEven() : integer;
     var counter : integer;
         numEven : integer;
-    function isEven(number : integer) : tf;
+        
+    function isEven(number : integer) : boolean;
     begin
         if (number mod 2) = 0 then
             isEven := true
-        else counter := 0;
+        else
             isEven := false;
     end;
 begin
@@ -31,17 +41,20 @@ begin
     numEven := 0;
     while counter >= 0 do
     begin
-        counter := counter - (+1);  // Legal.
+        counter := counter - (+1);
         if isEven(counter) = true then
-            numEven := numEven + +1; { $ERR_DATA$ [34, "unexpected addition operator", ["unexpected PLUS"]] $ERR_DATA$ }
+            numEven := numEven + 1;
     end;
     countEven := numEven;
 end;
 
-procedure countOdd(counter : integer; useless : char);
+procedure countOdd(counter : integer);
 begin
-    counter := -1*number + 1; // Legal.
-    counter := -number; // Legal.
+    if counter < 0 then
+        counter := -1*number + 1
+    else
+        counter := number + 1;
+    
     while counter >= 0 do
     begin
         counter := counter - 1;
@@ -52,10 +65,15 @@ end;
 
 begin
 
-read(number);
-numOdd := 0;
-countOdd(number, '?');
-numEven := countEven();
-writeln('n = ', number, ' o = ', numOdd, ' e = ', numEven);
-
+    read(number);
+    
+    while number <> 0 do
+    begin
+        numOdd := 0;
+        countOdd(number);
+        numEven := countEven();
+        writeln('number = ', number, ' odds = ', numOdd, ' evens = ', numEven);
+        read(number);
+    end;
+    
 end.
