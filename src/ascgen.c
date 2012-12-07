@@ -139,7 +139,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         genVarAdjust (mainProcInfo->numVarWords);
         generateStackDump();
         generateFormattedInstruction ("STOP");
-        
+//         
     }
     else if (getNiceType(node) == NT_PROC_DECL) {
 
@@ -150,22 +150,22 @@ void genCodeForFunctionNode(GNode *node, int scope) {
 //        symbol *procedureSymbol = getSymbol (node->children);
       
         symbol *procedureSymbol = (symbol *)getSymbol (node->children);
-        printf ("Procedure name: %s\n", procedureSymbol->name);
+//         printf ("Procedure name: %s\n", procedureSymbol->name);
         const char *procName = ((symbol *) procedureSymbol)->name;
-        printf ("Procedure name 2: %s\n", procName);
+//         printf ("Procedure name 2: %s\n", procName);
 
         GNode *parentProc = getFirstParent (node, NT_PROC_DECL, NT_PROC_DECL);
-        printf ("Successfully returned from getFirstParnet\n");
+//         printf ("Successfully returned from getFirstParnet\n");
         //if null, is within program scope
         char *procLabel;
         if (parentProc == NULL) {
-            printf ("Parent proc is null\n");
+//             printf ("Parent proc is null\n");
             procLabel = calloc ((strlen (procName) + 2), sizeof (char));
             sprintf (procLabel, "%s%d", procName, scope);
         }
         else {
             symbol *parentSymbol = (symbol *)getSymbol (parentProc->children);
-            printf ("Got a symbol succesffully\n");
+//             printf ("Got a symbol succesffully\n");
             procInfo *parentInfo = g_hash_table_lookup (procedureInfoTable, parentSymbol);
             char *parentLabel = parentInfo->procLabel;
             procLabel = calloc ((strlen (procName) + strlen (parentLabel) + 2), sizeof (char));
@@ -179,8 +179,6 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         
         procInfo *procedureInfo = calloc (1, sizeof (procInfo));
         procedureInfo->procLabel = procLabel;
-        //int callingRegister = getFirstFreeRegister();
-        //printf ("SCOPE: %d\n", scope);
         int callingRegister = scope;
         procedureInfo->indexingRegister = callingRegister;
         g_hash_table_insert (procedureInfoTable, procedureSymbol, procedureInfo);
@@ -231,6 +229,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
               addressStruct->indexingRegister = callingRegister;
               addressStruct->offset = i;
               g_hash_table_insert (variableAddressTable, paramSymbol, addressStruct);
+              printf ("Address of param symbol: %p\n", paramSymbol);
             }
             else {
             
@@ -911,6 +910,72 @@ void genCodeForExpression (GNode *expressionNode) {
     expressionNode = expressionNode->children;
     node_type exprType = getNiceType(expressionNode);
     switch (exprType) {
+        case NT_CONST:
+        {
+            symbol *varSymbol = getSymbol (expressionNode->children);
+            //getTypeClass (varSymbol);
+            type_class constType = getTypeClass (varSymbol);
+            //TODO: figure out what to do for strings
+            switch (constType) {
+                case TC_REAL:
+                {
+                    double value = varSymbol->desc.const_attr->value.real;
+                    char instruction [strlen ("CONSTR") + 12];
+                    sprintf (instruction, "CONSTR %f", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                case TC_BOOLEAN:
+                {
+                    int value = varSymbol->desc.const_attr->value.boolean;
+                    char instruction [strlen ("CONSTI") + 2];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                case TC_CHAR:
+                {
+                    int value = varSymbol->desc.const_attr->value.character;
+                    char instruction [strlen ("CONSTI") + 3];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+                default:
+                {
+                    int value = varSymbol->desc.const_attr->value.integer;
+                    char instruction [strlen ("CONSTI") + 12];
+                    sprintf (instruction, "CONSTI %d", value);
+                    generateFormattedInstruction (instruction);
+                    break;
+                }
+            }
+            
+            //Check if we have a real parent so we need to convert to real
+            GNode *operationNode = getFirstOperationParent (expressionNode->parent);
+            if (operationNode == NULL) {
+                //                 printf ("Operation node is null\n");
+            }
+            else {
+                node_type type = getNiceType (operationNode);
+                //                 printf ("Inside int math: Type of node is: %d\n", type);
+                if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION) && (constType != TC_REAL)) {
+                    // //                     printf ("We have a real operation\n");
+                    generateFormattedInstruction ("ITOR");
+                }
+                
+            }
+            //We need to turn this guy into a real if one of its parent is a real operation
+            //get the first operation we see
+            //             GNode *operationNode = getFirstOperationParent (expressionNode);
+            //             node_type type = getNiceType (operationNode);
+            //             if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION)) {
+                //                 printf ("We have a real operation\n");
+                //                 generateFormattedInstruction ("ITOR");
+                //             }
+                
+                break;
+        }
         case NT_VAR:
         {
 
@@ -921,12 +986,18 @@ void genCodeForExpression (GNode *expressionNode) {
               symbol *varSymbol = getSymbol(expressionNode->children);
               varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
               if (varSymbol->oc == OC_PARAM) {
+                  printf ("This is a param: %s\n",  varSymbol->name);
                 if (varSymbol->desc.parm_attr->varParam) {
                   genVarParam (address);
                   return;
                 }
               }
 
+              if (address == NULL) {
+                  printf ("Failure. address is null\n");
+                  printf ("This is the address of the var symbol: %p\n", varSymbol);
+                  printf ("Symbol name: %s type: %d typeClass: %d\n", varSymbol->name, varSymbol->oc, getTypeClass (varSymbol));
+              }
               
               genVarAccess (address);
             }
@@ -971,72 +1042,7 @@ void genCodeForExpression (GNode *expressionNode) {
             genVarAdjust (numParams);
             break;
         }
-        case NT_CONST:
-        {
-            symbol *varSymbol = getSymbol (expressionNode->children);
-            //getTypeClass (varSymbol);
-            type_class constType = getTypeClass (varSymbol);
-            //TODO: figure out what to do for strings
-            switch (constType) {
-                case TC_REAL:
-                {
-                    double value = varSymbol->desc.const_attr->value.real;
-                    char instruction [strlen ("CONSTR") + 12];
-                    sprintf (instruction, "CONSTR %f", value);
-                    generateFormattedInstruction (instruction);
-                    break;
-                }
-                case TC_BOOLEAN:
-                {
-                    int value = varSymbol->desc.const_attr->value.boolean;
-                    char instruction [strlen ("CONSTI") + 2];
-                    sprintf (instruction, "CONSTI %d", value);
-                    generateFormattedInstruction (instruction);
-                    break;
-                }
-                case TC_CHAR:
-                {
-                    int value = varSymbol->desc.const_attr->value.character;
-                    char instruction [strlen ("CONSTI") + 3];
-                    sprintf (instruction, "CONSTI %d", value);
-                    generateFormattedInstruction (instruction);
-                    break;
-                }
-                default:
-                {
-                    int value = varSymbol->desc.const_attr->value.integer;
-                    char instruction [strlen ("CONSTI") + 12];
-                    sprintf (instruction, "CONSTI %d", value);
-                    generateFormattedInstruction (instruction);
-                    break;
-                }
-            }
 
-            //Check if we have a real parent so we need to convert to real
-            GNode *operationNode = getFirstOperationParent (expressionNode->parent);
-            if (operationNode == NULL) {
-//                 printf ("Operation node is null\n");
-            }
-            else {
-                node_type type = getNiceType (operationNode);
-//                 printf ("Inside int math: Type of node is: %d\n", type);
-                if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION) && (constType != TC_REAL)) {
-// //                     printf ("We have a real operation\n");
-                    generateFormattedInstruction ("ITOR");
-                }
-                
-            }
-            //We need to turn this guy into a real if one of its parent is a real operation
-            //get the first operation we see
-//             GNode *operationNode = getFirstOperationParent (expressionNode);
-//             node_type type = getNiceType (operationNode);
-//             if ((type >= NT_REAL_ISEQUAL) && (type <=NT_REAL_INVERSION)) {
-//                 printf ("We have a real operation\n");
-//                 generateFormattedInstruction ("ITOR");
-//             }
-            
-            break;
-        }
         default:
         {
 //           printf ("I'm an operation!!!!!!\n");
@@ -1601,4 +1607,10 @@ void genCodeForRead (GNode *paramNode, int ln) {
         generateFormattedInstruction ("CONSTI 10");
         generateFormattedInstruction ("WRITEC");
     }
+}
+
+type_class getExpressionType (GNode *expressionNode) {
+    //go through whole tree, and find a node with node type of NT_VAR or NT_CONST
+    GNode *
+    
 }
