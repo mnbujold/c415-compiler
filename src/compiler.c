@@ -149,7 +149,8 @@ main(int argc,char** argv)
        
     }
 
-    if(execute){
+//    if(execute){
+    if(0){
       // open pipe and execute
       asc_file = fopen(asc_filename, "r");
       if(asc_file == NULL){

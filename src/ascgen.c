@@ -520,10 +520,30 @@ void genCodeForStatement(GNode *statement) {
               printf ("Address of address description from hash: %p\n", addressDescription);
               genVarAssign (addressDescription);
             }
-            else if (varType== NT_ARRAY_ACCESS) {
+            else if (varType == NT_ARRAY_ACCESS) {
+              // MIKE IS WORKING ON THIS
               //TODO: Implement
+              printf("assigning array var element\n");
+              GNode *varNode = statement->children->children; // lvalue
+              GNode *exprNode = statement->children->next; // rvalue
+
+              // Get address of symbol
+              symbol *varSymbol = getSymbol(varNode->children->children);
+              //printf("name: %s\n", varSymbol->name);
+              varAddressStruct *addrDesc = g_hash_table_lookup(variableAddressTable, varSymbol);
+              //printf("offset to start of array in stack: %d \n", addrDesc->offset);
+
+              // Suction out the 'expr' value to offset the array
+              GNode *lval_exprNode = varNode->children->next->children;
+              //genCodeForExpression(lval_exprNode);
+              //genCodeForExpression() needs to be modified to deal with array offsets
+              //ie. need a return value with the array element #
+              
+              genCodeForExpression(exprNode); // This is OK
+              genVarAssign (addrDesc); // Need offset passed in here
+              
             }
-            else if (varType ==NT_RECORD_ACCESS) {
+            else if (varType == NT_RECORD_ACCESS) {
               //TODO: Implement
             }
             else {
@@ -773,6 +793,9 @@ void genCodeForExpression (GNode *expressionNode) {
             }
             else if (varType == NT_ARRAY_ACCESS) {
                 //TODO: implement
+              printf("accessing array...\n");
+              //find the array...get the element
+              
             }
             else if (varType == NT_RECORD_ACCESS) {
                 //TODO: implement
