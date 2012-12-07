@@ -145,7 +145,7 @@ main(int argc,char** argv)
         //genASCCode(getSyntaxTree(), asc_filename);
         genASCCode (getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
-        
+        exit (EXIT_SUCCESS);
        
     }
 
