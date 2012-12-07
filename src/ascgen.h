@@ -89,7 +89,7 @@ void genVarAdjust (int value);
  * ***************************************************************/
 symbol *getSymbol (GNode *node);
 
-procInfo *getBuiltinInfo (symbol *builtinSymbol);
+void genBuiltinCall (symbol *builtinSymbol);
 symbol *getFirstProcParent(GNode *node);
 
 /*****************************************************************

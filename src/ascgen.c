@@ -51,14 +51,10 @@ void genASCCode (GNode *tree, char *fileName) {
     scope = 0;
     
     
-  //TODO:   
-  //open the file up here and any other stuff
-    output = fopen (fileName, "w");
+   output = fopen (fileName, "w");
     //output = stdout;
   
-   //TODO: Add builtins
  
-  
   //start generating code
   
   node_type nodeType = getNiceType(tree); 
@@ -68,12 +64,11 @@ void genASCCode (GNode *tree, char *fileName) {
       exit (1);
   }
   
-  //TODO: print out a comment header stating the name of the file
-  
+  generateComment ("Program for");
+  generateComment (fileName);
   genCodeForFunctionNode (tree, scope);
   
-  //TODO: Close the file
-  
+  fclose (output);
   
   
 }
@@ -583,16 +578,17 @@ void genCodeForStatement(GNode *statement) {
             //generate CALL
             if (procedureInfo == NULL) {
                 printf ("Returned proc info is null, must be a builtin\n");
-                char *procName = procSymbol->name;
-                
+
                 //look it up in builtins
                 //TODO: look up in builtins table...
-                procInfo *returnedInfo = getBuiltinInfo(procSymbol);
+                genBuiltinCall(procSymbol);
             }
+            else {
             
             //TODO: before generating proc call, we need to get params from here
             //and then 
             genProcCall (procedureInfo);
+            }
             //TODO: Handle var params as we may actually use them 
             genVarAdjust (numParams);
             //genGOTO (procLabel);
@@ -631,10 +627,7 @@ void genCodeForStatement(GNode *statement) {
           // sprintf (instruction, "IFZ %s", label);
           genCodeForStatementList (ifStatementList);
           generateLabel (label);
-          //don't forget to add so the next guy knows how many labels
-          
-          //generateLabel (functionNameIfNumberXEnd)
-          //TODO: Implement
+
             break;
         }
         case NT_IF_ELSE:
@@ -781,7 +774,48 @@ symbol *getFirstProcParent(GNode *node) {
 /**
  * Return information needed to call a builtin here
  */
-procInfo *getBuiltinInfo (symbol *builtinSymbol) {
+void genBuiltinCall (symbol *builtinSymbol) {
+    const char *procName = builtinSymbol->name;
+    if (strcmp (procName, "writeln") == 0) {
+        printf ("Writeln detected\n");
+    }
+    else if (strcmp (procName, "write") == 0) {
+    
+    }
+    else if (strcmp (procName, "readln") == 0) {
+    }
+    else if (strcmp (procName, "read") == 0) {
+    }
+    else if (strcmp (procName, "abs") == 0) {
+    }
+    else if (strcmp (procName, "chr") == 0) {
+    }
+    else if (strcmp (procName, "cos") == 0) {
+    }
+    else if (strcmp (procName, "ln") == 0) {
+    }
+    else if (strcmp (procName, "odd") == 0) {
+    }
+    else if (strcmp (procName, "ord") == 0) {
+    }
+    else if (strcmp (procName, "pred") == 0) {
+    }
+    else if (strcmp (procName, "round") == 0) {
+    }
+    else if (strcmp (procName, "sin") == 0) {
+    }
+    else if (strcmp (procName, "sqr") == 0) {
+    }
+    else if (strcmp (procName, "sqrt") == 0) {
+    }
+    else if (strcmp (procName, "succ") == 0) {
+    }
+    else if (strcmp (procName, "exp") == 0) {
+    }
+    else if (strcmp (procName, "trunc") == 0) {
+    }
+    else {
+    }
     
 }
 

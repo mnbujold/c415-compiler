@@ -50,7 +50,7 @@ var
         numReal := 0;
         while (numReal <5) do
             numReal := numReal + 1;
-        //writeln;
+        writeln;
         //writeln (sin (0)); 
         //writeln;
     end.
