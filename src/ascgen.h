@@ -126,6 +126,8 @@ void pushConstantInt (int constant);
 void pushConstantReal (double constant);
 char *genProcLabel (procInfo *procedureInfo);
 
+type_class getExpressionType (GNode *head);
+
 int pushRecord(symbol *);
 int pushArray(symbol *);
 int pushScalar(symbol *);

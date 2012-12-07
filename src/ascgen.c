@@ -228,7 +228,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //adjustAmount += numParams;
         procedureInfo->numVarWords += numParams;
         int i = 0;
-        int paramOffset = 0 - numParams;
+        int paramOffset = 0 - numParams- NUM_RETURN_VALUES;
         while (i < numParams) {
             symbol *paramSymbol = (symbol *) g_ptr_array_index (params, i);
             if (paramSymbol->desc.parm_attr->varParam) {
@@ -1749,9 +1749,34 @@ void generateTrace(int number) {
  * paramNode is the first parameter passed in, to get the rest, call paramNode->next
  */
 void genCodeForWrite(GNode *paramNode, int ln) {
-    
+    int numWordsAllocated = 0;
+    printf ("In gen code for write\n");
     while (paramNode != NULL) {
-        
+        printf ("Type of param: %d\n", getExpressionType (paramNode));
+        type_class returnedType = getExpressionType (paramNode);
+        switch (returnedType) {
+            case TC_INTEGER:
+            {
+                genCodeForExpression (paramNode);
+                generateFormattedInstruction ("WRITEI");
+                //numWordsAllocated++;
+                break;
+            }
+            case TC_REAL:
+            {
+                genCodeForExpression (paramNode);
+                generateFormattedInstruction ("WRITER");
+                //numWordsAllocated++;
+                break;
+            }
+            case TC_STRING: 
+            {
+                break;
+            }
+            default:
+            {
+            }
+        }
         paramNode = paramNode->next;
     }
     
@@ -1760,6 +1785,7 @@ void genCodeForWrite(GNode *paramNode, int ln) {
         generateFormattedInstruction ("CONSTI 10");
         generateFormattedInstruction ("WRITEC");
     }
+//     genVarAdjust (numWordsAllocated);
     
 }
 
@@ -1775,6 +1801,7 @@ void genCodeForRead (GNode *paramNode, int ln) {
 type_class getExpressionType (GNode *head) {
     //go through whole tree, and find a node with node type of NT_VAR or NT_CONST
 //     GNode *
+    type_class returnType = TC_INTEGER;
     if (head->children == NULL) {
         //printf("type at leaf: %d\n", getNiceType(head));
         return getTypeClass (getSymbol (head));
@@ -1783,9 +1810,21 @@ type_class getExpressionType (GNode *head) {
 
     while (sibling != NULL) {
         type_class returnedType = getExpressionType (sibling);
+        if (returnedType == TC_REAL) {
+            returnType = returnedType;
+        }
+        else if (returnedType == TC_ARRAY) {
+            symbol *arraySymbol = getSymbol (sibling);
+            
+            returnType == returnedType;
+        }
+        else {
+            printf ("Got this return type: %d\n", returnedType);
+        }
         sibling = sibling->next;
     }
         
+        return returnType;
 
 
 }
