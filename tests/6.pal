@@ -1,104 +1,76 @@
 {
     6.pal
-    Tests invalid record definitions and calls.
-    Errors:
-    30:37 field already defined
-    79:16 illegal assignment of real to integer
-    101:23 not a field of the 'another' record
+    Tests the precision of builtin functions compared to actual constants.
 }
-program recordings(useless, parameters);
+program Precision(useless, parameters);
 
-const aRealNum = 24.34e11;
+const PI = 3.141592653589793;
+      E = 2.718281828459045;
+      GAMMA = 0.577215664901532;
+      CONSTPRECISION = 15;
+      BUILTINPRECISION = 6;
 
-type boolean = (true, idunno, false);
-     nameStr = array[1..25] of char;
-     review = record
-                good : boolean;
-                reviewer : nameStr
-              end;
-     book = record
-                title : array[1..50] of char;
-                author : nameStr;
-                id : integer;
-                reviews : array[1..10] of review
-            end;
-     badRecord = record
-                    boolean : char;
-                    title : nameStr;
-                    french : boolean;
-                    english : boolean;
-                    french : boolean { $ERR_DATA$ [37, "field already defined", ["symbol 'french' already defined as a field for this record"]] $ERR_DATA$ }
-                 end;
-    problemRecord = record
-                        field1 : integer;
-                        field2 : real
-                    end;
-
-var lib : array[1..20] of book;
-    aBook : book;
-    title : array[1..50] of char;
-    name : nameStr;
-    id, index : integer;
-    stop : char;
-    another : problemRecord;
-    abadrecord : badRecord;
-
-procedure addBook(var newBook : book; charIndex : integer; revIndex : integer);
-    
-    var reviews : array[1..10] of review;
-    
-    function createReview(aLetter : char) : review;
-        const revName = 'I am a reviewer1234567890';
-        var rating : boolean;
-            theRev : review;
+function confuseCompiler(var value : real) : real;
+// stops smart compilers from calculating values themselves, the cheaters!
     begin
-        if (aLetter = 'a') or (aLetter = 'b') or (aLetter = 'c') then
-            rating := true
-        else if (aLetter = 'x') or (aLetter = 'y') or (aLetter = 'z') then
-            rating := false
-        else
-            rating := idunno;
-        theRev.good := rating;
-        theRev.reviewer := revName;
-        createReview := theRev;
+        value := value * 1.0;
+        confuseCompiler := 1.0 * value;
     end;
+      
+{ Functions to compare builtin calculated values versus 'actual' values: }
+
+function power(base : real; exponent : real) : real; // power/pow could be a builtin ...
+// raises base to the power of exponent using builtins
+    begin
+        power := exp(exponent * ln(base));
+    end;
+    
+function adjust(value : real; precision : integer; rounded : boolean) : real;
+// returns value with precision number of decimal places, with rounding
+// depending on rounded
+    var realAdjusted : real;
+        adjustment : real;
+    
+    begin
+        adjustment := power(10, precision);
+        realAdjusted := value * adjustment;
+        
+        if rounded then
+            adjust := round(realAdjusted) / adjustment
+        else
+            adjust := trunc(realAdjusted) / adjustment;
+    end;            
+
+function compare(builtin : real; actual : real; precision : integer) : boolean;
+// returns true if builtin equals actual at precision level of significant
+// digits for any combination of the rounded or truncated cases
+    begin
+        compare := (adjust(builtin, precision, true) = adjust(builtin, precision, true))
+                or (adjust(builtin, precision, false) = adjust(builtin, precision, false))
+                or (adjust(builtin, precision, true) = adjust(builtin, precision, false))
+                or (adjust(builtin, precision, false) = adjust(builtin, precision, true));
+    end;
+
+{ Functions calculate the math constants using builtins: }
+    
+function calculatePi() : real;
+// uses builtins to calculate pi
+    begin
+        calculatePi := 0;
+    end;
+
+function calculateE() : real;
+// uses builtins to calculate e
+    begin
+        calculateE := 0;
+    end;
+
+function calculateGamma() : real;
+// uses builtins to calculate gamma
+    begin
+        calculateGamma := 0;
+    end;
+
 begin
-    newBook.title := title;
-    newBook.id := id;
-    newBook.author := name;
-    reviews[charIndex] := createReview(newBook.author[revIndex]);
-    newBook.reviews := reviews;
-    newBook.reviews[revIndex] := createReview(newBook.title[charIndex]);
-end;
-    
-begin
-
-stop := 'n';
-index := 1;
-
-another.field1 := aRealNum; { $ERR_DATA$ [16, "illegal assignment of real to integer", ["illegal assignment of real to integer"]] $ERR_DATA$ }
-
-while stop <> 'y' do
-begin
-    writeln('title:');
-    read(title);
-
-    writeln('author:');
-    read(name);
-
-    writeln('id:');
-    read(id);
-    
-    addBook(aBook, index, index);
-    lib[index] := aBook;
-    
-    writeln('stop (y/n)?');
-    read(stop);
-    
-    abadrecord.french := idunno;
-    
-    index := index + 1;
-    another.field3 := index; { $ERR_DATA$ [23, "not a field of the 'another' record", ["symbol 'field3' is not a field of record 'another'"]] $ERR_DATA$ }
-end;
 
 end.

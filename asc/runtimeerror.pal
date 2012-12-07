@@ -3,3 +3,15 @@
         to write strings in assembly
 
 }
+program runTimeErrors (input, output);
+
+procedure arrayOutOfBoundsError();
+    begin
+        writeln('array access out of bounds');
+    end;
+
+// other errors to follow ...
+    
+begin
+    arrayOutOfBoundsError();
+end.

@@ -5,8 +5,8 @@
     "3": "Tests illegal assignments to constants and ... (probably array length). Also contains 1 warning.",
     "4": "Correct boolean stuff ...",
     "5": "Correct counting stuff ...",
-    "6": "Tests invalid record definitions and calls. {MAKE ABOUT MATH}",
-    "7": "Tests invalid type and constant definitions. {MAKE ABOUT BUILTINS?}",
+    "6": "Tests invalid record definitions and calls. {MAKE ABOUT MATH - BUILTINS}",
+    "7": "... I dunno ...",
     "8": "Correct book stuff ...",
     "9": "Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols."
 }
