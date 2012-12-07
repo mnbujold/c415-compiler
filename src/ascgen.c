@@ -139,6 +139,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             }
             
         }
+        generateComment ("###STATEMENTS######");
         generateLabel ("main");
         genCodeForStatementList (statements);
         
@@ -229,6 +230,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         procedureInfo->numVarWords += numParams;
         int i = 0;
         int paramOffset = 0 - numParams- NUM_RETURN_VALUES;
+        printf ("PARAM offset: %d\n", paramOffset);
         while (i < numParams) {
             symbol *paramSymbol = (symbol *) g_ptr_array_index (params, i);
             if (paramSymbol->desc.parm_attr->varParam) {
@@ -269,6 +271,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         //do the declarations stuff here
         //showVariableAddressTable();
 
+        generateComment("####STATEMENTS#####");
         genCodeForStatementList (statements);
         
         adjustAmount += procedureInfo->numVarWords;
@@ -460,8 +463,9 @@ int variableHandler(symbol *symb, type_class varType, varAddressStruct *addDescr
   int size = -1;
   //printf ("Inside variable handler\n");
   //printf ("Address inside variable handler: %p\n", symb);
-  
-  generateComment(symb->name);
+  char *varComment = calloc ((strlen (symb->name) + strlen ("Var ")), sizeof (char));
+  sprintf (varComment, "Var %s", symb->name);
+  generateComment(varComment);
 /* Probably better to do this outside the handler, since handler deals with record vars
   g_hash_table_insert(variableAddressTable, symb, addDescription);
   if (g_hash_table_lookup (variableAddressTable, symb) == NULL) {
@@ -1027,7 +1031,7 @@ void genCodeForExpression (GNode *expressionNode) {
     expressionNode = expressionNode->children;
 //     printf ("In genCodeForExpression\n");
     node_type exprType = getNiceType(expressionNode);
-    printf ("Got node type in genCodeForExpression\n");
+//     printf ("Got node type in genCodeForExpression\n");
     switch (exprType) {
         case NT_CONST:
         {
@@ -1790,6 +1794,34 @@ void genCodeForWrite(GNode *paramNode, int ln) {
 }
 
 void genCodeForRead (GNode *paramNode, int ln) {
+    printf ("In gen code for read\n");
+    while (paramNode != NULL) {
+        type_class returnedType = getExpressionType (paramNode);
+        switch (returnedType) {
+            case TC_INTEGER:
+            {
+                //genVarParamAssign ()
+                generateFormattedInstruction("READI");
+                genCodeForExpression (paramNode);
+                break;
+            }
+            case TC_REAL:
+            {
+                generateFormattedInstruction ("READR");
+                break;
+            }
+            case TC_STRING:
+            {
+                generateFormattedInstruction ("READC");
+                break;
+            }
+            default:
+            {
+            }
+        }
+        
+        paramNode = paramNode->next;
+    }
     
     if (ln) {
         //10 is newline
@@ -1819,7 +1851,9 @@ type_class getExpressionType (GNode *head) {
             returnType == returnedType;
         }
         else {
-            printf ("Got this return type: %d\n", returnedType);
+            if (returnedType != TC_INTEGER) {
+                printf ("Got this return type: %d\n", returnedType);
+            }
         }
         sibling = sibling->next;
     }
