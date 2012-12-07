@@ -1,64 +1,59 @@
 {
     2.pal
-    Tests invalid array bounds and assignments.
+    Tests more valid and invalid name hiding and type usage.
     Errors:
-    14:28 illegal array range
-    38:3 incorrect string (char array) assignment
-    42:3 incorrect array object (real to integer) assignment
+    13:28 'real' already defined in the scope / 'real' not a type
+    19:32 no 'ohNo' symbol defined / 'ohNo' already defined in the scope / 'ohNo' not a type
+    25:35 'boolean' not a type / 'boolean' already defined in the scope
 }
-program foobar35 (io, oi);
+program Scoping (io, oi);
 
-type ohNo = (element1, element2);
+type duple = (element1, element2);
 
-var {aRealNum : boolean;}
-    incorrectArray : array[real] of ohNo; { $ERR_DATA$ [28, "illegal array range", ["illegal array range", "real"]] $ERR_DATA$ }
-//     aCorrect : array[1..5] of array[boolean] of (element0, elementneg1); // Legal.
-    correctArray : array[integer] of integer; // WARNING! Array may be too big for system!
-    anothCorArray : array[5..14] of ohNo;
-    a,b : array[1..10] of char;
-//     c : array[1..10] of boolean;
-//     d : array[1..10] of boolean;
-    neg : array[-3..5] of char; // Legal.
-    x : array[2..4] of integer;
-    y : array[2..4] of real;
-    
-
-// TEST THIS!!!!
-    
-function rename(real : real) : integer;
-    type what = what;
-
-    var ohYes : array[ohNo] of ohYes;
-        argh : argh;
-        char : char;
-    
+function rename(real : real) : integer; { $ERR_DATA$ [28, "'real' already defined in the scope / 'real' not a type", ["symbol 'real' already defined in this scope"]] $ERR_DATA$ }
     begin
-        rename := ord(element2);
+        rename := ord(element2) + 40;
     end;
     
-function boolean(int : integer) : boolean;
+procedure break(var int : integer);
+    var ohNo : array[duple] of ohNo; { $ERR_DATA$ [32, "no 'ohNo' symbol defined / 'ohNo' already defined in the scope / 'ohNo' not a type", ["no 'ohNo' symbol defined"]] $ERR_DATA$ }
+    
     begin
-        boolean := true;
+        int := ord(int = 20);
     end;
     
-// TEST THIS!!!!
+function boolean(int : integer) : boolean; { $ERR_DATA$ [35, "'boolean' not a type / 'boolean' already defined in the scope", ["symbol 'boolean' not a type"]] $ERR_DATA$ }
+    type anotherBool = duple;
     
+    var truthVal : anotherBool;
+        falseVal : duple;
+        intVar : integer;
+
+    begin
+        truthVal := element1;
+        falseVal := element2;
+        intVar := int;
+        break(intVar);
+        
+        if intVar = 0 then
+            truthVal := element2
+        else
+            falseVal := element1;
+        
+        if intVar < 0 then
+            falseVal := truthVal
+        else
+            truthVal := falseVal;
+        
+        boolean := truthVal = falseVal; // above error may chain here
+    end;
+
 begin
 
-a := b; // Legal.
-c := d; // Legal.
-c[1] := a = b; // Legal.
-
-aCorrect[3][true] := aCorrect[2, false]; // Legal
-
-anothCorArray[6] := element2;
-anothCorArray[10] := anothCorArray[6];
-
-b := 'justEnough'; // Legal.
-a := 'notEnough'; { $ERR_DATA$ [3, "incorrect string (char array) assignment", ["illegal array assignment"]] $ERR_DATA$ }
-
-y := x; // Illegal!
-
-x := y; { $ERR_DATA$ [3, "incorrect array object (real to integer) assignment", ["illegal array assignment"]] $ERR_DATA$ }
-
+    if boolean(20) then
+        writeln('something about 20')
+    else if rename(40) = 40 then
+        writeln('something about 40')
+    else
+        writeln('something about nothing');
 end.
