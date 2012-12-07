@@ -205,11 +205,11 @@ createDeclsList(GNode *declsPart) {
                 
         return declsPart;
     }
-    
+
     GNode *declsList = declsPart->children;
 
     collapseNode(declsPart);
-    flattenTree(declsList, &symbolEnd);
+    flattenVarTree(declsList);
     niceify(declsList);
     GNode *sibling = declsList->children;
     
@@ -660,10 +660,54 @@ flattenTree(GNode *head, int (*treeEnd)(GNode *)) {
     if ((*treeEnd)(currNode) == 1) {    // already flat, so don't do anything
         return head;
     }
-    
+
     // flatten the list until treeEnd() is true
     while ((*treeEnd)(currNode) == 0) {
-        prependNode(head, currNode->next);
+        if (currNode->next != NULL) {
+            prependNode(head, currNode->next);
+        }
+        
+        currNode = currNode->children;
+    }
+    GNode *sibling = currNode->next;
+    int numChildren = g_node_n_children(currNode->parent);
+    int i;
+    
+    // add siblings of last node first
+    for (i = 1; i < numChildren; i += 1) {
+        prependNode(head, sibling);
+
+        sibling = sibling->next;
+    }
+
+    // add last node first
+    prependNode(head, currNode);
+
+    // remove the head link tree
+    g_node_unlink(nodeToRemove);   
+
+    return head;
+}
+
+GNode *
+flattenVarTree(GNode *head) {
+    GNode *currNode = head->children;
+    GNode *nodeToRemove = head->children;
+
+    if (getNodeType(currNode) == NT_SYMBOL) {    // already flat, so don't do anything
+        return head;
+    }
+    
+    // flatten the list until treeEnd() is true
+    while (getNodeType(currNode) != NT_SYMBOL) {
+        if (currNode->next != NULL) {
+            if (getNodeType(currNode->next) == NT_VAR_DECL_LIST) {
+                flattenVarTree(currNode->next);
+                collapseNode(currNode->next);
+            } else {
+                prependNode(head, currNode->next);
+            }
+        }
         
         currNode = currNode->children;
     }
@@ -826,7 +870,7 @@ extractSymbol(GNode *node) {
 symbol *
 extractType(GNode *node) {
     rule_and_node *data = node->data;
-    
+
     return data->rule.symbol->symbol_type;
 }
 

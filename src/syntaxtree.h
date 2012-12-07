@@ -187,6 +187,7 @@ int isOp2List(GNode *expr);
 GNode *resolveExprChildren(GNode *expr);
 GNode *collapseNode(GNode *node);
 GNode *flattenTree(GNode *head, int (*treeEnd)(GNode *));
+GNode *flattenVarTree(GNode *head);
 
 node_type getNodeType(GNode *node);
 

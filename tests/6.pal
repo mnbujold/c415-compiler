@@ -1,6 +1,32 @@
 {
     6.pal
     Tests the precision of builtin functions compared to actual constants.
+    
+    Input:
+    (no input)
+    
+    Expected Output:
+    PI    :
+    
+    Builtin =  3.14159265358979 | Actual =  3.14159265358979
+    Calculated constant is correct to within 6 significant digits.
+    Calculated constant is correct to within 15 significant digits.
+    How did you do that?!
+
+
+    E     :
+
+    Builtin =  2.71828179562908 | Actual =  2.71828182845905
+    Calculated constant is correct to within 6 significant digits.
+    Calculated constant isn't ridiculously accurate.
+
+
+    GAMMA :
+
+    Builtin =  0.577215649637688 | Actual =  0.577215664901532
+    Calculated constant is correct to within 6 significant digits.
+    Calculated constant isn't ridiculously accurate.
+
 }
 program Precision(useless, parameters);
 

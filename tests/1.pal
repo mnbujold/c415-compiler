@@ -93,12 +93,12 @@ begin
     if false then
         checkRet0 := 4
     else if true then
-        begin
+    begin
         if false then
             checkRet0 := 4
         else
             write
-        end
+    end
     else if false then
         checkRet0 := 4
     else
@@ -112,13 +112,13 @@ begin
     if false then
         checkRet := 4
     else if true then
-        begin
+    begin
         checkRet := 4;
         if false then
             write
         else
             write
-        end
+    end
     else if false then
         checkRet := 4
     else
@@ -130,12 +130,12 @@ begin
     if false then
         checkRet1 := 4
     else if true then
-        begin
+    begin
         if false then
             checkRet1 := 4
         else
             checkRet1 := 4
-        end
+    end
     else if false then
         checkRet1 := 4
     else
@@ -147,13 +147,13 @@ begin
     if false then
         checkRet2 := 4
     else if true then
-        begin
+    begin
         if false then
             write
         else
             write;
         checkRet2 := 4;
-        end
+    end
     else if false then
         checkRet2 := 4
     else

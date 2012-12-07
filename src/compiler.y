@@ -388,7 +388,7 @@ var_decl                : identifer COLON type
                         | identifer COMMA var_decl
                             {
                                 if (getNodeType($3) != NT_NONE) {
-                                    $$ = createSymbolNode(addNewVar($1, extractType($3)));
+                                    $$ = createExprNode(NT_VAR_DECL_LIST, extractSymbol($3), $3, createSymbolNode(addNewVar($1, extractType($3))), NULL);
                                 } else {
                                     $$ = createSingleNode(NT_NONE);
                                 }
