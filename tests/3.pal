@@ -11,7 +11,10 @@ program bobsyouruncle(doesthis, work);
 
 type willCauseError = (lol0);
 
-var x : real;
+// KEEP THIS LINE vvv
+var bigString : array[integer] of char; // WARNING! Array may be too large for system.
+// YES, THIS ONE ^^^
+    x : real;
     i : integer;
     e : willCauseError;
 

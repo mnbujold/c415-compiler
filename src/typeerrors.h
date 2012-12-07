@@ -17,8 +17,7 @@ void addTypeError(const char *errMsg);
 void addTypeWarning(const char *warnMsg)
 
 /**
- * Adds a "type not defined for symbol 'id'; subsequent type errors with this
- * symbol will be ignored" error.
+ * Adds a "type not defined for symbol 'id'; each undefined type will be reported once per scope" error.
  */
 void typeNotDefinedError(const char *id);
 
@@ -28,8 +27,7 @@ void typeNotDefinedError(const char *id);
 void symExistsError(const char *id);
 
 /**
- * Adds a "no 'id' symbol defined; subsequent errors with this symbol will be
- * ignored" error.
+ * Adds a "no 'id' symbol defined; each undefined symbol will be reported once per scope" error.
  */
 void symNotDefinedError(const char *id);
 
