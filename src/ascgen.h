@@ -126,6 +126,11 @@ int pushRecord(symbol *);
 int pushArray(symbol *);
 int pushScalar(symbol *);
 
+void genCodeForWrite(GNode *paramNode, int ln);
+
+
+void genCodeForRead (GNode *paramNode, int ln);
+
 /*****************************************************************
  * Print generated code to output
  ******************************************************************/

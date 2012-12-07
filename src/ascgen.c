@@ -600,12 +600,12 @@ void genCodeForStatement(GNode *statement) {
         case NT_PROC_INVOK:
         {
 
-            GNode *currentParamNode = statement->children->next;
-            int numParams = g_node_n_children (statement) - 1;
-            while (currentParamNode != NULL) {
-                genCodeForExpression(currentParamNode);
-                currentParamNode = currentParamNode->next;
-            }
+//             GNode *currentParamNode = statement->children->next;
+//             int numParams = g_node_n_children (statement) - 1;
+//             while (currentParamNode != NULL) {
+//                 genCodeForExpression(currentParamNode);
+//                 currentParamNode = currentParamNode->next;
+//             }
             GNode *symbolNode = statement->children;
 //             printf ("We have a procedure invocation here\n");
 //             if (symbolNode == NULL) {
@@ -617,23 +617,49 @@ void genCodeForStatement(GNode *statement) {
           //  symbol *writelnSymbol = globalLookup ("writeln");
 //             printf ("proc symbol address %p\n", procSymbol);
 //             printf ("writeln address %p\n", writelnSymbol);
-            
+//             GPtrArray *params = procSymbol->desc.proc_attr->params;
+//             int numParams = params->len;
+//             
+            //Even though looks hackish, best wya to do it because what if we have
+            //varyign numbers of parameters?
+            GNode *currentParamNode = statement->children->next;
+            int numParams = g_node_n_children (statement) -1;
             procInfo *procedureInfo = (procInfo *) g_hash_table_lookup (procedureInfoTable, procSymbol);
             //printf ("Returned proc label: %s\n", procLabel);
 //             printf ("procedure info returned\n");
             //generate CALL
             if (procedureInfo == NULL) {
-                printf ("Returned proc info is null, must be a builtin\n");
-                char *procName = 
+                printf ("Returned proc info is null, must be an IO procedure\n");
+                char *procName = procSymbol->name;
+                if (strcmp (procName, "writeln") == 0) {
+                    genCodeForWrite (currentParamNode, 1);
+                }
+                else if (strcmp (procName, "write") == 0) {
+                    genCodeForWrite (currentParamNode, 0);
+                }
+                else if (strcmp (procName, "read") == 0) {
+                    genCodeForRead (currentParamNode, 0);
+                }
+                else if (strcmp (procName, "readln") == 0) {
+                    genCodeForRead (currentParamNode, 1);
+                }
+                else {
+                    //Just in case I'm forgetting a procedure
+                    //or theres some procedure that doesn't need special handling
 
-                //look it up in builtins
-                //TODO: look up in builtins table...
-                genBuiltinCall(procSymbol);
+                    genBuiltinCall(procSymbol);
+                }
+
             }
             else {
             
             //TODO: before generating proc call, we need to get params from here
             //and then 
+
+            while (currentParamNode != NULL) {
+                genCodeForExpression(currentParamNode);
+                currentParamNode = currentParamNode->next;
+            }
             genProcCall (procedureInfo);
             }
             //TODO: Handle var params as we may actually use them 
@@ -1545,4 +1571,34 @@ void generateTrace(int number) {
     #if DEBUG
     fprintf(output, "\t!T=%d\n", number);
     #endif
+}
+
+
+/**
+ * Special functions to handle writeln and readln
+ * ln is a flag saying if it is writeln or write, or readln and read
+ * paramNode is the first parameter passed in, to get the rest, call paramNode->next
+ */
+void genCodeForWrite(GNode *paramNode, int ln) {
+    
+    while (paramNode != NULL) {
+        
+        paramNode = paramNode->next;
+    }
+    
+    if (ln) {
+        //10 is newline
+        generateFormattedInstruction ("CONSTI 10");
+        generateFormattedInstruction ("WRITEC");
+    }
+    
+}
+
+void genCodeForRead (GNode *paramNode, int ln) {
+    
+    if (ln) {
+        //10 is newline
+        generateFormattedInstruction ("CONSTI 10");
+        generateFormattedInstruction ("WRITEC");
+    }
 }
