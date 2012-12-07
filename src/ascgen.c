@@ -207,12 +207,13 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             params = procedureSymbol->desc.func_attr->params;
             printf ("Number of children of functinon:  %d\n", g_node_n_children( node));
             int offset = 0 -(params->len) - NUM_RETURN_VALUES - 1;
-            printf ("offset of return value %d\n", offset);
+//             printf ("offset of return value %d\n", offset);
             varAddressStruct *functionReturnAddress = calloc (1, sizeof (varAddressStruct));
             functionReturnAddress->indexingRegister = callingRegister;
             functionReturnAddress->offset = offset;
             g_hash_table_insert (variableAddressTable, procedureSymbol, functionReturnAddress);
             varAddressStruct *returned = g_hash_table_lookup (variableAddressTable, procedureSymbol);
+            printf ("Function: Address of %s: %p\n", procedureSymbol->name, procedureSymbol);
             // printf ("Address of function symbol: %p\n", procedureSymbol);
             // printf ("address o returned thing: %p\n", returned);
             // adjustAmount = g_node_n_children (node) -2;
@@ -1024,7 +1025,7 @@ void genBuiltinCall (symbol *builtinSymbol) {
 
 void genCodeForExpression (GNode *expressionNode) {
     expressionNode = expressionNode->children;
-    printf ("In genCodeForExpression\n");
+//     printf ("In genCodeForExpression\n");
     node_type exprType = getNiceType(expressionNode);
     printf ("Got node type in genCodeForExpression\n");
     switch (exprType) {
@@ -1386,8 +1387,6 @@ void genCodeForLogical (GNode *expressionNode) {
         }
         case NT_NOT:
         {
-            displayNewTree(expressionNode->children,0 );
-            
           expressionNode = expressionNode->children;
           genCodeForExpression (expressionNode);
           generateFormattedInstruction("NOT");
@@ -1573,6 +1572,7 @@ void pushConstantReal (double constant) {
 }
 
 void genBranch (char const *label) {
+    addLabel (label);
     char *outputLabel = g_hash_table_lookup (masterLabelTable, label);
     char instruction [strlen ("IFZ ") + 16];
     sprintf (instruction, "IFZ %s", outputLabel);
@@ -1583,6 +1583,7 @@ void genBranch (char const *label) {
 }
 
 void genGOTO (char const *label) {
+    addLabel (label);
     printf ("In gen goto\n");
     printf ("label :%s\n", label);
     char instruction [strlen ("GOTO") + 256];
@@ -1771,8 +1772,20 @@ void genCodeForRead (GNode *paramNode, int ln) {
     }
 }
 
-type_class getExpressionType (GNode *expressionNode) {
+type_class getExpressionType (GNode *head) {
     //go through whole tree, and find a node with node type of NT_VAR or NT_CONST
 //     GNode *
-    
+    if (head->children == NULL) {
+        //printf("type at leaf: %d\n", getNiceType(head));
+        return getTypeClass (getSymbol (head));
+    }
+    GNode *sibling = head->children;
+
+    while (sibling != NULL) {
+        type_class returnedType = getExpressionType (sibling);
+        sibling = sibling->next;
+    }
+        
+
+
 }
