@@ -1,27 +1,72 @@
 {
     7.pal
-    Tests invalid type and constant definitions.
-    Errors:
-    18:24 enum0 already defined as an enum
-    20:24 char already used in this scope
+    Correct
 }
-program typesAndConsts(io, oi);
+program ControlTheFlow (io, oi);
 
-const aConst = true;
-      anoConst = false;
-      aString = 'I\'m a string';
-      aNumber = 4.0 * abs(-2);
-      anoNum = aNumber - 12;
-      anoStr = aString;
-      true = false; // Legal.
+type states = (good, bad, ugly);
 
-type badEnum = (enum0, enum0, enum1); { $ERR_DATA$ [24, "enum0 already defined as an enum", ["symbol 'enum0' already defined in this scope"]] $ERR_DATA$ }
-     a = char;  // Legal.
-     char = real; { $ERR_DATA$ [24, "char already used in this scope", ["symbol 'char' already used in this scope"]] $ERR_DATA$ }
+var state1 : states;
+    state2 : states;
+    state3 : states;
+    counter : integer;
+    
+procedure incrCounter();
+// increments counter, but slides back to 1 when it hits 3
+    const MAXCOUNT = 3;
+
+    begin
+        if counter >= MAXCOUNT then
+            counter = 1
+        else
+            counter = counter + 1;
+    end;
+    
+function setState(var state : states; currState : char) : boolean;
+// sets state based on currState and returns if currState was indicating a
+// legal state indicator ('g', 'b', or 'u')
+    begin
+        setState := true;
+        if currState = 'g' then
+            state := good
+        else if currState = 'b' then
+            state := bad
+        else if currState = 'u' then
+            state := ugly
+        else
+            setState := false;
+    end;
+    
+procedure getState();
+// asks for the current state and sets it based on user input (will not accept
+// an invalid state indicator)
+    var currState : char;
+
+    begin
+        write('What is the state now (g, b, u)? ');
+        read(currState);
+        
+        if counter = 1 then
+        begin
+            if not setState(state1, currState) then
+                getState()
+        end
+        else if counter = 2 then
+        begin
+            if not setState(state2, currState) then
+                getState()
+        end
+        else // counter = 3
+        begin
+            if not setState(state2, currState) then
+                getState()
+        end;
+        
+        
+    end;
 
 begin
+    
 
-// Not that exciting ..
-write(anoNum);
-
+//     while()
 end.
