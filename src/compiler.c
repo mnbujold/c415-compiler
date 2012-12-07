@@ -38,6 +38,7 @@ FILE *listing_file;
 char listing_filename[1024];
 extern int numErrors;
 int incodegen;
+char *filename;
 
 
 #ifdef DEBUG
@@ -82,7 +83,7 @@ static void my_handler (int signalNum) {
 main(int argc,char** argv)
 {
   setHandler (my_handler);
-  DEBUG_PRINT (("Hello, testing debug: %d\n", 1));
+//   DEBUG_PRINT (("Hello, testing debug: %d\n", 1));
     prog_listing = 1;
     setvbuf(stdout, (char*) _IONBF, 0, 0);
     setvbuf(stderr, (char*) _IONBF, 0, 0);
@@ -134,6 +135,12 @@ main(int argc,char** argv)
         printf ("%d error(s) found.\n", getNumErrors());
         printf("Errors exist. Compilation not successful.\n");
     } else {
+        //int index = strrchr(filename, '.');
+        char *palName = calloc (strlen (filename), sizeof (char));
+        char *token = strtok(filename, ".");
+        sprintf (palName, "%s.asc", token);
+        printf ("Pal name: %s\n", palName);
+        //filename = sscanf (filename, ".pal");
         incodegen = 1;
         genASCCode(getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
@@ -168,6 +175,7 @@ void parse_args(int argc, char* argv[]){
         }
     else{
       /* Apparrently source_file isn't a descriptive enough name, so we re-name it yyin */
+      filename = argv[i];
       yyin = fopen(argv[i], "r");
       if(yyin == NULL){
         fprintf(stderr, "could not open %s \n", argv[i]);
