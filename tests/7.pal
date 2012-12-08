@@ -1,6 +1,7 @@
 {
     7.pal
-    Correct
+    Plays in the convoluted control flow of a state machine, and asks for
+    states until a correct combination of states has been reached.
     
     Input:
     b
@@ -48,7 +49,7 @@ var state1 : states;
     counter : integer;
     
 procedure incrCounter();
-// increments counter, but slides back to 1 when it hits 3
+// increments counter up to 3, with an overflow of 1
     const MAXCOUNT = 3;
 
     begin
@@ -127,7 +128,7 @@ function readState() : char;
     
 procedure getState();
 // asks for the current state and sets it based on user input (will not accept
-// an invalid state indicator)
+// an invalid state indicator), displays the states, and increments the counter
     var currState : char;
 
     begin
@@ -152,6 +153,7 @@ begin
     
     getState();
     
+    // don't ask me to explain it ...
     while state1 <> good do
     begin
         getState();
@@ -181,7 +183,7 @@ begin
         
         if state3 <> good then
         begin
-            state1 := ugly; // ...
+            state1 := ugly; // not so fast ...
             continue
         end;
         

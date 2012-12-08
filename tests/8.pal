@@ -2,99 +2,72 @@
     8.pal
     Make work!
 }
-program recordings(useless, parameters);
+program Library (useless, parameters);
 
-const aRealNum = 24.34e11;
+const LIBCAPACITY = 20;
+      REVIEWCAPACITY = 10;
 
-type boolean = (true, idunno, false);
-     nameStr = array[1..25] of char;
+type nameStr = array[1..25] of char;
+     titleStr = array[1..50] of char;
      review = record
                 good : boolean;
                 reviewer : nameStr
               end;
+     reviewList = array[1..REVIEWCAPACITY] of review;
      book = record
-                title : array[1..50] of char;
+                title : titleStr;
                 author : nameStr;
                 id : integer;
-                reviews : array[1..10] of review
+                reviews : reviewList
             end;
-     badRecord = record
-                    boolean : char;
-                    title : nameStr;
-                    french : boolean;
-                    english : boolean;
-                    french : boolean { $ERR_DATA$ [37, "field already defined", ["symbol 'french' already defined as a field for this record"]] $ERR_DATA$ }
-                 end;
-    problemRecord = record
-                        field1 : integer;
-                        field2 : real
-                    end;
 
-var lib : array[1..20] of book;
-    aBook : book;
-    title : array[1..50] of char;
+var lib : array[1..LIBCAPACITY] of book;
+    currBook : book;
+    title : titleStr;
     name : nameStr;
     id, index : integer;
-    stop : char;
-    another : problemRecord;
-    abadrecord : badRecord;
+    cmd : char;
 
-procedure addBook(var newBook : book; charIndex : integer; revIndex : integer);
+
     
-    var reviews : array[1..10] of review;
-    
-    function createReview(aLetter : char) : review;
-        const revName = 'I am a reviewer1234567890';
-        var rating : boolean;
-            theRev : review;
+function invalidCommand(cmd: char) : boolean;
+// returns whether command is a valid command indicator ('a', 'r', or 'x')
     begin
-        if (aLetter = 'a') or (aLetter = 'b') or (aLetter = 'c') then
-            rating := true
-        else if (aLetter = 'x') or (aLetter = 'y') or (aLetter = 'z') then
-            rating := false
-        else
-            rating := idunno;
-        theRev.good := rating;
-        theRev.reviewer := revName;
-        createReview := theRev;
+        invalidCommand := (cmd <> 'a') and (cmd <> 'r') and (cmd <> 'x');
     end;
+
+function getCommand() : char;
+// asks for a command until it reads a valid command character, then it returns
+// that character
+    var cmd : char;
+
+    begin
+        write('(a)dd, (r)ead, or e(x)it)? ');
+        readln(cmd);
+        
+        while invalidCommand(cmd) do 
+        begin
+            writeln('Invalid library command!');
+            write('(a)dd, (r)ead, or e(x)it)? ');
+            readln(cmd);
+        end;
+        
+        getCommand := cmd;
+    end;
+
 begin
-    newBook.title := title;
-    newBook.id := id;
-    newBook.author := name;
-    reviews[charIndex] := createReview(newBook.author[revIndex]);
-    newBook.reviews := reviews;
-    newBook.reviews[revIndex] := createReview(newBook.title[charIndex]);
-end;
-    
-begin
+    cmd := 'i';
+    index := 1;
 
-stop := 'n';
-index := 1;
+    while cmd <> 'x' do
+    begin
+        cmd := getCommand();
+        
+        if cmd = 'a' then
+            addBook()
+        else if cmd = 'r' then
+            readBook();
 
-another.field1 := aRealNum; { $ERR_DATA$ [16, "illegal assignment of real to integer", ["illegal assignment of real to integer"]] $ERR_DATA$ }
-
-while stop <> 'y' do
-begin
-    writeln('title:');
-    read(title);
-
-    writeln('author:');
-    read(name);
-
-    writeln('id:');
-    read(id);
-    
-    addBook(aBook, index, index);
-    lib[index] := aBook;
-    
-    writeln('stop (y/n)?');
-    read(stop);
-    
-    abadrecord.french := idunno;
-    
-    index := index + 1;
-    another.field3 := index; { $ERR_DATA$ [23, "not a field of the 'another' record", ["symbol 'field3' is not a field of record 'another'"]] $ERR_DATA$ }
-end;
+    end;
 
 end.
