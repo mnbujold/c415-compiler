@@ -21,8 +21,6 @@
 #define PROGRAM_VAR_OFFSET 0
 #define NUM_RETURN_VALUES 2 //How many values on the stack RET consumes
 #define MAX_LABEL_LEN 16 //this is the maximum length of the label
-#define MATH_BUILTINS_PATH "math_fcns.asc"
-#define TRIG_BUILTINS_PATH "trig_fcns.asc"
 FILE *output;
 
 //registers stores registers we are using. 
@@ -81,7 +79,6 @@ void genASCCode (GNode *tree, char *fileName) {
   fclose (output);
   FILE *finalFile = fopen (fileName, "a+");
   FILE *mathFile = fopen ("asc/math_fcns.asc", "r");
-  printf (MATH_BUILTINS_PATH);
   if (mathFile == NULL) {
 //       printf ("Could not open math file\n");
   }
