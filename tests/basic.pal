@@ -28,11 +28,12 @@ type typp = (asd, dsa);
 // //     checkRet := 4;
 // end;
 
-procedure foo(integer : integer);
+procedure foo(int : integer);
 begin end;
     
 
 begin
+    foo(ord('15' = '16'));
 //     if true then
 //         if false then
 //             write

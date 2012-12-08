@@ -465,6 +465,17 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
      || o1->symbol_type->desc.type_attr == o2->symbol_type->desc.type_attr) {
       return 1;
     }
+    if (isString (o1) && isString (o2)) {
+    //check string length    
+        int maxIndex1 = o1->symbol_type->desc.type_attr->desc.array->maxIndex;
+        int maxIndex2 = o2->symbol_type->desc.type_attr->desc.array->maxIndex;
+    
+        if (maxIndex1 != maxIndex2) {
+            return 0; // upper bounds not the same
+        } else {
+            return 1;
+        }
+  }
     return 0;
   }
   //real and integer
@@ -473,13 +484,15 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
   }
   //strings, hopefully chars should be here as well
   if (isString (o1) && isString (o2)) {
-    //check string length
-    char *string1 = getString (o1);
-    char *string2 = getString (o2);
-    if (strlen (string1) == strlen (string2)) {
-      return 1;
-    }
-    printf("!!!!!!!!!!!!!!!!!!!!!!!!!sizes are wrong!\n");
+    //check string length   
+        int maxIndex1 = o1->symbol_type->desc.type_attr->desc.array->maxIndex;
+        int maxIndex2 = o2->symbol_type->desc.type_attr->desc.array->maxIndex;
+    
+        if (maxIndex1 != maxIndex2) {
+            return 0; // upper bounds not the same
+        } else {
+            return 1;
+        }
   }
   
   return 0;
