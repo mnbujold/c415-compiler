@@ -1059,7 +1059,15 @@ void genCodeForExpression (GNode *expressionNode) {
             (strcmp (procName, "read") == 0) || (strcmp (procName, "readln") == 0)) {
             printf ("Is an io procedure\n");
             //TODO: If it is an int or real, we do not set it to be a var param
-            isVarParam = 1;
+            if ((getExpressionType(expressionNode) != TC_REAL) && (getExpressionType (expressionNode) != TC_INTEGER)) {
+                printf ("EXPRESSION TYPE OF THE THING: %d\n", getExpressionType (expressionNode));
+                isVarParam = 1;
+                
+            }
+            else {
+                printf ("IO FUNCTION BUT IS INTEGER OR REAL\n");
+            }
+            
         }
         else {
             if (params == NULL) {
@@ -1194,6 +1202,7 @@ void genCodeForExpression (GNode *expressionNode) {
                   genVarParam(address);
               }
               else {
+                  printf ("We are not passing in a parameter\n");
                   printf ("Not an address, just put it on normally\n");
                   genVarAccess (address);
                   if (varSymbol->oc == OC_PARAM) {
@@ -1760,6 +1769,18 @@ void genVarParam (varAddressStruct *addressDescription) {
 }
 
 void genVarParamAccess (varAddressStruct *addressDescription) {
+    int indexingRegister = addressDescription->indexingRegister;
+    int offset = addressDescription->offset;
+    char instruction [strlen ("PUSHA []") + 32];
+    if (indexingRegister < 0) {
+        sprintf (instruction, "PUSHA %d", offset);
+        generateFormattedInstruction (instruction);
+    }
+    else {
+        sprintf (instruction, "PUSHA %d[%d]", offset, indexingRegister);
+        generateFormattedInstruction (instruction);
+    }
+    generateFormattedInstruction ("PUSHI");
 }
 /**
  * generates a CALL instruction to the relevant procedure stored in procedureInfo
@@ -1874,6 +1895,7 @@ void genCodeForWrite(GNode *paramNode, int ln) {
         switch (returnedType) {
             case TC_INTEGER:
             {
+//                 printf ("Write I param is a what param: %d\n", paramNode
                 genCodeForExpression (paramNode);
                 generateFormattedInstruction ("WRITEI");
                 //numWordsAllocated++;
@@ -1917,14 +1939,14 @@ void genCodeForRead (GNode *paramNode, int ln) {
                 genCodeForExpression (paramNode);
                 generateFormattedInstruction("READI");
                 generateFormattedInstruction("POPI");
-                if (ln) {
-                    generateFormattedInstruction("READC");
-                    generateFormattedInstruction("CONSTI 10");
-                    generateFormattedInstruction ("SUBI");
-                    generateFormattedInstruction ("NOT");
-                    genBranch ("readlnerror");
-                    
-                }
+//                 if (ln) {
+//                     generateFormattedInstruction("READC");
+//                     generateFormattedInstruction("CONSTI 10");
+//                     generateFormattedInstruction ("SUBI");
+//                     generateFormattedInstruction ("NOT");
+//                     genBranch ("readlnerror");
+//                     
+//                 }
 
                 break;
             }
@@ -1956,11 +1978,11 @@ void genCodeForRead (GNode *paramNode, int ln) {
         paramNode = paramNode->next;
     }
     
-    if (ln) {
-        //10 is newline
-        generateFormattedInstruction ("CONSTI 10");
-        generateFormattedInstruction ("WRITEC");
-    }
+//     if (ln) {
+//         //10 is newline
+//         generateFormattedInstruction ("CONSTI 10");
+//         generateFormattedInstruction ("WRITEC");
+//     }
 }
 
 type_class getExpressionType (GNode *head) {
