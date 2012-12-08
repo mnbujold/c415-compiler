@@ -21,6 +21,8 @@
 #define PROGRAM_VAR_OFFSET 0
 #define NUM_RETURN_VALUES 2 //How many values on the stack RET consumes
 #define MAX_LABEL_LEN 16 //this is the maximum length of the label
+#define MATH_BUILTINS_PATH "../asc/math_fcns.asc"
+#define TRIG_BUILTINS_PATH "../asc/trig_fcns.asc"
 FILE *output;
 
 //registers stores registers we are using. 
@@ -75,8 +77,33 @@ void genASCCode (GNode *tree, char *fileName) {
   generateComment ("Program for");
   generateComment (fileName);
   genCodeForFunctionNode (tree, scope);
-  //TODO: Check which builtins are used, and append them here
+  printf ("Done generating our code. Adding builtings\n");
   fclose (output);
+  FILE *finalFile = fopen (fileName, "a+");
+  FILE *mathFile = fopen (MATH_BUILTINS_PATH, "r");
+  printf (MATH_BUILTINS_PATH);
+  if (mathFile == NULL) {
+      printf ("Could not open math file\n");
+  }
+//   printf ("Opened math file successfully\n");
+  int ch = fgetc (mathFile);
+ // printf ("got initial character\n");
+  while ( ch != EOF) {
+      fputc (ch, finalFile);
+      ch = fgetc (mathFile);
+  }
+  fclose (mathFile);
+  printf ("done getting math file\n");
+  FILE *trigFile = fopen (TRIG_BUILTINS_PATH, "r");
+  ch = fgetc (trigFile);
+  while (ch != EOF) {
+      fputc (ch, finalFile);
+      ch = fgetc (finalFile);
+  }
+  fclose (trigFile);
+  fclose (finalFile);
+  //TODO: Check which builtins are used, and append them here
+
   
   
 }
@@ -1073,7 +1100,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
     }
     else if (strcmp (procName, "abs") == 0) {
         //genProcCall (
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         if (paramType == TC_REAL) {
             procInfo->procLabel = ABSR_LABEL;
             procInfo->indexingRegister = BUILTIN_REGISTER;
@@ -1085,7 +1112,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
         genProcCall (procInfo);
     }
     else if (strcmp (procName, "chr") == 0) {
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = CHR_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
@@ -1093,7 +1120,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
     else if (strcmp (procName, "cos") == 0) {
         if (paramType == TC_INTEGER)
             generateFormattedInstruction ("ITOR");
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = COS_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
@@ -1101,31 +1128,31 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
     else if (strcmp (procName, "ln") == 0) {
         if (paramType == TC_INTEGER)
             generateFormattedInstruction ("ITOR");
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = LN_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
     }
     else if (strcmp (procName, "odd") == 0) {
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = ODD_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
     }
     else if (strcmp (procName, "ord") == 0) {
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = ORD_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
     }
     else if (strcmp (procName, "pred") == 0) {
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = PRED_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
     }
     else if (strcmp (procName, "round") == 0) {
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = ROUND_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
@@ -1133,7 +1160,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
     else if (strcmp (procName, "sin") == 0) {
         if (paramType == TC_INTEGER)
             generateFormattedInstruction ("ITOR");
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = SIN_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
@@ -1141,7 +1168,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
     else if (strcmp (procName, "sqr") == 0) {
         if (paramType == TC_INTEGER)
             generateFormattedInstruction ("ITOR");
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = SQR_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
@@ -1149,13 +1176,13 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
     else if (strcmp (procName, "sqrt") == 0) {
         if (paramType == TC_INTEGER)
             generateFormattedInstruction ("ITOR");
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = SQRT_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
     }
     else if (strcmp (procName, "succ") == 0) {
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = SUCC_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
@@ -1163,7 +1190,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
     else if (strcmp (procName, "exp") == 0) {
         if (paramType == TC_INTEGER)
             generateFormattedInstruction ("ITOR");
-        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = EXP_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
         genProcCall (procInfo);
@@ -1201,7 +1228,7 @@ void genCodeForExpression (GNode *expressionNode) {
 //             printf ("In the else %d\n", getTypeClass (procSymbol));
         }
 //         printf ("Done getting the params list\n");
-        char *procName = procSymbol->name;
+        const char *procName = procSymbol->name;
 //         printf ("The name of the procedure is: %s\n", procName);
         if ((strcmp (procName, "writeln") ==0) || (strcmp (procName, "write") ==0) ||
             (strcmp (procName, "read") == 0) || (strcmp (procName, "readln") == 0)) {

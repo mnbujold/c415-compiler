@@ -89,7 +89,7 @@ void genVarAdjust (int value);
  * ***************************************************************/
 symbol *getSymbol (GNode *node);
 
-void genBuiltinCall (symbol *builtinSymbol);
+void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode);
 symbol *getFirstProcParent(GNode *node);
 int getExpressionValue(GNode *);
 
