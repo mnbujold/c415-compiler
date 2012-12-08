@@ -4,6 +4,7 @@
     These books can also be viewed.
     
     Tests combinations of records and arrays, function calls, strings, write, writeln and readln.
+    
 }
 program MyLibrary (useless, parameters);
 
@@ -39,7 +40,7 @@ function getBookIndex(id: integer) : integer;
         while index < libSize do
         begin
             if id = lib[index].id then
-                break;//exit;
+                exit;
             index := index + 1;
         end;
         

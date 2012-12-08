@@ -1,0 +1,61 @@
+E     :
+
+Builtin =  2.71828179562908E+000 | Actual =  2.71828182845905E+000
+Calculated constant is correct to within 6 significant digits.
+Calculated constant isn't ridiculously accurate.
+
+
+GAMMA :
+
+Builtin =  5.77215649637688E-001 | Actual =  5.77215664901532E-001
+Calculated constant is correct to within 6 significant digits.
+Calculated constant isn't ridiculously accurate.
+
+
+
+Gamma Function (<= 0 to exit)?
+
+Gamma(1) = 1
+
+Gamma (<= 0 to exit)?
+
+Gamma( 2.00000000000000) =  1.00000000000000
+
+Gamma (<= 0 to exit)?
+
+Gamma( 3.00000000000000) =  1.99999993896293
+
+Gamma (<= 0 to exit)?
+
+Gamma( 4.50000000000000) =  11.6317268435132
+
+Gamma (<= 0 to exit)?
+
+Gamma( 7.50000000000000) =  1871.25328499517
+
+Gamma (<= 0 to exit)?
+
+Gamma( 11.0000000000000) =  3628795.01645441
+
+Gamma (<= 0 to exit)?
+Factorial (< 0 to exit)?
+
+0! = 1
+
+Factorial (< 0 to exit)?
+
+1! = 1
+
+Factorial (< 0 to exit)?
+
+2! = 2
+
+Factorial (< 0 to exit)?
+
+5! = 120
+
+Factorial (< 0 to exit)?
+
+15! = 22528
+
+Factorial (< 0 to exit)?
