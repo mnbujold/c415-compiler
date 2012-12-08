@@ -24,7 +24,7 @@ RUNNER = tests/runner.py
 TESTS = 0 1 2 3
 
 CP3DIR = c415g05_cp3
-SOLUTION = Makefile README src doc asc
+SOLUTION = Makefile README src asc doc/pal.pdf doc/pal.1
 OTHERTESTS = tests/4.pal tests/5.pal tests/6.pal tests/7.pal tests/8.pal tests/9.pal tests/8.input tests/8.output tests/9.input tests/9.output  
 SUBTESTS = submitted_tests
 
@@ -64,7 +64,7 @@ cp3:
 	mkdir $(CP3DIR)
 	make clean
 	make docs
-	rm -f doc/pal.log doc/pal.pdf doc/pal.aux
+	rm -f doc/pal.log doc/pal.aux
 	cp -r $(SOLUTION) $(SUBTESTS) $(CP3DIR)
 	tar -cvzf $(CP3DIR).tgz $(CP3DIR)
 	rm -rf $(CP3DIR) $(SUBTESTS)
