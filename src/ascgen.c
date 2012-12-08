@@ -1971,8 +1971,12 @@ void genProcCall (procInfo *procedureInfo) {
     //printf ("lala %s\n", hm);
     int lala = procedureInfo->indexingRegister;
     //printf ("Past indexing register");
+    addLabel(procedureInfo->procLabel);
     char *outputLabel = g_hash_table_lookup (masterLabelTable, procedureInfo->procLabel);
+//     printf("!!!!!!!!!!!%s\n",  procedureInfo->procLabel);
     sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, outputLabel);
+//     printf("!!!!!!!!!!!%s\n",  outputLabel);
+    
     generateFormattedInstruction (instruction);
 }
 
