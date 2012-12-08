@@ -1,8 +1,12 @@
 {
     8.pal
-    Make work!
+    An interactive library to which books can be added to, with reviews to add to books.
+    These books can also be viewed.
+    
+    Tests combinations of records and arrays, function calls, strings, write, writeln and readln.
+    
 }
-program Library (useless, parameters);
+program MyLibrary (useless, parameters);
 
 const LIBCAPACITY = 20;
       REVIEWCAPACITY = 10;
@@ -18,22 +22,211 @@ type nameStr = array[1..25] of char;
                 title : titleStr;
                 author : nameStr;
                 id : integer;
+                numReviews : integer;
                 reviews : reviewList
             end;
 
 var lib : array[1..LIBCAPACITY] of book;
-    currBook : book;
-    title : titleStr;
-    name : nameStr;
-    id, index : integer;
+    libSize : integer;
     cmd : char;
+    
+function getBookIndex(id: integer) : integer;
+// returns the library index of the book with id
+    var index : integer;
+    
+    begin
+        index := 1;
+        
+        while index < libSize do
+        begin
+            if id = lib[index].id then
+                exit;
+            index := index + 1;
+        end;
+        
+        getBookIndex := index;
+    end;
+    
+function idInUse(id: integer) : boolean;
+// returns true if another book aready uses id
+    var index : integer;
+    
+    begin
+        idInUse := false;
+        index := 1;
+        
+        while index < libSize do
+        begin
+            if id = lib[index].id then
+                idInUse := true;
+            index := index + 1;
+        end;
+    end;
+    
+function getBook() : integer;
+// asks for a book id and returns the index of a valid book
+    var id : integer;
 
+    begin
+        writeln('Find the book:');
+        writeln;
+        
+        write('ID? ');
+        readln(id);
+        
+        while not idInUse(id) do
+        begin
+            writeln('No book has that ID!');
+            write('ID? ');
+            readln(id);
+        end;
+        
+        getBook := id;        
+    end;
+
+function getQuality() : boolean;
+// asks for a command until it reads a valid command character, then it returns
+// that character
+    var quality : char;
+
+    begin
+        write('Summary ((g)ood or (b)ad)? ');
+        readln(quality);
+        
+        while (quality <> 'g') and (quality <> 'b') do 
+        begin
+            writeln('Invalid summary!');
+            write('Summary ((g)ood or (b)ad)? ');
+            readln(quality);
+        end;
+        
+        if quality = 'g' then
+            getQuality := true
+        else
+            getQuality := false;
+    end;
+    
+procedure addReviewer();
+// adds a new book to the library, if the library is not full
+    var revIndex : integer;
+        reviewer : nameStr;
+        good : boolean;
+        newReview : review;
+
+    begin
+        revIndex := getBookIndex(getBook());
+
+        if lib[revIndex].numReviews > REVIEWCAPACITY then
+            writeln('Sorry, this book has the maximum number of reviews!')
+        else
+        begin
+            writeln('Add a new review:');
+            writeln;
+            
+            write('Reviewer (up to 25 characters)? ');
+            readln(reviewer);
+            
+            good := getQuality();
+            
+            newReview.reviewer := reviewer;
+            newReview.good := good;
+            
+            lib[revIndex].reviews[lib[revIndex].numReviews] := newReview;
+            lib[revIndex].numReviews := lib[revIndex].numReviews + 1;
+        end;        
+    end;
+    
+function getId() : integer;
+// asks for a new book id until it reads an unused id, then it returns that id
+    var id : integer;
+
+    begin
+        write('ID? ');
+        readln(id);
+        
+        while idInUse(id) do 
+        begin
+            writeln('ID already in use!');
+            write('ID? ');
+            readln(id);
+        end;
+        
+        getId := id;
+    end;
 
     
-function invalidCommand(cmd: char) : boolean;
-// returns whether command is a valid command indicator ('a', 'r', or 'x')
+procedure addBook();
+// adds a new book to the library, if the library is not full
+    var title : titleStr;
+        author : nameStr;
+        id : integer;
+        newBook : book;
+
     begin
-        invalidCommand := (cmd <> 'a') and (cmd <> 'r') and (cmd <> 'x');
+        if libSize > LIBCAPACITY then
+            writeln('Sorry, your library is full!')
+        else
+        begin
+            writeln('Add a new book:');
+            writeln;
+            
+            write('Title (up to 50 characters)? ');
+            readln(title);
+            
+            write('Author (up to 25 characters)? ');
+            readln(author);
+            
+            id := getId();
+            
+            newBook.title := title;
+            newBook.author := author;
+            newBook.id := id;
+            newBook.numReviews := 1;
+            
+            lib[libSize] := newBook;
+            libSize := libSize + 1;
+        end;        
+    end;
+
+procedure readBook();
+    var lookBook : book;
+        revIndex : integer;
+    begin
+        if libSize = 1 then
+            writeln('Sorry, your library is empty!')
+        else
+        begin
+            lookBook := lib[getBookIndex(getBook())];
+            
+            writeln('Book info:');
+            writeln;
+
+            writeln('Title: ', lookBook.title);
+            writeln('Author: ', lookBook.author);
+
+            if lookBook.numReviews > 1 then
+            begin
+                writeln('Reviews: ');
+                revIndex := 1;
+                
+                while revIndex < lookBook.numReviews do
+                begin
+                    writeln('    Reviewer: ', lookBook.reviews[revIndex].reviewer);
+                    if lookBook.reviews[revIndex].good then
+                        writeln('    Summary: good')
+                    else
+                        writeln('    Summary: bad');
+                        
+                    revIndex := revIndex + 1;                    
+                end;
+            end;            
+        end;            
+    end;
+    
+function invalidCommand(cmd: char) : boolean;
+// returns whether command is a valid command indicator ('a', 'r', 'l', or 'x')
+    begin
+        invalidCommand := (cmd <> 'a') and (cmd <> 'r') and (cmd <> 'l') and (cmd <> 'x');
     end;
 
 function getCommand() : char;
@@ -42,13 +235,13 @@ function getCommand() : char;
     var cmd : char;
 
     begin
-        write('(a)dd, (r)ead, or e(x)it)? ');
+        write('(a)dd book, add (r)eview, (l)ook at book, or e(x)it? ');
         readln(cmd);
         
         while invalidCommand(cmd) do 
         begin
             writeln('Invalid library command!');
-            write('(a)dd, (r)ead, or e(x)it)? ');
+            write('(a)dd book, add (r)eview, (l)ook at book, or e(x)it? ');
             readln(cmd);
         end;
         
@@ -57,7 +250,7 @@ function getCommand() : char;
 
 begin
     cmd := 'i';
-    index := 1;
+    libSize := 1;
 
     while cmd <> 'x' do
     begin
@@ -66,8 +259,12 @@ begin
         if cmd = 'a' then
             addBook()
         else if cmd = 'r' then
+            addReviewer()
+        else if cmd = 'l' then
             readBook();
 
     end;
+    
+    writeln('bye');
 
 end.
