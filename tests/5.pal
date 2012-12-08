@@ -6,6 +6,8 @@
     Ends on input 0.
     Inspired by Assignment #2.
     
+    Tests I/O, arithmetic, and some control flow.
+    
     Input:
     7
     -4

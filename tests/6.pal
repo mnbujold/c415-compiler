@@ -1,6 +1,7 @@
 {
     6.pal
-    Tests the precision of builtin functions compared to actual constants.
+    Tests the precision of builtin functions compared to actual constants. Lots
+    of math stuff, some boolean logic, some writing, and escaped characters.
     
     Input:
     (no input)

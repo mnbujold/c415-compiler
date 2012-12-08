@@ -8,6 +8,8 @@
     and with the numbers switched.
     Mostly silly.
     
+    Tests var parameters, some boolean logic, and I/O.
+    
     Input:
     5 5
     5 -5

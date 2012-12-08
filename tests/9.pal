@@ -1,112 +1,196 @@
 {
     9.pal
-    Tests invalid function bodies (missing return assignments), invalid array bounds, and invalid use of program header symbols.
-    Errors:
-    24:28 illegal array range
-    25:25 missing lower or upper bound
-    27:17 input_type is already defined as a file object thing
-    63:0 missing function return value assignment
-    98:18 cannot go higher than maxint
-    99:19 cannot go lower than null char
-    100:22 cannot convert 256 to a valid character
-    101:19 no predecessor of null char
-    102:20 no successor of true
-    103:17 no predecessor of false
-    104:17 no successor of d4
-    105:17 no predecessor of d1
-    110:60 cannot call a program
+    Does the best of 6.pal (Precision - tests builtins, precision, and
+    expressions) without pi, and adds interactive Gamma and factorial functions
+    to futher test math and recursion.
+
+    Output precision may vary due to builtin implementation. They probably won't
+    get 15 significant digits of precision, though.
+    
 }
-program mostness(inputtype, outputtype);
+program BestOfPrecisionAndRecursion(useless, parameters);
 
-type xType = (x1, x2, x3);
+const E = 2.718281828459045;
+      GAMMA = 0.577215664901532;
+      CONSTPRECISION = 15;
+      BUILTINPRECISION = 6;
+      NMAX = 3.40282347E38; // IEEE standard for largest positive value
+      NMIN = 1 / NMAX;
 
-var xArray : array[xType] of integer;
-    badArray : array[-2..-5] of integer; { $ERR_DATA$ [28, "illegal array range", ["lower bound is greater than upper bound"]] $ERR_DATA$ }
-    anotherBad : array[5] of char; { $ERR_DATA$ [25, "missing lower or upper bound", ["array index missing lower bound"]] $ERR_DATA$ }
-    y : xType;
-    inputtype : char; { $ERR_DATA$ [17, "input_type is already defined as a file object thing", ["symbol 'input_type' is being redefined in this level"]] $ERR_DATA$ }
-
-function canIReturn(x : xType; i : integer) : xType;
-    var outputtype : char; // Legal.
-    
-begin
-    if (xArray[x] = i) then
-        y := x // Should be an error, but ISN'T for cp2 (missing return value for at least one condition)
-    else
-        canIReturn := canIReturn(x, i + 1)
-end;
-
-function doIReturn(var y : boolean) : integer;
-begin
-    if y then
-        doIReturn := 5
-    else
-        y := true
-end; // Should be an error, but ISN'T for cp2 (missing return value for at least one condition)
-
-function returnValue() : integer;
-begin
-    while false do
-        returnValue := 0;
-
-    if doIReturn(y = x1) = 1 then
-        returnValue := 5
-end; // Should be an error, but ISN'T for cp2 (missing return value for at least one condition)
-
-function funVarStuff() : integer;
-    procedure varStuff(var int : integer);
+type astring = array[1..5] of char;
+      
+var myE : real;
+    myGamma : real;
+    gammaInput : real;
+    factInput : integer;
+      
+function confuseCompiler(value : real) : real;
+// stops compilers from calculating values themselves, the cheaters!
     begin
-        int := 3;
+        confuseCompiler := 1.0 * value;
     end;
-begin
-    varStuff(funVarStuff);
-end;{ $ERR_DATA$ [0, "missing function return value assignment", ["missing function return value assignment"]] $ERR_DATA$ }
+      
+{ Functions to compare builtin calculated values versus 'actual' values: }
 
-function correctReturn(int : integer) : boolean;
-begin
-    if int >= 19 then
-        correctReturn := true
-    else
-        if int <= -10 then
-            correctReturn := false
-        else if int <= 0 then
-            correctReturn := true
+function power(base : real; exponent : real) : real; // power or pow could be a builtin ...
+// raises base to the power of exponent using builtins
+    begin
+        power := exp(exponent * ln(base));
+    end;
+    
+function adjust(value : real; precision : integer; rounded : boolean) : real;
+// returns value with precision number of decimal places, with rounding
+// depending on rounded
+    var realAdjusted : real;
+        adjustment : real;
+    
+    begin
+        adjustment := power(10, precision);
+        realAdjusted := value * adjustment;
+        
+        if rounded then
+            adjust := round(realAdjusted) / adjustment
         else
-            correctReturn := false
-end;
+            adjust := trunc(realAdjusted) / adjustment;
+    end;            
 
-procedure testAllBuiltins();
-    const aww = 2147483647;
-          waa = '';
+function compare(builtin : real; actual : real; precision : integer) : boolean;
+// returns true if builtin equals actual at precision level of significant
+// digits for any combination of the rounded or truncated cases
+    begin
+        compare := (adjust(builtin, precision, true) = adjust(actual, precision, true))
+                or (adjust(builtin, precision, false) = adjust(actual, precision, false))
+                or (adjust(builtin, precision, true) = adjust(actual, precision, false))
+                or (adjust(builtin, precision, false) = adjust(actual, precision, true));
+    end;
 
-    type sclist = (d1,d2,d3,d4);
-          
-    var a: integer;
-        b : boolean;
-
-        b3 : char;
-        c:sclist;
-begin
-
-    a := sqr (ord (chr(87)));
-    a := abs (round (8.123 + 2));
-    a := abs (trunc (8.123));
-    a := pred (succ (ord ('b')));
-    b := odd (succ (ord ('c')));
+procedure checkPrecision(builtin : real; actual : real; constant : astring);
+    begin
+        writeln(constant, ' :', '\n');
+        writeln('Builtin = ', builtin, ' | Actual = ', actual);
+        
+        if compare(builtin, actual, BUILTINPRECISION) then
+            writeln('Calculated constant is correct to within 6 significant digits.')
+        else
+            writeln('Calculated constant does NOT have 6 significant digits of precision.');
+        
+        if compare(builtin, actual, CONSTPRECISION) then
+        begin
+            writeln('Calculated constant is correct to within 15 significant digits.');
+            writeln('How did you do that?!')
+        end
+        else
+            writeln('Calculated constant isn\'t ridiculously accurate.');
+        
+        writeln;
+        writeln();
+    end;
     
+{ Functions calculate the math constants using builtins: }
+
+function calculateE() : real;
+// uses builtins to calculate e
+    const NMAX = 9.99999999E7; // need smaller values so we don't overflow
+          NMIN = 1 / NMAX;
+      
+    begin
+        calculateE := power((1 + NMIN), NMAX);
+    end;
+
+function calculateGamma() : real;
+// uses builtins to calculate gamma
+    const MAXITERS = maxint * 1000.0;
+
+    var gammaTemp : real;
+        iteration : real;
+
+    begin
+        iteration := 1;
+        gammaTemp := 0;
+        
+        while iteration < MAXITERS do
+        begin
+            gammaTemp := gammaTemp + (1 / iteration);
+            iteration := iteration + 1;
+        end;
+        
+        calculateGamma := gammaTemp - ln(MAXITERS);
+    end;
+
+{ Gamma and factorial functions: }
     
-    a := succ(aww); { $ERR_DATA$ [18, "cannot go higher than maxint", ["there is no valid successor of this integer"]] $ERR_DATA$ }
-    b3 := pred(waa); { $ERR_DATA$ [19, "cannot go lower than null char", ["there is no valid predecessor of this character"]] $ERR_DATA$ }
-    b3 := chr(256); { $ERR_DATA$ [22, "cannot convert 256 to a valid character", ["there is no valid character for this integer value"]] $ERR_DATA$ }
-    b3 := pred(chr(0)); { $ERR_DATA$ [19, "no predecessor of null char", ["there is no valid predecessor of this character"]] $ERR_DATA$ }
-    c := succ(true); { $ERR_DATA$ [20, "no successor of true", ["there is no valid successor of this boolean"]] $ERR_DATA$ }
-    c := pred(false); { $ERR_DATA$ [17, "no predecessor of false", ["there is no valid predecessor of this boolean"]] $ERR_DATA$ }
-    c := succ(d4); { $ERR_DATA$ [17, "no successor of d4", ["there is no valid successor of this scalar"]] $ERR_DATA$ }
-    c := pred(d1); { $ERR_DATA$ [17, "no predecessor of d1", ["there is no valid predecessor of this scalar"]] $ERR_DATA$ }
-end;
+function gammaFunction(gammaInput : real) : real;
+// returns a naive approximation of the gamma function on gammaInput
+    const MAXITERS = maxint * 1000.0;
 
+    var gammaTemp : real;
+        iteration : real;
+
+    begin
+        iteration := 1;
+        gammaTemp := 1;
+        
+        while iteration < MAXITERS do
+        begin
+            gammaTemp := gammaTemp * (iteration / (gammaInput + iteration));
+            iteration := iteration + 1;
+        end;
+        
+        gammaFunction := power(MAXITERS, gammaInput) * gammaTemp;
+    end;
+    
+function factorial(int : integer) : integer;
+// the factorial function!
+    begin
+        if int = 0 then
+            factorial := 1
+        else
+            factorial := int * factorial(int - 1);
+    end;
+    
 begin
+    { Constants: }
+    myE := calculateE();
+    myGamma := calculateGamma();
+    
+    checkPrecision(myE, E, 'E    ');
+    checkPrecision(myGamma, GAMMA, 'GAMMA');
+    
+    { Gamma function: }
+    
+    writeln;
+ 
+    writeln('Gamma Function (<= 0 to exit)?');
+    readln(gammaInput);
+    
+    while gammaInput > 0 do
+    begin
+        writeln;
+        if gammaInput = 1 then
+            writeln('Gamma(1) = 1')
+        else
+            writeln('Gamma(', gammaInput,') = ', gammaFunction(gammaInput - 1));
+        writeln;
+        
+        writeln('Gamma (<= 0 to exit)?');
+        readln(gammaInput);
+    end;        
 
-mostness(inputtype, outputtype); { $ERR_DATA$ [60, "cannot call a program", ["program 'mostness' cannot be called"]] $ERR_DATA$ }
-
+    { Factorial function: }
+ 
+    writeln('Factorial (< 0 to exit)?');
+    readln(factInput);
+    
+    while factInput >= 0 do
+    begin
+        writeln;
+        writeln(factInput,'! = ', factorial(factInput));
+        writeln;
+        
+        writeln('Factorial (< 0 to exit)?');
+        readln(factInput);
+    end; 
+    
+    writeln;
+    
 end.

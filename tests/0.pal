@@ -36,9 +36,9 @@ procedure nested(nested : integer); // legal
         type times = (early, ontime, late); { $ERR_DATA$ [19, "times already defined in the scope", ["symbol 'times' already defined in this scope"]] $ERR_DATA$ }
         
         begin
-            if aTime = early then
+            if nested = ord(early) then
                 inum1 := 0
-            else if aTime = ontime then
+            else if nested = ord(ontime) then
                 inum1 := 1
             else
                 inum1 := 2
