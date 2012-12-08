@@ -444,15 +444,8 @@ int validComparisonOperator (symbol *operand) {
   if (getTypeClass (operand) == TC_BOOLEAN) {
     return 1;
   }
-  if (getTypeClass (operand) == TC_ARRAY) {
-    //TODO
-    //showAllSymbols();
-    //printf ("Have determined type class is array\n");
-    //check to make sure array is of type char
-    //type_class tc = operand->desc.type_attr->
-    if (getArrayType (operand) == TC_CHAR) {
+  if (isString(operand)) {
       return 1;
-    }
   }
   return 0;
 }
@@ -486,6 +479,7 @@ int checkComparisonCompatibility (symbol *o1, symbol *o2) {
     if (strlen (string1) == strlen (string2)) {
       return 1;
     }
+    printf("!!!!!!!!!!!!!!!!!!!!!!!!!sizes are wrong!\n");
   }
   
   return 0;
