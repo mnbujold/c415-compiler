@@ -547,6 +547,7 @@ void genCodeForStatementList (GNode *statementList) {
 //TODO: Finish this
 int getExpressionValue (GNode *expressionNode) {
   // Should Return expr value for array accesses (maybe useful for other things)
+  // This whole function might just have to go...not using it right now
   printf("type of expr node: %d \n", getNiceType(expressionNode));
 
   node_type exprType = getNiceType(expressionNode);
@@ -694,6 +695,40 @@ void genCodeForStatement(GNode *statement) {
               // Push lval_expr value on stack
               genCodeForExpression(lval_exprNode); // Relative array position
               // TODO: Deal with strange starting positions (eg. -2)
+
+
+              symbol *nextSymb = varSymbol->symbol_type->desc.type_attr->desc.array->index_type;
+              printf("Type of NEXTSYMB: %d \n", getTypeClass(nextSymb));
+
+
+              // For multi-dimensional business - not 100% working yet
+              while(lval_exprNode->next != NULL){
+                printf("xtra dim array\n");
+                genCodeForExpression(lval_exprNode->next);
+                // get size array
+
+                
+                varAddressStruct *addrDes = g_hash_table_lookup(variableAddressTable, varSymbol); 
+                printf("VALUE: %d \n",addrDes->offset);
+                
+                int size = varSymbol->symbol_type->desc.type_attr->desc.array->size;
+                
+                //symbol *nextSymb = varSymbol->symbol_type->desc.type_attr->desc.array->index_type;
+                //int nextsize = nextSymb->symbol_type->desc.type_attr->desc.array->size;
+                
+                //printf("Type of NEXTSYMB: %d \n", getTypeClass(nextSymb));
+                //printf("Size of 1st and 2nd: %d %d \n", size, nextsize);
+                
+                char instruction [strlen ("CONSTI") + 256];
+                sprintf(instruction, "CONSTI %d", size);
+                generateFormattedInstruction(instruction);
+                // multiply two values
+                generateFormattedInstruction("MULI");
+                generateFormattedInstruction("ADDI");
+                lval_exprNode = lval_exprNode->next;
+                varSymbol = nextSymb;
+              }
+              
               char instruction [strlen ("CONSTI") + 256];
               sprintf (instruction, "CONSTI %d", addrDesc->offset);
               generateFormattedInstruction (instruction);
