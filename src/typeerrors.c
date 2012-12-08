@@ -212,12 +212,21 @@ missingVarParamError(int arg_num, char *proc_name) {
     addTypeError(errMsg);
 }
 
-
 void
 badProcArgError(int arg_num, char *proc_name) {
     char errMsg[80 + strlen(proc_name)];
     sprintf(errMsg,
             "argument %d of '%s' call has incompatible type",
+            arg_num,
+            proc_name);
+    addTypeError(errMsg);
+}
+
+void
+badProcVarArgError(int arg_num, char *proc_name) {
+    char errMsg[85 + strlen(proc_name)];
+    sprintf(errMsg,
+            "var argument %d of '%s' call has incompatible type",
             arg_num,
             proc_name);
     addTypeError(errMsg);
@@ -270,3 +279,11 @@ ctrlTypeNotInLoopError(const char *controlType) {
     sprintf(errMsg, "'%s' statement not in a loop", controlType);
     addTypeError(errMsg);
 }
+
+void
+badFuncReturnTypeError(const char *typeId) {
+    char errMsg[50 + strlen(typeId)];
+    sprintf(errMsg, "type '%s' is not a legal function return type", typeId);
+    addTypeError(errMsg);    
+}
+

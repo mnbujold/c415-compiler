@@ -160,6 +160,11 @@ void missingVarParamError(int arg_num, char *proc_name);
 void badProcArgError(int arg_num, char *proc_name);
 
 /**
+ * Adds an "var argument arg_num of 'proc_name' call has incompatible type" error.
+ */
+void badProcVarArgError(int arg_num, char *proc_name);
+
+/**
  * Adds a "symbol 'id' not a record" error.
  */
 void symNotRecordError(const char *id);
@@ -189,5 +194,10 @@ void illArrayAccessMaxError(int index, int max);
  * Adds a "'controlType' statement not in a loop" error.
  */
 void ctrlTypeNotInLoopError(const char *controlType);
+
+/**
+ * Adds a "type 'typeId' is not a legal return type" error.
+ */
+void badFuncReturnTypeError(const char *typeId);
 
 #endif

@@ -464,6 +464,11 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         } else if (returnType == NULL) {
             typeNotDefinedError(typeId);
             returnType = createErrorType(typeId);
+        } else if (getTypeClass(returnType) == TC_ARRAY
+                || getTypeClass(returnType) == TC_RECORD
+                || getTypeClass(returnType) == TC_STRING) {
+            badFuncReturnTypeError(typeId);
+            returnType = createErrorType(typeId);
         }
         
         if (returnType->desc.type_attr->type != TC_ERROR
@@ -1115,6 +1120,11 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
         || (arg->oc == OC_PARAM && arg->desc.parm_attr->varParam == 1))) {
             missingVarParamError(i + 1, procname);
             goodCall = 0;
+        } else if (param->desc.parm_attr->varParam == 1
+                && ((assignmentCompatibleSym(param, arg, 0) != 1)
+                 || (assignmentCompatibleSym(arg, param, 0) != 1))) {
+            badProcVarArgError(i + 1, procname);
+            goodCall = 0;            
         }
         
         if (assignmentCompatibleSym(param, arg, 0) != 1) {
