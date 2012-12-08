@@ -1095,14 +1095,14 @@ void genCodeForExpression (GNode *expressionNode) {
             printf ("Is an io procedure\n");
             //TODO: If it is an int or real, we do not set it to be a var param
             if ((getExpressionType(expressionNode) != TC_REAL) && (getExpressionType (expressionNode) != TC_INTEGER)) {
-                printf ("EXPRESSION TYPE OF THE THING: %d\n", getExpressionType (expressionNode));
+//                 printf ("EXPRESSION TYPE OF THE THING: %d\n", getExpressionType (expressionNode));
                 isVarParam = 1;
                 
             }
             else {
                 if ((strcmp (procName, "read") == 0) || (strcmp (procName, "readln") == 0))
                     isVarParam = 1;
-                printf ("IO FUNCTION BUT IS INTEGER OR REAL\n");
+//                 printf ("IO FUNCTION BUT IS INTEGER OR REAL\n");
             }
             
         }
@@ -1240,10 +1240,17 @@ void genCodeForExpression (GNode *expressionNode) {
 //                   printf ("This is the address of the var symbol: %p\n", varSymbol);
 //                   printf ("Symbol name: %s type: %d typeClass: %d\n", varSymbol->name, varSymbol->oc, getTypeClass (varSymbol));
 //               }
-              printf ("Symbol we're accessing: %s\n", varSymbol->name);
-              printf ("Type of the symbol; %d\n", varSymbol->oc);
-              printf ("varParam flag: %d\n", isVarParam);
+//               printf ("Symbol we're accessing: %s\n", varSymbol->name);
+//               printf ("Type of the symbol; %d\n", varSymbol->oc);
+//               printf ("varParam flag: %d\n", isVarParam);
               if (isVarParam) {
+//                   if (
+                  if (varSymbol->oc == OC_PARAM) {
+                      if (varSymbol->desc.parm_attr->varParam) {
+                          genVarAccess (address);
+                          return;
+                      }
+                  }
                   genVarParam(address);
               }
               else {
@@ -1773,13 +1780,13 @@ void genVarParamAssign (varAddressStruct *addressDescription) {
     printf ("In gen var param assign\n");
     int indexingRegister = addressDescription->indexingRegister;
     int offset = addressDescription->offset;
-    char instruction [strlen ("PUSHA []") + 32];
+    char instruction [strlen ("PUSH []") + 32];
     if (indexingRegister < 0) {
-      sprintf (instruction, "PUSHA %d", offset);
+      sprintf (instruction, "PUSH %d", offset);
       generateFormattedInstruction (instruction);
     }
     else {
-      sprintf (instruction, "PUSHA %d[%d]", offset, indexingRegister);
+      sprintf (instruction, "PUSH %d[%d]", offset, indexingRegister);
       generateFormattedInstruction (instruction);
     }
 
@@ -1801,6 +1808,7 @@ void genVarAccess (varAddressStruct *addressDescription) {
     }
 }
 void genVarParam (varAddressStruct *addressDescription) {
+    //If it is already an address, we need to just push it on...
     int indexingRegister = addressDescription->indexingRegister;
     int offset = addressDescription->offset;
     char instruction [strlen ("PUSHA []") + 32];
@@ -1817,13 +1825,13 @@ void genVarParam (varAddressStruct *addressDescription) {
 void genVarParamAccess (varAddressStruct *addressDescription) {
     int indexingRegister = addressDescription->indexingRegister;
     int offset = addressDescription->offset;
-    char instruction [strlen ("PUSHA []") + 32];
+    char instruction [strlen ("PUSH []") + 32];
     if (indexingRegister < 0) {
-        sprintf (instruction, "PUSHA %d", offset);
+        sprintf (instruction, "PUSH %d", offset);
         generateFormattedInstruction (instruction);
     }
     else {
-        sprintf (instruction, "PUSHA %d[%d]", offset, indexingRegister);
+        sprintf (instruction, "PUSH %d[%d]", offset, indexingRegister);
         generateFormattedInstruction (instruction);
     }
     generateFormattedInstruction ("PUSHI");
@@ -1960,8 +1968,8 @@ void genCodeForWrite(GNode *paramNode, int ln) {
             }
             case TC_ARRAY:
             {
-                printf ("ARRAY ENCOUNTERED\n");
-                generateComment ("LALALA");
+//                 printf ("ARRAY ENCOUNTERED\n");
+//                 generateComment ("LALALA");
                 GNode *expressionNode = paramNode->children;
                 //     printf ("In genCodeForExpression\n");
                 symbol *varSymbol = getSymbol (expressionNode->children);
@@ -1970,15 +1978,15 @@ void genCodeForWrite(GNode *paramNode, int ln) {
                 generateString (string);
 
 //                 genCodeForExpression (paramNode);
-                generateComment ("LALALAEND");
+//                 generateComment ("LALALAEND");
                 break;
             }
             default:
             {
-                printf ("RETURNED TYPE THAT WAS NOT INTEGER ORE REAL: %d\n", returnedType);
+//                 printf ("RETURNED TYPE THAT WAS NOT INTEGER ORE REAL: %d\n", returnedType);
             }
         }
-        printf ("THis was teh returned type: %d\n", returnedType);
+//         printf ("THis was teh returned type: %d\n", returnedType);
         paramNode = paramNode->next;
     }
     
