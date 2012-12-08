@@ -25,5 +25,11 @@ count.
 Calling chr () on 255 and greater will cause undefined behaviour, specific to the implementation of C
 on the machine (eg little endian or big endian integer representation)
 
+
+Array accesses and assignments for multidimensional arrays is implemented non-deterministically.
+
 Array bounds checking is not implemented
+
+pred and succ will always just return a value. They do not check if the pred or succ is out of bounds
+
 

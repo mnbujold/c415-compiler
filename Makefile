@@ -35,7 +35,7 @@ SUBTESTS = submitted_tests
 all: clean pal
 
 man:
-	groff -man -T ascii doc/pal.1
+	groff -man -T ascii doc/pal.1 | less
 
 docs:
 	dot -Tps doc/assignment.dot -o doc/assignment.ps
