@@ -154,7 +154,7 @@ main(int argc,char** argv)
        
     }
 
-    if(compilationSuccessful){ // Don't run this section yet...
+    if(compilationSuccessful && execute){ // Don't run this section yet...
     //if(execute && !iserror){
       // open pipe and execute
       char *command = calloc ((strlen ("./interpreter ") + strlen (asc_filename)), sizeof (char));
@@ -177,7 +177,7 @@ main(int argc,char** argv)
 //       pclose(interpreter);
     }
 
-    if(!leave_asc){
+    if(!leave_asc && !iserror){
         char *command = calloc ((strlen ("rm ") + strlen (asc_filename)), sizeof (char));
         sprintf (command, "rm %s", asc_filename);
         system (command);
