@@ -78,10 +78,32 @@ void genASCCode (GNode *tree, char *fileName) {
   generateComment (fileName);
   genCodeForFunctionNode (tree, scope);
   printf ("Done generating our code. Adding builtings\n");
-  FILE *mathFile = fopen (MATH_BUILTINS_PATH, "r");
-  FILE *trigFile = fopen (TRIG_BUILTINS_PATH, "r");
-  //TODO: Check which builtins are used, and append them here
   fclose (output);
+  FILE *finalFile = fopen (fileName, "a+");
+  FILE *mathFile = fopen (MATH_BUILTINS_PATH, "r");
+  printf (MATH_BUILTINS_PATH);
+  if (mathFile == NULL) {
+      printf ("Could not open math file\n");
+  }
+//   printf ("Opened math file successfully\n");
+  int ch = fgetc (mathFile);
+ // printf ("got initial character\n");
+  while ( ch != EOF) {
+      fputc (ch, finalFile);
+      ch = fgetc (mathFile);
+  }
+  fclose (mathFile);
+  printf ("done getting math file\n");
+  FILE *trigFile = fopen (TRIG_BUILTINS_PATH, "r");
+  ch = fgetc (trigFile);
+  while (ch != EOF) {
+      fputc (ch, finalFile);
+      ch = fgetc (finalFile);
+  }
+  fclose (trigFile);
+  fclose (finalFile);
+  //TODO: Check which builtins are used, and append them here
+
   
   
 }
