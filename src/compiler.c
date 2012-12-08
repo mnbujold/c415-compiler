@@ -142,10 +142,9 @@ main(int argc,char** argv)
     } else {
         incodegen = 1;
         
-        //genASCCode(getSyntaxTree(), asc_filename);
-        genASCCode (getSyntaxTree(), "test.asc");
+        genASCCode(getSyntaxTree(), asc_filename);
+//         genASCCode (getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
-        exit (EXIT_SUCCESS);
        
     }
 
