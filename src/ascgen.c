@@ -665,6 +665,7 @@ void genCodeForStatement(GNode *statement) {
               varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
               if (varSymbol->oc == OC_PARAM) {
                 if (varSymbol->desc.parm_attr->varParam) {
+                   printf ("IM A PAASFSAFASFASFASFA\n");
                   GNode *expressionNode = statement->children->next;
                   genVarParamAssign (addressDescription);
                   genCodeForExpression (expressionNode);
@@ -880,8 +881,9 @@ void genCodeForStatement(GNode *statement) {
             g_hash_table_insert (labelTable, statement, whileInfo);
             generateLabel (beginLabel);
             
-            
+            printf ("------About to generate code for expression-----\n");
             genCodeForExpression (conditionalExpression);
+            printf ("-------Done generating expression----------\n");
 //             char branchinstruction [strlen ("IFZ") + strlen (endLabel)];
 // 
 //             sprintf (branchinstruction, "IFZ %s", endLabel);
@@ -1166,8 +1168,8 @@ void genCodeForExpression (GNode *expressionNode) {
 
             node_type varType = getNiceType(expressionNode->children);
             if (varType == NT_SYMBOL) {
+                printf ("Is a symbol\n");
             
-            //TODO: Var parameter is here!
               symbol *varSymbol = getSymbol(expressionNode->children);
               varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
 //               if (varSymbol->oc == OC_PARAM) {
@@ -1183,10 +1185,13 @@ void genCodeForExpression (GNode *expressionNode) {
 //                   printf ("This is the address of the var symbol: %p\n", varSymbol);
 //                   printf ("Symbol name: %s type: %d typeClass: %d\n", varSymbol->name, varSymbol->oc, getTypeClass (varSymbol));
 //               }
+              printf ("Symbol we're accessing: %s\n", varSymbol->name);
+              printf ("varParam flag: %d\n", isVarParam);
               if (isVarParam) {
                   genVarParam(address);
               }
               else {
+                  printf ("Not an address, just put it on normally\n");
                   genVarAccess (address);
               }
 
@@ -1282,7 +1287,7 @@ GNode *getFirstOperationParent (GNode *expressionNode) {
 void genCodeForOperation (GNode *expressionNode) {
     node_type exprType = getNiceType (expressionNode);
     if ((exprType >= NT_INT_ISEQUAL) && (exprType <=NT_INT_GREATERTHANEQUALS)) {
-        printf ("Is of type int comparison\n");
+//         printf ("Is of type int comparison\n");
         genCodeForIntComparison (expressionNode);
     }
     else if ((exprType >=NT_REAL_ISEQUAL) && (exprType <=NT_REAL_GREATERTHANEQUALS)) {
@@ -1325,7 +1330,7 @@ void genCodeForOperation (GNode *expressionNode) {
 }
 
 void genCodeForIntComparison (GNode *expressionNode) {
-    printf ("Int comparison called\n");
+//     printf ("Int comparison called\n");
     node_type exprType = getNiceType (expressionNode);
     GNode *leftExpressionNode = expressionNode->children;
     GNode *rightExpressionNode = leftExpressionNode->next;
@@ -1715,6 +1720,7 @@ void genVarParamAssign (varAddressStruct *addressDescription) {
 
 }
 void genVarAccess (varAddressStruct *addressDescription) {
+    printf ("Calling gen var access\n");
     int indexingRegister = addressDescription->indexingRegister;
     int offset = addressDescription->offset;
     char instruction [strlen ("PUSH []") + 32];
