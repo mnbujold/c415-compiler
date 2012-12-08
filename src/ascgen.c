@@ -556,7 +556,7 @@ int getExpressionValue (GNode *expressionNode) {
      case NT_CONST:
      {
        symbol *varSymbol = getSymbol(expressionNode->children);
-
+       
        type_class constType = getTypeClass(varSymbol);
        switch (constType) {
          case TC_BOOLEAN:
@@ -584,33 +584,29 @@ int getExpressionValue (GNode *expressionNode) {
        break;
      }
 
-     // NT_SYMBOL or NT_ARRAY_ACCESS or NT_RECORD_ACCESS
+     // NT_VAR can be: NT_SYMBOL or NT_ARRAY_ACCESS or NT_RECORD_ACCESS
      case NT_VAR:
      {
        node_type varType = getNiceType(expressionNode->children);
        if (varType == NT_SYMBOL) {
-         //TODO: Var parameter is here!
-         symbol *varSymbol = getSymbol(expressionNode->children);
-         varAddressStruct *address = g_hash_table_lookup (variableAddressTable, varSymbol);
-         if (varSymbol->oc == OC_PARAM) {
-           if (varSymbol->desc.parm_attr->varParam) {
-             genVarParam (address);
-             return;
-           }
-         }
-         //genVarAccess (address);
+         // Works
+         genVarAccess(g_hash_table_lookup(variableAddressTable, getSymbol(expressionNode->children)));
+         generateFormattedInstruction("PUSHI");
        }
 
        else if (varType == NT_ARRAY_ACCESS) {
          //TODO: implement
-         printf("accessing array...\n");
+         printf("accessing array for assignment...\n");
          //find the array...get the element
-         GNode *varNode = expressionNode->children;
-         GNode *arrayExpressionNode = varNode->next;
-
-         genCodeForExpression (varNode);
-         genCodeForExpression (arrayExpressionNode);
-         //TODO: How we going to do bounds checking?
+         GNode *varNode = expressionNode->children->children->children;
+         GNode *exprNode = expressionNode->children->children->next;
+         // push address of var onto stack
+         genVarAccess(g_hash_table_lookup(variableAddressTable, getSymbol(varNode)));;
+         // add expr to it
+         genCodeForExpression(exprNode);
+         generateFormattedInstruction("ADDI");
+         generateFormattedInstruction("PUSHI");
+         
        }
        else if (varType == NT_RECORD_ACCESS) {
          //TODO: implement
@@ -686,20 +682,22 @@ void genCodeForStatement(GNode *statement) {
             }
             else if (varType == NT_ARRAY_ACCESS) {
               // MIKE IS WORKING ON THIS
-              //TODO: Implement
-              printf("assigning array var element\n");
               GNode *varNode = statement->children->children; // lvalue
               GNode *exprNode = statement->children->next; // rvalue
-
               // Get address of symbol
               symbol *varSymbol = getSymbol(varNode->children->children);
               varAddressStruct *addrDesc = g_hash_table_lookup(variableAddressTable, varSymbol);
-
               // Suction out the 'expr' value to offset the array
-              GNode *lval_exprNode = varNode->children->next->children;
-              genCodeForExpression(exprNode); // This is OK
-              genVarAssign (addrDesc, getExpressionValue(lval_exprNode)); // Need offset passed in here
-              
+              GNode *lval_exprNode = varNode->children->next;
+              // Push lval_expr value on stack
+              genCodeForExpression(lval_exprNode); // Relative array position
+              // TODO: Deal with strange starting positions (eg. -2)
+              char instruction [strlen ("CONSTI") + 256];
+              sprintf (instruction, "CONSTI %d", addrDesc->offset);
+              generateFormattedInstruction (instruction);
+              generateFormattedInstruction("ADDI");
+              genCodeForExpression(exprNode);
+              generateFormattedInstruction("POPI");
             }
             else if (varType == NT_RECORD_ACCESS) {
               //TODO: Implement
@@ -1132,10 +1130,26 @@ void genCodeForExpression (GNode *expressionNode) {
                 //TODO: implement
               printf("accessing array...\n");
               //find the array...get the element
-                GNode *varNode = expressionNode->children;
-                GNode *arrayExpressionNode = varNode->next;
-                genCodeForExpression (varNode);
-                genCodeForExpression (arrayExpressionNode);
+              GNode *varNode = expressionNode->children;
+              
+              printf("varNode type: %d \n", getNiceType(varNode->children));
+              printf("varnode name: %s \n", getSymbol(varNode->children->children)->name);
+              printf("varNode child type: %d \n", getNiceType(varNode->children->children));
+
+              // output the base value of array specified
+              varAddressStruct *addrDesc = g_hash_table_lookup(variableAddressTable, getSymbol(varNode->children->children));
+              
+              char instruction [strlen ("CONSTI") + 256];
+              sprintf (instruction, "CONSTI %d", addrDesc->offset);
+              generateFormattedInstruction (instruction);
+              
+              // add offset in expr (from below)
+              GNode *arrayExpressionNode = varNode->children->next;
+              printf("expNode type: %d \n", getNiceType(arrayExpressionNode->children));
+              genCodeForExpression(arrayExpressionNode);  
+
+              generateFormattedInstruction("ADDI");
+              generateFormattedInstruction("PUSHI");
                 //TODO: How we going to do bounds checking?
 
             }
@@ -1143,6 +1157,7 @@ void genCodeForExpression (GNode *expressionNode) {
                 //TODO: implement
             }
             else {
+              
             }
             break;
         }
