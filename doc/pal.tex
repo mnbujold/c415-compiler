@@ -106,7 +106,13 @@ An additional transformation take place before we generate code: arithmetic oper
 
 
 \section*{Code Generation}
-TODO\\
+We use a postorder transveral (for most operations) to recursively generate code for program's syntax tree. Unique label identifiers are hashed into a large hash table which contain the actual label, based on a global counter of labels, since labels are only compared to 16 characters. The function/procedure calling protocol we use is:
+\begin{itemize}
+\item parameters are accessed with a negative offset from the indexing register, starting at -3.
+\item the return value of a function is saved with an offset of -1 from the lowest parameter offset (i.e. below all the parameters).
+\end{itemize}
+\\
+We handle 1-dimensional arrays, but arrays of larger dimension are handled non-deterministically (that is, they are not fully implemented). Run-time array bounds checking is also not implemented.
 
 
 \section*{Testing}
