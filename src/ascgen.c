@@ -684,7 +684,6 @@ void genCodeForStatement(GNode *statement) {
               genVarAssign (addressDescription,0);
             }
             else if (varType == NT_ARRAY_ACCESS) {
-              // MIKE IS WORKING ON THIS
               GNode *varNode = statement->children->children; // lvalue
               GNode *exprNode = statement->children->next; // rvalue
               // Get address of symbol
@@ -694,39 +693,77 @@ void genCodeForStatement(GNode *statement) {
               GNode *lval_exprNode = varNode->children->next;
               // Push lval_expr value on stack
               genCodeForExpression(lval_exprNode); // Relative array position
+              // First subscript now on stack (ie. v1)
+
+              // Subtract lower bound of v1 (ie. l1)
+              int lower = varSymbol->symbol_type->desc.type_attr->desc.array->minIndex;
+              //push lower onto stack
+              // emit SUBI
+              // push p1 on stack
+              
+              
               // TODO: Deal with strange starting positions (eg. -2)
 
+              int u_vals[10];
+              int l_vals[10];
+              
+              // First array size
+              int size = varSymbol->symbol_type->desc.type_attr->desc.array->size;
+              u_vals[0] = varSymbol->symbol_type->desc.type_attr->desc.array->maxIndex;
+              l_vals[0] = varSymbol->symbol_type->desc.type_attr->desc.array->minIndex;
+              
+              
+              symbol *objSymb = varSymbol->symbol_type->desc.type_attr->desc.array->obj_type;
+              printf("\tArray is of type %d and size %d\n", getTypeClass(objSymb), size);
+              printf("\tUpper is %d and lower is %d\n", u_vals[0], l_vals[0]);
 
-              symbol *nextSymb = varSymbol->symbol_type->desc.type_attr->desc.array->index_type;
-              printf("Type of NEXTSYMB: %d \n", getTypeClass(nextSymb));
+              int i=1;
+              while(getTypeClass(objSymb) == 6){
+                u_vals[i] = objSymb->desc.type_attr->desc.array->maxIndex;
+                l_vals[i] = objSymb->desc.type_attr->desc.array->minIndex;
+                printf("\tobject number %d\n", i);
+                i++;
+                objSymb = objSymb->desc.type_attr->desc.array->obj_type;
+                
+              }
 
-
+              printf("type we are arraying: %d \n", getTypeClass(objSymb));
+                            
+              int j;
+              for(j=0; j<i; j++){
+                printf("\tu: %d, \tl: %d nests: %d \n", u_vals[j], l_vals[j], i);
+                
+              }
+              // need size of final arrayval
+              
+              int p_vals[10];
+              for(j=1; j<i; j++){
+                p_vals[j] = u_vals[j-1] - l_vals[j-1] +1;
+                printf("p_val: %d\n", p_vals[j]);
+              }
+              
               // For multi-dimensional business - not 100% working yet
-              while(lval_exprNode->next != NULL){
+              // MIKE IS WORKING ON THIS
+              while(0){
+              //while(lval_exprNode->next != NULL){
                 printf("xtra dim array\n");
                 genCodeForExpression(lval_exprNode->next);
-                // get size array
+                // get size of arrays for calculating address
 
-                
-                varAddressStruct *addrDes = g_hash_table_lookup(variableAddressTable, varSymbol); 
-                printf("VALUE: %d \n",addrDes->offset);
-                
-                int size = varSymbol->symbol_type->desc.type_attr->desc.array->size;
-                
-                //symbol *nextSymb = varSymbol->symbol_type->desc.type_attr->desc.array->index_type;
-                //int nextsize = nextSymb->symbol_type->desc.type_attr->desc.array->size;
-                
-                //printf("Type of NEXTSYMB: %d \n", getTypeClass(nextSymb));
-                //printf("Size of 1st and 2nd: %d %d \n", size, nextsize);
+                int nextsize = objSymb->desc.type_attr->desc.array->size;
+                printf("\tNext Array Size: %d\n", nextsize);
                 
                 char instruction [strlen ("CONSTI") + 256];
                 sprintf(instruction, "CONSTI %d", size);
                 generateFormattedInstruction(instruction);
                 // multiply two values
                 generateFormattedInstruction("MULI");
+                
                 generateFormattedInstruction("ADDI");
                 lval_exprNode = lval_exprNode->next;
-                varSymbol = nextSymb;
+
+                objSymb = objSymb->desc.type_attr->desc.array->obj_type;
+                printf("\tobjSymb type: %d \n", getTypeClass(objSymb));
               }
               
               char instruction [strlen ("CONSTI") + 256];
