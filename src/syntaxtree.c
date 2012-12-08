@@ -400,7 +400,7 @@ createExpr(GNode *expr) {
     } else if (getNodeType(expr) == NT_EXPR) {
         expr = createBracketExpr(expr);
     } else {   // there should be no else ...
-        printf("Do Not Want!\n");
+//         printf("Do Not Want!\n");
         niceify(expr);
         expr->children = NULL;
     }

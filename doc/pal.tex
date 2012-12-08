@@ -23,16 +23,20 @@ James Osgood }
 \textbf{The man page is available by typing} \emph{make man}
 
 \section*{Introduction}
-Our goals for this checkpoint are threefold:
+Our goals for this final checkpoint are:
 \begin{enumerate}
 \item Implement fully functional and correct lexical analysis.
 \item Implement correct syntactical analysis, including adequate and meaningful error-detection and recovery.
 \item Symbol table and semantic analysis.
+\item Full compiler functionality for the entire \emph{pal} language.
 \end{enumerate}
 
 It is our ongoing intention to report on any errors in the program in a way that is meaningful to the user so that corrective action may be taken. The compiler must also recover from each error in such a manner that further reporting of errors is possible, up until the end of the program listing.\\
-Currently, because of the limited functionality of the compiler, only the '-n' flag is operational when running \emph{pal}. The '-n' option supresses the program listing from being output.
-
+Run-time options include:\\
+The '-n' option supresses the program listing from being output.\\
+'-S' leaves ASC code in \emph{filename}.asc instead of deleting it.\\
+'-a' suppresses run-time array subscript bounds checking.\\
+'-c' compiles the program into ASC code, but does not execute.\\
 
 \section*{Handling of Lexical Units}
 Our lexer parses tokens in the following order: first, all single and multi-line comments are parsed, followed by reserved \emph{pal} keywords, then numbers and variable names. Relational operators and other lexical units are parsed last. Any remaining unparsed tokens are presumed invalid, and the grammar handles reporting the error accordingly.
@@ -80,24 +84,27 @@ I/O procedure invocations without parentheses (\texttt{write}, \texttt{read}, \t
 \section*{Syntax Tree}
 To generate the \emph{ASC} assembly code for a \emph{pal} program, we build a syntax tree of the program using the bison grammar structure. The nodes of the tree consist of a type indicator, the symbol resulting from the grammar rule (if present), and additional contructs that are required to do semantic analysis and symbol creation, but not code generation; for example, we require the parameters of a procedure declaration to create the associated symbol, but we do not need the parameters to generate code for the procedure because the parameters are stored in the procedure symbol itself.\\
 
-After we have generated a syntax tree from this first pass, we reformat and simplify the tree to facilitate easier code generation. Lists in the tree are flattened, unnecessary nodes are collapsed (especially expression nodes), and a minor number of nodes are added for consistency reasons. Also, the additional constructs not involved in code generation removed from the nodes, leaving just the node type indicator and symbol (if present) remaining. The simplified tree has the following form:\\
-
-\begin{figure}[ht]
-\caption{Assignment}
-\centering
-\includegraphics[scale=0.25]{./doc/assignment.pdf}
-\end{figure}
+After we have generated a syntax tree from this first pass, we reformat and simplify the tree to facilitate easier code generation. Lists in the tree are flattened, unnecessary nodes are collapsed (especially expression nodes), and a minor number of nodes are added for consistency reasons. Also, the additional constructs not involved in code generation removed from the nodes, leaving just the node type indicator and symbol (if present) remaining. The simplified tree has the following form (See figure \ref{fig:program}):\\
 
 \begin{figure}[ht]
 \caption{Program}
 \centering
-\includegraphics[scale=0.25]{./doc/program.pdf}
+\includegraphics[scale=0.5]{./doc/program.pdf}
+\label{fig:program}
 \end{figure}
 
 \begin{figure}[ht]
-\caption{Stat}
+\caption{Statements}
 \centering
-\includegraphics[scale=0.25]{./doc/stat.pdf}\\
+\includegraphics[width=150mm,height=40mm]{./doc/stat.pdf}
+\label{fig:stat}
+\end{figure}
+
+\begin{figure}[ht]
+\caption{Assignments}
+\centering
+\includegraphics[width=150mm,height=50mm]{./doc/assignment.pdf}\\
+\label{fig:assign}
 \end{figure}
 
 The only dedicated leaf nodes are \texttt{exit}, \texttt{continue}, and \texttt{symbol}, but \texttt{VAR\_DECL\_LIST}, \texttt{PROC\_DECL\_LIST},  and \texttt{STAT\_LIST} will also have no children if their respective sections are empty. Only the \texttt{symbol} node contains actual symbols.\\
@@ -111,7 +118,6 @@ We use a postorder transveral (for most operations) to recursively generate code
 \item parameters are accessed with a negative offset from the indexing register, starting at -3.
 \item the return value of a function is saved with an offset of -1 from the lowest parameter offset (i.e. below all the parameters).
 \end{itemize}
-\\
 We handle 1-dimensional arrays, but arrays of larger dimension are handled non-deterministically (that is, they are not fully implemented). Run-time array bounds checking is also not implemented.
 
 \section*{Math Functions}

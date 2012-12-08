@@ -45,6 +45,7 @@ docs:
 	epstopdf doc/program.ps
 	epstopdf doc/stat.ps
 	pdflatex -output-directory doc doc/pal.tex
+	pdflatex -output-directory doc doc/pal.tex
 
 pal: ${GRAMMAR} ${LEXER} ${SOURCE}
 	flex -i -o src/${LEXER_C} ${LEXER} 
