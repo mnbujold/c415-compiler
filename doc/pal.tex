@@ -108,6 +108,23 @@ An additional transformation take place before we generate code: arithmetic oper
 \section*{Code Generation}
 TODO\\
 
+\section*{Math Functions}
+Math functions must be implemented using the basic arithmetic operations available in \emph{ASC}. The degree of precision required for this project was set as accuracy to 6 decimal places.
+\subsection*{Natural Log}
+The natural log (ln) function is calculated using a Mercator Series expansion:\\
+$ ln(x) = \displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n+1}{n} (x-1)^n $ \\
+The identity $ -ln(\frac{1}{x}) = ln(x)$ is used for values where $x > 1$.\\
+The only problem with this method is that for very large values of x, some precision is lost. 
+
+\subsection*{Exponential - $e^x$}
+The value for $e^x$ is calculated using a Maclaurin Series expansion:\\
+$ e^x = \displaystyle\sum_{n=1}^{\infty} \frac{x^n}{n!}  $ \\
+
+\subsection*{arctan}
+The value for $arctan(x)$ is calculated using a Taylor Series expansion (where $|x| < 1 $): \\
+$ arctan(x) = \displaystyle\sum_{n=0}^{\infty} \frac{(-1)^n}{2n+1} x^{2n+1} $ \\
+and the following formula is used for $|x| >1$:\\
+$arctan(x) = 2 * arctan(\frac{x}{1+sqrt(1+x^2)})$
 
 \section*{Testing}
 To facilitate large scale testing and efficient reading of listing files, we created a python script to run the compiler on multiple tests and pipe the resulting output to a testing log.\\
@@ -117,16 +134,7 @@ When outputting program listings with the errors and line numbers appended, they
 \section*{Bugs/Features}
 Since we do not strip out comments when listing the parsed file, the listing file may not be further parsable (that is, the listing may cause additional errors if run through the compiler). This is because of block comments, in a line where an error occurred, whose closed brackets interrupt the block comment of the error message added to the listing.
 
-\section*{Math Functions}
-Math functions must be implemented using the basic arithmetic operations available in \emph{ASC}. The degree of precision required for this project as set as accurate to 6 decimal places.
-\subsection*{Natural Log}
-The natural log (ln) function is calculated using a Mercator Series expansion:\\
-$ formula here $ \\
-The identity $ -ln(\frac{1}{x}) = ln(x)$ is used for values where $x > 1$.\\
-The only problem with this method is that for very large values of x, some precision is lost. 
 
-\subsection*{Exponential - $e^x$}
-The value for $e^x$ is calculated using a Maclaurin Series expansion:\\
-$ formula here $ \\
+
 
 \end{document}
