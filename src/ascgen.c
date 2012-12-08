@@ -273,7 +273,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         genCodeForStatementList (statements);
         
         adjustAmount += procedureInfo->numVarWords;
-        //genVarAdjust (adjustAmount);
+       // genVarAdjust (adjustAmount);
         
         genProcReturn(procedureInfo);
         if (procDeclarations->children != NULL) {        
@@ -1022,7 +1022,7 @@ void genBuiltinCall (symbol *builtinSymbol) {
         
     }
     else if (strcmp (procName, "trunc") == 0) {
-        printf ("Call to trunc\n");
+//         printf ("Call to trunc\n");
         procInfo truncInfo = {.procLabel = TRUNC_LABEL, .indexingRegister = BUILTIN_REGISTER};
         genProcCall (&truncInfo);
     }
@@ -1036,7 +1036,7 @@ void genCodeForExpression (GNode *expressionNode) {
     int isVarParam = 0;
     node_type parentNodeType = getNiceType (expressionNode->parent);
     if (parentNodeType == NT_PROC_INVOK || parentNodeType == NT_FUNC_INVOK) {
-        printf ("Parent node was a procedure or function invocation\n");
+//         printf ("Parent node was a procedure or function invocation\n");
 
         GNode *parentNode = expressionNode->parent;
         int position = g_node_child_position (parentNode, expressionNode);
@@ -1780,7 +1780,9 @@ void genProcReturn (procInfo *procedureInfo) {
     char label [strlen (procedureInfo->procLabel) + strlen("end")];
     sprintf (label, "%send", procedureInfo->procLabel);
     generateLabel (label);
+    int numWords = procedureInfo->numVarWords;
     //TODO: GEnerate adjust!
+    genVarAdjust (numWords);
     char instruction[strlen ("RET") + 2];
     sprintf (instruction, "RET %d", procedureInfo->indexingRegister);
     generateFormattedInstruction (instruction);
@@ -1912,13 +1914,33 @@ void genCodeForRead (GNode *paramNode, int ln) {
             case TC_INTEGER:
             {
                 //genVarParamAssign ()
-                generateFormattedInstruction("READI");
                 genCodeForExpression (paramNode);
+                generateFormattedInstruction("READI");
+                generateFormattedInstruction("POPI");
+                if (ln) {
+                    generateFormattedInstruction("READC");
+                    generateFormattedInstruction("CONSTI 10");
+                    generateFormattedInstruction ("SUBI");
+                    generateFormattedInstruction ("NOT");
+                    genBranch ("readlnerror");
+                    
+                }
+
                 break;
             }
             case TC_REAL:
             {
+                genCodeForExpression (paramNode);
                 generateFormattedInstruction ("READR");
+                generateFormattedInstruction ("POPI");
+                if (ln) {
+                    generateFormattedInstruction("READC");
+                    generateFormattedInstruction("CONSTI 10");
+                    generateFormattedInstruction ("SUBI");
+                    generateFormattedInstruction ("NOT");
+                    genBranch ("readlnerror");
+                    
+                }
                 break;
             }
             case TC_STRING:
