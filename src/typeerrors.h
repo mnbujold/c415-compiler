@@ -195,4 +195,9 @@ void illArrayAccessMaxError(int index, int max);
  */
 void ctrlTypeNotInLoopError(const char *controlType);
 
+/**
+ * Adds a "type 'typeId' is not a legal return type" error.
+ */
+void badFuncReturnTypeError(const char *typeId);
+
 #endif

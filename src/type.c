@@ -464,6 +464,11 @@ addNewFunc(const char *id, const char *typeId, GPtrArray *paramList) {
         } else if (returnType == NULL) {
             typeNotDefinedError(typeId);
             returnType = createErrorType(typeId);
+        } else if (getTypeClass(returnType) == TC_ARRAY
+                || getTypeClass(returnType) == TC_RECORD
+                || getTypeClass(returnType) == TC_STRING) {
+            badFuncReturnTypeError(typeId);
+            returnType = createErrorType(typeId);
         }
         
         if (returnType->desc.type_attr->type != TC_ERROR

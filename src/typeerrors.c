@@ -279,3 +279,11 @@ ctrlTypeNotInLoopError(const char *controlType) {
     sprintf(errMsg, "'%s' statement not in a loop", controlType);
     addTypeError(errMsg);
 }
+
+void
+badFuncReturnTypeError(const char *typeId) {
+    char errMsg[50 + strlen(typeId)];
+    sprintf(errMsg, "type '%s' is not a legal function return type", typeId);
+    addTypeError(errMsg);    
+}
+
