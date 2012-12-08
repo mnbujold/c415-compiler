@@ -629,7 +629,7 @@ int getExpressionValue (GNode *expressionNode) {
        }
             procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
             if (functionInfo == NULL) {
-                genBuiltinCall (funcSymbol);
+                genBuiltinCall (funcSymbol, expressionNode);
             }
             else {
             genProcCall (functionInfo);
@@ -747,7 +747,6 @@ void genCodeForStatement(GNode *statement) {
         }
         case NT_PROC_INVOK:
         {
-
 //             GNode *currentParamNode = statement->children->next;
 //             int numParams = g_node_n_children (statement) - 1;
 //             while (currentParamNode != NULL) {
@@ -795,7 +794,7 @@ void genCodeForStatement(GNode *statement) {
                     //Just in case I'm forgetting a procedure
                     //or theres some procedure that doesn't need special handling
 
-                    genBuiltinCall(procSymbol);
+                    genBuiltinCall(procSymbol, statement);
                 }
 
             }
@@ -1015,7 +1014,13 @@ symbol *getFirstProcParent(GNode *node) {
 /**
  * Return information needed to call a builtin here
  */
-void genBuiltinCall (symbol *builtinSymbol) {
+void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
+    
+    GNode *currentParamNode = expressionNode->children->next;
+    //-1 for symbol that is a child, -1 for the return value
+    //allocate space for return value 
+    type_class paramType = getExpressionType (expressionNode);
+    
     const char *procName = builtinSymbol->name;
     if (strcmp (procName, "writeln") == 0) {
         generateComment ("Writeln call here");
@@ -1027,33 +1032,104 @@ void genBuiltinCall (symbol *builtinSymbol) {
     else if (strcmp (procName, "readln") == 0) {
     }
     else if (strcmp (procName, "read") == 0) {
+
     }
     else if (strcmp (procName, "abs") == 0) {
         //genProcCall (
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        if (paramType == TC_REAL) {
+            procInfo->procLabel = ABSR_LABEL;
+            procInfo->indexingRegister = BUILTIN_REGISTER;
+        }
+        else {
+            procInfo->procLabel = ABSI_LABEL;
+            procInfo->indexingRegister = BUILTIN_REGISTER;
+        }
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "chr") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = CHR_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "cos") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = COS_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "ln") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = LN_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "odd") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = ODD_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "ord") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = ORD_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "pred") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = PRED_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "round") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = ROUND_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "sin") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = SIN_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "sqr") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = SQR_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "sqrt") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = SQRT_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "succ") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = SUCC_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "exp") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = EXP_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
         
     }
     else if (strcmp (procName, "trunc") == 0) {
@@ -1089,7 +1165,7 @@ void genCodeForExpression (GNode *expressionNode) {
         }
 //         printf ("Done getting the params list\n");
         char *procName = procSymbol->name;
-        printf ("The name of the procedure is: %s\n", procName);
+//         printf ("The name of the procedure is: %s\n", procName);
         if ((strcmp (procName, "writeln") ==0) || (strcmp (procName, "write") ==0) ||
             (strcmp (procName, "read") == 0) || (strcmp (procName, "readln") == 0)) {
             printf ("Is an io procedure\n");
@@ -1315,7 +1391,7 @@ void genCodeForExpression (GNode *expressionNode) {
             }
             procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
             if (functionInfo == NULL) {
-                genBuiltinCall (funcSymbol);
+                genBuiltinCall (funcSymbol, expressionNode);
             }
             else {
             genProcCall (functionInfo);
