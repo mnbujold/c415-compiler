@@ -27,3 +27,6 @@ on the machine (eg little endian or big endian integer representation)
 
 Array bounds checking is not implemented
 
+pred and succ will always just return a value. They do not check if the pred or succ is out of bounds
+
+

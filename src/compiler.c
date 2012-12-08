@@ -40,6 +40,7 @@ char listing_filename[PATH_MAX];
 char asc_filename[PATH_MAX];
 extern int numErrors;
 int incodegen;
+int compilationSuccessful;
 
 
 #ifdef DEBUG
@@ -68,6 +69,9 @@ static void my_handler (int signalNum) {
     else if (incodegen) {
       printf ("Fatal exception encountered during code generation\n");
     }
+    else if (compilationSuccessful) {
+      printf ("Error. Could not open the ASC interpreter. Exiting\n");
+    }
     else {
       printf ("Fatal exception encountered by compiler\n");
 
@@ -91,7 +95,8 @@ main(int argc,char** argv)
 	sList = NULL;
 	eList = NULL;
 	iserror = 0;
-  incodegen = 0;
+    incodegen = 0;
+    compilationSuccessful = 0;
     token_location = 0;
     lineno = 1;
     oldlineno = 0;
@@ -145,30 +150,37 @@ main(int argc,char** argv)
         genASCCode(getSyntaxTree(), asc_filename);
 //         genASCCode (getSyntaxTree(), "test.asc");
         printf("Compilation successful.\n");
+        compilationSuccessful = 1;
        
     }
 
-    if(0){ // Don't run this section yet...
+    if(compilationSuccessful){ // Don't run this section yet...
     //if(execute && !iserror){
       // open pipe and execute
-      asc_file = fopen(asc_filename, "r");
-      if(asc_file == NULL){
-        fprintf(stderr, "pal error: Cannot open file %s\n", asc_filename);
-        exit(EXIT_FAILURE);
-      }
-      interpreter = popen(ascLocation, "w");
-      if(interpreter == NULL){
-        fprintf(stderr, "pal error: Could not open pipe to asc interpreter.\n");
-        exit(EXIT_FAILURE);
-      }
-      while(!feof(asc_file)){
-        // TODO: read from file and pipe to interpreter
-      }
-      fclose(asc_file);
-      pclose(interpreter);
+      char *command = calloc ((strlen ("./interpreter ") + strlen (asc_filename)), sizeof (char));
+      sprintf (command, "~c415/ASC/bin/asc  %s", asc_filename);
+      system (command);
+//       asc_file = fopen(asc_filename, "r");
+//       if(asc_file == NULL){
+//         fprintf(stderr, "pal error: Cannot open file %s\n", asc_filename);
+//         exit(EXIT_FAILURE);
+//       }
+//       interpreter = popen(ascLocation, "w");
+//       if(interpreter == NULL){
+//         fprintf(stderr, "pal error: Could not open pipe to asc interpreter.\n");
+//         exit(EXIT_FAILURE);
+//       }
+//       while(!feof(asc_file)){
+//         // TODO: read from file and pipe to interpreter
+//       }
+//       fclose(asc_file);
+//       pclose(interpreter);
     }
 
     if(!leave_asc){
+        char *command = calloc ((strlen ("rm ") + strlen (asc_filename)), sizeof (char));
+        sprintf (command, "rm %s", asc_filename);
+        system (command);
       // Delete .asc file
     }
         
