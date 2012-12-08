@@ -11,22 +11,38 @@
 #define ABSI_REGISTER 0
 #define ABSR_REGISTER 0
 
+#define ABSR_LABEL "absr"
+#define ABSI_LABEL "absi"
+
+#define CHR_LABEL "chr"
+
+#define COS_LABEL "cos"
+#define LN_LABEL "ln"
+
+#define ODD_LABEL "odd"
+
+#define ORD_LABEL "ord"
+
+#define PRED_LABEL "pred"
+
+#define ROUND_LABEL "round"
+
+#define SIN_LABEL "sin"
+
+#define SQR_LABEL "sqr"
+
+#define SQRT_LABEL "sqrt"
+
+#define SUCC_LABEL "succ"
+
+#define EXP_LABEL "exp"
+
+#define TRUNC_LABEL "trunc"
+
 
 #define WRITELN_REGISTER 0
 #define WRITELN_LABEL WRITELN
 
-#define LN_REGISTER 0
-#define LN_LABEL LN
 
-#define EXP_REGISTER 0
-#define EXP_LABEL EXP
-
-#define SQRI_REGISTER 0
-#define SQRI_LABEL SQRI
-
-#define SQRT_REGISTER 0
-#define SQRT_LABEL SQRT
-
-#define TRUNC_LABEL "trunc"
 
 #endif

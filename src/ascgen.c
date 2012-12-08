@@ -629,7 +629,7 @@ int getExpressionValue (GNode *expressionNode) {
        }
             procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
             if (functionInfo == NULL) {
-                genBuiltinCall (funcSymbol);
+                genBuiltinCall (funcSymbol, expressionNode);
             }
             else {
             genProcCall (functionInfo);
@@ -684,7 +684,6 @@ void genCodeForStatement(GNode *statement) {
               genVarAssign (addressDescription,0);
             }
             else if (varType == NT_ARRAY_ACCESS) {
-              // MIKE IS WORKING ON THIS
               GNode *varNode = statement->children->children; // lvalue
               GNode *exprNode = statement->children->next; // rvalue
               // Get address of symbol
@@ -694,39 +693,77 @@ void genCodeForStatement(GNode *statement) {
               GNode *lval_exprNode = varNode->children->next;
               // Push lval_expr value on stack
               genCodeForExpression(lval_exprNode); // Relative array position
+              // First subscript now on stack (ie. v1)
+
+              // Subtract lower bound of v1 (ie. l1)
+              int lower = varSymbol->symbol_type->desc.type_attr->desc.array->minIndex;
+              //push lower onto stack
+              // emit SUBI
+              // push p1 on stack
+              
+              
               // TODO: Deal with strange starting positions (eg. -2)
 
+              int u_vals[10];
+              int l_vals[10];
+              
+              // First array size
+              int size = varSymbol->symbol_type->desc.type_attr->desc.array->size;
+              u_vals[0] = varSymbol->symbol_type->desc.type_attr->desc.array->maxIndex;
+              l_vals[0] = varSymbol->symbol_type->desc.type_attr->desc.array->minIndex;
+              
+              
+              symbol *objSymb = varSymbol->symbol_type->desc.type_attr->desc.array->obj_type;
+              printf("\tArray is of type %d and size %d\n", getTypeClass(objSymb), size);
+              printf("\tUpper is %d and lower is %d\n", u_vals[0], l_vals[0]);
 
-              symbol *nextSymb = varSymbol->symbol_type->desc.type_attr->desc.array->index_type;
-              printf("Type of NEXTSYMB: %d \n", getTypeClass(nextSymb));
+              int i=1;
+              while(getTypeClass(objSymb) == 6){
+                u_vals[i] = objSymb->desc.type_attr->desc.array->maxIndex;
+                l_vals[i] = objSymb->desc.type_attr->desc.array->minIndex;
+                printf("\tobject number %d\n", i);
+                i++;
+                objSymb = objSymb->desc.type_attr->desc.array->obj_type;
+                
+              }
 
-
+              printf("type we are arraying: %d \n", getTypeClass(objSymb));
+                            
+              int j;
+              for(j=0; j<i; j++){
+                printf("\tu: %d, \tl: %d nests: %d \n", u_vals[j], l_vals[j], i);
+                
+              }
+              // need size of final arrayval
+              
+              int p_vals[10];
+              for(j=1; j<i; j++){
+                p_vals[j] = u_vals[j-1] - l_vals[j-1] +1;
+                printf("p_val: %d\n", p_vals[j]);
+              }
+              
               // For multi-dimensional business - not 100% working yet
-              while(lval_exprNode->next != NULL){
+              // MIKE IS WORKING ON THIS
+              while(0){
+              //while(lval_exprNode->next != NULL){
                 printf("xtra dim array\n");
                 genCodeForExpression(lval_exprNode->next);
-                // get size array
+                // get size of arrays for calculating address
 
-                
-                varAddressStruct *addrDes = g_hash_table_lookup(variableAddressTable, varSymbol); 
-                printf("VALUE: %d \n",addrDes->offset);
-                
-                int size = varSymbol->symbol_type->desc.type_attr->desc.array->size;
-                
-                //symbol *nextSymb = varSymbol->symbol_type->desc.type_attr->desc.array->index_type;
-                //int nextsize = nextSymb->symbol_type->desc.type_attr->desc.array->size;
-                
-                //printf("Type of NEXTSYMB: %d \n", getTypeClass(nextSymb));
-                //printf("Size of 1st and 2nd: %d %d \n", size, nextsize);
+                int nextsize = objSymb->desc.type_attr->desc.array->size;
+                printf("\tNext Array Size: %d\n", nextsize);
                 
                 char instruction [strlen ("CONSTI") + 256];
                 sprintf(instruction, "CONSTI %d", size);
                 generateFormattedInstruction(instruction);
                 // multiply two values
                 generateFormattedInstruction("MULI");
+                
                 generateFormattedInstruction("ADDI");
                 lval_exprNode = lval_exprNode->next;
-                varSymbol = nextSymb;
+
+                objSymb = objSymb->desc.type_attr->desc.array->obj_type;
+                printf("\tobjSymb type: %d \n", getTypeClass(objSymb));
               }
               
               char instruction [strlen ("CONSTI") + 256];
@@ -747,7 +784,6 @@ void genCodeForStatement(GNode *statement) {
         }
         case NT_PROC_INVOK:
         {
-
 //             GNode *currentParamNode = statement->children->next;
 //             int numParams = g_node_n_children (statement) - 1;
 //             while (currentParamNode != NULL) {
@@ -795,7 +831,7 @@ void genCodeForStatement(GNode *statement) {
                     //Just in case I'm forgetting a procedure
                     //or theres some procedure that doesn't need special handling
 
-                    genBuiltinCall(procSymbol);
+                    genBuiltinCall(procSymbol, statement);
                 }
 
             }
@@ -1015,7 +1051,13 @@ symbol *getFirstProcParent(GNode *node) {
 /**
  * Return information needed to call a builtin here
  */
-void genBuiltinCall (symbol *builtinSymbol) {
+void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
+    
+    GNode *currentParamNode = expressionNode->children->next;
+    //-1 for symbol that is a child, -1 for the return value
+    //allocate space for return value 
+    type_class paramType = getExpressionType (expressionNode);
+    
     const char *procName = builtinSymbol->name;
     if (strcmp (procName, "writeln") == 0) {
         generateComment ("Writeln call here");
@@ -1027,33 +1069,104 @@ void genBuiltinCall (symbol *builtinSymbol) {
     else if (strcmp (procName, "readln") == 0) {
     }
     else if (strcmp (procName, "read") == 0) {
+
     }
     else if (strcmp (procName, "abs") == 0) {
         //genProcCall (
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        if (paramType == TC_REAL) {
+            procInfo->procLabel = ABSR_LABEL;
+            procInfo->indexingRegister = BUILTIN_REGISTER;
+        }
+        else {
+            procInfo->procLabel = ABSI_LABEL;
+            procInfo->indexingRegister = BUILTIN_REGISTER;
+        }
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "chr") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = CHR_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "cos") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = COS_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "ln") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = LN_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "odd") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = ODD_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "ord") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = ORD_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "pred") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = PRED_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "round") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = ROUND_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "sin") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = SIN_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "sqr") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = SQR_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "sqrt") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = SQRT_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "succ") == 0) {
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = SUCC_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
     }
     else if (strcmp (procName, "exp") == 0) {
+        if (paramType == TC_INTEGER)
+            generateFormattedInstruction ("ITOR");
+        procInfo *procInfo = calloc (1, size of (procInfo));
+        procInfo->procLabel = EXP_LABEL;
+        procInfo->indexingRegister = BUILTIN_REGISTER;
+        genProcCall (procInfo);
         
     }
     else if (strcmp (procName, "trunc") == 0) {
@@ -1089,7 +1202,7 @@ void genCodeForExpression (GNode *expressionNode) {
         }
 //         printf ("Done getting the params list\n");
         char *procName = procSymbol->name;
-        printf ("The name of the procedure is: %s\n", procName);
+//         printf ("The name of the procedure is: %s\n", procName);
         if ((strcmp (procName, "writeln") ==0) || (strcmp (procName, "write") ==0) ||
             (strcmp (procName, "read") == 0) || (strcmp (procName, "readln") == 0)) {
             printf ("Is an io procedure\n");
@@ -1315,7 +1428,7 @@ void genCodeForExpression (GNode *expressionNode) {
             }
             procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
             if (functionInfo == NULL) {
-                genBuiltinCall (funcSymbol);
+                genBuiltinCall (funcSymbol, expressionNode);
             }
             else {
             genProcCall (functionInfo);
