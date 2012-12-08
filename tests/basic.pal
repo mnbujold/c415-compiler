@@ -1,9 +1,9 @@
 program writeln (readln5wre, readlol);
 type typp = (asd, dsa);
 
-var x, y : integer;
-asdf : typp;
-    bob, joe : real;
+// var x, y : integer;
+// asdf : typp;
+//     bob, joe : real;
 //     joe, tjdfg : typp;
 
 // function checkRet() : integer;
@@ -28,6 +28,9 @@ asdf : typp;
 // //     checkRet := 4;
 // end;
 
+procedure foo(integer : integer);
+begin end;
+    
 
 begin
 //     if true then
