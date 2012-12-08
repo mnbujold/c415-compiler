@@ -160,6 +160,11 @@ void missingVarParamError(int arg_num, char *proc_name);
 void badProcArgError(int arg_num, char *proc_name);
 
 /**
+ * Adds an "var argument arg_num of 'proc_name' call has incompatible type" error.
+ */
+void badProcVarArgError(int arg_num, char *proc_name);
+
+/**
  * Adds a "symbol 'id' not a record" error.
  */
 void symNotRecordError(const char *id);

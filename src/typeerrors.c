@@ -212,12 +212,21 @@ missingVarParamError(int arg_num, char *proc_name) {
     addTypeError(errMsg);
 }
 
-
 void
 badProcArgError(int arg_num, char *proc_name) {
     char errMsg[80 + strlen(proc_name)];
     sprintf(errMsg,
             "argument %d of '%s' call has incompatible type",
+            arg_num,
+            proc_name);
+    addTypeError(errMsg);
+}
+
+void
+badProcVarArgError(int arg_num, char *proc_name) {
+    char errMsg[85 + strlen(proc_name)];
+    sprintf(errMsg,
+            "var argument %d of '%s' call has incompatible type",
             arg_num,
             proc_name);
     addTypeError(errMsg);

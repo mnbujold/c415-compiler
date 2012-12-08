@@ -1115,6 +1115,11 @@ checkCallAndArgs(const char *procname, GPtrArray *arguments, object_class oc,
         || (arg->oc == OC_PARAM && arg->desc.parm_attr->varParam == 1))) {
             missingVarParamError(i + 1, procname);
             goodCall = 0;
+        } else if (param->desc.parm_attr->varParam == 1
+                && ((assignmentCompatibleSym(param, arg, 0) != 1)
+                 || (assignmentCompatibleSym(arg, param, 0) != 1))) {
+            badProcVarArgError(i + 1, procname);
+            goodCall = 0;            
         }
         
         if (assignmentCompatibleSym(param, arg, 0) != 1) {
