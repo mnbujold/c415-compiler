@@ -202,11 +202,9 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         GNode *procDeclarations = declarations->children->next;
         GPtrArray *params;
         if (procedureSymbol->oc == OC_FUNC) {
-            printf ("Is a function\n");
-            //TODO: Get return address here
-            //make a new symbol that is equal to the procedure name
+//             printf ("Is a function\n");
             params = procedureSymbol->desc.func_attr->params;
-            printf ("Number of children of functinon:  %d\n", g_node_n_children( node));
+//             printf ("Number of children of functinon:  %d\n", g_node_n_children( node));
             int offset = 0 -(params->len) - NUM_RETURN_VALUES - 1;
 //             printf ("offset of return value %d\n", offset);
             varAddressStruct *functionReturnAddress = calloc (1, sizeof (varAddressStruct));
@@ -214,7 +212,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             functionReturnAddress->offset = offset;
             g_hash_table_insert (variableAddressTable, procedureSymbol, functionReturnAddress);
             varAddressStruct *returned = g_hash_table_lookup (variableAddressTable, procedureSymbol);
-            printf ("Function: Address of %s: %p\n", procedureSymbol->name, procedureSymbol);
+//             printf ("Function: Address of %s: %p\n", procedureSymbol->name, procedureSymbol);
             // printf ("Address of function symbol: %p\n", procedureSymbol);
             // printf ("address o returned thing: %p\n", returned);
             // adjustAmount = g_node_n_children (node) -2;
@@ -653,7 +651,7 @@ void genCodeForStatement(GNode *statement) {
         case NT_ASSIGNMENT:
         {
             //evaluate the expression
-            
+            printf ("--GENERATING CODE FOR ASSIGNMENT--\n");
             //remember there is a level of indrirection here
             GNode *varNode = statement->children;
             node_type varType = getNiceType (varNode->children);
@@ -661,20 +659,23 @@ void genCodeForStatement(GNode *statement) {
               GNode *symbolNode = (statement->children)->children;
               // printf ("type of var's first child: %d\n", getNiceType (symbolNode));
               symbol *varSymbol = getSymbol (symbolNode);
-              
+              printf ("symbol name: %s\n", varSymbol->name);
+              printf ("Symbol type: %d\n", varSymbol->oc);
               varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
               if (varSymbol->oc == OC_PARAM) {
+                  printf ("Is a parameter\n");
                 if (varSymbol->desc.parm_attr->varParam) {
                    printf ("IM A PAASFSAFASFASFASFA\n");
                   GNode *expressionNode = statement->children->next;
                   genVarParamAssign (addressDescription);
                   genCodeForExpression (expressionNode);
+                  generateFormattedInstruction("POPI");
                   return;
                 }
               }
-              printf ("ASSIGNMENT\n");
-              printf ("symbol name: %s\n", varSymbol->name);
-              printf ("Symbol address: %p\n", varSymbol);
+//               printf ("ASSIGNMENT\n");
+//               printf ("symbol name: %s\n", varSymbol->name);
+//               printf ("Symbol address: %p\n", varSymbol);
 
               GNode *expressionNode = statement->children->next;
               genCodeForExpression (expressionNode);
@@ -1164,6 +1165,7 @@ void genCodeForExpression (GNode *expressionNode) {
         }
         case NT_VAR:
         {
+            printf ("---VAR IN AN EXPRESSION\n");
             printf ("Address of the var: %p\n", expressionNode);
 
             node_type varType = getNiceType(expressionNode->children);
@@ -1186,6 +1188,7 @@ void genCodeForExpression (GNode *expressionNode) {
 //                   printf ("Symbol name: %s type: %d typeClass: %d\n", varSymbol->name, varSymbol->oc, getTypeClass (varSymbol));
 //               }
               printf ("Symbol we're accessing: %s\n", varSymbol->name);
+              printf ("Type of the symbol; %d\n", varSymbol->oc);
               printf ("varParam flag: %d\n", isVarParam);
               if (isVarParam) {
                   genVarParam(address);
@@ -1193,6 +1196,11 @@ void genCodeForExpression (GNode *expressionNode) {
               else {
                   printf ("Not an address, just put it on normally\n");
                   genVarAccess (address);
+                  if (varSymbol->oc == OC_PARAM) {
+                      if (varSymbol->desc.parm_attr->varParam) {
+                          generateFormattedInstruction("PUSHI");
+                      }
+                  }
               }
 
             }
@@ -1705,7 +1713,9 @@ void genVarAssign (varAddressStruct *addressDescription, int subscript) {
 
     }
 }
+
 void genVarParamAssign (varAddressStruct *addressDescription) {
+    printf ("In gen var param assign\n");
     int indexingRegister = addressDescription->indexingRegister;
     int offset = addressDescription->offset;
     char instruction [strlen ("PUSHA []") + 32];
@@ -1747,6 +1757,9 @@ void genVarParam (varAddressStruct *addressDescription) {
       sprintf (instruction, "PUSHA %d[%d]", offset, indexingRegister);
       generateFormattedInstruction (instruction);
     }
+}
+
+void genVarParamAccess (varAddressStruct *addressDescription) {
 }
 /**
  * generates a CALL instruction to the relevant procedure stored in procedureInfo
