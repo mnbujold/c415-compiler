@@ -839,6 +839,11 @@ accessArray(symbol *array, symbol *index) {
     
     object_class indexOC = index->oc;
     
+    if (indexOC == OC_FUNC) {
+        index = createSymbol(NULL, index->symbol_type, OC_VAR, (void *) createVarDesc());
+        indexOC = index->oc;
+    }
+    
     if (indexOC != OC_CONST && indexOC != OC_VAR && indexOC != OC_PARAM) {
         symNotAVarParmConstError(NULL);
         return createErrorSym(OC_VAR); // index not a constant, variable, or parameter

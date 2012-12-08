@@ -1,0 +1,59 @@
+(a)dd book, add (r)eview, (l)ook at book, or e(x)it? 
+Sorry, your library is empty!
+(a)dd book, add (r)eview, (l)ook at book, or e(x)it? 
+Add a new book:
+
+Title (up to 50 characters)? 
+Author (up to 25 characters)? 
+ID? 
+(a)dd book, add (r)eview, (l)ook at book, or e(x)it? 
+Add a new book:
+
+Title (up to 50 characters)? 
+Author (up to 25 characters)? 
+ID? 
+ID already in use!
+ID? 
+(a)dd book, add (r)eview, (l)ook at book, or e(x)it? 
+Find the book:
+
+ID? 
+No book has that ID!
+ID? 
+Add a new review:
+
+Reviewer (up to 25 characters)? 
+Summary ((g)ood or (b)ad)? 
+Invalid summary!
+Summary ((g)ood or (b)ad)? 
+(a)dd book, add (r)eview, (l)ook at book, or e(x)it? 
+Find the book:
+
+ID? 
+Add a new review:
+
+Reviewer (up to 25 characters)? 
+Summary ((g)ood or (b)ad)? 
+(a)dd book, add (r)eview, (l)ook at book, or e(x)it? 
+Find the book:
+
+ID? 
+Add a new review:
+
+Reviewer (up to 25 characters)? Bob Joe
+Summary ((g)ood or (b)ad)? 
+(a)dd book, add (r)eview, (l)ook at book, or e(x)it? 
+Find the book:
+
+ID? 
+Book info:
+
+Title: Qwerty
+Author: Joe Bob
+Reviews: 
+    Reviewer: Carol Liner
+    Summary: bad
+    Reviewer: Fish Chippensr
+    Summary: good
+(a)dd book, add (r)eview, (l)ook at book, or e(x)it?
+bye
