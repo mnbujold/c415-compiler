@@ -24,3 +24,6 @@ count.
 
 Calling chr () on 255 and greater will cause undefined behaviour, specific to the implementation of C
 on the machine (eg little endian or big endian integer representation)
+
+Array bounds checking is not implemented
+
