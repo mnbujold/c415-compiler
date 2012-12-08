@@ -649,12 +649,13 @@ int getExpressionValue (GNode *expressionNode) {
          genCodeForExpression(currentParamNode);
          currentParamNode = currentParamNode->next;
        }
+// // //             printf ("function name: %s\n", funcSymbol->name);
             procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
             if (functionInfo == NULL) {
                 genBuiltinCall (funcSymbol, expressionNode);
             }
             else {
-            genProcCall (functionInfo);
+                genProcCall (functionInfo);
             }
             genVarAdjust (numParams);
             break;
@@ -1088,6 +1089,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
 
     }
     else if (strcmp (procName, "abs") == 0) {
+//         printf ("In abs\n");
         //genProcCall (
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         if (paramType == TC_REAL) {
@@ -1098,13 +1100,14 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
             procInfo->procLabel = ABSI_LABEL;
             procInfo->indexingRegister = BUILTIN_REGISTER;
         }
-        genProcCall (procInfo);
+//         printf ("the label: %s\n", procInfo->procLabel);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "chr") == 0) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = CHR_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "cos") == 0) {
         if (paramType == TC_INTEGER)
@@ -1112,7 +1115,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = COS_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "ln") == 0) {
         if (paramType == TC_INTEGER)
@@ -1120,31 +1123,31 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = LN_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "odd") == 0) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = ODD_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "ord") == 0) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = ORD_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "pred") == 0) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = PRED_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "round") == 0) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = ROUND_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "sin") == 0) {
         if (paramType == TC_INTEGER)
@@ -1152,7 +1155,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = SIN_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "sqr") == 0) {
         if (paramType == TC_INTEGER)
@@ -1160,7 +1163,7 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = SQR_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "sqrt") == 0) {
         if (paramType == TC_INTEGER)
@@ -1168,13 +1171,13 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = SQRT_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "succ") == 0) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = SUCC_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
     }
     else if (strcmp (procName, "exp") == 0) {
         if (paramType == TC_INTEGER)
@@ -1182,13 +1185,13 @@ void genBuiltinCall (symbol *builtinSymbol, GNode *expressionNode) {
         procInfo *procInfo = calloc (1, sizeof (procInfo));
         procInfo->procLabel = EXP_LABEL;
         procInfo->indexingRegister = BUILTIN_REGISTER;
-        genProcCall (procInfo);
+        genBuiltinProcCall (procInfo);
         
     }
     else if (strcmp (procName, "trunc") == 0) {
 //         printf ("Call to trunc\n");
         procInfo truncInfo = {.procLabel = TRUNC_LABEL, .indexingRegister = BUILTIN_REGISTER};
-        genProcCall (&truncInfo);
+        genBuiltinProcCall (&truncInfo);
     }
     else {
     }
@@ -1442,8 +1445,10 @@ void genCodeForExpression (GNode *expressionNode) {
                 genCodeForExpression(currentParamNode);
                 currentParamNode = currentParamNode->next;
             }
+//             printf ("function name: %s\n", funcSymbol->name);
             procInfo *functionInfo = g_hash_table_lookup (procedureInfoTable, funcSymbol);
             if (functionInfo == NULL) {
+//                 printf ("function name: %s is null\n", funcSymbol->name);
                 genBuiltinCall (funcSymbol, expressionNode);
             }
             else {
@@ -1976,6 +1981,20 @@ void genProcCall (procInfo *procedureInfo) {
 //     printf("!!!!!!!!!!!%s\n",  procedureInfo->procLabel);
     sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, outputLabel);
 //     printf("!!!!!!!!!!!%s\n",  outputLabel);
+    
+    generateFormattedInstruction (instruction);
+}
+void genBuiltinProcCall (procInfo *procedureInfo) {
+    char instruction [strlen ("CALL") + 2 + 256];
+    //char *hm = procedureInfo->procLabel;
+    //printf ("lala %s\n", hm);
+    int lala = procedureInfo->indexingRegister;
+    //printf ("Past indexing register");
+    addLabel(procedureInfo->procLabel);
+    char *outputLabel = g_hash_table_lookup (masterLabelTable, procedureInfo->procLabel);
+    //     printf("!!!!!!!!!!!%s\n",  procedureInfo->procLabel);
+    sprintf (instruction, "CALL %d %s", procedureInfo->indexingRegister, procedureInfo->procLabel);
+    //     printf("!!!!!!!!!!!%s\n",  outputLabel);
     
     generateFormattedInstruction (instruction);
 }

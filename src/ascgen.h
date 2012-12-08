@@ -112,6 +112,7 @@ void genCodeForIntMath (GNode *expressionNode);
 void genCodeForRealMath (GNode *expressionNode);
 
 void genProcCall (procInfo *procedureInfo);
+void genBuiltinProcCall (procInfo *procedureInfo);
 void genProcReturn (procInfo *procedureInfo);
 
 
