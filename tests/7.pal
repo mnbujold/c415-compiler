@@ -1,6 +1,42 @@
 {
     7.pal
     Correct
+    
+    Input:
+    b
+    l
+    u
+    g
+    g
+    u
+    
+    Expected output:
+    What is the state now (g, b, u)? 
+
+    state1 = bad; state2 = ugly; state3 = ugly
+
+    What is the state now (g, b, u)? 
+    Invalid state indicator!
+    What is the state now (g, b, u)? 
+
+    state1 = bad; state2 = ugly; state3 = ugly
+
+    What is the state now (g, b, u)? 
+
+    state1 = bad; state2 = ugly; state3 = good
+
+    What is the state now (g, b, u)? 
+
+    state1 = good; state2 = ugly; state3 = good
+
+    What is the state now (g, b, u)? 
+
+    state1 = good; state2 = ugly; state3 = good
+
+    You have escaped the state machine!
+
+    state1 = good; state2 = ugly; state3 = good
+
 }
 program ControlTheFlow (io, oi);
 
@@ -17,24 +53,76 @@ procedure incrCounter();
 
     begin
         if counter >= MAXCOUNT then
-            counter = 1
+            counter := 1
         else
-            counter = counter + 1;
+            counter := counter + 1;
     end;
     
-function setState(var state : states; currState : char) : boolean;
-// sets state based on currState and returns if currState was indicating a
-// legal state indicator ('g', 'b', or 'u')
+procedure setState(var state : states; currState : char);
+// sets state based on currState
     begin
-        setState := true;
         if currState = 'g' then
             state := good
         else if currState = 'b' then
             state := bad
-        else if currState = 'u' then
-            state := ugly
-        else
-            setState := false;
+        else // currState = 'u'
+            state := ugly;
+    end;
+
+procedure displayStates();
+// displays the state of the three states
+    var stateArray : array[1..3] of states;
+        stateNum : integer;
+
+    begin
+        stateArray[1] := state1;
+        stateArray[2] := state2;
+        stateArray[3] := state3;
+        stateNum := 1;
+        
+        writeln;
+        
+        while stateNum <= 3 do
+        begin
+            if stateArray[stateNum] = good then
+                write('state', stateNum, ' = good')
+            else if stateArray[stateNum] = bad then
+                write('state', stateNum, ' = bad')
+            else
+                write('state', stateNum, ' = ugly');
+            
+            if stateNum <> 3 then
+                write('; ');
+            
+            stateNum := stateNum + 1;
+        end;
+        
+        writeln;
+        writeln;
+    end;
+
+function invalidState(state : char) : boolean;
+// returns whether state is a valid state indicator ('g', 'b', or 'u')
+    begin
+        invalidState := (state <> 'g') and (state <> 'b') and (state <> 'u');
+    end;
+    
+function readState() : char;
+// reads the current state until it gets a valid one
+    var state : char;
+
+    begin
+        write('What is the state now (g, b, u)? ');
+        readln(state);
+        
+        while invalidState(state) do 
+        begin
+            writeln('Invalid state indicator!');
+            write('What is the state now (g, b, u)? ');
+            readln(state);
+        end;
+        
+        readState := state;
     end;
     
 procedure getState();
@@ -43,30 +131,62 @@ procedure getState();
     var currState : char;
 
     begin
-        write('What is the state now (g, b, u)? ');
-        read(currState);
-        
+        currState := readState();
+
         if counter = 1 then
-        begin
-            if not setState(state1, currState) then
-                getState()
-        end
+            setState(state1, currState)
         else if counter = 2 then
-        begin
-            if not setState(state2, currState) then
-                getState()
-        end
+            setState(state2, currState)
         else // counter = 3
-        begin
-            if not setState(state2, currState) then
-                getState()
-        end;
+             setState(state3, currState);
         
-        
+        displayStates();
+        incrCounter();
     end;
 
 begin
+    state1 := ugly;
+    state2 := ugly;
+    state3 := ugly;
+    counter := 1;
     
-
-//     while()
+    getState();
+    
+    while state1 <> good do
+    begin
+        getState();
+        
+        if state3 = bad then
+            continue;
+        
+        while state2 <> good do
+        begin
+            getState();
+            
+            if state1 = good then
+                exit;
+            
+            if state1 = bad then
+            begin
+                while state3 = ugly do
+                    getState();
+            end
+            else if state1 = ugly then
+                getState();
+            
+            if state3 = good then
+                exit;
+            
+        end;
+        
+        if state3 <> good then
+        begin
+            state1 := ugly; // ...
+            continue
+        end;
+        
+    end;
+    
+    writeln('You have escaped the state machine!');
+    displayStates();
 end.
