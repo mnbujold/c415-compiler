@@ -202,11 +202,9 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         GNode *procDeclarations = declarations->children->next;
         GPtrArray *params;
         if (procedureSymbol->oc == OC_FUNC) {
-            printf ("Is a function\n");
-            //TODO: Get return address here
-            //make a new symbol that is equal to the procedure name
+//             printf ("Is a function\n");
             params = procedureSymbol->desc.func_attr->params;
-            printf ("Number of children of functinon:  %d\n", g_node_n_children( node));
+//             printf ("Number of children of functinon:  %d\n", g_node_n_children( node));
             int offset = 0 -(params->len) - NUM_RETURN_VALUES - 1;
 //             printf ("offset of return value %d\n", offset);
             varAddressStruct *functionReturnAddress = calloc (1, sizeof (varAddressStruct));
@@ -214,7 +212,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
             functionReturnAddress->offset = offset;
             g_hash_table_insert (variableAddressTable, procedureSymbol, functionReturnAddress);
             varAddressStruct *returned = g_hash_table_lookup (variableAddressTable, procedureSymbol);
-            printf ("Function: Address of %s: %p\n", procedureSymbol->name, procedureSymbol);
+//             printf ("Function: Address of %s: %p\n", procedureSymbol->name, procedureSymbol);
             // printf ("Address of function symbol: %p\n", procedureSymbol);
             // printf ("address o returned thing: %p\n", returned);
             // adjustAmount = g_node_n_children (node) -2;
@@ -275,7 +273,7 @@ void genCodeForFunctionNode(GNode *node, int scope) {
         genCodeForStatementList (statements);
         
         adjustAmount += procedureInfo->numVarWords;
-        //genVarAdjust (adjustAmount);
+       // genVarAdjust (adjustAmount);
         
         genProcReturn(procedureInfo);
         if (procDeclarations->children != NULL) {        
@@ -549,6 +547,7 @@ void genCodeForStatementList (GNode *statementList) {
 //TODO: Finish this
 int getExpressionValue (GNode *expressionNode) {
   // Should Return expr value for array accesses (maybe useful for other things)
+  // This whole function might just have to go...not using it right now
   printf("type of expr node: %d \n", getNiceType(expressionNode));
 
   node_type exprType = getNiceType(expressionNode);
@@ -653,7 +652,7 @@ void genCodeForStatement(GNode *statement) {
         case NT_ASSIGNMENT:
         {
             //evaluate the expression
-            
+            printf ("--GENERATING CODE FOR ASSIGNMENT--\n");
             //remember there is a level of indrirection here
             GNode *varNode = statement->children;
             node_type varType = getNiceType (varNode->children);
@@ -661,20 +660,23 @@ void genCodeForStatement(GNode *statement) {
               GNode *symbolNode = (statement->children)->children;
               // printf ("type of var's first child: %d\n", getNiceType (symbolNode));
               symbol *varSymbol = getSymbol (symbolNode);
-              
+              printf ("symbol name: %s\n", varSymbol->name);
+              printf ("Symbol type: %d\n", varSymbol->oc);
               varAddressStruct *addressDescription = g_hash_table_lookup (variableAddressTable, varSymbol);
               if (varSymbol->oc == OC_PARAM) {
+                  printf ("Is a parameter\n");
                 if (varSymbol->desc.parm_attr->varParam) {
                    printf ("IM A PAASFSAFASFASFASFA\n");
                   GNode *expressionNode = statement->children->next;
                   genVarParamAssign (addressDescription);
                   genCodeForExpression (expressionNode);
+                  generateFormattedInstruction("POPI");
                   return;
                 }
               }
-              printf ("ASSIGNMENT\n");
-              printf ("symbol name: %s\n", varSymbol->name);
-              printf ("Symbol address: %p\n", varSymbol);
+//               printf ("ASSIGNMENT\n");
+//               printf ("symbol name: %s\n", varSymbol->name);
+//               printf ("Symbol address: %p\n", varSymbol);
 
               GNode *expressionNode = statement->children->next;
               genCodeForExpression (expressionNode);
@@ -693,6 +695,40 @@ void genCodeForStatement(GNode *statement) {
               // Push lval_expr value on stack
               genCodeForExpression(lval_exprNode); // Relative array position
               // TODO: Deal with strange starting positions (eg. -2)
+
+
+              symbol *nextSymb = varSymbol->symbol_type->desc.type_attr->desc.array->index_type;
+              printf("Type of NEXTSYMB: %d \n", getTypeClass(nextSymb));
+
+
+              // For multi-dimensional business - not 100% working yet
+              while(lval_exprNode->next != NULL){
+                printf("xtra dim array\n");
+                genCodeForExpression(lval_exprNode->next);
+                // get size array
+
+                
+                varAddressStruct *addrDes = g_hash_table_lookup(variableAddressTable, varSymbol); 
+                printf("VALUE: %d \n",addrDes->offset);
+                
+                int size = varSymbol->symbol_type->desc.type_attr->desc.array->size;
+                
+                //symbol *nextSymb = varSymbol->symbol_type->desc.type_attr->desc.array->index_type;
+                //int nextsize = nextSymb->symbol_type->desc.type_attr->desc.array->size;
+                
+                //printf("Type of NEXTSYMB: %d \n", getTypeClass(nextSymb));
+                //printf("Size of 1st and 2nd: %d %d \n", size, nextsize);
+                
+                char instruction [strlen ("CONSTI") + 256];
+                sprintf(instruction, "CONSTI %d", size);
+                generateFormattedInstruction(instruction);
+                // multiply two values
+                generateFormattedInstruction("MULI");
+                generateFormattedInstruction("ADDI");
+                lval_exprNode = lval_exprNode->next;
+                varSymbol = nextSymb;
+              }
+              
               char instruction [strlen ("CONSTI") + 256];
               sprintf (instruction, "CONSTI %d", addrDesc->offset);
               generateFormattedInstruction (instruction);
@@ -1021,7 +1057,7 @@ void genBuiltinCall (symbol *builtinSymbol) {
         
     }
     else if (strcmp (procName, "trunc") == 0) {
-        printf ("Call to trunc\n");
+//         printf ("Call to trunc\n");
         procInfo truncInfo = {.procLabel = TRUNC_LABEL, .indexingRegister = BUILTIN_REGISTER};
         genProcCall (&truncInfo);
     }
@@ -1032,10 +1068,10 @@ void genBuiltinCall (symbol *builtinSymbol) {
 
 void genCodeForExpression (GNode *expressionNode) {
     //SPECIAL CASE to handle var params
-    int isVarParam;
+    int isVarParam = 0;
     node_type parentNodeType = getNiceType (expressionNode->parent);
     if (parentNodeType == NT_PROC_INVOK || parentNodeType == NT_FUNC_INVOK) {
-        printf ("Parent node was a procedure or function invocation\n");
+//         printf ("Parent node was a procedure or function invocation\n");
 
         GNode *parentNode = expressionNode->parent;
         int position = g_node_child_position (parentNode, expressionNode);
@@ -1058,7 +1094,17 @@ void genCodeForExpression (GNode *expressionNode) {
             (strcmp (procName, "read") == 0) || (strcmp (procName, "readln") == 0)) {
             printf ("Is an io procedure\n");
             //TODO: If it is an int or real, we do not set it to be a var param
-            isVarParam = 1;
+            if ((getExpressionType(expressionNode) != TC_REAL) && (getExpressionType (expressionNode) != TC_INTEGER)) {
+                printf ("EXPRESSION TYPE OF THE THING: %d\n", getExpressionType (expressionNode));
+                isVarParam = 1;
+                
+            }
+            else {
+                if ((strcmp (procName, "read") == 0) || (strcmp (procName, "readln") == 0))
+                    isVarParam = 1;
+                printf ("IO FUNCTION BUT IS INTEGER OR REAL\n");
+            }
+            
         }
         else {
             if (params == NULL) {
@@ -1101,6 +1147,7 @@ void genCodeForExpression (GNode *expressionNode) {
             symbol *varSymbol = getSymbol (expressionNode->children);
             //getTypeClass (varSymbol);
             type_class constType = getTypeClass (varSymbol);
+            printf ("TYPE: %d\n", constType);
             //TODO: figure out what to do for strings
             switch (constType) {
                 case TC_REAL:
@@ -1126,6 +1173,13 @@ void genCodeForExpression (GNode *expressionNode) {
                     sprintf (instruction, "CONSTI %d", value);
                     generateFormattedInstruction (instruction);
                     break;
+                }
+                case TC_ARRAY: 
+                {
+//                     char *constString = varSymbol->desc.const_attr->value.string;
+//                     generateString (constString);
+//                     g_hash_table_insert (variableAddress
+//                     break;
                 }
                 default:
                 {
@@ -1164,6 +1218,7 @@ void genCodeForExpression (GNode *expressionNode) {
         }
         case NT_VAR:
         {
+            printf ("---VAR IN AN EXPRESSION\n");
             printf ("Address of the var: %p\n", expressionNode);
 
             node_type varType = getNiceType(expressionNode->children);
@@ -1186,13 +1241,20 @@ void genCodeForExpression (GNode *expressionNode) {
 //                   printf ("Symbol name: %s type: %d typeClass: %d\n", varSymbol->name, varSymbol->oc, getTypeClass (varSymbol));
 //               }
               printf ("Symbol we're accessing: %s\n", varSymbol->name);
+              printf ("Type of the symbol; %d\n", varSymbol->oc);
               printf ("varParam flag: %d\n", isVarParam);
               if (isVarParam) {
                   genVarParam(address);
               }
               else {
+                  printf ("We are not passing in a parameter\n");
                   printf ("Not an address, just put it on normally\n");
                   genVarAccess (address);
+                  if (varSymbol->oc == OC_PARAM) {
+                      if (varSymbol->desc.parm_attr->varParam) {
+                          generateFormattedInstruction("PUSHI");
+                      }
+                  }
               }
 
             }
@@ -1608,6 +1670,7 @@ void generateString (char *string) {
     charvalue = string[i];
     sprintf (instruction, "CONSTI %d", charvalue);
     generateFormattedInstruction (instruction);
+    generateFormattedInstruction ("WRITEC");
     i++;
   }
   while (string [i] != '\0');
@@ -1705,7 +1768,9 @@ void genVarAssign (varAddressStruct *addressDescription, int subscript) {
 
     }
 }
+
 void genVarParamAssign (varAddressStruct *addressDescription) {
+    printf ("In gen var param assign\n");
     int indexingRegister = addressDescription->indexingRegister;
     int offset = addressDescription->offset;
     char instruction [strlen ("PUSHA []") + 32];
@@ -1748,6 +1813,21 @@ void genVarParam (varAddressStruct *addressDescription) {
       generateFormattedInstruction (instruction);
     }
 }
+
+void genVarParamAccess (varAddressStruct *addressDescription) {
+    int indexingRegister = addressDescription->indexingRegister;
+    int offset = addressDescription->offset;
+    char instruction [strlen ("PUSHA []") + 32];
+    if (indexingRegister < 0) {
+        sprintf (instruction, "PUSHA %d", offset);
+        generateFormattedInstruction (instruction);
+    }
+    else {
+        sprintf (instruction, "PUSHA %d[%d]", offset, indexingRegister);
+        generateFormattedInstruction (instruction);
+    }
+    generateFormattedInstruction ("PUSHI");
+}
 /**
  * generates a CALL instruction to the relevant procedure stored in procedureInfo
  */
@@ -1767,7 +1847,9 @@ void genProcReturn (procInfo *procedureInfo) {
     char label [strlen (procedureInfo->procLabel) + strlen("end")];
     sprintf (label, "%send", procedureInfo->procLabel);
     generateLabel (label);
+    int numWords = procedureInfo->numVarWords;
     //TODO: GEnerate adjust!
+    genVarAdjust (numWords);
     char instruction[strlen ("RET") + 2];
     sprintf (instruction, "RET %d", procedureInfo->indexingRegister);
     generateFormattedInstruction (instruction);
@@ -1859,6 +1941,7 @@ void genCodeForWrite(GNode *paramNode, int ln) {
         switch (returnedType) {
             case TC_INTEGER:
             {
+//                 printf ("Write I param is a what param: %d\n", paramNode
                 genCodeForExpression (paramNode);
                 generateFormattedInstruction ("WRITEI");
                 //numWordsAllocated++;
@@ -1875,10 +1958,27 @@ void genCodeForWrite(GNode *paramNode, int ln) {
             {
                 break;
             }
+            case TC_ARRAY:
+            {
+                printf ("ARRAY ENCOUNTERED\n");
+                generateComment ("LALALA");
+                GNode *expressionNode = paramNode->children;
+                //     printf ("In genCodeForExpression\n");
+                symbol *varSymbol = getSymbol (expressionNode->children);
+                //printf ("Done getting sybol\n");
+                char *string = varSymbol->desc.const_attr->value.string;
+                generateString (string);
+
+//                 genCodeForExpression (paramNode);
+                generateComment ("LALALAEND");
+                break;
+            }
             default:
             {
+                printf ("RETURNED TYPE THAT WAS NOT INTEGER ORE REAL: %d\n", returnedType);
             }
         }
+        printf ("THis was teh returned type: %d\n", returnedType);
         paramNode = paramNode->next;
     }
     
@@ -1899,18 +1999,42 @@ void genCodeForRead (GNode *paramNode, int ln) {
             case TC_INTEGER:
             {
                 //genVarParamAssign ()
-                generateFormattedInstruction("READI");
                 genCodeForExpression (paramNode);
+                generateFormattedInstruction("READI");
+                generateFormattedInstruction("POPI");
+//                 if (ln) {
+//                     generateFormattedInstruction("READC");
+//                     generateFormattedInstruction("CONSTI 10");
+//                     generateFormattedInstruction ("SUBI");
+//                     generateFormattedInstruction ("NOT");
+//                     genBranch ("readlnerror");
+//                     
+//                 }
+
                 break;
             }
             case TC_REAL:
             {
+                genCodeForExpression (paramNode);
                 generateFormattedInstruction ("READR");
+                generateFormattedInstruction ("POPI");
+                if (ln) {
+                    generateFormattedInstruction("READC");
+                    generateFormattedInstruction("CONSTI 10");
+                    generateFormattedInstruction ("SUBI");
+                    generateFormattedInstruction ("NOT");
+                    genBranch ("readlnerror");
+                    
+                }
                 break;
             }
             case TC_STRING:
             {
                 generateFormattedInstruction ("READC");
+                break;
+            }
+            case TC_ARRAY:
+            {//WE ARE JUST GOING TO ASSUME WE WILL ALWAYS GET A STRING
                 break;
             }
             default:
@@ -1921,11 +2045,11 @@ void genCodeForRead (GNode *paramNode, int ln) {
         paramNode = paramNode->next;
     }
     
-    if (ln) {
-        //10 is newline
-        generateFormattedInstruction ("CONSTI 10");
-        generateFormattedInstruction ("WRITEC");
-    }
+//     if (ln) {
+//         //10 is newline
+//         generateFormattedInstruction ("CONSTI 10");
+//         generateFormattedInstruction ("WRITEC");
+//     }
 }
 
 type_class getExpressionType (GNode *head) {
@@ -1947,7 +2071,7 @@ type_class getExpressionType (GNode *head) {
         else if (returnedType == TC_ARRAY) {
             symbol *arraySymbol = getSymbol (sibling);
             
-            returnType == returnedType;
+            returnType = returnedType;
         }
         else {
             if (returnedType != TC_INTEGER) {
