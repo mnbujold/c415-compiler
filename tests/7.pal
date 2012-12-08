@@ -3,6 +3,8 @@
     Plays in the convoluted control flow of a state machine, and asks for
     states until a correct combination of states has been reached.
     
+    Tests scalars and control flow.
+    
     Input:
     b
     l
