@@ -1112,6 +1112,7 @@ void genCodeForExpression (GNode *expressionNode) {
             symbol *varSymbol = getSymbol (expressionNode->children);
             //getTypeClass (varSymbol);
             type_class constType = getTypeClass (varSymbol);
+            printf ("TYPE: %d\n", constType);
             //TODO: figure out what to do for strings
             switch (constType) {
                 case TC_REAL:
@@ -1137,6 +1138,13 @@ void genCodeForExpression (GNode *expressionNode) {
                     sprintf (instruction, "CONSTI %d", value);
                     generateFormattedInstruction (instruction);
                     break;
+                }
+                case TC_ARRAY: 
+                {
+//                     char *constString = varSymbol->desc.const_attr->value.string;
+//                     generateString (constString);
+//                     g_hash_table_insert (variableAddress
+//                     break;
                 }
                 default:
                 {
@@ -1627,6 +1635,7 @@ void generateString (char *string) {
     charvalue = string[i];
     sprintf (instruction, "CONSTI %d", charvalue);
     generateFormattedInstruction (instruction);
+    generateFormattedInstruction ("WRITEC");
     i++;
   }
   while (string [i] != '\0');
@@ -1914,10 +1923,27 @@ void genCodeForWrite(GNode *paramNode, int ln) {
             {
                 break;
             }
+            case TC_ARRAY:
+            {
+                printf ("ARRAY ENCOUNTERED\n");
+                generateComment ("LALALA");
+                GNode *expressionNode = paramNode->children;
+                //     printf ("In genCodeForExpression\n");
+                symbol *varSymbol = getSymbol (expressionNode->children);
+                //printf ("Done getting sybol\n");
+                char *string = varSymbol->desc.const_attr->value.string;
+                generateString (string);
+
+//                 genCodeForExpression (paramNode);
+                generateComment ("LALALAEND");
+                break;
+            }
             default:
             {
+                printf ("RETURNED TYPE THAT WAS NOT INTEGER ORE REAL: %d\n", returnedType);
             }
         }
+        printf ("THis was teh returned type: %d\n", returnedType);
         paramNode = paramNode->next;
     }
     
@@ -1972,6 +1998,10 @@ void genCodeForRead (GNode *paramNode, int ln) {
                 generateFormattedInstruction ("READC");
                 break;
             }
+            case TC_ARRAY:
+            {//WE ARE JUST GOING TO ASSUME WE WILL ALWAYS GET A STRING
+                break;
+            }
             default:
             {
             }
@@ -2006,7 +2036,7 @@ type_class getExpressionType (GNode *head) {
         else if (returnedType == TC_ARRAY) {
             symbol *arraySymbol = getSymbol (sibling);
             
-            returnType == returnedType;
+            returnType = returnedType;
         }
         else {
             if (returnedType != TC_INTEGER) {
