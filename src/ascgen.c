@@ -1033,7 +1033,7 @@ void genBuiltinCall (symbol *builtinSymbol) {
 
 void genCodeForExpression (GNode *expressionNode) {
     //SPECIAL CASE to handle var params
-    int isVarParam;
+    int isVarParam = 0;
     node_type parentNodeType = getNiceType (expressionNode->parent);
     if (parentNodeType == NT_PROC_INVOK || parentNodeType == NT_FUNC_INVOK) {
         printf ("Parent node was a procedure or function invocation\n");
