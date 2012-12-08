@@ -1065,6 +1065,8 @@ void genCodeForExpression (GNode *expressionNode) {
                 
             }
             else {
+                if ((strcmp (procName, "read") == 0) || (strcmp (procName, "readln") == 0))
+                    isVarParam = 1;
                 printf ("IO FUNCTION BUT IS INTEGER OR REAL\n");
             }
             
